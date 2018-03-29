@@ -1,0 +1,70 @@
+{
+	"name": "@wessberg/rollup-plugin-ts",
+	"version": "0.0.116",
+	"description": "A Rollup plugin for Typescript",
+	"scripts": {
+		"changelog:generate": "conventional-changelog --outfile CHANGELOG.md --release-count 0",
+		"readme:badges": "node node_modules/@wessberg/ts-config/readme/badge/helper/add-badges.js",
+		"readme:refresh": "npm run changelog:generate && npm run readme:badges",
+		"commit:readme": "npm run readme:refresh && git commit -am \"Bumped version\" --no-verify || true",
+		"clean:dist": "rm -r -f dist",
+		"clean:compiled": "rm -r -f compiled",
+		"clean": "npm run clean:dist && npm run clean:compiled",
+		"tsc:dist:cjs": "tsc --module commonjs --outDir dist/cjs -p tsconfig.dist.json",
+		"tsc:dist:es2015": "tsc --module es2015 --outDir dist/es2015 -p tsconfig.dist.json",
+		"tsc:test": "tsc --module commonjs --target es2017 --sourceMap",
+		"build:cjs": "npm run tsc:dist:cjs",
+		"build:es2015": "npm run tsc:dist:es2015",
+		"prebuild": "npm run clean",
+		"build": "npm run build:cjs & npm run build:es2015",
+		"tslint": "tslint -c tslint.json -p tsconfig.json",
+		"validate": "npm run tslint && npm run test",
+		"pretest": "npm run clean:compiled && npm run tsc:test",
+		"test": "NODE_ENV=TEST echo \"skipping tests...\"",
+		"posttest": "npm run clean:compiled",
+		"prepublishOnly": "NODE_ENV=production npm run validate && NODE_ENV=production npm run build",
+		"precommit": "npm run tslint && exit 0",
+		"prepush": "npm run validate && exit 0",
+		"publish:major": "npm version major && npm run commit:readme && git push --no-verify && npm publish",
+		"publish:minor": "npm version minor && npm run commit:readme && git push --no-verify && npm publish",
+		"publish:patch": "npm version patch && npm run commit:readme && git push --no-verify && npm publish"
+	},
+	"keywords": [],
+	"author": {
+		"name": "Frederik Wessberg",
+		"email": "frederikwessberg@hotmail.com",
+		"url": "https://github.com/wessberg"
+	},
+	"license": "MIT",
+	"devDependencies": {
+		"@wessberg/ts-config": "^0.0.26",
+		"conventional-changelog-cli": "^1.3.17",
+		"husky": "latest",
+		"tslint": "^5.9.1",
+		"typescript": "^2.7.2"
+	},
+	"dependencies": {
+		"@types/chalk": "^2.2.0",
+		"@types/node": "^9.6.1",
+		"chalk": "^2.3.2",
+		"rollup": "^0.57.1",
+		"rollup-pluginutils": "^2.0.1",
+		"tslib": "^1.9.0"
+	},
+	"main": "./dist/cjs/index.js",
+	"module": "./dist/es2015/index.js",
+	"browser": "./dist/es2015/index.js",
+	"types": "./dist/es2015/index.d.ts",
+	"typings": "./dist/es2015/index.d.ts",
+	"es2015": "./dist/es2015/index.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/wessberg/rollup-plugin-ts.git"
+	},
+	"bugs": {
+		"url": "https://github.com/wessberg/rollup-plugin-ts/issues"
+	},
+	"engines": {
+		"node": ">=9.0.0"
+	}
+}

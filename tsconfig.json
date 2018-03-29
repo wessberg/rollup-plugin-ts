@@ -1,0 +1,6 @@
+{
+	"extends": "./node_modules/@wessberg/ts-config/tsconfig/tsconfig.json",
+	"compilerOptions": {
+		"skipLibCheck": true
+	}
+}
