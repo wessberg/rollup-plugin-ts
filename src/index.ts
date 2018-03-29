@@ -8,9 +8,9 @@ import {ITypescriptPluginOptions} from "./i-typescript-plugin-options";
 import {nodeModuleNameResolver, ParsedCommandLine, sys} from "typescript";
 import {ITypescriptLanguageServiceHost} from "./i-typescript-language-service-host";
 import {ITypescriptLanguageServiceEmitResult, TypescriptLanguageServiceEmitResultKind} from "./i-typescript-language-service-emit-result";
-import {DECLARATION_EXTENSION, TSLIB} from "./constants";
+import {DECLARATION_EXTENSION, TSLIB, TYPESCRIPT_EXTENSION} from "./constants";
 import {TypescriptLanguageServiceHost} from "./typescript-language-service-host";
-import {ensureRelative, getForcedCompilerOptions, printDiagnostic, resolveTypescriptOptions, toTypescriptDeclarationFileExtension} from "./helpers";
+import {ensureRelative, getForcedCompilerOptions, printDiagnostics, resolveTypescriptOptions, toTypescriptDeclarationFileExtension} from "./helpers";
 import {FormatHost} from "./format-host";
 
 
@@ -76,9 +76,7 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 			}
 
 			if (formatHost != null) {
-				for (const diagnostic of languageServiceHost.getAllDiagnostics()) {
-					printDiagnostic(diagnostic, formatHost);
-				}
+				printDiagnostics(languageServiceHost.getAllDiagnostics(), formatHost);
 			}
 
 			// Do no more if the compiler options are somehow not defined
@@ -113,7 +111,7 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 		async transform (code: string, file: string): Promise<SourceDescription|undefined> {
 
 			// Assert that the file passes the filter
-			if (!filter(file)) {
+			if (!filter(file) || !file.endsWith(TYPESCRIPT_EXTENSION)) {
 				return undefined;
 			}
 

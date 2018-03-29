@@ -114,18 +114,33 @@ export function getForcedCompilerOptions (root: string, _rollupInputOptions: Par
 
 /**
  * Prints the given Diagnostic
- * @param {Diagnostic[]} diagnostic
+ * @param {ReadonlyArray<Diagnostic>} diagnostics
  * @param {FormatHost} formatHost
  */
-export function printDiagnostic (diagnostic: Diagnostic, formatHost: FormatHost): void {
-	const formatted = formatDiagnostic(diagnostic, formatHost);
+export function printDiagnostics (diagnostics: ReadonlyArray<Diagnostic>, formatHost: FormatHost): void {
 
-	switch (diagnostic.category) {
-		case DiagnosticCategory.Message:
-			return console.info(chalk.white(formatted));
-		case DiagnosticCategory.Warning:
-			return console.warn(chalk.yellow(formatted));
-		case DiagnosticCategory.Error:
-			throw new Error(chalk.red(formatted));
+	// Take all errors
+	const [firstError, ...otherErrors] = diagnostics.filter(diagnostic => diagnostic.category === DiagnosticCategory.Error);
+
+	// Take everything else
+	const rest = [...otherErrors, ...diagnostics.filter(diagnostic => diagnostic.category !== DiagnosticCategory.Error)];
+
+	// Walk through all diagnostics that isn't errors
+	for (const diagnostic of rest) {
+		const formatted = formatDiagnostic(diagnostic, formatHost);
+
+		switch (diagnostic.category) {
+			case DiagnosticCategory.Message:
+				return console.info(chalk.white(formatted));
+			case DiagnosticCategory.Warning:
+				return console.warn(chalk.yellow(formatted));
+			case DiagnosticCategory.Error:
+				return console.warn(chalk.red(formatted));
+		}
+	}
+
+	// Format and throw the first error, if there is any
+	if (firstError != null) {
+		throw new Error(chalk.red(formatDiagnostic(firstError, formatHost)));
 	}
 }
