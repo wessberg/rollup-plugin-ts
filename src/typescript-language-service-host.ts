@@ -1,3 +1,4 @@
+import {ensureRelative} from "./helpers";
 import {ITypescriptLanguageServiceEmitResult, TypescriptLanguageServiceEmitResultKind} from "./i-typescript-language-service-emit-result";
 import {ITypescriptLanguageServiceFile, ITypescriptLanguageServiceFileBase} from "./i-typescript-language-service-file";
 import {LanguageService, ParsedCommandLine, createLanguageService, createDocumentRegistry, CompilerOptions, ScriptSnapshot, IScriptSnapshot, Diagnostic, sys, getDefaultLibFilePath, createProgram, getPreEmitDiagnostics} from "typescript";
@@ -20,7 +21,8 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	 */
 	private readonly files: Map<string, ITypescriptLanguageServiceFile> = new Map();
 
-	constructor (private typescriptOptions: ParsedCommandLine) {
+	constructor (private readonly appRoot: string,
+							 private typescriptOptions: ParsedCommandLine) {
 		this.host = createLanguageService(this, createDocumentRegistry());
 	}
 
@@ -38,6 +40,15 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	 */
 	public setTypescriptOptions (options: ParsedCommandLine): void {
 		this.typescriptOptions = options;
+
+		// Add all of the fileNames from the options. These may not come from Rollup since Rollup won't
+		// necessarily pass all matched files through the plugin (if the files contain only types)
+		this.typescriptOptions.fileNames.forEach(fileName => {
+			const relative = ensureRelative(this.appRoot, fileName);
+			if (!this.files.has(relative) && sys.fileExists(fileName)) {
+				this.addFile({fileName: relative, text: sys.readFile(fileName)!});
+			}
+		});
 	}
 
 	/**

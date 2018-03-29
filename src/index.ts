@@ -51,6 +51,12 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 	 */
 	const filter: (fileName: string) => boolean = createFilter(include, exclude);
 
+	/**
+	 * The file names that has been passed through Rollup and into this plugin
+	 * @type {Set<string>}
+	 */
+	const transformedFileNames: Set<string> = new Set();
+
 	return {
 		name: "Typescript Rollup Plugin",
 
@@ -67,13 +73,20 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 			// Take all of the generated Ids
 			const generatedIds = new Set(outputOptions.bundle.modules.map(module => ensureRelative(root, module.id)));
 
+			// Clear all file names from the Set of transformed file names that has since been removed from Rollup compilation
+			const removedFileNames: Set<string> = new Set();
+			for (const fileName of transformedFileNames) {
+				if (!generatedIds.has(fileName)) {
+					removedFileNames.add(fileName);
+					transformedFileNames.delete(fileName);
+				}
+			}
+
+			// Remove all removed filenames from the LanguageService
+			removedFileNames.forEach(fileName => languageServiceHost!.removeFile(fileName));
+
 			// Take all file names from the language service
 			const languageServiceFileNames = languageServiceHost.getScriptFileNames();
-
-			// Remove all filenames from the LanguageService that isn't part of the generated ids for the bundle
-			for (const filename of languageServiceFileNames) {
-				if (!generatedIds.has(filename)) languageServiceHost.removeFile(filename);
-			}
 
 			if (formatHost != null) {
 				printDiagnostics(languageServiceHost.getAllDiagnostics(), formatHost);
@@ -109,11 +122,16 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 		 * @returns {Promise<SourceDescription | undefined>}
 		 */
 		async transform (code: string, file: string): Promise<SourceDescription|undefined> {
+			// Convert the file into a relative path
+			const relativePath = ensureRelative(root, file);
 
 			// Assert that the file passes the filter
 			if (!filter(file) || !file.endsWith(TYPESCRIPT_EXTENSION)) {
 				return undefined;
 			}
+
+			// Add the file name to the Set of files that has been passed through this plugin
+			transformedFileNames.add(relativePath);
 
 			// Make sure that the compiler options are in fact defined
 			if (typescriptOptions == null) {
@@ -122,12 +140,9 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 
 			// Make sure that the LanguageServiceHost is in fact defined
 			if (languageServiceHost == null) {
-				languageServiceHost = new TypescriptLanguageServiceHost(typescriptOptions);
+				languageServiceHost = new TypescriptLanguageServiceHost(root, typescriptOptions);
 				formatHost = new FormatHost(languageServiceHost, root);
 			}
-
-			// Convert the file into a relative path
-			const relativePath = ensureRelative(root, file);
 
 			// Add the file to the LanguageServiceHost
 			languageServiceHost.addFile({fileName: relativePath, text: code});
