@@ -1,4 +1,14 @@
 # @wessberg/rollup-plugin-ts
+[![NPM version][npm-version-image]][npm-version-url]
+[![License-mit][license-mit-image]][license-mit-url]
+
+[license-mit-url]: https://opensource.org/licenses/MIT
+
+[license-mit-image]: https://img.shields.io/badge/License-MIT-yellow.svg
+
+[npm-version-url]: https://www.npmjs.com/package/@wessberg/rollup-plugin-ts
+
+[npm-version-image]: https://badge.fury.io/js/%40wessberg%2Frollup-plugin-ts.svg
 
 This is a simple Rollup Plugin that can transform Typescript files.
 It can generate declaration files and prints diagnostics.
