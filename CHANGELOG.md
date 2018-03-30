@@ -1,3 +1,12 @@
+<a name="0.0.6"></a>
+## <small>0.0.6 (2018-03-30)</small>
+
+* 0.0.6 ([d0e2e78](https://github.com/wessberg/rollup-plugin-ts/commit/d0e2e78))
+* Bumped version ([987d109](https://github.com/wessberg/rollup-plugin-ts/commit/987d109))
+* Fixed a few bugs ([f0d19d3](https://github.com/wessberg/rollup-plugin-ts/commit/f0d19d3))
+
+
+
 <a name="0.0.5"></a>
 ## <small>0.0.5 (2018-03-30)</small>
 
