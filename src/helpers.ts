@@ -147,11 +147,14 @@ export function printDiagnostics (diagnostics: ReadonlyArray<Diagnostic>, format
 
 		switch (diagnostic.category) {
 			case DiagnosticCategory.Message:
-				return console.info(chalk.white(formatted));
+				console.info(chalk.white(formatted));
+				break;
 			case DiagnosticCategory.Warning:
-				return console.warn(chalk.yellow(formatted));
+				console.warn(chalk.yellow(formatted));
+				break;
 			case DiagnosticCategory.Error:
-				return console.warn(chalk.red(formatted));
+				console.warn(chalk.red(formatted));
+				break;
 		}
 	}
 
