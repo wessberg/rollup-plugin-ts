@@ -5,5 +5,6 @@ export enum TypescriptLanguageServiceEmitResultKind {
 export interface ITypescriptLanguageServiceEmitResult {
 	kind: TypescriptLanguageServiceEmitResultKind;
 	fileName: string;
+	isMainEntry: boolean;
 	text: string;
 }

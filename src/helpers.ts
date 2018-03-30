@@ -1,8 +1,8 @@
-import {InputOptions, ModuleFormat, OutputOptions} from "rollup";
 import chalk from "chalk";
 import {basename, dirname, isAbsolute, join, relative} from "path";
+import {InputOptions, ModuleFormat, OutputOptions} from "rollup";
 import {CompilerOptions, Diagnostic, DiagnosticCategory, findConfigFile, formatDiagnostic, ModuleKind, parseConfigFileTextToJson, ParsedCommandLine, parseJsonConfigFileContent, sys} from "typescript";
-import {DECLARATION_EXTENSION, TYPESCRIPT_EXTENSION} from "./constants";
+import {DECLARATION_EXTENSION, DEFAULT_DESTINATION, JAVASCRIPT_EXTENSION, TYPESCRIPT_EXTENSION} from "./constants";
 import {FormatHost} from "./format-host";
 
 /**
@@ -70,6 +70,21 @@ export function getDestinationDirectoryFromRollupOutputOptions (appRoot: string,
 }
 
 /**
+ * Gets a the destination file path to use based on the given Rollup output options
+ * @param {string} appRoot
+ * @param {Partial<OutputOptions>} options
+ * @returns {ModuleKind}
+ */
+export function getDestinationFilePathFromRollupOutputOptions (appRoot: string, options: Partial<OutputOptions>): string {
+	// Normalize the destination directory
+	const normalizedDest = getDestinationDirectoryFromRollupOutputOptions(appRoot, options);
+	const normalizedFile = options.dest != null ? options.dest : options.file != null ? options.file : DEFAULT_DESTINATION;
+
+	// Return the file path for the destination file of the rollup build
+	return ensureRelative(appRoot, join(normalizedDest, basename(normalizedFile)));
+}
+
+/**
  * Ensures that the given path is absolute
  * @param {string} root
  * @param {string} path
@@ -93,7 +108,8 @@ export function ensureRelative (root: string, path: string): string {
 export function toTypescriptDeclarationFileExtension (path: string): string {
 	const replaced = path
 		.replace(DECLARATION_EXTENSION, "")
-		.replace(TYPESCRIPT_EXTENSION, "");
+		.replace(TYPESCRIPT_EXTENSION, "")
+		.replace(JAVASCRIPT_EXTENSION, "");
 	return `${join(dirname(replaced), basename(replaced))}${DECLARATION_EXTENSION}`;
 }
 
@@ -143,4 +159,20 @@ export function printDiagnostics (diagnostics: ReadonlyArray<Diagnostic>, format
 	if (firstError != null) {
 		throw new Error(chalk.red(formatDiagnostic(firstError, formatHost)));
 	}
+}
+
+/**
+ * Returns true if the given file name represents the main entry point
+ * @param {string} root
+ * @param {string} fileName
+ * @param {InputOptions} inputOptions
+ * @returns {boolean}
+ */
+export function isMainEntry (root: string, fileName: string, inputOptions?: InputOptions): boolean {
+	// Ensure that the input options are defined, otherwise return false
+	if (inputOptions == null) return false;
+
+	// Normalize the main entry
+	const normalizedInput = Array.isArray(inputOptions.input) ? inputOptions.input : [inputOptions.input];
+	return normalizedInput.some(path => ensureRelative(root, fileName) === ensureRelative(root, path));
 }

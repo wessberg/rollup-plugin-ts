@@ -24,6 +24,15 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	constructor (private readonly appRoot: string,
 							 private typescriptOptions: ParsedCommandLine) {
 		this.host = createLanguageService(this, createDocumentRegistry());
+
+		// Add all of the fileNames from the options. These may not come from Rollup since Rollup won't
+		// necessarily pass all matched files through the plugin (if the files contain only types)
+		this.typescriptOptions.fileNames.forEach(fileName => {
+			const relative = ensureRelative(this.appRoot, fileName);
+			if (!this.files.has(relative) && sys.fileExists(fileName)) {
+				this.addFile({fileName: relative, text: sys.readFile(fileName)!, isMainEntry: false});
+			}
+		});
 	}
 
 	/**
@@ -40,15 +49,6 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	 */
 	public setTypescriptOptions (options: ParsedCommandLine): void {
 		this.typescriptOptions = options;
-
-		// Add all of the fileNames from the options. These may not come from Rollup since Rollup won't
-		// necessarily pass all matched files through the plugin (if the files contain only types)
-		this.typescriptOptions.fileNames.forEach(fileName => {
-			const relative = ensureRelative(this.appRoot, fileName);
-			if (!this.files.has(relative) && sys.fileExists(fileName)) {
-				this.addFile({fileName: relative, text: sys.readFile(fileName)!});
-			}
-		});
 	}
 
 	/**
@@ -227,7 +227,8 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 					? TypescriptLanguageServiceEmitResultKind.DECLARATION
 					: TypescriptLanguageServiceEmitResultKind.SOURCE,
 			fileName: name,
-			text
+			text,
+			isMainEntry: this.files.get(fileName)!.isMainEntry
 		}));
 	}
 }

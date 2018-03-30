@@ -1,17 +1,18 @@
 // tslint:disable:no-any
 // tslint:disable:no-default-export
 
+import {join} from "path";
 import {InputOptions, OutputOptions, Plugin, SourceDescription} from "rollup";
 // @ts-ignore
 import {createFilter} from "rollup-pluginutils";
-import {ITypescriptPluginOptions} from "./i-typescript-plugin-options";
 import {nodeModuleNameResolver, ParsedCommandLine, sys} from "typescript";
-import {ITypescriptLanguageServiceHost} from "./i-typescript-language-service-host";
-import {ITypescriptLanguageServiceEmitResult, TypescriptLanguageServiceEmitResultKind} from "./i-typescript-language-service-emit-result";
 import {DECLARATION_EXTENSION, TSLIB, TYPESCRIPT_EXTENSION} from "./constants";
-import {TypescriptLanguageServiceHost} from "./typescript-language-service-host";
-import {ensureRelative, getForcedCompilerOptions, printDiagnostics, resolveTypescriptOptions, toTypescriptDeclarationFileExtension} from "./helpers";
 import {FormatHost} from "./format-host";
+import {ensureRelative, getDestinationFilePathFromRollupOutputOptions, getForcedCompilerOptions, isMainEntry, printDiagnostics, resolveTypescriptOptions, toTypescriptDeclarationFileExtension} from "./helpers";
+import {ITypescriptLanguageServiceEmitResult, TypescriptLanguageServiceEmitResultKind} from "./i-typescript-language-service-emit-result";
+import {ITypescriptLanguageServiceHost} from "./i-typescript-language-service-host";
+import {ITypescriptPluginOptions} from "./i-typescript-plugin-options";
+import {TypescriptLanguageServiceHost} from "./typescript-language-service-host";
 
 
 /**
@@ -24,25 +25,25 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 	 * The CompilerOptions to use with Typescript for individual files
 	 * @type {ParsedCommandLine|null}
 	 */
-	let typescriptOptions: ParsedCommandLine|null = null;
+	let typescriptOptions: ParsedCommandLine | null = null;
 
 	/**
 	 * The Language Service Host to use with Typescript
 	 * @type {ITypescriptLanguageServiceHost}
 	 */
-	let languageServiceHost: ITypescriptLanguageServiceHost|null = null;
+	let languageServiceHost: ITypescriptLanguageServiceHost | null = null;
 
 	/**
 	 * The host to use for formatting of diagnostics
 	 * @type {null}
 	 */
-	let formatHost: FormatHost|null = null;
+	let formatHost: FormatHost | null = null;
 
 	/**
 	 * The InputOptions provided tol Rollup
 	 * @type {null}
 	 */
-	let inputRollupOptions: InputOptions|undefined;
+	let inputRollupOptions: InputOptions | undefined;
 
 
 	/**
@@ -67,7 +68,7 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 		/**
 		 * Invoked when a bundle has been written to disk
 		 */
-		async ongenerate (outputOptions: OutputOptions&{ bundle: { modules: { id: string }[] } }): Promise<void> {
+		async ongenerate (outputOptions: OutputOptions & { bundle: { modules: { id: string }[] } }): Promise<void> {
 			if (languageServiceHost == null) return;
 
 			// Take all of the generated Ids
@@ -105,13 +106,24 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 
 				// Emit all declaration output files
 				const outputFiles: ITypescriptLanguageServiceEmitResult[] = [].concat.apply([], languageServiceFileNames.map(fileName => languageServiceHost!.emit(fileName, true)));
+				const mainEntries = outputFiles.filter(file => file.isMainEntry);
+				const otherFiles = outputFiles.filter(file => !file.isMainEntry);
 
 				// Reset the compilation settings
 				languageServiceHost.setTypescriptOptions(oldOptions);
 
-				outputFiles.forEach(file => {
-					sys.writeFile(toTypescriptDeclarationFileExtension(file.fileName), file.text);
+				// Write all other files
+				otherFiles.forEach(file => {
+					sys.writeFile(join(root, toTypescriptDeclarationFileExtension(file.fileName)), file.text);
 				});
+
+				// Concatenate all main entry files and rewrite their file names
+				sys.writeFile(
+					join(root, toTypescriptDeclarationFileExtension(getDestinationFilePathFromRollupOutputOptions(root, outputOptions))),
+					mainEntries
+						.map(mainEntry => mainEntry.text)
+						.join("\n")
+				);
 			}
 		},
 
@@ -121,7 +133,7 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 		 * @param {string} file
 		 * @returns {Promise<SourceDescription | undefined>}
 		 */
-		async transform (code: string, file: string): Promise<SourceDescription|undefined> {
+		async transform (code: string, file: string): Promise<SourceDescription | undefined> {
 			// Convert the file into a relative path
 			const relativePath = ensureRelative(root, file);
 
@@ -145,7 +157,7 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 			}
 
 			// Add the file to the LanguageServiceHost
-			languageServiceHost.addFile({fileName: relativePath, text: code});
+			languageServiceHost.addFile({fileName: relativePath, text: code, isMainEntry: isMainEntry(root, file, inputRollupOptions)});
 
 			// Take all emit results for that file
 			const emitResults = languageServiceHost.emit(relativePath);
@@ -167,7 +179,7 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 		 * @param {string} importer
 		 * @returns {string|void}
 		 */
-		resolveId (importee: string, importer: string|undefined): string|void {
+		resolveId (importee: string, importer: string | undefined): string | void {
 			// If the CompilerOptions are undefined somehow, do nothing
 			if (typescriptOptions == null) return;
 
