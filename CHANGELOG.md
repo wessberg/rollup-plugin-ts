@@ -1,3 +1,12 @@
+<a name="0.0.7"></a>
+## <small>0.0.7 (2018-03-31)</small>
+
+* 0.0.7 ([c03c59c](https://github.com/wessberg/rollup-plugin-ts/commit/c03c59c))
+* Bumped version ([bd59481](https://github.com/wessberg/rollup-plugin-ts/commit/bd59481))
+* Removed chalk typings ([9bb4952](https://github.com/wessberg/rollup-plugin-ts/commit/9bb4952))
+
+
+
 <a name="0.0.6"></a>
 ## <small>0.0.6 (2018-03-30)</small>
 
