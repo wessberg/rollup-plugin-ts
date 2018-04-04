@@ -1,3 +1,12 @@
+<a name="0.0.8"></a>
+## <small>0.0.8 (2018-04-04)</small>
+
+* 0.0.8 ([c4e2318](https://github.com/wessberg/rollup-plugin-ts/commit/c4e2318))
+* Added an option to also parse external modules ([6d08ab3](https://github.com/wessberg/rollup-plugin-ts/commit/6d08ab3))
+* Bumped version ([cbac7b1](https://github.com/wessberg/rollup-plugin-ts/commit/cbac7b1))
+
+
+
 <a name="0.0.7"></a>
 ## <small>0.0.7 (2018-03-31)</small>
 
