@@ -4,4 +4,5 @@ export interface ITypescriptPluginOptions {
 	noEmit: boolean;
 	include: string|string[];
 	exclude: string|string[];
+	parseExternalModules: boolean;
 }

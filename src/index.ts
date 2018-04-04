@@ -19,7 +19,7 @@ import {TypescriptLanguageServiceHost} from "./typescript-language-service-host"
  * A Rollup plugin that transpiles the given input with Typescript
  * @param {ITypescriptPluginOptions} [options={}]
  */
-export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig = "tsconfig.json", noEmit = false, include = [], exclude = []}: Partial<ITypescriptPluginOptions> = {}): Plugin {
+export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig = "tsconfig.json", noEmit = false, include = [], exclude = [], parseExternalModules = false}: Partial<ITypescriptPluginOptions> = {}): Plugin {
 
 	/**
 	 * The CompilerOptions to use with Typescript for individual files
@@ -152,7 +152,7 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 
 			// Make sure that the LanguageServiceHost is in fact defined
 			if (languageServiceHost == null) {
-				languageServiceHost = new TypescriptLanguageServiceHost(root, typescriptOptions);
+				languageServiceHost = new TypescriptLanguageServiceHost(root, parseExternalModules, typescriptOptions);
 				formatHost = new FormatHost(languageServiceHost, root);
 			}
 

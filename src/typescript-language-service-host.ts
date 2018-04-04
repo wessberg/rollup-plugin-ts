@@ -1,20 +1,26 @@
+import {existsSync} from "fs";
+import {isAbsolute, join} from "path";
+import {CompilerOptions, createDocumentRegistry, createLanguageService, createProgram, Diagnostic, getDefaultLibFilePath, getPreEmitDiagnostics, IScriptSnapshot, LanguageService, ParsedCommandLine, ScriptSnapshot, sys} from "typescript";
+import {DECLARATION_EXTENSION, SOURCE_MAP_EXTENSION} from "./constants";
 import {ensureRelative} from "./helpers";
 import {ITypescriptLanguageServiceEmitResult, TypescriptLanguageServiceEmitResultKind} from "./i-typescript-language-service-emit-result";
 import {ITypescriptLanguageServiceFile, ITypescriptLanguageServiceFileBase} from "./i-typescript-language-service-file";
-import {LanguageService, ParsedCommandLine, createLanguageService, createDocumentRegistry, CompilerOptions, ScriptSnapshot, IScriptSnapshot, Diagnostic, sys, getDefaultLibFilePath, createProgram, getPreEmitDiagnostics} from "typescript";
 import {ITypescriptLanguageServiceHost} from "./i-typescript-language-service-host";
-import {DECLARATION_EXTENSION, SOURCE_MAP_EXTENSION} from "./constants";
 
 /**
  * A LanguageServiceHost for Typescript
  */
 export class TypescriptLanguageServiceHost implements ITypescriptLanguageServiceHost {
 	/**
+	 * The part of a path that matches external modules
+	 * @type {string}
+	 */
+	private static readonly EXTERNAL_MODULES_PATH = "node_modules/";
+	/**
 	 * The LanguageService host to use. Will be equal to this instance
 	 * @type {LanguageService}
 	 */
 	public readonly host: LanguageService;
-
 	/**
 	 * A Map between file names and their ITypescriptLanguageServiceFiles
 	 * @type {Map<string, ITypescriptLanguageServiceFile>}
@@ -22,6 +28,7 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	private readonly files: Map<string, ITypescriptLanguageServiceFile> = new Map();
 
 	constructor (private readonly appRoot: string,
+							 private readonly parseExternalModules: boolean,
 							 private typescriptOptions: ParsedCommandLine) {
 		this.host = createLanguageService(this, createDocumentRegistry());
 
@@ -64,9 +71,17 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	 * @param {ITypescriptLanguageServiceFileBase} file
 	 */
 	public addFile (file: ITypescriptLanguageServiceFileBase): void {
-		const existing = this.files.get(file.fileName);
-		const version = existing != null ? `${parseInt(existing.version) + 1}` : "1";
-		this.files.set(file.fileName, {...file, file: ScriptSnapshot.fromString(file.text), version});
+
+		const normalizedFilename = this.normalizeFilename(file.fileName);
+		const existing = this.files.get(normalizedFilename);
+
+		this.files.set(normalizedFilename, {
+			fileName: normalizedFilename,
+			text: file.text,
+			isMainEntry: file.isMainEntry,
+			file: ScriptSnapshot.fromString(file.text),
+			version: existing != null ? `${parseInt(existing.version) + 1}` : "1"
+		});
 	}
 
 	/**
@@ -74,7 +89,8 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	 * @param {string} fileName
 	 */
 	public removeFile (fileName: string): void {
-		this.files.delete(fileName);
+		const normalizedFilename = this.normalizeFilename(fileName);
+		this.files.delete(normalizedFilename);
 	}
 
 	/**
@@ -97,22 +113,24 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	}
 
 	/**
-	 * Gets the Script text for the given file name
-	 * @param {string} fileName
-	 * @returns {string}
-	 */
-	public getScriptText (fileName: string): string {
-		const file = this.files.get(fileName);
-		return file == null ? "" : file.text;
-	}
-
-	/**
 	 * Gets a Script Snapshot for the given file name
 	 * @param {string} fileName
 	 * @returns {object}
 	 */
-	public getScriptSnapshot (fileName: string): IScriptSnapshot {
-		return ScriptSnapshot.fromString(this.getScriptText(fileName));
+	public getScriptSnapshot (fileName: string): IScriptSnapshot | undefined {
+		const normalizedFilename = this.normalizeFilename(fileName);
+		const absolute = this.makeAbsolute(normalizedFilename);
+
+		if (this.files.has(normalizedFilename)) {
+			return this.files.get(normalizedFilename)!.file;
+		}
+
+		if (this.pathIsQualified(fileName) && existsSync(absolute)) {
+			this.addFile({fileName: normalizedFilename, text: sys.readFile(absolute)!, isMainEntry: false});
+			return this.files.get(normalizedFilename)!.file;
+		}
+
+		return ScriptSnapshot.fromString("");
 	}
 
 	/**
@@ -174,7 +192,7 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	 * @param {string} encoding
 	 * @returns {string | undefined}
 	 */
-	public readFile (path: string, encoding?: string): string|undefined {
+	public readFile (path: string, encoding?: string): string | undefined {
 		return sys.readFile(path, encoding);
 	}
 
@@ -230,5 +248,32 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 			text,
 			isMainEntry: this.files.get(fileName)!.isMainEntry
 		}));
+	}
+
+	/**
+	 * Returns true if the given path is qualified
+	 * @param {string} path
+	 * @returns {boolean}
+	 */
+	private pathIsQualified (path: string): boolean {
+		return this.parseExternalModules ? true : !path.includes(TypescriptLanguageServiceHost.EXTERNAL_MODULES_PATH);
+	}
+
+	/**
+	 * Normalizes the given file name
+	 * @param {string} fileName
+	 * @returns {string}
+	 */
+	private normalizeFilename (fileName: string): string {
+		return isAbsolute(fileName) ? ensureRelative(this.appRoot, fileName) : fileName;
+	}
+
+	/**
+	 * Ensure that the given file name is in fact absolute
+	 * @param {string} fileName
+	 * @returns {string}
+	 */
+	private makeAbsolute (fileName: string): string {
+		return isAbsolute(fileName) ? fileName : join(this.appRoot, fileName);
 	}
 }
