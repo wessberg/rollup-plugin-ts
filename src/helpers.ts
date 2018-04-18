@@ -176,6 +176,6 @@ export function isMainEntry (root: string, fileName: string, inputOptions?: Inpu
 	if (inputOptions == null) return false;
 
 	// Normalize the main entry
-	const normalizedInput = Array.isArray(inputOptions.input) ? inputOptions.input : [inputOptions.input];
+	const normalizedInput = Array.isArray(inputOptions.input) ? inputOptions.input : typeof inputOptions.input === "string" ? [inputOptions.input] : Object.values(inputOptions.input);
 	return normalizedInput.some(path => ensureRelative(root, fileName) === ensureRelative(root, path));
 }
