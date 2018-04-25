@@ -2,13 +2,14 @@
 // tslint:disable:no-default-export
 
 import {join} from "path";
-import {InputOptions, OutputOptions, Plugin, SourceDescription} from "rollup";
+import {InputOptions, Plugin, SourceDescription} from "rollup";
 // @ts-ignore
 import {createFilter} from "rollup-pluginutils";
 import {nodeModuleNameResolver, ParsedCommandLine, sys} from "typescript";
 import {DECLARATION_EXTENSION, TSLIB, TYPESCRIPT_EXTENSION} from "./constants";
 import {FormatHost} from "./format-host";
 import {ensureRelative, getDestinationFilePathFromRollupOutputOptions, getForcedCompilerOptions, isMainEntry, printDiagnostics, resolveTypescriptOptions, toTypescriptDeclarationFileExtension} from "./helpers";
+import {IGenerateOptions} from "./i-generate-options";
 import {ITypescriptLanguageServiceEmitResult, TypescriptLanguageServiceEmitResultKind} from "./i-typescript-language-service-emit-result";
 import {ITypescriptLanguageServiceHost} from "./i-typescript-language-service-host";
 import {ITypescriptPluginOptions} from "./i-typescript-plugin-options";
@@ -68,11 +69,13 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 		/**
 		 * Invoked when a bundle has been written to disk
 		 */
-		async ongenerate (outputOptions: OutputOptions & { bundle: { modules: { id: string }[] } }): Promise<void> {
+		async ongenerate (outputOptions: IGenerateOptions): Promise<void> {
 			if (languageServiceHost == null) return;
 
+			const normalizedModules = outputOptions.bundle != null ? outputOptions.bundle.modules : outputOptions.usedModules;
+
 			// Take all of the generated Ids
-			const generatedIds = new Set(outputOptions.bundle.modules.map(module => ensureRelative(root, module.id)));
+			const generatedIds = new Set(normalizedModules!.map(module => ensureRelative(root, module.id)));
 
 			// Clear all file names from the Set of transformed file names that has since been removed from Rollup compilation
 			const removedFileNames: Set<string> = new Set();
