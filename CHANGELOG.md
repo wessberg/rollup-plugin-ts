@@ -1,3 +1,12 @@
+<a name="0.0.11"></a>
+## <small>0.0.11 (2018-04-29)</small>
+
+* 0.0.11 ([cb67e9b](https://github.com/wessberg/rollup-plugin-ts/commit/cb67e9b))
+* Added support for transpiling with babel if 'browserslist' is given to the plugin. ([fc6a403](https://github.com/wessberg/rollup-plugin-ts/commit/fc6a403))
+* Bumped version ([867a22e](https://github.com/wessberg/rollup-plugin-ts/commit/867a22e))
+
+
+
 <a name="0.0.10"></a>
 ## <small>0.0.10 (2018-04-25)</small>
 
