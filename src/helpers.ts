@@ -2,10 +2,10 @@ import chalk from "chalk";
 import {basename, dirname, isAbsolute, join, parse, relative} from "path";
 import {InputOptions, ModuleFormat, OutputOptions} from "rollup";
 import {CompilerOptions, Diagnostic, DiagnosticCategory, findConfigFile, formatDiagnostic, ModuleKind, parseConfigFileTextToJson, ParsedCommandLine, parseJsonConfigFileContent, sys} from "typescript";
-import {Browserslist} from "./browserslist";
 import {DECLARATION_EXTENSION, DEFAULT_DESTINATION, JAVASCRIPT_EXTENSION, JSX_EXTENSION, MJS_EXTENSION, TSX_EXTENSION, TYPESCRIPT_EXTENSION} from "./constants";
 import {FormatHost} from "./format-host";
 import {IBabelOptions} from "./i-babel-options";
+import {IGetBabelOptionsOptions} from "./i-get-babel-options-options";
 
 // tslint:disable:no-any
 
@@ -191,9 +191,11 @@ export function isMainEntry (root: string, fileName: string, inputOptions?: Inpu
  * @param {string} relativeFilename
  * @param {ParsedCommandLine} typescriptOptions
  * @param {Browserslist} browserslist
+ * @param {{}[]} [additionalPlugins=[]]
+ * @param {{}[]} [additionalPresets=[]]
  * @returns {Partial<IBabelOptions>}
  */
-export function getBabelOptions (filename: string, relativeFilename: string, typescriptOptions: ParsedCommandLine, browserslist: Browserslist): Partial<IBabelOptions> {
+export function getBabelOptions ({filename, relativeFilename, typescriptOptions, browserslist, additionalPlugins = [], additionalPresets = []}: IGetBabelOptionsOptions): Partial<IBabelOptions> {
 	return {
 		configFile: false,
 		babelrc: false,
@@ -205,6 +207,7 @@ export function getBabelOptions (filename: string, relativeFilename: string, typ
 		sourceMaps: typescriptOptions.options.sourceMap,
 		root: typescriptOptions.options.baseUrl!,
 		presets: [
+			...additionalPresets,
 			["@babel/preset-env", {
 				loose: true,
 				spec: false,
@@ -220,7 +223,8 @@ export function getBabelOptions (filename: string, relativeFilename: string, typ
 				loose: true
 			}],
 			"@babel/preset-typescript"
-		]
+		],
+		plugins: additionalPlugins
 	};
 }
 

@@ -8,4 +8,6 @@ export interface ITypescriptPluginOptions {
 	exclude: string|string[];
 	parseExternalModules: boolean;
 	browserslist: Browserslist;
+	additionalBabelPresets: {}[];
+	additionalBabelPlugins: {}[];
 }

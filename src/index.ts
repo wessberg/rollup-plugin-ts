@@ -22,7 +22,7 @@ import {TypescriptLanguageServiceHost} from "./typescript-language-service-host"
  * A Rollup plugin that transpiles the given input with Typescript
  * @param {ITypescriptPluginOptions} [options={}]
  */
-export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig = "tsconfig.json", noEmit = false, include = [], exclude = [], parseExternalModules = false, browserslist}: Partial<ITypescriptPluginOptions> = {}): Plugin {
+export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig = "tsconfig.json", noEmit = false, include = [], exclude = [], parseExternalModules = false, browserslist, additionalBabelPlugins, additionalBabelPresets}: Partial<ITypescriptPluginOptions> = {}): Plugin {
 
 	/**
 	 * The CompilerOptions to use with Typescript for individual files
@@ -170,7 +170,14 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 			// If a browserslist is given, use babel to transform the file.
 			if (browserslist != null) {
 				emitResults = await new Promise<ITypescriptLanguageServiceEmitResult[]>((resolve, reject) => {
-					transform(code, getBabelOptions(file, relativePath, typescriptOptions!, browserslist), (err: Error, result: any) => {
+					transform(code, getBabelOptions({
+						filename: file,
+						relativeFilename: relativePath,
+						typescriptOptions: typescriptOptions!,
+						browserslist,
+						additionalPresets: additionalBabelPresets,
+						additionalPlugins: additionalBabelPlugins
+					}), (err: Error, result: any) => {
 						if (err != null) return reject(err);
 						return resolve([
 							{
