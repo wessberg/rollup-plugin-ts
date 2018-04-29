@@ -1,3 +1,12 @@
+<a name="0.0.12"></a>
+## <small>0.0.12 (2018-04-29)</small>
+
+* 0.0.12 ([51cd8ed](https://github.com/wessberg/rollup-plugin-ts/commit/51cd8ed))
+* Added support for receiving additional babel plugins and presets to use if a browserslist is given ([40d360a](https://github.com/wessberg/rollup-plugin-ts/commit/40d360a))
+* Bumped version ([0c62874](https://github.com/wessberg/rollup-plugin-ts/commit/0c62874))
+
+
+
 <a name="0.0.11"></a>
 ## <small>0.0.11 (2018-04-29)</small>
 
