@@ -1,0 +1,31 @@
+export interface IBabelOptions {
+	ast: boolean;
+	auxiliaryCommentAfter: string|null;
+	auxiliaryCommentBefore: string|null;
+	root: string;
+	configFile: string|false;
+	babelrc: boolean;
+	babelrcRoots: boolean|string|string[];
+	envName: string;
+	code: boolean;
+	comments: boolean;
+	compact: "auto"|boolean;
+	env: {[key: string]: {}};
+	extends: string;
+	filename: string;
+	filenameRelative: string;
+	generatorOpts: {};
+	parserOpts: {};
+	getModuleId (moduleName: string): string|void|undefined|false|null;
+	highlightCode: boolean;
+	ignore: string|RegExp|string[]|RegExp[]|(string|RegExp)[]|null;
+	only: string|RegExp|string[]|RegExp[]|(string|RegExp)[]|null;
+	plugins: {}[];
+	presets: {}[];
+	retainLines: boolean;
+	shouldPrintComment (comment: string): boolean;
+	sourceFileName: string;
+	sourceMaps: boolean;
+	sourceRoot: string;
+	sourceType: "script"|"module"|"unambiguous";
+}

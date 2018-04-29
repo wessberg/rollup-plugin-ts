@@ -1,3 +1,5 @@
+import {Browserslist} from "./browserslist";
+
 export interface ITypescriptPluginOptions {
 	root: string;
 	tsconfig: string;
@@ -5,4 +7,5 @@ export interface ITypescriptPluginOptions {
 	include: string|string[];
 	exclude: string|string[];
 	parseExternalModules: boolean;
+	browserslist: Browserslist;
 }

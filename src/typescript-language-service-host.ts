@@ -107,7 +107,8 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	 * @returns {string}
 	 */
 	public getScriptVersion (fileName: string): string {
-		const file = this.files.get(fileName);
+		const normalizedFilename = this.normalizeFilename(fileName);
+		const file = this.files.get(normalizedFilename);
 
 		return file == null ? "0" : file.version;
 	}
@@ -120,13 +121,14 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	public getScriptSnapshot (fileName: string): IScriptSnapshot | undefined {
 		const normalizedFilename = this.normalizeFilename(fileName);
 		const absolute = this.makeAbsolute(normalizedFilename);
+		const fullPath = existsSync(absolute) ? absolute : undefined;
 
 		if (this.files.has(normalizedFilename)) {
 			return this.files.get(normalizedFilename)!.file;
 		}
 
-		if (this.pathIsQualified(fileName) && existsSync(absolute)) {
-			this.addFile({fileName: normalizedFilename, text: sys.readFile(absolute)!, isMainEntry: false});
+		if (this.pathIsQualified(fileName) && fullPath != null) {
+			this.addFile({fileName: normalizedFilename, text: sys.readFile(fullPath)!, isMainEntry: false});
 			return this.files.get(normalizedFilename)!.file;
 		}
 

@@ -44,8 +44,12 @@
 		"typescript": "^2.8.3"
 	},
 	"dependencies": {
-		"@types/node": "^9.6.6",
-		"chalk": "^2.4.0",
+		"@babel/core": "^7.0.0-beta.46",
+		"@babel/preset-env": "^7.0.0-beta.46",
+		"@babel/preset-stage-3": "^7.0.0-beta.46",
+		"@babel/preset-typescript": "^7.0.0-beta.46",
+		"@types/node": "^10.0.0",
+		"chalk": "^2.4.1",
 		"rollup": "^0.58.2",
 		"rollup-pluginutils": "^2.0.1",
 		"tslib": "^1.9.0"

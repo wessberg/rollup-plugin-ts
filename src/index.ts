@@ -1,14 +1,16 @@
 // tslint:disable:no-any
 // tslint:disable:no-default-export
 
+// @ts-ignore
+import {transform} from "@babel/core";
 import {join} from "path";
 import {InputOptions, Plugin, SourceDescription} from "rollup";
 // @ts-ignore
 import {createFilter} from "rollup-pluginutils";
 import {nodeModuleNameResolver, ParsedCommandLine, sys} from "typescript";
-import {DECLARATION_EXTENSION, TSLIB, TYPESCRIPT_EXTENSION} from "./constants";
+import {DECLARATION_EXTENSION, TSLIB} from "./constants";
 import {FormatHost} from "./format-host";
-import {ensureRelative, getDestinationFilePathFromRollupOutputOptions, getForcedCompilerOptions, isMainEntry, printDiagnostics, resolveTypescriptOptions, toTypescriptDeclarationFileExtension} from "./helpers";
+import {ensureRelative, getBabelOptions, getDestinationFilePathFromRollupOutputOptions, getForcedCompilerOptions, isJSFile, isMainEntry, isTSFile, printDiagnostics, resolveTypescriptOptions, toTypescriptDeclarationFileExtension} from "./helpers";
 import {IGenerateOptions} from "./i-generate-options";
 import {ITypescriptLanguageServiceEmitResult, TypescriptLanguageServiceEmitResultKind} from "./i-typescript-language-service-emit-result";
 import {ITypescriptLanguageServiceHost} from "./i-typescript-language-service-host";
@@ -20,7 +22,7 @@ import {TypescriptLanguageServiceHost} from "./typescript-language-service-host"
  * A Rollup plugin that transpiles the given input with Typescript
  * @param {ITypescriptPluginOptions} [options={}]
  */
-export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig = "tsconfig.json", noEmit = false, include = [], exclude = [], parseExternalModules = false}: Partial<ITypescriptPluginOptions> = {}): Plugin {
+export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig = "tsconfig.json", noEmit = false, include = [], exclude = [], parseExternalModules = false, browserslist}: Partial<ITypescriptPluginOptions> = {}): Plugin {
 
 	/**
 	 * The CompilerOptions to use with Typescript for individual files
@@ -140,18 +142,19 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 			// Convert the file into a relative path
 			const relativePath = ensureRelative(root, file);
 
+			// Make sure that the compiler options are in fact defined
+			if (typescriptOptions == null) {
+				typescriptOptions = await resolveTypescriptOptions(root, tsconfig, getForcedCompilerOptions(root, inputRollupOptions));
+			}
+
 			// Assert that the file passes the filter
-			if (!filter(file) || !file.endsWith(TYPESCRIPT_EXTENSION)) {
+			const includeFile = filter(file) && (isTSFile(file) || (typescriptOptions.options.allowJs != null && typescriptOptions.options.allowJs && isJSFile(file)));
+			if (!includeFile) {
 				return undefined;
 			}
 
 			// Add the file name to the Set of files that has been passed through this plugin
 			transformedFileNames.add(relativePath);
-
-			// Make sure that the compiler options are in fact defined
-			if (typescriptOptions == null) {
-				typescriptOptions = await resolveTypescriptOptions(root, tsconfig, getForcedCompilerOptions(root, inputRollupOptions));
-			}
 
 			// Make sure that the LanguageServiceHost is in fact defined
 			if (languageServiceHost == null) {
@@ -160,10 +163,38 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 			}
 
 			// Add the file to the LanguageServiceHost
-			languageServiceHost.addFile({fileName: relativePath, text: code, isMainEntry: isMainEntry(root, file, inputRollupOptions)});
+			const mainEntry = isMainEntry(root, file, inputRollupOptions);
+			languageServiceHost.addFile({fileName: relativePath, text: code, isMainEntry: mainEntry});
+			let emitResults: ITypescriptLanguageServiceEmitResult[];
 
-			// Take all emit results for that file
-			const emitResults = languageServiceHost.emit(relativePath);
+			// If a browserslist is given, use babel to transform the file.
+			if (browserslist != null) {
+				emitResults = await new Promise<ITypescriptLanguageServiceEmitResult[]>((resolve, reject) => {
+					transform(code, getBabelOptions(file, relativePath, typescriptOptions!, browserslist), (err: Error, result: any) => {
+						if (err != null) return reject(err);
+						return resolve([
+							{
+								kind: TypescriptLanguageServiceEmitResultKind.MAP,
+								fileName: file,
+								isMainEntry: mainEntry,
+								text: result.map
+							},
+							{
+								kind: TypescriptLanguageServiceEmitResultKind.SOURCE,
+								fileName: file,
+								isMainEntry: mainEntry,
+								text: result.code
+							}
+						]);
+					});
+				});
+			}
+
+			// Otherwise, use Typescript directly
+			else {
+				// Take all emit results for that file
+				emitResults = languageServiceHost.emit(relativePath);
+			}
 
 			// Find the emit result that references the source code
 			const sourceResult = emitResults.find(emitResult => emitResult.kind === TypescriptLanguageServiceEmitResultKind.SOURCE)!;

@@ -1,9 +1,13 @@
 import chalk from "chalk";
-import {basename, dirname, isAbsolute, join, relative} from "path";
+import {basename, dirname, isAbsolute, join, parse, relative} from "path";
 import {InputOptions, ModuleFormat, OutputOptions} from "rollup";
 import {CompilerOptions, Diagnostic, DiagnosticCategory, findConfigFile, formatDiagnostic, ModuleKind, parseConfigFileTextToJson, ParsedCommandLine, parseJsonConfigFileContent, sys} from "typescript";
-import {DECLARATION_EXTENSION, DEFAULT_DESTINATION, JAVASCRIPT_EXTENSION, TYPESCRIPT_EXTENSION} from "./constants";
+import {Browserslist} from "./browserslist";
+import {DECLARATION_EXTENSION, DEFAULT_DESTINATION, JAVASCRIPT_EXTENSION, JSX_EXTENSION, MJS_EXTENSION, TSX_EXTENSION, TYPESCRIPT_EXTENSION} from "./constants";
 import {FormatHost} from "./format-host";
+import {IBabelOptions} from "./i-babel-options";
+
+// tslint:disable:no-any
 
 /**
  * Finds the tsconfig file from the given root
@@ -124,7 +128,8 @@ export function getForcedCompilerOptions (root: string, _rollupInputOptions: Par
 	return {
 		...(rollupOutputOptions.format == null ? {} : {module: getModuleKindFromRollupFormat(rollupOutputOptions.format)}),
 		outDir: getDestinationDirectoryFromRollupOutputOptions(root, rollupOutputOptions),
-		baseUrl: "."
+		baseUrl: ".",
+		allowJs: true
 	};
 }
 
@@ -178,4 +183,86 @@ export function isMainEntry (root: string, fileName: string, inputOptions?: Inpu
 	// Normalize the main entry
 	const normalizedInput = Array.isArray(inputOptions.input) ? inputOptions.input : typeof inputOptions.input === "string" ? [inputOptions.input] : Object.values(inputOptions.input);
 	return normalizedInput.some(path => ensureRelative(root, fileName) === ensureRelative(root, path));
+}
+
+/**
+ * Gets the options to use with Babel
+ * @param {string} filename
+ * @param {string} relativeFilename
+ * @param {ParsedCommandLine} typescriptOptions
+ * @param {Browserslist} browserslist
+ * @returns {Partial<IBabelOptions>}
+ */
+export function getBabelOptions (filename: string, relativeFilename: string, typescriptOptions: ParsedCommandLine, browserslist: Browserslist): Partial<IBabelOptions> {
+	return {
+		configFile: false,
+		babelrc: false,
+		babelrcRoots: false,
+		code: true,
+		compact: false,
+		filename,
+		filenameRelative: relativeFilename,
+		sourceMaps: typescriptOptions.options.sourceMap,
+		root: typescriptOptions.options.baseUrl!,
+		presets: [
+			["@babel/preset-env", {
+				loose: true,
+				spec: false,
+				modules: false,
+				debug: false,
+				ignoreBrowserslistConfig: true,
+				shippedProposals: true,
+				targets: {
+					browsers: browserslist
+				}
+			}],
+			["@babel/preset-stage-3", {
+				loose: true
+			}],
+			"@babel/preset-typescript"
+		]
+	};
+}
+
+/**
+ * Returns true if the given file is a Javascript file
+ * @param {string} file
+ * @returns {boolean}
+ */
+export function isJSFile (file: string): boolean {
+	return file.endsWith(JAVASCRIPT_EXTENSION)  || file.endsWith(JSX_EXTENSION);
+}
+
+/**
+ * Returns true if the given file is a Typescript file
+ * @param {string} file
+ * @returns {boolean}
+ */
+export function isTSFile (file: string): boolean {
+	return file.endsWith(TYPESCRIPT_EXTENSION) || file.endsWith(TSX_EXTENSION);
+}
+
+/**
+ * Ensures that the given file ends with '.js', even if it actually ends with '.mjs'.
+ * This is to support Typescript's language service which doesn't allow '.mjs'
+ * @param {string} file
+ * @returns {string}
+ */
+export function ensureJsForMjsFile (file: string): string {
+	const {dir, name, ext} = parse(file);
+	const base = join(dir, name);
+	if (ext === MJS_EXTENSION) return `${base}${JAVASCRIPT_EXTENSION}`;
+	return file;
+}
+
+/**
+ * Ensures that the given file ends with '.mjs', even if it actually ends with '.js'.
+ * @param {string} file
+ * @returns {string}
+ */
+export function ensureMJsForJsFile (file: string): string {
+	const {dir, name, ext} = parse(file);
+	const base = join(dir, name);
+	if (ext === JAVASCRIPT_EXTENSION) return `${base}${MJS_EXTENSION}`;
+	return file;
 }
