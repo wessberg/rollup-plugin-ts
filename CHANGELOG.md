@@ -1,3 +1,12 @@
+<a name="0.0.14"></a>
+## <small>0.0.14 (2018-04-30)</small>
+
+* 0.0.14 ([662e490](https://github.com/wessberg/rollup-plugin-ts/commit/662e490))
+* Bumped version ([8f7f1f9](https://github.com/wessberg/rollup-plugin-ts/commit/8f7f1f9))
+* Removed comments from output if babel is being used ([87d5de2](https://github.com/wessberg/rollup-plugin-ts/commit/87d5de2))
+
+
+
 <a name="0.0.13"></a>
 ## <small>0.0.13 (2018-04-30)</small>
 
