@@ -1,6 +1,6 @@
 {
 	"name": "@wessberg/rollup-plugin-ts",
-	"version": "0.0.13",
+	"version": "0.0.14",
 	"description": "A Rollup plugin for Typescript",
 	"scripts": {
 		"changelog:generate": "conventional-changelog --outfile CHANGELOG.md --release-count 0",
