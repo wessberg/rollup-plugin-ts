@@ -128,8 +128,7 @@ export function getForcedCompilerOptions (root: string, _rollupInputOptions: Par
 	return {
 		...(rollupOutputOptions.format == null ? {} : {module: getModuleKindFromRollupFormat(rollupOutputOptions.format)}),
 		outDir: getDestinationDirectoryFromRollupOutputOptions(root, rollupOutputOptions),
-		baseUrl: ".",
-		allowJs: true
+		baseUrl: "."
 	};
 }
 
