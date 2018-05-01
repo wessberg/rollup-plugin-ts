@@ -120,12 +120,14 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	 */
 	public getScriptSnapshot (fileName: string): IScriptSnapshot | undefined {
 		const normalizedFilename = this.normalizeFilename(fileName);
-		const absolute = this.makeAbsolute(normalizedFilename);
-		const fullPath = existsSync(absolute) ? absolute : undefined;
 
 		if (this.files.has(normalizedFilename)) {
 			return this.files.get(normalizedFilename)!.file;
 		}
+
+		// Otherwise, compute the absolute path for the file name
+		const absolute = this.makeAbsolute(normalizedFilename);
+		const fullPath = existsSync(absolute) ? absolute : undefined;
 
 		if (this.pathIsQualified(fileName) && fullPath != null) {
 			this.addFile({fileName: normalizedFilename, text: sys.readFile(fullPath)!, isMainEntry: false});
@@ -240,7 +242,8 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	 * @returns {ITypescriptLanguageServiceEmitResult[]}
 	 */
 	public emit (fileName: string, onlyDeclarations: boolean = false): ITypescriptLanguageServiceEmitResult[] {
-		return this.host.getEmitOutput(fileName, onlyDeclarations).outputFiles.map(({name, text}) => ({
+		const normalizedFilename = this.normalizeFilename(fileName);
+		return this.host.getEmitOutput(normalizedFilename, onlyDeclarations).outputFiles.map(({name, text}) => ({
 			kind: name.endsWith(SOURCE_MAP_EXTENSION)
 				? TypescriptLanguageServiceEmitResultKind.MAP
 				: name.endsWith(DECLARATION_EXTENSION)
@@ -248,7 +251,7 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 					: TypescriptLanguageServiceEmitResultKind.SOURCE,
 			fileName: name,
 			text,
-			isMainEntry: this.files.get(fileName)!.isMainEntry
+			isMainEntry: this.files.get(normalizedFilename)!.isMainEntry
 		}));
 	}
 

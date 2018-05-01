@@ -40,7 +40,6 @@ export default {
 			// The path to the project root
 			root: "path_to_root", // default: process.cwd(),
 			// If true, no files will be emitted, even though 'declaration' is true in the tsconfig.json file
-			noEmit: false, // default: false,
 			include: [], // The file paths to include,
 			exclude: [] // The file paths to exclude
 		})

@@ -10,7 +10,7 @@ import {createFilter} from "rollup-pluginutils";
 import {nodeModuleNameResolver, ParsedCommandLine, sys} from "typescript";
 import {DECLARATION_EXTENSION, TSLIB} from "./constants";
 import {FormatHost} from "./format-host";
-import {ensureRelative, getBabelOptions, getDestinationFilePathFromRollupOutputOptions, getForcedCompilerOptions, isJSFile, isMainEntry, isTSFile, printDiagnostics, resolveTypescriptOptions, toTypescriptDeclarationFileExtension} from "./helpers";
+import {ensureRelative, getBabelOptions, getDestinationFilePathFromRollupOutputOptions, getForcedCompilerOptions, includeFile, includeFileForTSEmit, isMainEntry, printDiagnostics, resolveTypescriptOptions, toTypescriptDeclarationFileExtension} from "./helpers";
 import {IGenerateOptions} from "./i-generate-options";
 import {ITypescriptLanguageServiceEmitResult, TypescriptLanguageServiceEmitResultKind} from "./i-typescript-language-service-emit-result";
 import {ITypescriptLanguageServiceHost} from "./i-typescript-language-service-host";
@@ -22,7 +22,7 @@ import {TypescriptLanguageServiceHost} from "./typescript-language-service-host"
  * A Rollup plugin that transpiles the given input with Typescript
  * @param {ITypescriptPluginOptions} [options={}]
  */
-export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig = "tsconfig.json", noEmit = false, include = [], exclude = [], parseExternalModules = false, browserslist, additionalBabelPlugins, additionalBabelPresets}: Partial<ITypescriptPluginOptions> = {}): Plugin {
+export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig = "tsconfig.json", include = [], exclude = [], parseExternalModules = false, browserslist, additionalBabelPlugins, additionalBabelPresets}: Partial<ITypescriptPluginOptions> = {}): Plugin {
 
 	/**
 	 * The CompilerOptions to use with Typescript for individual files
@@ -102,7 +102,7 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 			if (typescriptOptions == null) return;
 
 			// If declarations should be emitted, make sure to do so
-			if (!noEmit && typescriptOptions != null && typescriptOptions.options.declaration != null && typescriptOptions.options.declaration) {
+			if (typescriptOptions != null && typescriptOptions.options.declaration != null && typescriptOptions.options.declaration) {
 
 				// Temporarily swap the CompilerOptions for the LanguageService
 				const oldOptions = languageServiceHost.getTypescriptOptions();
@@ -148,8 +148,9 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 			}
 
 			// Assert that the file passes the filter
-			const includeFile = filter(file) && (isTSFile(file) || (typescriptOptions.options.allowJs != null && typescriptOptions.options.allowJs && isJSFile(file)));
-			if (!includeFile) {
+			const shouldIncludeFile = includeFile(file, filter);
+			const shouldIncludeForTSEmit = includeFileForTSEmit(file, filter, typescriptOptions.options);
+			if (!shouldIncludeFile) {
 				return undefined;
 			}
 
@@ -164,7 +165,11 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 
 			// Add the file to the LanguageServiceHost
 			const mainEntry = isMainEntry(root, file, inputRollupOptions);
-			languageServiceHost.addFile({fileName: relativePath, text: code, isMainEntry: mainEntry});
+
+			if (shouldIncludeForTSEmit) {
+				languageServiceHost.addFile({fileName: relativePath, text: code, isMainEntry: mainEntry});
+			}
+
 			let emitResults: ITypescriptLanguageServiceEmitResult[];
 
 			// If a browserslist is given, use babel to transform the file.
@@ -195,6 +200,11 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 						]);
 					});
 				});
+			}
+
+			// Otherwise, if the file shouldn't emit with Typescript, return undefined
+			else if (!shouldIncludeForTSEmit) {
+				return undefined;
 			}
 
 			// Otherwise, use Typescript directly

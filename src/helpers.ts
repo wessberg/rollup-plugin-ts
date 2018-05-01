@@ -246,6 +246,15 @@ export function isTSFile (file: string): boolean {
 }
 
 /**
+ * Returns true if the given file is a Typescript declaration (.d.ts) file
+ * @param {string} file
+ * @returns {boolean}
+ */
+export function isDTSFile (file: string): boolean {
+	return file.endsWith(DECLARATION_EXTENSION);
+}
+
+/**
  * Ensures that the given file ends with '.js', even if it actually ends with '.mjs'.
  * This is to support Typescript's language service which doesn't allow '.mjs'
  * @param {string} file
@@ -268,4 +277,38 @@ export function ensureMJsForJsFile (file: string): string {
 	const base = join(dir, name);
 	if (ext === JAVASCRIPT_EXTENSION) return `${base}${MJS_EXTENSION}`;
 	return file;
+}
+
+/**
+ * Ensures that the given file ends with '.ts', no matter what it actually ends with
+ * This is to support Typescript's language service with files that doesn't necessarily end with it.
+ * @param {string} file
+ * @returns {string}
+ */
+export function ensureTs (file: string): string {
+	const {dir, name, ext} = parse(file);
+	const base = join(dir, name);
+	if (ext !== TYPESCRIPT_EXTENSION) return `${base}${TYPESCRIPT_EXTENSION}`;
+	return file;
+}
+
+/**
+ * Returns true if the given file should be included for compilation
+ * @param {string} file
+ * @param {(fileName: string) => boolean} filter
+ * @returns {boolean}
+ */
+export function includeFile (file: string, filter: (fileName: string) => boolean): boolean {
+	return filter(file) && !isDTSFile(file);
+}
+
+/**
+ * Returns true if the given file should be included for Typescript emits
+ * @param {string} file
+ * @param {(fileName: string) => boolean} filter
+ * @param {CompilerOptions} compilerOptions
+ * @returns {boolean}
+ */
+export function includeFileForTSEmit (file: string, filter: (fileName: string) => boolean, compilerOptions: CompilerOptions): boolean {
+	return includeFile(file, filter) && (isTSFile(file) || ((compilerOptions.allowJs != null && compilerOptions.allowJs) && isJSFile(file)));
 }
