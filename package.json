@@ -40,19 +40,19 @@
 		"@wessberg/ts-config": "^0.0.27",
 		"conventional-changelog-cli": "^1.3.22",
 		"husky": "latest",
-		"tslint": "^5.9.1",
+		"tslint": "^5.10.0",
 		"typescript": "^2.8.3"
 	},
 	"dependencies": {
-		"@babel/core": "^7.0.0-beta.46",
-		"@babel/preset-env": "^7.0.0-beta.46",
-		"@babel/preset-stage-3": "^7.0.0-beta.46",
-		"@babel/preset-typescript": "^7.0.0-beta.46",
-		"@types/node": "^10.0.0",
+		"@babel/core": "^7.0.0-beta.49",
+		"@babel/preset-env": "^7.0.0-beta.49",
+		"@babel/preset-stage-3": "^7.0.0-beta.49",
+		"@babel/preset-typescript": "^7.0.0-beta.49",
+		"@types/node": "^10.1.3",
 		"chalk": "^2.4.1",
-		"rollup": "^0.58.2",
-		"rollup-pluginutils": "^2.0.1",
-		"tslib": "^1.9.0"
+		"rollup": "^0.59.4",
+		"rollup-pluginutils": "^2.3.0",
+		"tslib": "^1.9.1"
 	},
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/es2015/index.js",
