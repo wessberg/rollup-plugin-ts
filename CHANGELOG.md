@@ -1,3 +1,12 @@
+<a name="0.0.17"></a>
+## <small>0.0.17 (2018-05-30)</small>
+
+* 0.0.17 ([1eb2876](https://github.com/wessberg/rollup-plugin-ts/commit/1eb2876))
+* Added support for the 'legacy' decorators babel plugin ([a2aff43](https://github.com/wessberg/rollup-plugin-ts/commit/a2aff43))
+* Bumped version ([d8b4e0e](https://github.com/wessberg/rollup-plugin-ts/commit/d8b4e0e))
+
+
+
 <a name="0.0.16"></a>
 ## <small>0.0.16 (2018-05-28)</small>
 
