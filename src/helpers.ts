@@ -223,7 +223,10 @@ export function getBabelOptions ({filename, relativeFilename, typescriptOptions,
 			}],
 			"@babel/preset-typescript"
 		],
-		plugins: additionalPlugins
+		plugins: [
+			...additionalPlugins,
+			["@babel/plugin-proposal-decorators", {legacy: true}]
+		]
 	};
 }
 
