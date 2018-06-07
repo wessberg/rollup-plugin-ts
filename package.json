@@ -38,7 +38,7 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@wessberg/ts-config": "^0.0.27",
-		"conventional-changelog-cli": "^2.0.0",
+		"conventional-changelog-cli": "^2.0.1",
 		"husky": "latest",
 		"tslint": "^5.10.0",
 		"typescript": "^2.9.1"
@@ -49,9 +49,9 @@
 		"@babel/preset-env": "^7.0.0-beta.49",
 		"@babel/preset-stage-3": "^7.0.0-beta.49",
 		"@babel/preset-typescript": "^7.0.0-beta.49",
-		"@types/node": "^10.3.0",
+		"@types/node": "^10.3.2",
 		"chalk": "^2.4.1",
-		"rollup": "^0.59.4",
+		"rollup": "^0.60.1",
 		"rollup-pluginutils": "^2.3.0",
 		"tslib": "^1.9.2"
 	},

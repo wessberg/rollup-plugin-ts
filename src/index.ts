@@ -4,7 +4,7 @@
 // @ts-ignore
 import {transform} from "@babel/core";
 import {join} from "path";
-import {InputOptions, Plugin, SourceDescription} from "rollup";
+import {InputOptions, OutputBundle, Plugin, SourceDescription} from "rollup";
 // @ts-ignore
 import {createFilter} from "rollup-pluginutils";
 import {nodeModuleNameResolver, ParsedCommandLine, sys} from "typescript";
@@ -69,15 +69,13 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 		},
 
 		/**
-		 * Invoked when a bundle has been written to disk
+		 * Invoked when a bundle has been generated
 		 */
-		async ongenerate (outputOptions: IGenerateOptions): Promise<void> {
+		async generateBundle (outputOptions: IGenerateOptions, bundle: OutputBundle): Promise<void> {
 			if (languageServiceHost == null) return;
 
-			const normalizedModules = outputOptions.bundle != null ? outputOptions.bundle.modules : outputOptions.usedModules;
-
 			// Take all of the generated Ids
-			const generatedIds = new Set(normalizedModules!.map(module => ensureRelative(root, module.id)));
+			const generatedIds = new Set(Object.keys(bundle));
 
 			// Clear all file names from the Set of transformed file names that has since been removed from Rollup compilation
 			const removedFileNames: Set<string> = new Set();
