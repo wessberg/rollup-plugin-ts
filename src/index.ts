@@ -4,7 +4,7 @@
 // @ts-ignore
 import {transform} from "@babel/core";
 import {join} from "path";
-import {InputOptions, OutputBundle, Plugin, SourceDescription} from "rollup";
+import {InputOptions, OutputBundle, OutputChunk, Plugin, SourceDescription} from "rollup";
 // @ts-ignore
 import {createFilter} from "rollup-pluginutils";
 import {nodeModuleNameResolver, ParsedCommandLine, sys} from "typescript";
@@ -75,12 +75,14 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 			if (languageServiceHost == null) return;
 
 			// Take all of the generated Ids
-			const generatedIds = new Set(Object.keys(bundle));
+			const transformedIds: Set<string> = new Set([].concat.apply([], Object.values(bundle)
+				.filter(value => typeof value !== "string" && "modules" in value)
+				.map((value: OutputChunk) => Object.keys(value.modules).map(module => ensureRelative(root, module)))));
 
 			// Clear all file names from the Set of transformed file names that has since been removed from Rollup compilation
 			const removedFileNames: Set<string> = new Set();
 			for (const fileName of transformedFileNames) {
-				if (!generatedIds.has(fileName)) {
+				if (!transformedIds.has(fileName)) {
 					removedFileNames.add(fileName);
 					transformedFileNames.delete(fileName);
 				}
