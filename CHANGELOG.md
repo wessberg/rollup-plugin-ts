@@ -1,3 +1,11 @@
+## <small>0.0.20 (2018-06-07)</small>
+
+* 0.0.20 ([c64913c](https://github.com/wessberg/rollup-plugin-ts/commit/c64913c))
+* Bumped version ([4390811](https://github.com/wessberg/rollup-plugin-ts/commit/4390811))
+* Fixed a regression ([062eb2a](https://github.com/wessberg/rollup-plugin-ts/commit/062eb2a))
+
+
+
 ## <small>0.0.19 (2018-06-07)</small>
 
 * 0.0.19 ([2bada3c](https://github.com/wessberg/rollup-plugin-ts/commit/2bada3c))
