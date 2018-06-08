@@ -199,19 +199,19 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 				const emittedFiles = languageServiceHost.emit(relativeWithTsExtension);
 
 				// Find the emit result that references the source code
-				const typelessSourceResult = emittedFiles.find(emitResult => emitResult.kind === TypescriptLanguageServiceEmitResultKind.SOURCE)!;
+				const typelessSourceResult = emittedFiles.find(emitResult => emitResult.kind === TypescriptLanguageServiceEmitResultKind.SOURCE);
 				// Find the emit result that references the SourceMap
-				const typelessMapResult = emittedFiles.find(emitResult => emitResult.kind === TypescriptLanguageServiceEmitResultKind.MAP)!;
+				const typelessMapResult = emittedFiles.find(emitResult => emitResult.kind === TypescriptLanguageServiceEmitResultKind.MAP);
 
 				// Reset the compilation settings
 				languageServiceHost.setTypescriptOptions(oldOptions);
 
 				emitResults = await new Promise<ITypescriptLanguageServiceEmitResult[]>((resolve, reject) => {
-					transform(typelessSourceResult.text, getBabelOptions({
+					transform(typelessSourceResult == null ? code : typelessSourceResult.text, getBabelOptions({
 						filename: file,
 						relativeFilename: relativeWithTsExtension,
 						typescriptOptions: typescriptOptions!,
-						inputSourceMap: JSON.parse(typelessMapResult.text),
+						inputSourceMap: typelessMapResult == null ? undefined : JSON.parse(typelessMapResult.text),
 						browserslist,
 						additionalPresets: additionalBabelPresets,
 						additionalPlugins: additionalBabelPlugins
