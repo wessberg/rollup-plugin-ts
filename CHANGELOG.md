@@ -1,3 +1,11 @@
+## <small>0.0.21 (2018-06-08)</small>
+
+* 0.0.21 ([f62d1fb](https://github.com/wessberg/rollup-plugin-ts/commit/f62d1fb))
+* Added better support for handling other resources than .ts files ([fab3214](https://github.com/wessberg/rollup-plugin-ts/commit/fab3214))
+* Bumped version ([35d88b0](https://github.com/wessberg/rollup-plugin-ts/commit/35d88b0))
+
+
+
 ## <small>0.0.20 (2018-06-07)</small>
 
 * 0.0.20 ([c64913c](https://github.com/wessberg/rollup-plugin-ts/commit/c64913c))
