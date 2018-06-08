@@ -2,7 +2,7 @@ import {existsSync} from "fs";
 import {isAbsolute, join} from "path";
 import {CompilerOptions, createDocumentRegistry, createLanguageService, createProgram, Diagnostic, getDefaultLibFilePath, getPreEmitDiagnostics, IScriptSnapshot, LanguageService, ParsedCommandLine, ScriptSnapshot, sys} from "typescript";
 import {DECLARATION_EXTENSION, SOURCE_MAP_EXTENSION} from "./constants";
-import {ensureRelative} from "./helpers";
+import {ensureRelative, stripExtension} from "./helpers";
 import {ITypescriptLanguageServiceEmitResult, TypescriptLanguageServiceEmitResultKind} from "./i-typescript-language-service-emit-result";
 import {ITypescriptLanguageServiceFile, ITypescriptLanguageServiceFileBase} from "./i-typescript-language-service-file";
 import {ITypescriptLanguageServiceHost} from "./i-typescript-language-service-host";
@@ -16,6 +16,12 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	 * @type {string}
 	 */
 	private static readonly EXTERNAL_MODULES_PATH = "node_modules/";
+
+	/**
+	 * The Typescript diagnostic code for files that doesn't exist
+	 * @type {number}
+	 */
+	private readonly NOT_FOUND_DIAGNOSTIC_CODE: number = 6053;
 	/**
 	 * The LanguageService host to use. Will be equal to this instance
 	 * @type {LanguageService}
@@ -27,8 +33,21 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	 */
 	private readonly files: Map<string, ITypescriptLanguageServiceFile> = new Map();
 
+	/**
+	 * A cache map between file names referencing package.json files and their resolved Buffers
+	 * @type {Map<string, string>}
+	 */
+	private readonly moduleCache: Map<string, string> = new Map();
+
+	/**
+	 * A cache map between file names referencing package.json files and their resolved Buffers
+	 * @type {Map<string, boolean>}
+	 */
+	private readonly moduleExistsCache: Map<string, boolean> = new Map();
+
 	constructor (private readonly appRoot: string,
 							 private readonly parseExternalModules: boolean,
+							 private readonly tsFileToRawFileMap: Map<string, string>,
 							 private typescriptOptions: ParsedCommandLine) {
 		this.host = createLanguageService(this, createDocumentRegistry());
 
@@ -36,8 +55,8 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 		// necessarily pass all matched files through the plugin (if the files contain only types)
 		this.typescriptOptions.fileNames.forEach(fileName => {
 			const relative = ensureRelative(this.appRoot, fileName);
-			if (!this.files.has(relative) && sys.fileExists(fileName)) {
-				this.addFile({fileName: relative, text: sys.readFile(fileName)!, isMainEntry: false});
+			if (!this.files.has(relative) && this.fileExists(fileName)) {
+				this.addFile({fileName: relative, text: this.readFile(fileName)!, isMainEntry: false});
 			}
 		});
 	}
@@ -130,7 +149,7 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 		const fullPath = existsSync(absolute) ? absolute : undefined;
 
 		if (this.pathIsQualified(fileName) && fullPath != null) {
-			this.addFile({fileName: normalizedFilename, text: sys.readFile(fullPath)!, isMainEntry: false});
+			this.addFile({fileName: normalizedFilename, text: this.readFile(fullPath)!, isMainEntry: false});
 			return this.files.get(normalizedFilename)!.file;
 		}
 
@@ -159,7 +178,14 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	 */
 	public getAllDiagnostics (): ReadonlyArray<Diagnostic> {
 		const program = createProgram(this.getScriptFileNames(), this.getTypescriptOptions().options);
-		return getPreEmitDiagnostics(program);
+		const preEmitDiagnostics = getPreEmitDiagnostics(program);
+		return preEmitDiagnostics.filter(diagnostic => {
+			// Include all diagnostics that isn't related to files that doesn't exist
+			if (diagnostic.code !== this.NOT_FOUND_DIAGNOSTIC_CODE) return true;
+
+			// If any of the mapped files is included in the message text, ignore the diagnostic
+			return ![...this.tsFileToRawFileMap.keys()].some(rawFile => typeof diagnostic.messageText === "string" && diagnostic.messageText.includes(rawFile));
+		});
 	}
 
 	/**
@@ -184,10 +210,11 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	 * @param {string[]} extensions
 	 * @param {string[]} exclude
 	 * @param {string[]} include
+	 * @param {number?} depth
 	 * @returns {string[]}
 	 */
-	public readDirectory (path: string, extensions?: string[], exclude?: string[], include?: string[]): string[] {
-		return sys.readDirectory(path, extensions, exclude, include);
+	public readDirectory (path: string, extensions?: string[], exclude?: string[], include?: string[], depth?: number): string[] {
+		return sys.readDirectory(path, extensions, exclude, include, depth);
 	}
 
 	/**
@@ -197,7 +224,26 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	 * @returns {string | undefined}
 	 */
 	public readFile (path: string, encoding?: string): string | undefined {
-		return sys.readFile(path, encoding);
+		// Use the original path to the file if it has been converted into a ts file
+		const normalizedPath = this.tsFileToRawFileMap.has(path) ? this.tsFileToRawFileMap.get(path)! : path;
+
+		const isModule = normalizedPath.includes(TypescriptLanguageServiceHost.EXTERNAL_MODULES_PATH);
+		const cacheIdentifier = this.getModuleCacheIdentifier(normalizedPath, encoding);
+
+		// If it is a module file, check if it has been resolved previously and it exists within the cache
+		if (isModule) {
+			const cachedVersion = this.moduleCache.get(cacheIdentifier);
+			if (cachedVersion != null) return cachedVersion;
+		}
+
+		// Otherwise, read the file
+		const fileResult = sys.readFile(normalizedPath, encoding);
+
+		// Write it to the cache if it is a package.json file
+		if (isModule) {
+			this.moduleCache.set(cacheIdentifier, fileResult!);
+		}
+		return fileResult;
 	}
 
 	/**
@@ -206,7 +252,29 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 	 * @returns {boolean}
 	 */
 	public fileExists (path: string): boolean {
-		return sys.fileExists(path);
+		if (this.tsFileToRawFileMap.has(path)) return true;
+		if (this.tsFileToRawFileMap.has(`${stripExtension(path).replace(TypescriptLanguageServiceHost.EXTERNAL_MODULES_PATH, "")}.ts`)) return true;
+
+		// Use the original path to the file if it has been converted into a ts file
+		const normalizedPath = this.tsFileToRawFileMap.has(path) ? this.tsFileToRawFileMap.get(path)! : path;
+
+		const isModule = normalizedPath.includes(TypescriptLanguageServiceHost.EXTERNAL_MODULES_PATH);
+		const cacheIdentifier = this.getModuleCacheIdentifier(normalizedPath);
+
+		// If it is a module file, check if it has been resolved previously and it exists within the cache
+		if (isModule) {
+			const cachedVersion = this.moduleExistsCache.get(cacheIdentifier);
+			if (cachedVersion != null) return cachedVersion;
+		}
+
+		// Otherwise, read the file
+		const existsResult = sys.fileExists(normalizedPath);
+
+		// Write it to the cache if it is a package.json file
+		if (isModule) {
+			this.moduleExistsCache.set(cacheIdentifier, existsResult);
+		}
+		return existsResult;
 	}
 
 	/**
@@ -253,6 +321,15 @@ export class TypescriptLanguageServiceHost implements ITypescriptLanguageService
 			text,
 			isMainEntry: this.files.get(normalizedFilename)!.isMainEntry
 		}));
+	}
+
+	/**
+	 * Gets the identifier to use within the module cache
+	 * @param {string} path
+	 * @param {string} [encoding]
+	 */
+	private getModuleCacheIdentifier (path: string, encoding?: string): string {
+		return `${path}${encoding == null ? "" : `.${encoding}`}`;
 	}
 
 	/**

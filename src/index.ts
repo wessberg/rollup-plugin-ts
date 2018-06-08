@@ -7,10 +7,10 @@ import {join} from "path";
 import {InputOptions, OutputBundle, OutputChunk, Plugin, SourceDescription} from "rollup";
 // @ts-ignore
 import {createFilter} from "rollup-pluginutils";
-import {nodeModuleNameResolver, ParsedCommandLine, sys} from "typescript";
+import {nodeModuleNameResolver, ParsedCommandLine, ScriptTarget, sys} from "typescript";
 import {DECLARATION_EXTENSION, TSLIB} from "./constants";
 import {FormatHost} from "./format-host";
-import {ensureRelative, getBabelOptions, getDestinationFilePathFromRollupOutputOptions, getForcedCompilerOptions, includeFile, includeFileForTSEmit, isMainEntry, printDiagnostics, resolveTypescriptOptions, toTypescriptDeclarationFileExtension} from "./helpers";
+import {ensureRelative, ensureTs, getBabelOptions, getDestinationFilePathFromRollupOutputOptions, getForcedCompilerOptions, includeFile, includeFileForTSEmit, isMainEntry, printDiagnostics, resolveTypescriptOptions, toTypescriptDeclarationFileExtension} from "./helpers";
 import {IGenerateOptions} from "./i-generate-options";
 import {ITypescriptLanguageServiceEmitResult, TypescriptLanguageServiceEmitResultKind} from "./i-typescript-language-service-emit-result";
 import {ITypescriptLanguageServiceHost} from "./i-typescript-language-service-host";
@@ -61,6 +61,14 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 	 */
 	const transformedFileNames: Set<string> = new Set();
 
+	/**
+	 * A Map between .[m]js and the .ts files that has been generated for them.
+	 * This is in order to allow the LanguageService to accept .[m]js files by
+	 * "faking" their .ts extension
+	 * @type {Map<string, string>}
+	 */
+	const tsFileToRawFileMap: Map<string, string> = new Map();
+
 	return {
 		name: "Typescript Rollup Plugin",
 
@@ -89,7 +97,11 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 			}
 
 			// Remove all removed filenames from the LanguageService
-			removedFileNames.forEach(fileName => languageServiceHost!.removeFile(fileName));
+			removedFileNames.forEach(fileName => {
+				const fileNameWithTsExtension = ensureTs(fileName);
+				tsFileToRawFileMap.delete(fileNameWithTsExtension);
+				languageServiceHost!.removeFile(fileNameWithTsExtension);
+			});
 
 			// Take all file names from the language service
 			const languageServiceFileNames = languageServiceHost.getScriptFileNames();
@@ -149,7 +161,7 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 
 			// Assert that the file passes the filter
 			const shouldIncludeFile = includeFile(file, filter);
-			const shouldIncludeForTSEmit = includeFileForTSEmit(file, filter, typescriptOptions.options);
+			const shouldIncludeForTSEmit = includeFileForTSEmit(file, filter);
 			if (!shouldIncludeFile) {
 				return undefined;
 			}
@@ -157,9 +169,13 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 			// Add the file name to the Set of files that has been passed through this plugin
 			transformedFileNames.add(relativePath);
 
+			// Make sure that the file has a .ts extension (even if it is a .[m]js file)
+			const relativeWithTsExtension = ensureTs(relativePath);
+			tsFileToRawFileMap.set(relativeWithTsExtension, relativePath);
+
 			// Make sure that the LanguageServiceHost is in fact defined
 			if (languageServiceHost == null) {
-				languageServiceHost = new TypescriptLanguageServiceHost(root, parseExternalModules, typescriptOptions);
+				languageServiceHost = new TypescriptLanguageServiceHost(root, parseExternalModules, tsFileToRawFileMap, typescriptOptions);
 				formatHost = new FormatHost(languageServiceHost, root);
 			}
 
@@ -167,18 +183,35 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 			const mainEntry = isMainEntry(root, file, inputRollupOptions);
 
 			if (shouldIncludeForTSEmit) {
-				languageServiceHost.addFile({fileName: relativePath, text: code, isMainEntry: mainEntry});
+				languageServiceHost.addFile({fileName: relativeWithTsExtension, text: code, isMainEntry: mainEntry});
 			}
 
 			let emitResults: ITypescriptLanguageServiceEmitResult[];
 
-			// If a browserslist is given, use babel to transform the file.
+			// If a browserslist is given, use babel to transform the file, but first pass it through the Typescript LanguageService to strip type-only imports
 			if (browserslist != null) {
+
+				// Temporarily swap the CompilerOptions for the LanguageService
+				const oldOptions = languageServiceHost.getTypescriptOptions();
+				languageServiceHost.setTypescriptOptions({...oldOptions, options: {...oldOptions.options, target: ScriptTarget.ESNext}});
+
+				// Emit all declaration output files
+				const emittedFiles = languageServiceHost.emit(relativeWithTsExtension);
+
+				// Find the emit result that references the source code
+				const typelessSourceResult = emittedFiles.find(emitResult => emitResult.kind === TypescriptLanguageServiceEmitResultKind.SOURCE)!;
+				// Find the emit result that references the SourceMap
+				const typelessMapResult = emittedFiles.find(emitResult => emitResult.kind === TypescriptLanguageServiceEmitResultKind.MAP)!;
+
+				// Reset the compilation settings
+				languageServiceHost.setTypescriptOptions(oldOptions);
+
 				emitResults = await new Promise<ITypescriptLanguageServiceEmitResult[]>((resolve, reject) => {
-					transform(code, getBabelOptions({
+					transform(typelessSourceResult.text, getBabelOptions({
 						filename: file,
-						relativeFilename: relativePath,
+						relativeFilename: relativeWithTsExtension,
 						typescriptOptions: typescriptOptions!,
+						inputSourceMap: JSON.parse(typelessMapResult.text),
 						browserslist,
 						additionalPresets: additionalBabelPresets,
 						additionalPlugins: additionalBabelPlugins
@@ -210,7 +243,7 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 			// Otherwise, use Typescript directly
 			else {
 				// Take all emit results for that file
-				emitResults = languageServiceHost.emit(relativePath);
+				emitResults = languageServiceHost.emit(relativeWithTsExtension);
 			}
 
 			// Find the emit result that references the source code

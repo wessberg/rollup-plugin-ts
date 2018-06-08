@@ -220,8 +220,7 @@ export function getBabelOptions ({filename, relativeFilename, typescriptOptions,
 			}],
 			["@babel/preset-stage-3", {
 				loose: true
-			}],
-			"@babel/preset-typescript"
+			}]
 		],
 		plugins: [
 			...additionalPlugins,
@@ -236,7 +235,7 @@ export function getBabelOptions ({filename, relativeFilename, typescriptOptions,
  * @returns {boolean}
  */
 export function isJSFile (file: string): boolean {
-	return file.endsWith(JAVASCRIPT_EXTENSION)  || file.endsWith(JSX_EXTENSION);
+	return file.endsWith(JAVASCRIPT_EXTENSION) || file.endsWith(JSX_EXTENSION) || file.endsWith(MJS_EXTENSION);
 }
 
 /**
@@ -258,31 +257,6 @@ export function isDTSFile (file: string): boolean {
 }
 
 /**
- * Ensures that the given file ends with '.js', even if it actually ends with '.mjs'.
- * This is to support Typescript's language service which doesn't allow '.mjs'
- * @param {string} file
- * @returns {string}
- */
-export function ensureJsForMjsFile (file: string): string {
-	const {dir, name, ext} = parse(file);
-	const base = join(dir, name);
-	if (ext === MJS_EXTENSION) return `${base}${JAVASCRIPT_EXTENSION}`;
-	return file;
-}
-
-/**
- * Ensures that the given file ends with '.mjs', even if it actually ends with '.js'.
- * @param {string} file
- * @returns {string}
- */
-export function ensureMJsForJsFile (file: string): string {
-	const {dir, name, ext} = parse(file);
-	const base = join(dir, name);
-	if (ext === JAVASCRIPT_EXTENSION) return `${base}${MJS_EXTENSION}`;
-	return file;
-}
-
-/**
  * Ensures that the given file ends with '.ts', no matter what it actually ends with
  * This is to support Typescript's language service with files that doesn't necessarily end with it.
  * @param {string} file
@@ -293,6 +267,17 @@ export function ensureTs (file: string): string {
 	const base = join(dir, name);
 	if (ext !== TYPESCRIPT_EXTENSION) return `${base}${TYPESCRIPT_EXTENSION}`;
 	return file;
+}
+
+/**
+ * Ensures that the given file ends with '.ts', no matter what it actually ends with
+ * This is to support Typescript's language service with files that doesn't necessarily end with it.
+ * @param {string} file
+ * @returns {string}
+ */
+export function stripExtension (file: string): string {
+	const {dir, name} = parse(file);
+	return join(dir, name);
 }
 
 /**
@@ -309,9 +294,8 @@ export function includeFile (file: string, filter: (fileName: string) => boolean
  * Returns true if the given file should be included for Typescript emits
  * @param {string} file
  * @param {(fileName: string) => boolean} filter
- * @param {CompilerOptions} compilerOptions
  * @returns {boolean}
  */
-export function includeFileForTSEmit (file: string, filter: (fileName: string) => boolean, compilerOptions: CompilerOptions): boolean {
-	return includeFile(file, filter) && (isTSFile(file) || ((compilerOptions.allowJs != null && compilerOptions.allowJs) && isJSFile(file)));
+export function includeFileForTSEmit (file: string, filter: (fileName: string) => boolean): boolean {
+	return includeFile(file, filter);
 }

@@ -48,7 +48,6 @@
 		"@babel/plugin-proposal-decorators": "^7.0.0-beta.49",
 		"@babel/preset-env": "^7.0.0-beta.49",
 		"@babel/preset-stage-3": "^7.0.0-beta.49",
-		"@babel/preset-typescript": "^7.0.0-beta.49",
 		"@types/node": "^10.3.2",
 		"chalk": "^2.4.1",
 		"rollup": "^0.60.1",
