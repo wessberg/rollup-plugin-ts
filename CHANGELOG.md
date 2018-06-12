@@ -1,3 +1,11 @@
+## <small>0.0.23 (2018-06-12)</small>
+
+* 0.0.23 ([fca0fc6](https://github.com/wessberg/rollup-plugin-ts/commit/fca0fc6))
+* Bumped version ([7294939](https://github.com/wessberg/rollup-plugin-ts/commit/7294939))
+* Made babel transformers non-loose by default since it breaks some features ([820c9d8](https://github.com/wessberg/rollup-plugin-ts/commit/820c9d8))
+
+
+
 ## <small>0.0.22 (2018-06-08)</small>
 
 * 0.0.22 ([04bbf0d](https://github.com/wessberg/rollup-plugin-ts/commit/04bbf0d))
