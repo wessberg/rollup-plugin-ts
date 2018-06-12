@@ -208,7 +208,8 @@ export function getBabelOptions ({filename, relativeFilename, typescriptOptions,
 		presets: [
 			...additionalPresets,
 			["@babel/preset-env", {
-				loose: true,
+				// Loose breaks things such as spreading an iterable that isn't an array
+				loose: false,
 				spec: false,
 				modules: false,
 				debug: false,
@@ -219,7 +220,7 @@ export function getBabelOptions ({filename, relativeFilename, typescriptOptions,
 				}
 			}],
 			["@babel/preset-stage-3", {
-				loose: true
+				loose: false
 			}]
 		],
 		plugins: [
