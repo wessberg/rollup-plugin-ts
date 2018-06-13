@@ -213,7 +213,7 @@ export function getBabelOptions ({filename, relativeFilename, typescriptOptions,
 				spec: false,
 				modules: false,
 				debug: false,
-				ignoreBrowserslistConfig: true,
+				ignoreBrowserslistConfig: false,
 				shippedProposals: true,
 				targets: {
 					browsers: browserslist
