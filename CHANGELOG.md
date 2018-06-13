@@ -1,3 +1,11 @@
+## <small>0.0.25 (2018-06-13)</small>
+
+* 0.0.25 ([66edc52](https://github.com/wessberg/rollup-plugin-ts/commit/66edc52))
+* Bumped version ([b6f1ad2](https://github.com/wessberg/rollup-plugin-ts/commit/b6f1ad2))
+* Changed a babel config to work around a Babel regression ([3e838d3](https://github.com/wessberg/rollup-plugin-ts/commit/3e838d3))
+
+
+
 ## <small>0.0.24 (2018-06-13)</small>
 
 * 0.0.24 ([5b0ad05](https://github.com/wessberg/rollup-plugin-ts/commit/5b0ad05))
