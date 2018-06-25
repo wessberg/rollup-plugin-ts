@@ -48,11 +48,11 @@
 		"@babel/plugin-proposal-decorators": "^7.0.0-beta.51",
 		"@babel/preset-env": "^7.0.0-beta.51",
 		"@babel/preset-stage-3": "^7.0.0-beta.51",
-		"@types/node": "^10.3.4",
+		"@types/node": "^10.3.5",
 		"chalk": "^2.4.1",
-		"rollup": "^0.61.1",
+		"rollup": "^0.61.2",
 		"rollup-pluginutils": "^2.3.0",
-		"tslib": "^1.9.2"
+		"tslib": "^1.9.3"
 	},
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/es2015/index.js",
