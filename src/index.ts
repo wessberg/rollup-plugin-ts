@@ -253,7 +253,7 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 
 			return {
 				code: sourceResult.text,
-				map: <any> mapResult.text
+				...(mapResult == null ? {} : {map: mapResult.text})
 			};
 		},
 
