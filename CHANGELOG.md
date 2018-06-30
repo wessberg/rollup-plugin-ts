@@ -1,3 +1,11 @@
+## <small>0.0.30 (2018-06-30)</small>
+
+* 0.0.30 ([a80fc6f](https://github.com/wessberg/rollup-plugin-ts/commit/a80fc6f))
+* Bumped version ([5aa9904](https://github.com/wessberg/rollup-plugin-ts/commit/5aa9904))
+* Fixed an issue where the plugin would always assume SourceMap files to be generated ([24d3b3d](https://github.com/wessberg/rollup-plugin-ts/commit/24d3b3d))
+
+
+
 ## <small>0.0.29 (2018-06-27)</small>
 
 * 0.0.29 ([e094e9e](https://github.com/wessberg/rollup-plugin-ts/commit/e094e9e))
