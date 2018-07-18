@@ -1,3 +1,11 @@
+## <small>0.0.31 (2018-07-18)</small>
+
+* 0.0.31 ([e946aab](https://github.com/wessberg/rollup-plugin-ts/commit/e946aab))
+* Bumped deps ([18ee6f3](https://github.com/wessberg/rollup-plugin-ts/commit/18ee6f3))
+* Bumped version ([9ebcb47](https://github.com/wessberg/rollup-plugin-ts/commit/9ebcb47))
+
+
+
 ## <small>0.0.30 (2018-06-30)</small>
 
 * 0.0.30 ([a80fc6f](https://github.com/wessberg/rollup-plugin-ts/commit/a80fc6f))
