@@ -8,7 +8,7 @@ import {InputOptions, OutputBundle, OutputChunk, Plugin, SourceDescription} from
 // @ts-ignore
 import {createFilter} from "rollup-pluginutils";
 import {nodeModuleNameResolver, ParsedCommandLine, ScriptTarget, sys} from "typescript";
-import {DECLARATION_EXTENSION, TSLIB} from "./constants";
+import {DECLARATION_EXTENSION} from "./constants";
 import {FormatHost} from "./format-host";
 import {ensureRelative, ensureTs, getBabelOptions, getDestinationFilePathFromRollupOutputOptions, getForcedCompilerOptions, includeFile, includeFileForTSEmit, isMainEntry, printDiagnostics, resolveTypescriptOptions, toTypescriptDeclarationFileExtension} from "./helpers";
 import {IGenerateOptions} from "./i-generate-options";
@@ -16,7 +16,6 @@ import {ITypescriptLanguageServiceEmitResult, TypescriptLanguageServiceEmitResul
 import {ITypescriptLanguageServiceHost} from "./i-typescript-language-service-host";
 import {ITypescriptPluginOptions} from "./i-typescript-plugin-options";
 import {TypescriptLanguageServiceHost} from "./typescript-language-service-host";
-
 
 /**
  * A Rollup plugin that transpiles the given input with Typescript
@@ -28,26 +27,25 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 	 * The CompilerOptions to use with Typescript for individual files
 	 * @type {ParsedCommandLine|null}
 	 */
-	let typescriptOptions: ParsedCommandLine | null = null;
+	let typescriptOptions: ParsedCommandLine|null = null;
 
 	/**
 	 * The Language Service Host to use with Typescript
 	 * @type {ITypescriptLanguageServiceHost}
 	 */
-	let languageServiceHost: ITypescriptLanguageServiceHost | null = null;
+	let languageServiceHost: ITypescriptLanguageServiceHost|null = null;
 
 	/**
 	 * The host to use for formatting of diagnostics
 	 * @type {null}
 	 */
-	let formatHost: FormatHost | null = null;
+	let formatHost: FormatHost|null = null;
 
 	/**
 	 * The InputOptions provided tol Rollup
 	 * @type {null}
 	 */
-	let inputRollupOptions: InputOptions | undefined;
-
+	let inputRollupOptions: InputOptions|undefined;
 
 	/**
 	 * The file filter to use
@@ -150,7 +148,7 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 		 * @param {string} file
 		 * @returns {Promise<SourceDescription | undefined>}
 		 */
-		async transform (code: string, file: string): Promise<SourceDescription | undefined> {
+		async transform (code: string, file: string): Promise<SourceDescription|undefined> {
 			// Convert the file into a relative path
 			const relativePath = ensureRelative(root, file);
 
@@ -263,14 +261,9 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 		 * @param {string} importer
 		 * @returns {string|void}
 		 */
-		resolveId (importee: string, importer: string | undefined): string | void {
+		resolveId (importee: string, importer: string|undefined): string|void {
 			// If the CompilerOptions are undefined somehow, do nothing
 			if (typescriptOptions == null) return;
-
-			// If the imported module is tslib, do nothing
-			if (importee === TSLIB) {
-				return "\0" + TSLIB;
-			}
 
 			// Make sure there is an importer, otherwise return void
 			if (importer == null) return;
