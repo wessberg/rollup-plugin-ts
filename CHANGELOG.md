@@ -1,3 +1,11 @@
+## <small>0.0.34 (2018-08-08)</small>
+
+* 0.0.34 ([a783287](https://github.com/wessberg/rollup-plugin-ts/commit/a783287))
+* Bumped version ([2ab9186](https://github.com/wessberg/rollup-plugin-ts/commit/2ab9186))
+* Removed deprecated ModuleFormat ([8f7e1bd](https://github.com/wessberg/rollup-plugin-ts/commit/8f7e1bd))
+
+
+
 ## <small>0.0.33 (2018-08-08)</small>
 
 * 0.0.33 ([81d6377](https://github.com/wessberg/rollup-plugin-ts/commit/81d6377))
