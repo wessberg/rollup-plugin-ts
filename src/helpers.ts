@@ -47,7 +47,6 @@ function getModuleKindFromRollupFormat (format: ModuleFormat): ModuleKind {
 		case "system":
 			return ModuleKind.System;
 		case "es":
-		case "es6":
 		case "esm":
 			return ModuleKind.ESNext;
 		case "umd":
