@@ -1,3 +1,11 @@
+## <small>0.0.33 (2018-08-08)</small>
+
+* 0.0.33 ([81d6377](https://github.com/wessberg/rollup-plugin-ts/commit/81d6377))
+* Bumped deps. Removed babel stage-3 preset in favor of plugins ([5b6ed05](https://github.com/wessberg/rollup-plugin-ts/commit/5b6ed05))
+* Bumped version ([78d0abb](https://github.com/wessberg/rollup-plugin-ts/commit/78d0abb))
+
+
+
 ## <small>0.0.32 (2018-07-18)</small>
 
 * 0.0.32 ([feb94f3](https://github.com/wessberg/rollup-plugin-ts/commit/feb94f3))
