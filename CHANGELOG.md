@@ -1,3 +1,11 @@
+## <small>0.0.35 (2018-08-09)</small>
+
+* 0.0.35 ([35bdce5](https://github.com/wessberg/rollup-plugin-ts/commit/35bdce5))
+* Bumped version ([358b4c8](https://github.com/wessberg/rollup-plugin-ts/commit/358b4c8))
+* Updated babel dependencies ([5d78082](https://github.com/wessberg/rollup-plugin-ts/commit/5d78082))
+
+
+
 ## <small>0.0.34 (2018-08-08)</small>
 
 * 0.0.34 ([a783287](https://github.com/wessberg/rollup-plugin-ts/commit/a783287))
