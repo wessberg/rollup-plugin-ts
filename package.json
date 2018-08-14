@@ -1,87 +1,87 @@
 {
-	"name": "@wessberg/rollup-plugin-ts",
-	"version": "0.0.35",
-	"description": "A Rollup plugin for Typescript that respects Browserslists",
-	"scripts": {
-		"generate:readme": "scaffold readme",
-		"generate:license": "scaffold license",
-		"generate:contributing": "scaffold contributing",
-		"generate:coc": "scaffold coc",
-		"generate:all": "npm run generate:license & npm run generate:contributing & npm run generate:coc & npm run generate:readme",
-		"update": "ncu -ua && npm update && npm install",
-		"lint": "tsc --noEmit && tslint -c tslint.json --project tsconfig.json",
-		"clean": "rm -rf dist",
-		"tsc:cjs": "tsc --module commonjs --outDir dist/cjs -p tsconfig.dist.json",
-		"tsc:esm": "tsc --module es2015 --outDir dist/esm -p tsconfig.dist.json",
-		"prebuild": "npm run clean",
-		"build": "npm run tsc:cjs & npm run tsc:esm",
-		"prepare": "npm run build",
-		"prepublish:patch": "NODE_ENV=production npm run lint && NODE_ENV=production npm run prepare && npm run generate:all && git commit -am \"Bumped version\" || true",
-		"publish:patch": "npm version patch && git push && npm publish"
-	},
-	"keywords": [
-		"rollup",
-		"typescript",
-		"plugin",
-		"babel",
-		"browserslist"
-	],
-	"author": {
-		"name": "Frederik Wessberg",
-		"email": "frederikwessberg@hotmail.com",
-		"url": "https://github.com/wessberg"
-	},
-	"license": "MIT",
-	"devDependencies": {
-		"@wessberg/ts-config": "^0.0.27",
-		"@wessberg/scaffold": "^1.0.0",
-		"npm-check-updates": "^2.14.2",
-		"conventional-changelog-cli": "^2.0.1",
-		"husky": "latest",
-		"tslint": "^5.11.0",
-		"typescript": "^3.0.1"
-	},
-	"dependencies": {
-		"@babel/core": "^7.0.0-rc.1",
-		"@babel/plugin-proposal-decorators": "^7.0.0-rc.1",
-		"@babel/plugin-proposal-async-generator-functions": "^7.0.0-rc.1",
-		"@babel/plugin-proposal-class-properties": "^7.0.0-rc.1",
-		"@babel/plugin-proposal-object-rest-spread": "^7.0.0-rc.1",
-		"@babel/plugin-proposal-optional-catch-binding": "^7.0.0-rc.1",
-		"@babel/plugin-syntax-dynamic-import": "^7.0.0-rc.1",
-		"@babel/preset-env": "^7.0.0-rc.1",
-		"@types/node": "^10.7.0",
-		"chalk": "^2.4.1",
-		"rollup": "^0.64.1",
-		"rollup-pluginutils": "^2.3.1",
-		"tslib": "^1.9.3"
-	},
-	"main": "./dist/cjs/index.js",
-	"module": "./dist/esm/index.js",
-	"browser": "./dist/esm/index.js",
-	"types": "./dist/esm/index.d.ts",
-	"typings": "./dist/esm/index.d.ts",
-	"es2015": "./dist/esm/index.js",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/wessberg/rollup-plugin-ts.git"
-	},
-	"bugs": {
-		"url": "https://github.com/wessberg/rollup-plugin-ts/issues"
-	},
-	"engines": {
-		"node": ">=9.0.0"
-	},
-	"scaffold": {
-		"patreonUserId": "11315442",
-		"contributorMeta": {
-			"Frederik Wessberg": {
-				"imageUrl": "https://avatars2.githubusercontent.com/u/20454213?s=460&v=4",
-				"role": "Maintainer",
-				"twitterHandle": "FredWessberg",
-				"isCocEnforcer": true
-			}
-		},
-		"backers": []
-	}
+  "name": "@wessberg/rollup-plugin-ts",
+  "version": "0.0.36",
+  "description": "A Rollup plugin for Typescript that respects Browserslists",
+  "scripts": {
+    "generate:readme": "scaffold readme",
+    "generate:license": "scaffold license",
+    "generate:contributing": "scaffold contributing",
+    "generate:coc": "scaffold coc",
+    "generate:all": "npm run generate:license & npm run generate:contributing & npm run generate:coc & npm run generate:readme",
+    "update": "ncu -ua && npm update && npm install",
+    "lint": "tsc --noEmit && tslint -c tslint.json --project tsconfig.json",
+    "clean": "rm -rf dist",
+    "tsc:cjs": "tsc --module commonjs --outDir dist/cjs -p tsconfig.dist.json",
+    "tsc:esm": "tsc --module es2015 --outDir dist/esm -p tsconfig.dist.json",
+    "prebuild": "npm run clean",
+    "build": "npm run tsc:cjs & npm run tsc:esm",
+    "prepare": "npm run build",
+    "prepublish:patch": "NODE_ENV=production npm run lint && NODE_ENV=production npm run prepare && npm run generate:all && git commit -am \"Bumped version\" || true",
+    "publish:patch": "npm version patch && git push && npm publish"
+  },
+  "keywords": [
+    "rollup",
+    "typescript",
+    "plugin",
+    "babel",
+    "browserslist"
+  ],
+  "author": {
+    "name": "Frederik Wessberg",
+    "email": "frederikwessberg@hotmail.com",
+    "url": "https://github.com/wessberg"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@wessberg/ts-config": "^0.0.27",
+    "@wessberg/scaffold": "^1.0.0",
+    "npm-check-updates": "^2.14.2",
+    "conventional-changelog-cli": "^2.0.1",
+    "husky": "latest",
+    "tslint": "^5.11.0",
+    "typescript": "^3.0.1"
+  },
+  "dependencies": {
+    "@babel/core": "^7.0.0-rc.1",
+    "@babel/plugin-proposal-decorators": "^7.0.0-rc.1",
+    "@babel/plugin-proposal-async-generator-functions": "^7.0.0-rc.1",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-rc.1",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-rc.1",
+    "@babel/plugin-proposal-optional-catch-binding": "^7.0.0-rc.1",
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0-rc.1",
+    "@babel/preset-env": "^7.0.0-rc.1",
+    "@types/node": "^10.7.0",
+    "chalk": "^2.4.1",
+    "rollup": "^0.64.1",
+    "rollup-pluginutils": "^2.3.1",
+    "tslib": "^1.9.3"
+  },
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "browser": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "typings": "./dist/esm/index.d.ts",
+  "es2015": "./dist/esm/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wessberg/rollup-plugin-ts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wessberg/rollup-plugin-ts/issues"
+  },
+  "engines": {
+    "node": ">=9.0.0"
+  },
+  "scaffold": {
+    "patreonUserId": "11315442",
+    "contributorMeta": {
+      "Frederik Wessberg": {
+        "imageUrl": "https://avatars2.githubusercontent.com/u/20454213?s=460&v=4",
+        "role": "Maintainer",
+        "twitterHandle": "FredWessberg",
+        "isCocEnforcer": true
+      }
+    },
+    "backers": []
+  }
 }
