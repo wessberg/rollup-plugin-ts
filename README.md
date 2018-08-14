@@ -17,7 +17,7 @@ In comparison with the [official plugin](https://github.com/rollup/rollup-plugin
 - Compiler diagnostics are correctly emitted and brought into the Rollup build lifecycle
 - [Emit-less types](https://github.com/rollup/rollup-plugin-typescript/issues/28) are correctly handled
 - Generation of Definition files (`.d.ts`) are supported
-- A [Browserslist](https://github.com/browserslist/browserslist) can be provided instead of a target version of ECMAScript such that your code is transpiled in relation to the baseline of browsers defined in your Browserslist instead. 
+- A [Browserslist](https://github.com/browserslist/browserslist) can be provided instead of a target version of ECMAScript such that your code is transpiled in relation to the baseline of browsers defined in your Browserslist instead.
 
 ## Install
 
@@ -45,15 +45,18 @@ Using the plugin is dead-simple. Here's an example:
 
 ```javascript
 import tsPlugin from "@wessberg/rollup-plugin-ts";
-
 export default {
-	// The entry point of your app or library
-	input: "src/index.ts",
-  	output: [ /* ... */ ],
-  	plugins: [
-  		tsPlugin({ /* Plugin options */ })
-  	]
-}
+  // The entry point of your app or library
+  input: "src/index.ts",
+  output: [
+    /* ... */
+  ],
+  plugins: [
+    tsPlugin({
+      /* Plugin options */
+    })
+  ]
+};
 ```
 
 The options provided in your `tsconfig.json` will be seamlessly merged with those provided by Rollup.
@@ -66,7 +69,7 @@ The options provided in your `tsconfig.json` will be seamlessly merged with thos
 - `exclude`: A filter for the files that should be excluded from being passed through the plugin. (Default: `[]`)
 - `browserslist`: A Browserslist config that should be compiled against, rather than relying on the `target` provided in the `tsconfig`. Please see [this section](#using-browserslists) for more details. (Default: `undefined`)
 - `additionalBabelPresets`: **Only applicable when providing a value for the `browserslist` option**. Code will additionally be run through the babel presets provided here. (Default: `[]`)
-- `additionalBabelPlugins`: **Only applicable when providing a value for the `browserslist` option**. Code will additionally be run through the babel plugins provided here. (Default: `[]`) 
+- `additionalBabelPlugins`: **Only applicable when providing a value for the `browserslist` option**. Code will additionally be run through the babel plugins provided here. (Default: `[]`)
 - `parseExternalModules`: If false, no external modules (e.g. those coming from `node_modules`) will be parsed by Typescript which may result in the unwanted preservation of exported types from other libraries in the compiled output. Please see [this section](#rollup-complains-about-an-import-for-something-that-isnt-exported-by-a-module) for more details. (Default: `false`)
 
 ### Declarations
@@ -80,22 +83,20 @@ please know that the compilation phase will be two-fold:
 
 1. The Typescript compiler will compile with `ESNext` as the `ECMAScript` target version. This basically amounts to stripping away types as well as transforming Typescript specific run-time functionality such as `enum`s and decorators.
 2. Babel will perform the remaining transpilation with respect to your browserslist through `babel-preset-env`, some baked-in plugins representing features that are in stage 3 in TC39, as well as any presets and/or plugins you provide.
-
-In order to do so, all you have to do is simply provide a `browserslist` in the options provided to the plugin. For example:
+   In order to do so, all you have to do is simply provide a `browserslist` in the options provided to the plugin. For example:
 
 ```javascript
 import tsPlugin from "@wessberg/rollup-plugin-ts";
-
 export default {
   // ...
   plugins: [
     tsPlugin({
       // ...
       browserslist: ["last 2 versions"]
-     })
+    })
   ]
-}
-```   
+};
+```
 
 ## Contributing
 
@@ -121,12 +122,13 @@ Yes! And I would encourage you to use it.
 
 You may want to set the plugin option `parseExternalModules` to `true`.
 By default, this option is false, and as a consequence, no external modules (e.g. those coming from `node_modules`) will be parsed by Typescript which may result in the unwanted preservation of exported types from other libraries in the compiled output.
-
 For example, if you are depending on a type from a library like this:
 
 ```typescript
 // Inside a library: 'my-library'
-export type Foo = { /* Something */};
+export type Foo = {
+  /* Something */
+};
 ```
 
 And you then re-export it:
