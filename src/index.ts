@@ -1,5 +1,4 @@
 // tslint:disable:no-any
-// tslint:disable:no-default-export
 
 // @ts-ignore
 import {transform} from "@babel/core";
