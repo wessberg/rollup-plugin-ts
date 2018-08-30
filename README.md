@@ -63,7 +63,7 @@ The options provided in your `tsconfig.json` will be seamlessly merged with thos
 
 ### Plugin options
 
-- `tsconfig`: The relative path from the current working directory to the Typescript config file to use. (Default: `tsconfig.json).
+- `tsconfig`: The relative path from the current working directory to the Typescript config file to use. (Default: `tsconfig.json`).
 - `root`: The current working directory. (Default: `process.cwd()`)
 - `include`: A filter for the files that should be passed through the plugin. (Default: `[]`),
 - `exclude`: A filter for the files that should be excluded from being passed through the plugin. (Default: `[]`)
