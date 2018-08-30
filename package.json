@@ -34,7 +34,7 @@
   "license": "MIT",
   "devDependencies": {
     "@wessberg/ts-config": "^0.0.29",
-    "@wessberg/scaffold": "^1.0.0",
+    "@wessberg/scaffold": "^1.0.1",
     "npm-check-updates": "^2.14.2",
     "conventional-changelog-cli": "^2.0.5",
     "husky": "latest",
