@@ -60,13 +60,13 @@ function getModuleKindFromRollupFormat (format: ModuleFormat): ModuleKind {
  * Gets a the destination directory to use based on the given Rollup output options
  * @param {string} appRoot
  * @param {Partial<OutputOptions>} options
- * @returns {ModuleKind}
+ * @returns {string?}
  */
-export function getDestinationDirectoryFromRollupOutputOptions (appRoot: string, options: Partial<OutputOptions>): string {
+export function getDestinationDirectoryFromRollupOutputOptions (appRoot: string, options: Partial<OutputOptions>): string|undefined {
 	// Normalize the destination directory
 	const normalizedDest = options.dir != null ? options.dir : options.file != null ? dirname(options.file) : options.dest != null ? dirname(options.dest) : undefined;
 	if (normalizedDest == null) {
-		return ".";
+		return undefined;
 	}
 
 	// Return the directory name of the destination file of the rollup build
@@ -81,7 +81,8 @@ export function getDestinationDirectoryFromRollupOutputOptions (appRoot: string,
  */
 export function getDestinationFilePathFromRollupOutputOptions (appRoot: string, options: Partial<OutputOptions>): string {
 	// Normalize the destination directory
-	const normalizedDest = getDestinationDirectoryFromRollupOutputOptions(appRoot, options);
+	let normalizedDest = getDestinationDirectoryFromRollupOutputOptions(appRoot, options);
+	if (normalizedDest == null) normalizedDest = ".";
 	const normalizedFile = options.dest != null ? options.dest : options.file != null ? options.file : DEFAULT_DESTINATION;
 
 	// Return the file path for the destination file of the rollup build
@@ -125,9 +126,10 @@ export function toTypescriptDeclarationFileExtension (path: string): string {
  * @returns {Partial<CompilerOptions>}
  */
 export function getForcedCompilerOptions (root: string, _rollupInputOptions: Partial<InputOptions> = {}, rollupOutputOptions: Partial<OutputOptions> = {}): Partial<CompilerOptions> {
+	const outDir = getDestinationDirectoryFromRollupOutputOptions(root, rollupOutputOptions);
 	return {
 		...(rollupOutputOptions.format == null ? {} : {module: getModuleKindFromRollupFormat(rollupOutputOptions.format)}),
-		outDir: getDestinationDirectoryFromRollupOutputOptions(root, rollupOutputOptions),
+		...(outDir == null ? {} : {outDir: outDir}),
 		baseUrl: "."
 	};
 }
