@@ -1,4 +1,5 @@
 import {Browserslist} from "./browserslist";
+import {IBabelUserConfigurableOptions} from "./i-get-babel-options-options";
 
 export interface ITypescriptPluginOptions {
 	root: string;
@@ -7,6 +8,5 @@ export interface ITypescriptPluginOptions {
 	exclude: string|string[];
 	parseExternalModules: boolean;
 	browserslist: Browserslist;
-	additionalBabelPresets: {}[];
-	additionalBabelPlugins: {}[];
+	babel: Partial<IBabelUserConfigurableOptions>;
 }

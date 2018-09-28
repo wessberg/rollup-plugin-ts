@@ -6,6 +6,7 @@ import {DECLARATION_EXTENSION, DEFAULT_DESTINATION, JAVASCRIPT_EXTENSION, JSX_EX
 import {FormatHost} from "./format-host";
 import {IBabelOptions} from "./i-babel-options";
 import {IGetBabelOptionsOptions} from "./i-get-babel-options-options";
+import {ITypescriptPluginOptions} from "./i-typescript-plugin-options";
 
 // tslint:disable:no-any
 
@@ -194,15 +195,16 @@ export function isMainEntry (root: string, fileName: string, inputOptions?: Inpu
  * @param {Browserslist} browserslist
  * @param {{}[]} [additionalPlugins=[]]
  * @param {{}[]} [additionalPresets=[]]
+ * @param {boolean} [comments=true]
  * @returns {Partial<IBabelOptions>}
  */
-export function getBabelOptions ({filename, relativeFilename, typescriptOptions, browserslist, additionalPlugins = [], additionalPresets = []}: IGetBabelOptionsOptions): Partial<IBabelOptions> {
+export function getBabelOptions ({filename, relativeFilename, typescriptOptions, browserslist, additionalPlugins = [], additionalPresets = [], comments = true}: IGetBabelOptionsOptions): Partial<IBabelOptions> {
 	return {
 		configFile: false,
 		babelrc: false,
 		babelrcRoots: false,
 		code: true,
-		comments: false,
+		comments,
 		filename,
 		filenameRelative: relativeFilename,
 		sourceMaps: typescriptOptions.options.sourceMap,
@@ -232,6 +234,20 @@ export function getBabelOptions ({filename, relativeFilename, typescriptOptions,
 			...additionalPlugins
 		]
 	};
+}
+
+/**
+ * Returns true if the user has provided babel options to the plugin
+ * @param {ITypescriptPluginOptions["babel"]} options
+ * @returns {boolean}
+ */
+export function userHasProvidedBabelOptions (options: ITypescriptPluginOptions["babel"]): boolean {
+	if (options == null) return false;
+	return (
+		(options.additionalPresets != null && options.additionalPresets.length > 0) ||
+		(options.additionalPlugins != null && options.additionalPlugins.length > 0) ||
+		(options.comments != null)
+	);
 }
 
 /**

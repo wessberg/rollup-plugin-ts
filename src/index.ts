@@ -9,7 +9,7 @@ import {createFilter} from "rollup-pluginutils";
 import {nodeModuleNameResolver, ParsedCommandLine, ScriptTarget, sys} from "typescript";
 import {DECLARATION_EXTENSION} from "./constants";
 import {FormatHost} from "./format-host";
-import {ensureRelative, ensureTs, getBabelOptions, getDestinationFilePathFromRollupOutputOptions, getForcedCompilerOptions, includeFile, includeFileForTSEmit, isMainEntry, printDiagnostics, resolveTypescriptOptions, toTypescriptDeclarationFileExtension} from "./helpers";
+import {ensureRelative, ensureTs, getBabelOptions, getDestinationFilePathFromRollupOutputOptions, getForcedCompilerOptions, includeFile, includeFileForTSEmit, isMainEntry, printDiagnostics, resolveTypescriptOptions, toTypescriptDeclarationFileExtension, userHasProvidedBabelOptions} from "./helpers";
 import {IGenerateOptions} from "./i-generate-options";
 import {ITypescriptLanguageServiceEmitResult, TypescriptLanguageServiceEmitResultKind} from "./i-typescript-language-service-emit-result";
 import {ITypescriptLanguageServiceHost} from "./i-typescript-language-service-host";
@@ -17,10 +17,21 @@ import {ITypescriptPluginOptions} from "./i-typescript-plugin-options";
 import {TypescriptLanguageServiceHost} from "./typescript-language-service-host";
 
 /**
+ * The name of the Rollup plugin
+ * @type {string}
+ */
+const PLUGIN_NAME = "Typescript Rollup Plugin";
+
+/**
  * A Rollup plugin that transpiles the given input with Typescript
  * @param {ITypescriptPluginOptions} [options={}]
  */
-export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig = "tsconfig.json", include = [], exclude = [], parseExternalModules = false, browserslist, additionalBabelPlugins, additionalBabelPresets}: Partial<ITypescriptPluginOptions> = {}): Plugin {
+export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig = "tsconfig.json", include = [], exclude = [], parseExternalModules = false, browserslist, babel = {}}: Partial<ITypescriptPluginOptions> = {}): Plugin {
+
+	// Make sure to inform the user that if the user has provided babel options, they will be completely discarded if no Browserslist has been provided.
+	if (userHasProvidedBabelOptions(babel) && browserslist == null) {
+		throw new TypeError(`[${PLUGIN_NAME}]: You have provided options for Babel, but you have to also provide a Browserslist if you want Babel to handle transpilation.`);
+	}
 
 	/**
 	 * The CompilerOptions to use with Typescript for individual files
@@ -67,7 +78,7 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 	const tsFileToRawFileMap: Map<string, string> = new Map();
 
 	return {
-		name: "Typescript Rollup Plugin",
+		name: PLUGIN_NAME,
 
 		options (options: InputOptions): void {
 			inputRollupOptions = options;
@@ -210,8 +221,7 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 						typescriptOptions: typescriptOptions!,
 						inputSourceMap: typelessMapResult == null ? undefined : JSON.parse(typelessMapResult.text),
 						browserslist,
-						additionalPresets: additionalBabelPresets,
-						additionalPlugins: additionalBabelPlugins
+						...babel
 					}), (err: Error, result: any) => {
 						if (err != null) return reject(err);
 						return resolve([
