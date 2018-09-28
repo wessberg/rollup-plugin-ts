@@ -73,7 +73,7 @@ The options provided in your `tsconfig.json` will be seamlessly merged with thos
 
 #### Babel options
 
-These options will be passed on to Babel. Note that you *MUST* also include a `browserslist` to the plugin in order for Babel to handle transpilation.
+These options will be passed on to Babel. Note that you _MUST_ also include a `browserslist` to the plugin in order for Babel to handle transpilation.
 
 - `additionalPresets`: Code will additionally be run through the babel presets provided here. (Default: `undefined`)
 - `additionalPlugins`: Code will additionally be run through the babel plugins provided here. (Default: `undefined`)
