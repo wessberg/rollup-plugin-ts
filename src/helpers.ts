@@ -223,13 +223,13 @@ export function getBabelOptions ({filename, relativeFilename, typescriptOptions,
 			}]
 		],
 		plugins: [
-			...additionalPlugins,
 			["@babel/plugin-proposal-decorators", {legacy: true}],
 			["@babel/plugin-proposal-class-properties", {loose: false}],
 			"@babel/plugin-proposal-object-rest-spread",
 			"@babel/plugin-proposal-async-generator-functions",
 			"@babel/plugin-syntax-dynamic-import",
-			"@babel/plugin-proposal-optional-catch-binding"
+			"@babel/plugin-proposal-optional-catch-binding",
+			...additionalPlugins
 		]
 	};
 }
