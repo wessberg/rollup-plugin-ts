@@ -77,7 +77,8 @@ These options will be passed on to Babel. Note that you _MUST_ also include a `b
 
 - `additionalPresets`: Code will additionally be run through the babel presets provided here. (Default: `undefined`)
 - `additionalPlugins`: Code will additionally be run through the babel plugins provided here. (Default: `undefined`)
-- `comments`: Whether or not comments will be preserved in the output. (Default: `undefined`),
+
+And all of the options listed in the [Code generator options section](https://babeljs.io/docs/en/next/options#code-generator-options) for Babel.
 
 ### Declarations
 

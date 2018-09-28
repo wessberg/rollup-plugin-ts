@@ -23,7 +23,8 @@ export interface IBabelOptions {
 	plugins: {}[];
 	presets: {}[];
 	retainLines: boolean;
-	shouldPrintComment (comment: string): boolean;
+	minified: boolean;
+	shouldPrintComment (value: string): boolean;
 	sourceFileName: string;
 	sourceMaps: boolean;
 	sourceRoot: string;

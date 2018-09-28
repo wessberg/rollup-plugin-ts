@@ -189,21 +189,21 @@ export function isMainEntry (root: string, fileName: string, inputOptions?: Inpu
 
 /**
  * Gets the options to use with Babel
- * @param {string} filename
- * @param {string} relativeFilename
- * @param {ParsedCommandLine} typescriptOptions
- * @param {Browserslist} browserslist
- * @param {{}[]} [additionalPlugins=[]]
- * @param {{}[]} [additionalPresets=[]]
- * @param {boolean} [comments=true]
+ * @param {IGetBabelOptionsOptions} options
  * @returns {Partial<IBabelOptions>}
  */
-export function getBabelOptions ({filename, relativeFilename, typescriptOptions, browserslist, additionalPlugins = [], additionalPresets = [], comments = true}: IGetBabelOptionsOptions): Partial<IBabelOptions> {
+export function getBabelOptions ({filename, relativeFilename, typescriptOptions, browserslist, additionalPlugins = [], additionalPresets = [], comments = true, auxiliaryCommentAfter, auxiliaryCommentBefore, compact, minified, retainLines, shouldPrintComment}: IGetBabelOptionsOptions): Partial<IBabelOptions> {
 	return {
 		configFile: false,
 		babelrc: false,
 		babelrcRoots: false,
 		code: true,
+		auxiliaryCommentBefore,
+		auxiliaryCommentAfter,
+		compact,
+		minified,
+		retainLines,
+		shouldPrintComment,
 		comments,
 		filename,
 		filenameRelative: relativeFilename,
