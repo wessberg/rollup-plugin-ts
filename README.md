@@ -68,9 +68,16 @@ The options provided in your `tsconfig.json` will be seamlessly merged with thos
 - `include`: A filter for the files that should be passed through the plugin. (Default: `[]`),
 - `exclude`: A filter for the files that should be excluded from being passed through the plugin. (Default: `[]`)
 - `browserslist`: A Browserslist config that should be compiled against, rather than relying on the `target` provided in the `tsconfig`. Please see [this section](#using-browserslists) for more details. (Default: `undefined`)
-- `additionalBabelPresets`: **Only applicable when providing a value for the `browserslist` option**. Code will additionally be run through the babel presets provided here. (Default: `[]`)
-- `additionalBabelPlugins`: **Only applicable when providing a value for the `browserslist` option**. Code will additionally be run through the babel plugins provided here. (Default: `[]`)
+- `babel`: An object of supported configuration options to pass on to Babel (See [this section](#babel-options) for more details.) (Default: `undefined`)
 - `parseExternalModules`: If false, no external modules (e.g. those coming from `node_modules`) will be parsed by Typescript which may result in the unwanted preservation of exported types from other libraries in the compiled output. Please see [this section](#rollup-complains-about-an-import-for-something-that-isnt-exported-by-a-module) for more details. (Default: `false`)
+
+#### Babel options
+
+These options will be passed on to Babel. Note that you *MUST* also include a `browserslist` to the plugin in order for Babel to handle transpilation.
+
+- `additionalPresets`: Code will additionally be run through the babel presets provided here. (Default: `undefined`)
+- `additionalPlugins`: Code will additionally be run through the babel plugins provided here. (Default: `undefined`)
+- `comments`: Whether or not comments will be preserved in the output. (Default: `undefined`),
 
 ### Declarations
 
