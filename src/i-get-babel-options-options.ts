@@ -20,6 +20,6 @@ export interface IGetBabelOptionsOptions extends Partial<IBabelUserConfigurableO
 	filename: string;
 	relativeFilename: string;
 	typescriptOptions: ParsedCommandLine;
-	inputSourceMap: SourceMap;
+	inputSourceMap?: SourceMap;
 	browserslist: Browserslist;
 }

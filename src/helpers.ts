@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import {basename, dirname, isAbsolute, join, parse, relative} from "path";
 import {InputOptions, ModuleFormat, OutputOptions} from "rollup";
-import {CompilerOptions, Diagnostic, DiagnosticCategory, findConfigFile, formatDiagnostic, ModuleKind, parseConfigFileTextToJson, ParsedCommandLine, parseJsonConfigFileContent, sys} from "typescript";
+import {CompilerOptions, Diagnostic, DiagnosticCategory, findConfigFile, formatDiagnostic, ModuleKind, parseConfigFileTextToJson, ParsedCommandLine, parseJsonConfigFileContent, sys, ScriptTarget} from "typescript";
 import {DECLARATION_EXTENSION, DEFAULT_DESTINATION, JAVASCRIPT_EXTENSION, JSX_EXTENSION, MJS_EXTENSION, TSX_EXTENSION, TYPESCRIPT_EXTENSION} from "./constants";
 import {FormatHost} from "./format-host";
 import {IBabelOptions} from "./i-babel-options";
@@ -122,15 +122,17 @@ export function toTypescriptDeclarationFileExtension (path: string): string {
 /**
  * Retrieves the CompilerOptions that will be forced
  * @param {string} root
+ * @param {boolean} useBabel
  * @param {Partial<InputOptions>} [_rollupInputOptions]
  * @param {Partial<OutputOptions>} [rollupOutputOptions]
  * @returns {Partial<CompilerOptions>}
  */
-export function getForcedCompilerOptions (root: string, _rollupInputOptions: Partial<InputOptions> = {}, rollupOutputOptions: Partial<OutputOptions> = {}): Partial<CompilerOptions> {
+export function getForcedCompilerOptions (root: string, useBabel: boolean, _rollupInputOptions: Partial<InputOptions> = {}, rollupOutputOptions: Partial<OutputOptions> = {}): Partial<CompilerOptions> {
 	const outDir = getDestinationDirectoryFromRollupOutputOptions(root, rollupOutputOptions);
 	return {
 		...(rollupOutputOptions.format == null ? {} : {module: getModuleKindFromRollupFormat(rollupOutputOptions.format)}),
 		...(outDir == null ? {} : {outDir: outDir}),
+		...(useBabel ? {target: ScriptTarget.ESNext} : {}),
 		baseUrl: "."
 	};
 }
@@ -235,7 +237,7 @@ export function getBabelOptions ({filename, relativeFilename, typescriptOptions,
 		]
 	};
 }
-
+// And, babel minify will work on the entire thing
 /**
  * Returns true if the user has provided babel options to the plugin
  * @param {ITypescriptPluginOptions["babel"]} options

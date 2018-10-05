@@ -3,10 +3,10 @@
 // @ts-ignore
 import {transform} from "@babel/core";
 import {join} from "path";
-import {InputOptions, OutputBundle, OutputChunk, Plugin, SourceDescription} from "rollup";
+import {InputOptions, OutputBundle, OutputChunk, Plugin, RawSourceMap, RenderedChunk, SourceDescription} from "rollup";
 // @ts-ignore
 import {createFilter} from "rollup-pluginutils";
-import {nodeModuleNameResolver, ParsedCommandLine, ScriptTarget, sys} from "typescript";
+import {nodeModuleNameResolver, ParsedCommandLine, sys} from "typescript";
 import {DECLARATION_EXTENSION} from "./constants";
 import {FormatHost} from "./format-host";
 import {ensureRelative, ensureTs, getBabelOptions, getDestinationFilePathFromRollupOutputOptions, getForcedCompilerOptions, includeFile, includeFileForTSEmit, isMainEntry, printDiagnostics, resolveTypescriptOptions, toTypescriptDeclarationFileExtension, userHasProvidedBabelOptions} from "./helpers";
@@ -77,11 +77,68 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 	 */
 	const tsFileToRawFileMap: Map<string, string> = new Map();
 
+	/**
+	 * Holds true if babel should be used
+	 * @type {boolean}
+	 */
+	const USE_BABEL = browserslist != null;
+
 	return {
 		name: PLUGIN_NAME,
 
 		options (options: InputOptions): void {
 			inputRollupOptions = options;
+		},
+
+		/**
+		 * Renders a chunk. If Babel transpilation is active, that's what we're gonna use
+		 * @param {string} code
+		 * @param {RenderedChunk} chunk
+		 * @returns {Promise<object | void>}
+		 */
+		async renderChunk (code: string, chunk: RenderedChunk): Promise<{ code: string; map: RawSourceMap }|void> {
+			if (!USE_BABEL) return;
+
+			// Convert the file into a relative path
+			const relativePath = ensureRelative(root, chunk.fileName);
+			const relativeWithTsExtension = ensureTs(relativePath);
+			const mainEntry = isMainEntry(root, chunk.fileName, inputRollupOptions);
+
+			const emitResults = await new Promise<ITypescriptLanguageServiceEmitResult[]>((resolve, reject) => {
+				transform(code, getBabelOptions({
+					filename: chunk.fileName,
+					relativeFilename: relativeWithTsExtension,
+					typescriptOptions: typescriptOptions!,
+					browserslist: browserslist!,
+					...babel
+				}), (err: Error, result: any) => {
+					if (err != null) return reject(err);
+					return resolve([
+						{
+							kind: TypescriptLanguageServiceEmitResultKind.MAP,
+							fileName: chunk.fileName,
+							isMainEntry: mainEntry,
+							text: result.map
+						},
+						{
+							kind: TypescriptLanguageServiceEmitResultKind.SOURCE,
+							fileName: chunk.fileName,
+							isMainEntry: mainEntry,
+							text: result.code
+						}
+					]);
+				});
+			});
+
+			// Find the emit result that references the source code
+			const sourceResult = emitResults.find(emitResult => emitResult.kind === TypescriptLanguageServiceEmitResultKind.SOURCE)!;
+			// Find the emit result that references the SourceMap
+			const mapResult = emitResults.find(emitResult => emitResult.kind === TypescriptLanguageServiceEmitResultKind.MAP)!;
+
+			return {
+				code: sourceResult.text,
+				map: <any> mapResult.text
+			};
 		},
 
 		/**
@@ -122,11 +179,11 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 			if (typescriptOptions == null) return;
 
 			// If declarations should be emitted, make sure to do so
-			if (typescriptOptions != null && typescriptOptions.options.declaration != null && typescriptOptions.options.declaration) {
+			if (typescriptOptions.options.declaration != null && typescriptOptions.options.declaration) {
 
 				// Temporarily swap the CompilerOptions for the LanguageService
 				const oldOptions = languageServiceHost.getTypescriptOptions();
-				const declarationOptions = await resolveTypescriptOptions(root, tsconfig, getForcedCompilerOptions(root, inputRollupOptions, outputOptions));
+				const declarationOptions = await resolveTypescriptOptions(root, tsconfig, getForcedCompilerOptions(root, USE_BABEL, inputRollupOptions, outputOptions));
 				languageServiceHost.setTypescriptOptions(declarationOptions);
 
 				// Emit all declaration output files
@@ -164,7 +221,11 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 
 			// Make sure that the compiler options are in fact defined
 			if (typescriptOptions == null) {
-				typescriptOptions = await resolveTypescriptOptions(root, tsconfig, getForcedCompilerOptions(root, inputRollupOptions));
+				typescriptOptions = await resolveTypescriptOptions(
+					root,
+					tsconfig,
+					getForcedCompilerOptions(root, USE_BABEL, inputRollupOptions)
+				);
 			}
 
 			// Assert that the file passes the filter
@@ -196,58 +257,12 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 
 			let emitResults: ITypescriptLanguageServiceEmitResult[];
 
-			// If a browserslist is given, use babel to transform the file, but first pass it through the Typescript LanguageService to strip type-only imports
-			if (browserslist != null) {
-
-				// Temporarily swap the CompilerOptions for the LanguageService
-				const oldOptions = languageServiceHost.getTypescriptOptions();
-				languageServiceHost.setTypescriptOptions({...oldOptions, options: {...oldOptions.options, target: ScriptTarget.ESNext}});
-
-				// Emit all declaration output files
-				const emittedFiles = languageServiceHost.emit(relativeWithTsExtension);
-
-				// Find the emit result that references the source code
-				const typelessSourceResult = emittedFiles.find(emitResult => emitResult.kind === TypescriptLanguageServiceEmitResultKind.SOURCE);
-				// Find the emit result that references the SourceMap
-				const typelessMapResult = emittedFiles.find(emitResult => emitResult.kind === TypescriptLanguageServiceEmitResultKind.MAP);
-
-				// Reset the compilation settings
-				languageServiceHost.setTypescriptOptions(oldOptions);
-
-				emitResults = await new Promise<ITypescriptLanguageServiceEmitResult[]>((resolve, reject) => {
-					transform(typelessSourceResult == null ? code : typelessSourceResult.text, getBabelOptions({
-						filename: file,
-						relativeFilename: relativeWithTsExtension,
-						typescriptOptions: typescriptOptions!,
-						inputSourceMap: typelessMapResult == null ? undefined : JSON.parse(typelessMapResult.text),
-						browserslist,
-						...babel
-					}), (err: Error, result: any) => {
-						if (err != null) return reject(err);
-						return resolve([
-							{
-								kind: TypescriptLanguageServiceEmitResultKind.MAP,
-								fileName: file,
-								isMainEntry: mainEntry,
-								text: result.map
-							},
-							{
-								kind: TypescriptLanguageServiceEmitResultKind.SOURCE,
-								fileName: file,
-								isMainEntry: mainEntry,
-								text: result.code
-							}
-						]);
-					});
-				});
-			}
-
 			// Otherwise, if the file shouldn't emit with Typescript, return undefined
-			else if (!shouldIncludeForTSEmit) {
+			if (!shouldIncludeForTSEmit) {
 				return undefined;
 			}
 
-			// Otherwise, use Typescript directly
+			// Run it through Typescript
 			else {
 				// Take all emit results for that file
 				emitResults = languageServiceHost.emit(relativeWithTsExtension);
