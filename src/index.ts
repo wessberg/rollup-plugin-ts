@@ -9,7 +9,7 @@ import {createFilter} from "rollup-pluginutils";
 import {nodeModuleNameResolver, ParsedCommandLine, sys} from "typescript";
 import {DECLARATION_EXTENSION} from "./constants";
 import {FormatHost} from "./format-host";
-import {ensureRelative, ensureTs, getBabelOptions, getDestinationFilePathFromRollupOutputOptions, getForcedCompilerOptions, includeFile, includeFileForTSEmit, isMainEntry, printDiagnostics, resolveTypescriptOptions, toTypescriptDeclarationFileExtension, userHasProvidedBabelOptions} from "./helpers";
+import {ensureJs, ensureRelative, ensureTs, getBabelOptions, getDestinationFilePathFromRollupOutputOptions, getForcedCompilerOptions, includeFile, includeFileForTSEmit, isMainEntry, printDiagnostics, resolveTypescriptOptions, toTypescriptDeclarationFileExtension, userHasProvidedBabelOptions} from "./helpers";
 import {IGenerateOptions} from "./i-generate-options";
 import {ITypescriptLanguageServiceEmitResult, TypescriptLanguageServiceEmitResultKind} from "./i-typescript-language-service-emit-result";
 import {ITypescriptLanguageServiceHost} from "./i-typescript-language-service-host";
@@ -302,10 +302,19 @@ export default function typescriptRollupPlugin ({root = process.cwd(), tsconfig 
 			if (match.resolvedModule == null) return;
 
 			// Unpack the resolved module
-			const {resolvedFileName} = match.resolvedModule;
+			let {resolvedFileName} = match.resolvedModule;
 
 			// Otherwise, if the resolved filename is a declaration file, return void
-			if (resolvedFileName.endsWith(DECLARATION_EXTENSION)) return;
+			if (resolvedFileName.endsWith(DECLARATION_EXTENSION)) {
+				const matchingJsFileName = ensureJs(resolvedFileName);
+
+				// If a Javascript file is located next to it, return that one
+				if (sys.fileExists(matchingJsFileName)) {
+					resolvedFileName = matchingJsFileName;
+				} else {
+					return;
+				}
+			}
 
 			// Return the resolved file name
 			return resolvedFileName;

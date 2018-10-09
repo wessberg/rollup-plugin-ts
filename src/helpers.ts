@@ -286,20 +286,30 @@ export function isDTSFile (file: string): boolean {
  * @returns {string}
  */
 export function ensureTs (file: string): string {
-	const {dir, name, ext} = parse(file);
-	const base = join(dir, name);
-	if (ext !== TYPESCRIPT_EXTENSION) return `${base}${TYPESCRIPT_EXTENSION}`;
-	return file;
+	return `${stripExtension(file)}${TYPESCRIPT_EXTENSION}`;
 }
 
 /**
- * Ensures that the given file ends with '.ts', no matter what it actually ends with
+ * Ensures that the given file ends with '.js', no matter what it actually ends with
  * This is to support Typescript's language service with files that doesn't necessarily end with it.
  * @param {string} file
  * @returns {string}
  */
+export function ensureJs (file: string): string {
+	return `${stripExtension(file)}${JAVASCRIPT_EXTENSION}`;
+}
+
+/**
+ * Strips the extension from a file
+ * @param {string} file
+ * @returns {string}
+ */
 export function stripExtension (file: string): string {
-	const {dir, name} = parse(file);
+	let {dir, name} = parse(file);
+
+	if (name.endsWith(".d")) {
+		name = name.slice(0, -2);
+	}
 	return join(dir, name);
 }
 
