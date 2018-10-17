@@ -52,7 +52,7 @@ export default {
 };
 ```
 
-Without any options, the plugin will *"just work"*:
+Without any options, the plugin will _"just work"_:
 
 - The `tsconfig.json` file closest to the current working directory will be resolved, if any. Otherwise, the default Typescript options will be used.
 - The `.browserslistrc` file or `browserslist` property within the `package.json` file closest to the current working directory will be resolved and used to decide the Typescript ECMAScript version target, if any. Otherwise, the declared `target` within the resolved `tsconfig.json` file will be used, if any such file exists, and if not, the default Typescript target will be used.
@@ -63,22 +63,22 @@ This plugin works very well with just Typescript.
 The `tsconfig.json` file closest to your project will be resolved and used in combination with Rollup.
 If your config has a different name, or if you use different configs dynamically depending on the environment, you can provide the location for the `tsconfig` in the plugin options:
 
- ```javascript
+```javascript
 ts({
-      tsconfig: PRODUCTION ? "tsconfig.prod.json" : "tsconfig.json"
-    })
+  tsconfig: PRODUCTION ? "tsconfig.prod.json" : "tsconfig.json"
+});
 ```
 
 You an also pass in [CompilerOptions](https://www.typescriptlang.org/docs/handbook/compiler-options.html) directly, rather than provide the path to a `tsconfig`:
 
- ```javascript
+```javascript
 ts({
-      tsconfig: {
-      	target: ScriptTarget.ES2018,
-      	allowSyntheticDefaultImports: true,
-      	allowJs: true
-      }
-    })
+  tsconfig: {
+    target: ScriptTarget.ES2018,
+    allowSyntheticDefaultImports: true,
+    allowJs: true
+  }
+});
 ```
 
 If there is a `.browserslistrc` file or the nearest `package.json` contains a Browserslist configuration, a target ECMAScript version will be decided based on that one, rather than respecting the `target` property of the matched `tsconfig`.
@@ -97,28 +97,28 @@ You can explicitly pass in Browserslist options. Here's an example with a raw Br
 
 ```javascript
 ts({
-	browserslist: ["last 1 version", "> 1%"]
-})
+  browserslist: ["last 1 version", "> 1%"]
+});
 ```
 
 You can also provide a configuration object instead of a raw query. Here's one with a baked-in query:
 
 ```javascript
 ts({
-	browserslist: {
-		query: ["last 1 version", "> 1%"]
-	}
-})
+  browserslist: {
+    query: ["last 1 version", "> 1%"]
+  }
+});
 ```
 
 ...And here's one with a `path` property pointing to a file that contains a Browserslist:
 
 ```javascript
 ts({
-	browserslist: {
-		path: ".mybrowserslistrc"
-	}
-})
+  browserslist: {
+    path: ".mybrowserslistrc"
+  }
+});
 ```
 
 #### Using the plugin with Typescript, but without Browserslists
@@ -130,8 +130,8 @@ You can explicitly request that no Browserslist will be used by setting the `bro
 
 ```javascript
 ts({
-	browserslist: false
-})
+  browserslist: false
+});
 ```
 
 ### Combining Typescript with Babel
@@ -143,8 +143,8 @@ To use Babel, simply set the `transpiler` plugin option to `"babel"`:
 
 ```javascript
 ts({
-	transpiler: "babel"
-})
+  transpiler: "babel"
+});
 ```
 
 That's it! The plugin will attempt to locate a `babel.config.js` file or a `.babelrc` file and use the options, plugins, and presets found there.
@@ -177,11 +177,11 @@ This enables you to very efficiently transform Typescript before code generation
 
 ```javascript
 ts({
-			// If your tsconfig is already called 'tsconfig.json', this option can be left out
-      tsconfig: "tsconfig.json",
-      // If there is no .browserslistrc within your project, and if your package.json doesn't include a Browserslist property, this option can be left out
-      browserslist: false
-    })
+  // If your tsconfig is already called 'tsconfig.json', this option can be left out
+  tsconfig: "tsconfig.json",
+  // If there is no .browserslistrc within your project, and if your package.json doesn't include a Browserslist property, this option can be left out
+  browserslist: false
+});
 ```
 
 ### Typescript with Browserslist example
@@ -191,13 +191,13 @@ shows how you can provide one explicitly
 
 ```javascript
 ts({
-      browserslist:  ["last 1 version", "> 1%"]
-})
-    
+  browserslist: ["last 1 version", "> 1%"]
+});
+
 // or
 ts({
-      browserslist:  {path: ".mybrowserslistrc"}
-})
+  browserslist: {path: ".mybrowserslistrc"}
+});
 ```
 
 ### Typescript, Babel, and Browserslist example
@@ -207,24 +207,24 @@ And, [as described here](#typescript-with-browserslist-example), the same goes f
 
 ```javascript
 ts({
-      transpiler: "babel",
-      browserslist: ["last 1 version", "> 1%"],
-      babelConfig: {
-      	plugins: ["my-babel-plugin"]
-      }
-    })
+  transpiler: "babel",
+  browserslist: ["last 1 version", "> 1%"],
+  babelConfig: {
+    plugins: ["my-babel-plugin"]
+  }
+});
 ```
 
 ### Pure Typescript with CustomTransformers
 
 ```javascript
 ts({
-      transformers: {
-      	before: [myTransformer1, myTransformer2],
-      	after: [myTransformer3, myTransformer4],
-      	afterDeclarations: [myTransformer5, myTransformer6]
-      }
-    })
+  transformers: {
+    before: [myTransformer1, myTransformer2],
+    after: [myTransformer3, myTransformer4],
+    afterDeclarations: [myTransformer5, myTransformer6]
+  }
+});
 ```
 
 ### Advanced example of using Typescript, Babel, and Browserslists together
@@ -232,7 +232,7 @@ ts({
 This example shows how you can use this plugin to accomplish quite advanced things:
 
 ```javascript
-const IS_PRODUCTION = process.env.NODE_ENV = "production";
+const IS_PRODUCTION = (process.env.NODE_ENV = "production");
 const BUNDLE_TARGET = process.env.NODE_ENV;
 const BROWSERSLIST_MODERN = ["since 2015", "not dead", "> 5%"];
 const BROWSERSLIST_LEGACY = ["defaults"];
@@ -240,33 +240,25 @@ const APP_ROOT = "/some/project/root/folder";
 const awesomeFrameworkTransformers = getAwesomeFrameworkCustomTransformers();
 
 ts({
-	// Use Babel for Syntax transformations
-	transpiler: "babel",
-	// Don't use process.cwd(), but instead another root directory
-	cwd: APP_ROOT,
-	// Load a different tsconfig file in production
-	tsconfig: IS_PRODUCTION
-		? "tsconfig.prod.json"
-		: "tsconfig.json",
-	// Load a different browserslist if currently targeting a modern environment
-	browserslist: {
-		path: BUNDLE_TARGET === "modern"
-			? ".browserlistrc-modern"
-			: ".browserslistrc-legacy"
-	},
-	// Load a different babel config file in production
-	babelConfig: IS_PRODUCTION
-		? "babel.config.prod.js"
-		: "babel.config.js",
+  // Use Babel for Syntax transformations
+  transpiler: "babel",
+  // Don't use process.cwd(), but instead another root directory
+  cwd: APP_ROOT,
+  // Load a different tsconfig file in production
+  tsconfig: IS_PRODUCTION ? "tsconfig.prod.json" : "tsconfig.json",
+  // Load a different browserslist if currently targeting a modern environment
+  browserslist: {
+    path: BUNDLE_TARGET === "modern" ? ".browserlistrc-modern" : ".browserslistrc-legacy"
+  },
+  // Load a different babel config file in production
+  babelConfig: IS_PRODUCTION ? "babel.config.prod.js" : "babel.config.js",
 
-	// Exclude files within node_modules when not in production
-	exclude: IS_PRODUCTION
-		? []
-		: ["node_modules/**/*.*"],
-		
-	// Apply CustomTransformers, for example to transform the Source Code with a framework that uses some 
-	transformers: awesomeFrameworkTransformers
-})
+  // Exclude files within node_modules when not in production
+  exclude: IS_PRODUCTION ? [] : ["node_modules/**/*.*"],
+
+  // Apply CustomTransformers, for example to transform the Source Code with a framework that uses some
+  transformers: awesomeFrameworkTransformers
+});
 ```
 
 ## Ignored/overridden options
@@ -279,7 +271,7 @@ To provide a seamless experience, Rollup always take precedence when conflicts a
 The following [CompilerOptions](https://www.typescriptlang.org/docs/handbook/compiler-options.html) from a `tsconfig` will be ignored:
 
 | Property              | Reason                                                                                                                                                                                                                                                                                                                                                                                     |
-|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `outDir`              | Rollup, not Typescript, will decide where to emit chunks.                                                                                                                                                                                                                                                                                                                                  |
 | `outFile`             | This option produces flat output and only works with the module formats AMD and SystemJS. Rollup will be the decider of how to split code.                                                                                                                                                                                                                                                 |
 | `sourceMap`           | Typescript will always be instructed to produce SourceMaps. Rollup then decides whether or not to include them (and if they should be inlined).                                                                                                                                                                                                                                            |
@@ -297,37 +289,37 @@ The following [CompilerOptions](https://www.typescriptlang.org/docs/handbook/com
 
 The following additional options will also be ignored:
 
-| Property              | Reason                                                                                                                                                                                                                                 |
-|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `include`             | Rollup itself will decide which files to include in the transformation process based on your code. This plugin itself takes a `include` property which you should use instead if you want to explicitly allow specific files or globs. |
-| `exclude`             | See above.                                                                                                                                                                                                                             |
+| Property  | Reason                                                                                                                                                                                                                                 |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `include` | Rollup itself will decide which files to include in the transformation process based on your code. This plugin itself takes a `include` property which you should use instead if you want to explicitly allow specific files or globs. |
+| `exclude` | See above.                                                                                                                                                                                                                             |
 
 ### Ignored/overridden Babel options
 
 The following [Babel options](https://babeljs.io/docs/en/options) will be ignored:
 
-| Property              | Reason                                                                                                                                                                                                                                 |
-|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `sourceMaps`          | Babel will always be instructed to produce SourceMaps. Rollup then decides whether or not to include them (and if they should be inlined).                                                                                             |
-| `cwd`                 | The `cwd` option provided to the plugin will always be used.                                                                                                                                                                           |
-| `include`             | Rollup itself will decide which files to include in the transformation process based on your code. This plugin itself takes a `include` property which you should use instead if you want to explicitly allow specific files or globs. |
-| `exclude`             | See above                                                                                                                                                                                                                              |
-| `ignore`              | See above                                                                                                                                                                                                                              |
-| `only`                | See above                                                                                                                                                                                                                              |
-| `sourceType`          | Will always use `module`. Rollup will then decide what to do based on the output format                                                                                                                                                |
+| Property     | Reason                                                                                                                                                                                                                                 |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sourceMaps` | Babel will always be instructed to produce SourceMaps. Rollup then decides whether or not to include them (and if they should be inlined).                                                                                             |
+| `cwd`        | The `cwd` option provided to the plugin will always be used.                                                                                                                                                                           |
+| `include`    | Rollup itself will decide which files to include in the transformation process based on your code. This plugin itself takes a `include` property which you should use instead if you want to explicitly allow specific files or globs. |
+| `exclude`    | See above                                                                                                                                                                                                                              |
+| `ignore`     | See above                                                                                                                                                                                                                              |
+| `only`       | See above                                                                                                                                                                                                                              |
+| `sourceType` | Will always use `module`. Rollup will then decide what to do based on the output format                                                                                                                                                |
 
 ### Default Babel plugins
 
 If you decide to use Babel as the transpiler with the `transpiler` plugin option set to `"babel"`, some best-practice default plugins and presets will be applied such that you don't have to configure anything on your own.
 By default, the plugin will conditionally apply the `@babel/preset-env` preset if a Browserslist is provided or located, as well as plugins for handling [shipped proposals](https://babeljs.io/docs/en/babel-preset-env#shippedproposals). And, the `@babel/plugin-runtime` plugin will be used for extracting Babel helpers and reusing them across your chunks to avoid code duplication.
 
-If you provide these presets or plugins yourself through the found or provided Babel config, *your* config options will take precedence. 
+If you provide these presets or plugins yourself through the found or provided Babel config, _your_ config options will take precedence.
 
 Here's table with a full overview of the specifics:
 
 | Preset/Plugin                                      | Condition                                                                                                              | Reason                                                                                                                                                                                                                                                                                                                                                                                                   |
-|----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `@babel/preset-env`                                | A Browserslist is provided or found automatically, and you don't provide this preset yourself within your Babel config | This preset enables you to base your syntax transformations on the specific browsers/environment you want your application or library to target. It will "*Just Work"*                                                                                                                                                                                                                                   |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@babel/preset-env`                                | A Browserslist is provided or found automatically, and you don't provide this preset yourself within your Babel config | This preset enables you to base your syntax transformations on the specific browsers/environment you want your application or library to target. It will "_Just Work"_                                                                                                                                                                                                                                   |
 | `@babel/plugin-transform-runtime`                  | You don't provide this plugin yourself within your Babel config                                                        | Depending on your configuration, async functions may be rewritten to use [Regenerator Runtime](https://github.com/facebook/regenerator/tree/master/packages/regenerator-runtime), and there may be one or more Babel helpers injected within your code. `@babel/plugin-runtime` allows this plugin to avoid duplicating these helpers, and instead make them shared across Chunks seamlessly via Rollup. |
 | `@babel/plugin-proposal-object-rest-spread`        | You don't provide this plugin yourself within your Babel config                                                        | This plugin is needed in order to enable parsing [Object Rest/Spread](https://github.com/tc39/proposal-object-rest-spread) syntax, something that is a Stage 4 proposal for ECMAScript and [will be part of ES2018](https://github.com/tc39/proposals/blob/master/finished-proposals.md).                                                                                                                |
 | `@babel/plugin-proposal-async-generator-functions` | You don't provide this plugin yourself within your Babel config                                                        | This plugin is needed in order to support [Asynchronous Iteration](https://github.com/tc39/proposal-async-iteration) syntax, something that is a Stage 4 proposal for ECMAScript and [will be part of ES2018](https://github.com/tc39/proposals/blob/master/finished-proposals.md).                                                                                                                      |
@@ -356,7 +348,7 @@ In reality, browsers and other ECMAScript environments has varying support for n
 Some browsers support even those features that haven't been publicized yet, while others support only parts of the latest language features.
 
 In effect, a browser may support a lot of modern features such as classes and proper lexical scoping, but lack others.
-With Typescript, it's *"all-or-nothing"*: If you want to support a Browser with partial support, you must target the latest publicized ECMAScript version that the browser fully supports.
+With Typescript, it's _"all-or-nothing"_: If you want to support a Browser with partial support, you must target the latest publicized ECMAScript version that the browser fully supports.
 
 Babel, on the other hand, is far more granular in its design and applies syntax transformations on a feature-by-feature basis.
 Combined with something like `@babel/preset-env`, individual transformations can be applied for only those language features that are missing.
@@ -366,7 +358,7 @@ This means that you can use things like classes and lexical scoping in browsers 
 
 Babel has recently received support for [parsing and transforming Typescript](https://babeljs.io/docs/en/babel-plugin-transform-typescript). It would be intriguing to just use Babel for everything. However, there are significant caveats:
 
-The Babel compiler works on a file-by-file basis, meaning it is simple to use and reason about, whereas the Typescript compiler works with *Programs*, or in other words sets of related *SourceFiles*.
+The Babel compiler works on a file-by-file basis, meaning it is simple to use and reason about, whereas the Typescript compiler works with _Programs_, or in other words sets of related _SourceFiles_.
 This gives Typescript the advantage over Babel that it has a greater understanding of your codebase in general and can understand your types across files.
 In the context of this plugin, this enables Typescript to do things that you simply wouldn't be able to do with the Typescript plugin for Babel:
 
@@ -378,6 +370,7 @@ In the context of this plugin, this enables Typescript to do things that you sim
 #### When combined with Babel, what does Typescript do, and what does Babel do?
 
 First, Typescript will be used for:
+
 1. Reporting diagnostics.
 2. Emitting Typescript declaration (`.d.ts`) files and Typescript declaration map (`.d.ts.map`) files.
 3. Removing Typescript-specific features such as types, type-only imports, enums, and Typescript decorators.
