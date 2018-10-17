@@ -30,9 +30,9 @@ export class IncrementalLanguageService implements LanguageServiceHost {
 	 * A Map between file names and their IFiles
 	 * @type {Map<string, IFile>}
 	 */
-	private files: Map<string, IFile> = new Map();
+	private readonly files: Map<string, IFile> = new Map();
 
-	constructor (private options: ILanguageServiceOptions) {
+	constructor (private readonly options: ILanguageServiceOptions) {
 		this.addDefaultLibs();
 	}
 

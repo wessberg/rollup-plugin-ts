@@ -7,7 +7,7 @@ import {IModuleResolutionHostOptions} from "./i-module-resolution-host-options";
  */
 export class ModuleResolutionHost implements TSModuleResolutionHost {
 
-	constructor (private options: IModuleResolutionHostOptions) {
+	constructor (private readonly options: IModuleResolutionHostOptions) {
 	}
 
 	/**

@@ -13,7 +13,7 @@ export class DeclarationCompilerHost implements CompilerHost {
 	 */
 	public lastValue: IDeclarationValue = {code: "", map: undefined};
 
-	constructor (private options: ICompilerHostOptions) {
+	constructor (private readonly options: ICompilerHostOptions) {
 	}
 
 	/**
