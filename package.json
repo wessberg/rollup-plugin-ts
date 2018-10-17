@@ -85,6 +85,7 @@
   },
   "scaffold": {
     "patreonUserId": "11315442",
+    "logo": "./documentation/asset/rollup-plugin-ts-logo.png",
     "contributorMeta": {
       "Frederik Wessberg": {
         "imageUrl": "https://avatars2.githubusercontent.com/u/20454213?s=460&v=4",

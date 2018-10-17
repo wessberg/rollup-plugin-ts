@@ -1,3 +1,4 @@
+<img alt="Logo for @wessberg/polyfiller" src="./documentation/asset/rollup-plugin-ts-logo.png" height="150"></img><br>
 <a href="https://npmcharts.com/compare/@wessberg/rollup-plugin-ts?minimal=true"><img alt="Downloads per month" src="https://img.shields.io/npm/dm/%40wessberg%2Frollup-plugin-ts.svg" height="20"></img></a>
 <a href="https://david-dm.org/wessberg/rollup-plugin-ts"><img alt="Dependencies" src="https://img.shields.io/david/wessberg/rollup-plugin-ts.svg" height="20"></img></a>
 <a href="https://www.npmjs.com/package/@wessberg/rollup-plugin-ts"><img alt="NPM Version" src="https://badge.fury.io/js/%40wessberg%2Frollup-plugin-ts.svg" height="20"></img></a>
