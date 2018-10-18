@@ -19,10 +19,11 @@
     "build": "npm run tsc:cjs & npm run tsc:esm",
     "watch": "npm run tsc:cjs -- --watch & npm run tsc:esm -- --watch",
     "prepare": "npm run build",
-    "publish:common": "NODE_ENV=production npm run lint && NODE_ENV=production npm run prepare && npm run generate:all && git add . && (git commit -am \"Bumped version\" || true) && git push",
-    "publish:patch": "npm run publish:common && npm version patch && git push && npm publish",
-    "publish:minor": "npm run publish:common && npm version minor && git push && npm publish",
-    "publish:major": "npm run publish:common && npm version major && git push && npm publish"
+    "publish:pre": "NODE_ENV=production npm run lint && NODE_ENV=production npm run prepare",
+    "publish:meta": "npm run generate:all && git add . && (git commit -am \"Bumped version\" || true) && git push",
+    "publish:patch": "npm run publish:pre && npm version patch && npm run publish:meta && npm publish",
+    "publish:minor": "npm run publish:pre && npm version minor && npm run publish:meta && npm publish",
+    "publish:major": "npm run publish:pre && npm version minor && npm run publish:meta && npm publish"
   },
   "keywords": [
     "rollup",
