@@ -32,8 +32,7 @@
     "browserslist"
   ],
   "files": [
-    "dist/**/*.*",
-    "documentation/**/*.*"
+    "dist/**/*.*"
   ],
   "author": {
     "name": "Frederik Wessberg",
@@ -91,7 +90,7 @@
   },
   "scaffold": {
     "patreonUserId": "11315442",
-    "logo": "./documentation/asset/rollup-plugin-ts-logo.png",
+    "logo": "https://raw.githubusercontent.com/wessberg/rollup-plugin-ts/master/documentation/asset/rollup-plugin-ts-logo.png",
     "contributorMeta": {
       "Frederik Wessberg": {
         "imageUrl": "https://avatars2.githubusercontent.com/u/20454213?s=460&v=4",
