@@ -3,6 +3,7 @@
 /.cache/
 /.vscode/
 *.log
+/test-app/
 /logs/
 npm-debug.log*
 /lib-cov/

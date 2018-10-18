@@ -34,6 +34,7 @@ export class IncrementalLanguageService implements LanguageServiceHost {
 
 	constructor (private readonly options: ILanguageServiceOptions) {
 		this.addDefaultLibs();
+		this.addDefaultFileNames();
 	}
 
 	/**
@@ -249,6 +250,19 @@ export class IncrementalLanguageService implements LanguageServiceHost {
 			this.addFile({
 				file: libName,
 				code: readFileSync(join(this.LIB_DIRECTORY, libName)).toString()
+			}, true);
+		});
+	}
+
+	/**
+	 * Adds all default declaration files to the LanguageService
+	 */
+	private addDefaultFileNames (): void {
+		this.options.parsedCommandLine.fileNames.forEach(file => {
+
+			this.addFile({
+				file: file,
+				code: readFileSync(ensureAbsolute(this.options.cwd, file)).toString()
 			}, true);
 		});
 	}
