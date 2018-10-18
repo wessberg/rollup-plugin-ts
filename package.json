@@ -31,6 +31,9 @@
     "babel",
     "browserslist"
   ],
+  "files": [
+    "dist/**/*.*"
+  ],
   "author": {
     "name": "Frederik Wessberg",
     "email": "frederikwessberg@hotmail.com",
