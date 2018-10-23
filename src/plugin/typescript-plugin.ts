@@ -1,10 +1,9 @@
-import {InputOptions, OutputBundle, OutputOptions, Plugin, PluginContext, RawSourceMap, RenderedChunk, SourceDescription} from "rollup";
-import {createDocumentRegistry, createLanguageService, LanguageService, ParsedCommandLine, CompilerOptions, ModuleKind} from "typescript";
+import {InputOptions, OutputBundle, OutputOptions, Plugin, PluginContext, RawSourceMap, RenderedChunk, TransformSourceDescription} from "rollup";
+import {CompilerOptions, createDocumentRegistry, createLanguageService, LanguageService, ModuleKind, ParsedCommandLine} from "typescript";
 import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line";
 import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options";
 import {IncrementalLanguageService} from "../service/language-service/incremental-language-service";
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
-import {isBuiltInModule} from "../util/module/module-util";
 import {IEmitCache} from "../service/cache/emit-cache/i-emit-cache";
 import {EmitCache} from "../service/cache/emit-cache/emit-cache";
 import {emitDeclarations} from "../util/emit-declarations/emit-declarations";
@@ -30,6 +29,9 @@ import {transformAsync} from "@babel/core";
 import {createFilter} from "rollup-pluginutils";
 import {generateRandomHash} from "../util/hash/generate-random-hash";
 import {DeclarationCompilerHost} from "../service/compiler-host/declaration-compiler-host";
+import {resolveId} from "../util/resolve-id/resolve-id";
+import {mergeTransformers} from "../util/merge-transformers/merge-transformers";
+import {getTypeOnlyImportTransformers} from "../service/transformer/type-only-import-transformer";
 
 /**
  * The name of the Rollup plugin
@@ -173,7 +175,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 			// Hook up a LanguageServiceHost and a LanguageService
 			languageServiceHost = new IncrementalLanguageService({
 				parsedCommandLine,
-				transformers,
+				transformers: mergeTransformers(transformers, getTypeOnlyImportTransformers()),
 				cwd,
 				emitCache,
 				rollupInputOptions,
@@ -210,6 +212,9 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 				});
 			}
 
+			// Emit all reported diagnostics
+			Object.keys(chunk.modules).forEach(file => emitDiagnosticsThroughRollup({languageServiceHost, languageService, file, context: this}));
+
 			// Don't proceed if there is no minification config
 			if (babelMinifyConfig == null) return;
 
@@ -233,9 +238,9 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		 * Transforms the given code and file
 		 * @param {string} code
 		 * @param {string} file
-		 * @returns {Promise<SourceDescription?>}
+		 * @returns {Promise<TransformSourceDescription?>}
 		 */
-		async transform (this: PluginContext, code: string, file: string): Promise<SourceDescription|undefined> {
+		async transform (this: PluginContext, code: string, file: string): Promise<TransformSourceDescription|undefined> {
 
 			// Skip the file if it doesn't match the filter or if the helper cannot be transformed
 			if (!filter(file) || isNonTransformableBabelHelper(file)) {
@@ -256,15 +261,17 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 					// Get some EmitOutput, optionally from the cache if the file contents are unchanged
 					const emitOutput = emitCache.get({fileName: file, languageService});
 
-					// Emit all reported diagnostics
-					emitDiagnosticsThroughRollup({languageServiceHost, languageService, file, context: this});
-
 					// Return the emit output results to Rollup
 					return getSourceDescriptionFromEmitOutput(emitOutput);
 				})();
 
-			// If nothing was emitted, or if babel shouldn't be used, simply return the emitted results
-			if (sourceDescription == null || babelConfig == null) {
+			// If nothing was emitted, simply return undefined
+			if (sourceDescription == null) {
+				return undefined;
+			}
+
+			// If Babel shouldn't be used, simply return the emitted results
+			else if (babelConfig == null) {
 				return sourceDescription;
 			}
 
@@ -300,11 +307,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 			// Don't proceed if there is no parent (in which case this is an entry module)
 			if (parent == null) return;
 
-			// Don't attempt to load built-in modules
-			if (isBuiltInModule(id)) return;
-
-			const resolveMatch = resolveCache.get({id, parent, cwd, options: parsedCommandLine.options, moduleResolutionHost});
-			return resolveMatch == null ? undefined : resolveMatch;
+			return resolveId({id, parent, cwd, options: parsedCommandLine.options, moduleResolutionHost, resolveCache});
 		},
 
 		/**
