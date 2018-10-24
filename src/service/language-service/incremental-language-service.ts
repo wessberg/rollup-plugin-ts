@@ -141,7 +141,8 @@ export class IncrementalLanguageService implements LanguageServiceHost {
 		if (result != null) return result.code;
 
 		// Otherwise, try to properly resolve the file
-		return sys.readFile(fileName, encoding) || readFileSync(fileName, encoding).toString();
+		const sysResult = sys.readFile(fileName, encoding);
+		return sysResult != null ? sysResult : !fileExistsSync(fileName) ? undefined : readFileSync(fileName, encoding).toString();
 	}
 
 	/**
