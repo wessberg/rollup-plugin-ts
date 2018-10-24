@@ -261,6 +261,9 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 					// Get some EmitOutput, optionally from the cache if the file contents are unchanged
 					const emitOutput = emitCache.get({fileName: file, languageService});
 
+					// Emit all reported diagnostics
+					emitDiagnosticsThroughRollup({languageServiceHost, languageService, file, context: this});
+
 					// Return the emit output results to Rollup
 					return getSourceDescriptionFromEmitOutput(emitOutput);
 				})();

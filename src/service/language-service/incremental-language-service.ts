@@ -116,7 +116,7 @@ export class IncrementalLanguageService implements LanguageServiceHost {
 		if (this.files.has(fileName)) return true;
 
 		// Otherwise, check if it exists on disk
-		return fileExistsSync(fileName);
+		return sys.fileExists(fileName) || fileExistsSync(fileName);
 
 	}
 
@@ -131,17 +131,30 @@ export class IncrementalLanguageService implements LanguageServiceHost {
 	/**
 	 * Reads the given file
 	 * @param {string} fileName
+	 * @param {string} [encoding]
 	 * @returns {string | undefined}
 	 */
-	public readFile (fileName: string): string|undefined {
+	public readFile (fileName: string, encoding?: string): string|undefined {
 
 		// Check if the file exists within the cached files and return it if so
 		const result = this.files.get(fileName);
 		if (result != null) return result.code;
 
 		// Otherwise, try to properly resolve the file
-		if (!fileExistsSync(fileName)) return undefined;
-		return readFileSync(fileName).toString();
+		return sys.readFile(fileName, encoding) || readFileSync(fileName, encoding).toString();
+	}
+
+	/**
+	 * Reads the given directory
+	 * @param {string} path
+	 * @param {ReadonlyArray<string>} extensions
+	 * @param {ReadonlyArray<string>} exclude
+	 * @param {ReadonlyArray<string>} include
+	 * @param {number} depth
+	 * @returns {string[]}
+	 */
+	public readDirectory (path: string, extensions?: ReadonlyArray<string>, exclude?: ReadonlyArray<string>, include?: ReadonlyArray<string>, depth?: number): string[] {
+		return sys.readDirectory(path, extensions, exclude, include, depth);
 	}
 
 	/**
@@ -150,7 +163,7 @@ export class IncrementalLanguageService implements LanguageServiceHost {
 	 * @returns {string}
 	 */
 	public realpath (path: string): string {
-		return path;
+		return sys.realpath == null ? path : sys.realpath(path);
 	}
 
 	/**
@@ -238,6 +251,24 @@ export class IncrementalLanguageService implements LanguageServiceHost {
 	 */
 	public getCanonicalFileName (fileName: string): string {
 		return this.useCaseSensitiveFileNames() ? fileName : fileName.toLowerCase();
+	}
+
+	/**
+	 * Gets all directories within the given directory path
+	 * @param {string} directoryName
+	 * @returns {string[]}
+	 */
+	public getDirectories (directoryName: string): string[] {
+		return sys.getDirectories(directoryName);
+	}
+
+	/**
+	 * Returns true if the given directory exists
+	 * @param {string} directoryName
+	 * @returns {boolean}
+	 */
+	public directoryExists (directoryName: string): boolean {
+		return sys.directoryExists(directoryName);
 	}
 
 	/**
