@@ -117,3 +117,5 @@ export const DEFAULT_LIB_NAMES: Set<string> = new Set([
 	"lib.webworker.d.ts",
 	"lib.webworker.importscripts.d.ts"
 ]);
+
+export const DEBUG = process.env.ROLLUP_PLUGIN_TS_DEBUG === "true" || process.env.ROLLUP_PLUGIN_TS_DEBUG === "" || process.env.ROLLUP_PLUGIN_TS_DEBUG === "1";

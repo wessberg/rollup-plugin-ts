@@ -6,6 +6,7 @@ import {visitInterfaceDeclarationWithExportModifier} from "./visit-interface-dec
 import {visitClassDeclarationWithExportModifier} from "./visit-class-declaration-with-export-modifier";
 import {visitEnumDeclarationWithExportModifier} from "./visit-enum-declaration-with-export-modifier";
 import {IReferenceCache} from "../cache/i-reference-cache";
+import {DEBUG} from "../../../../constant/constant";
 
 /**
  * Visits a Node that has an export modifier in front of it. Basically, it will remove it if it isn't
@@ -38,7 +39,9 @@ export function visitNodeWithExportModifier (node: Node, usedExports: Set<string
 		return visitEnumDeclarationWithExportModifier(node, usedExports, sourceFile, cache);
 	}
 
-	console.log("visitNodeWithExportModifier:", SyntaxKind[node.kind]);
+	if (DEBUG) {
+		console.log("visitNodeWithExportModifier:", SyntaxKind[node.kind]);
+	}
 
 	return node;
 }

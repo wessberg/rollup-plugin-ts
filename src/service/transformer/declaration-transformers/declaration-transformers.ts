@@ -19,7 +19,6 @@ function transformerImplementation (usedExports: Set<string>): TransformerFactor
 			referencingNodesCache: new WeakMultiMap(),
 			identifiersForNodeCache: new WeakMultiMap()
 		};
-		console.log("declarations for:", sourceFile.fileName);
 
 		/**
 		 * Visits the given Node

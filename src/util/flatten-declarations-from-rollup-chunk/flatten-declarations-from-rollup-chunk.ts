@@ -33,8 +33,6 @@ export function flattenDeclarationsFromRollupChunk ({chunk, languageService, lan
 		}, undefined, true);
 	}
 
-	console.log(code);
-
 	languageServiceHost.addFile({file: declarationBundleSourceFileName, code});
 
 	code = "";

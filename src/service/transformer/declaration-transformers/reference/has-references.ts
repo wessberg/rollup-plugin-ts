@@ -1,6 +1,7 @@
 import {forEachChild, Identifier, isArrayTypeNode, isClassDeclaration, isConditionalTypeNode, isEnumDeclaration, isEnumMember, isExportDeclaration, isExportSpecifier, isExpressionWithTypeArguments, isFunctionDeclaration, isFunctionTypeNode, isHeritageClause, isIdentifier, isImportDeclaration, isIndexSignatureDeclaration, isInterfaceDeclaration, isIntersectionTypeNode, isLiteralTypeNode, isMappedTypeNode, isMethodSignature, isParameter, isParenthesizedTypeNode, isPropertySignature, isQualifiedName, isToken, isTupleTypeNode, isTypeAliasDeclaration, isTypeLiteralNode, isTypeOperatorNode, isTypeParameterDeclaration, isTypePredicateNode, isTypeQueryNode, isTypeReferenceNode, isUnionTypeNode, isVariableDeclaration, isVariableStatement, Node, SourceFile, SyntaxKind} from "typescript";
 import {getIdentifiersForNode, isKeywordTypeNode, nodeContainsChild} from "../util/util";
 import {IReferenceCache} from "../cache/i-reference-cache";
+import {DEBUG} from "../../../../constant/constant";
 
 // tslint:disable:no-duplicated-branches
 
@@ -249,7 +250,9 @@ function childReferencesAnyIdentifier (child: Node, identifiers: Identifier[]): 
 		return false;
 	}
 
-	console.log("childReferencesAnyIdentifier:", SyntaxKind[child.kind]);
+	if (DEBUG) {
+		console.log("childReferencesAnyIdentifier:", SyntaxKind[child.kind]);
+	}
 	return false;
 }
 

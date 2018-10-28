@@ -1,5 +1,6 @@
 import {Identifier, isClassDeclaration, isEnumDeclaration, isExportDeclaration, isFunctionDeclaration, isIdentifier, isImportDeclaration, isInterfaceDeclaration, isTypeAliasDeclaration, isVariableDeclaration, isVariableDeclarationList, isVariableStatement, KeywordTypeNode, Modifier, ModifiersArray, Node, SyntaxKind} from "typescript";
 import {IReferenceCache} from "../cache/i-reference-cache";
+import {DEBUG} from "../../../../constant/constant";
 
 /**
  * Returns true if the given node has an Export keyword in front of it
@@ -142,7 +143,9 @@ function computeIdentifiersForNode (node: Node, cache: IReferenceCache): Identif
 		return [];
 	}
 
-	console.log("getIdentifiersForNode:", SyntaxKind[node.kind]);
+	if (DEBUG) {
+		console.log("getIdentifiersForNode:", SyntaxKind[node.kind]);
+	}
 
 	return [];
 }
