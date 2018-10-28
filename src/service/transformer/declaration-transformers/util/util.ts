@@ -81,7 +81,7 @@ export function nodeContainsChild (parent: Node, potentialChild: Node): boolean 
  */
 export function getIdentifiersForNode (node: Node, cache: IReferenceCache): Identifier[] {
 	if (cache.identifiersForNodeCache.has(node)) {
-		return cache.identifiersForNodeCache.get(node)!;
+		return cache.identifiersForNodeCache.get(node);
 	}
 
 	else {

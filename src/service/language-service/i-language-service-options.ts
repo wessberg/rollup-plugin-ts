@@ -10,5 +10,5 @@ export interface ILanguageServiceOptions {
 	emitCache: IEmitCache;
 	rollupInputOptions: InputOptions;
 	supportedExtensions: string[];
-	languageService: () => LanguageService;
+	languageService (): LanguageService;
 }

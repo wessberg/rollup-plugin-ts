@@ -338,7 +338,7 @@ function exportsContainsIdentifiers (identifiers: Identifier[], usedExports: Set
  */
 export function collectReferencingNodes (node: Node, sourceFile: SourceFile, cache: IReferenceCache, identifiers: Identifier[] = getIdentifiersForNode(node, cache)): Node[] {
 	if (cache.referencingNodesCache.has(node)) {
-		return cache.referencingNodesCache.get(node)!;
+		return cache.referencingNodesCache.get(node);
 	}
 
 	const nodes: Node[] = [];
