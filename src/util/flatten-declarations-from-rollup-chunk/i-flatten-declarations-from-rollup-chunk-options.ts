@@ -1,9 +1,10 @@
+import {LanguageService} from "typescript";
+import {IncrementalLanguageService} from "../../service/language-service/incremental-language-service";
 import {RenderedChunk} from "rollup";
-import {CompilerOptions} from "typescript";
-import {DeclarationCompilerHost} from "../../service/compiler-host/declaration-compiler-host";
 
 export interface IFlattenDeclarationsFromRollupChunkOptions {
 	chunk: RenderedChunk;
-	options: CompilerOptions;
-	compilerHost: DeclarationCompilerHost;
+	generateMap: boolean;
+	languageService: LanguageService;
+	languageServiceHost: IncrementalLanguageService;
 }

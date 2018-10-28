@@ -1,4 +1,4 @@
-import {ParsedCommandLine} from "typescript";
+import {LanguageService, ParsedCommandLine} from "typescript";
 import {IEmitCache} from "../cache/emit-cache/i-emit-cache";
 import {InputOptions} from "rollup";
 import {TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options";
@@ -10,4 +10,5 @@ export interface ILanguageServiceOptions {
 	emitCache: IEmitCache;
 	rollupInputOptions: InputOptions;
 	supportedExtensions: string[];
+	languageService: () => LanguageService;
 }

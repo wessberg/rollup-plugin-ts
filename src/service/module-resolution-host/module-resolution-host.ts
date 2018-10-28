@@ -22,9 +22,10 @@ export class ModuleResolutionHost implements TSModuleResolutionHost {
 	/**
 	 * Reads the given file
 	 * @param {string} fileName
+	 * @param {string} [encoding]
 	 * @returns {string | undefined}
 	 */
-	public readFile (fileName: string): string|undefined {
-		return this.options.languageServiceHost.readFile(fileName);
+	public readFile (fileName: string, encoding?: string): string|undefined {
+		return this.options.languageServiceHost.readFile(fileName, encoding);
 	}
 }

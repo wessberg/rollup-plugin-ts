@@ -1,12 +1,12 @@
 import {OutputOptions, RenderedChunk} from "rollup";
-import {CompilerOptions} from "typescript";
-import {DeclarationCompilerHost} from "../../service/compiler-host/declaration-compiler-host";
+import {CompilerOptions, LanguageService} from "typescript";
+import {IncrementalLanguageService} from "../../service/language-service/incremental-language-service";
 
 export interface IEmitDeclarationsOptions {
 	cwd: string;
 	chunk: RenderedChunk;
 	outputOptions: OutputOptions;
 	compilerOptions: CompilerOptions;
-	compilerHost: DeclarationCompilerHost;
-	declarationCompilerOptions: CompilerOptions;
+	languageService: LanguageService;
+	languageServiceHost: IncrementalLanguageService;
 }

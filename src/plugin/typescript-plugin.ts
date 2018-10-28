@@ -1,5 +1,5 @@
 import {InputOptions, OutputBundle, OutputOptions, Plugin, PluginContext, RawSourceMap, RenderedChunk, TransformSourceDescription} from "rollup";
-import {CompilerOptions, createDocumentRegistry, createLanguageService, LanguageService, ModuleKind, ParsedCommandLine} from "typescript";
+import {createDocumentRegistry, createLanguageService, LanguageService, ParsedCommandLine} from "typescript";
 import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line";
 import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options";
 import {IncrementalLanguageService} from "../service/language-service/incremental-language-service";
@@ -27,11 +27,9 @@ import {getDefaultBabelOptions} from "../util/get-default-babel-options/get-defa
 import {transformAsync} from "@babel/core";
 // @ts-ignore
 import {createFilter} from "rollup-pluginutils";
-import {generateRandomHash} from "../util/hash/generate-random-hash";
-import {DeclarationCompilerHost} from "../service/compiler-host/declaration-compiler-host";
 import {resolveId} from "../util/resolve-id/resolve-id";
 import {mergeTransformers} from "../util/merge-transformers/merge-transformers";
-import {getTypeOnlyImportTransformers} from "../service/transformer/type-only-import-transformer";
+import {getTypeOnlyImportTransformers} from "../service/transformer/type-only-import-transformers/type-only-import-transformers";
 
 /**
  * The name of the Rollup plugin
@@ -56,12 +54,6 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 	let parsedCommandLine: ParsedCommandLine;
 
 	/**
-	 * The Compiler options to use with declaration files
-	 * @type {CompilerOptions?}
-	 */
-	let declarationCompilerOptions: CompilerOptions|undefined;
-
-	/**
 	 * The config to use with Babel, if Babel should transpile source code
 	 * @type {IBabelConfig}
 	 */
@@ -84,12 +76,6 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 	 * @type {ModuleResolutionHost}
 	 */
 	let moduleResolutionHost: ModuleResolutionHost;
-
-	/**
-	 * The CompilerHost to use for declaration files, if any
-	 * @type {DeclarationCompilerHost?}
-	 */
-	let declarationCompilerHost: DeclarationCompilerHost|undefined;
 
 	/**
 	 * The LanguageService to use
@@ -146,15 +132,6 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 				cwd
 			});
 
-			if (Boolean(parsedCommandLine.options.declaration)) {
-				declarationCompilerOptions = {
-					...parsedCommandLine.options,
-					// outFile only supports SystemJS and AMD
-					outFile: generateRandomHash(),
-					module: ModuleKind.System
-				};
-			}
-
 			// Prepare a Babel config if Babel should be the transpiler
 			if (pluginOptions.transpiler === "babel") {
 				const babelConfigResult = getBabelConfig({
@@ -175,18 +152,20 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 			// Hook up a LanguageServiceHost and a LanguageService
 			languageServiceHost = new IncrementalLanguageService({
 				parsedCommandLine,
-				transformers: mergeTransformers(transformers, getTypeOnlyImportTransformers()),
+				transformers: mergeTransformers(
+					transformers,
+					getTypeOnlyImportTransformers()
+				),
 				cwd,
 				emitCache,
 				rollupInputOptions,
-				supportedExtensions: SUPPORTED_EXTENSIONS
+				supportedExtensions: SUPPORTED_EXTENSIONS,
+				languageService: () => languageService
 			});
 			languageService = createLanguageService(languageServiceHost, createDocumentRegistry(languageServiceHost.useCaseSensitiveFileNames(), languageServiceHost.getCurrentDirectory()));
 
 			// Hook up a new ModuleResolutionHost
 			moduleResolutionHost = new ModuleResolutionHost({languageServiceHost, extensions: SUPPORTED_EXTENSIONS});
-			// Hook up a new DeclarationCompilerHost
-			declarationCompilerHost = new DeclarationCompilerHost({moduleResolutionHost, languageServiceHost, languageService});
 		},
 
 		/**
@@ -201,14 +180,15 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		async renderChunk (this: PluginContext, code: string, chunk: RenderedChunk, outputOptions: OutputOptions): Promise<{ code: string; map: RawSourceMap }|void> {
 
 			// Emit declaration files if required
-			if (Boolean(parsedCommandLine.options.declaration) && declarationCompilerOptions != null && declarationCompilerHost != null) {
+			if (Boolean(parsedCommandLine.options.declaration)) {
+
 				emitDeclarations({
 					chunk,
 					cwd,
 					outputOptions,
 					compilerOptions: parsedCommandLine.options,
-					declarationCompilerOptions,
-					compilerHost: declarationCompilerHost
+					languageService,
+					languageServiceHost
 				});
 			}
 

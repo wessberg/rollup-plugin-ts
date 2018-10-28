@@ -8,9 +8,9 @@ import {getDeclarationOutDir} from "../get-declaration-out-dir/get-declaration-o
  * Emits declaration files based on the given options
  * @param {IEmitDeclarationsOptions} opts
  */
-export function emitDeclarations ({chunk, compilerOptions, declarationCompilerOptions, cwd, outputOptions, compilerHost}: IEmitDeclarationsOptions): void {
+export function emitDeclarations ({compilerOptions, cwd, outputOptions, languageService, languageServiceHost, chunk}: IEmitDeclarationsOptions): void {
 	// Generate declaration files for this chunk
-	const {declarationMapFilename, declarationFilename, sourceDescription} = flattenDeclarationsFromRollupChunk({chunk, options: declarationCompilerOptions, compilerHost});
+	const {declarationMapFilename, declarationFilename, sourceDescription} = flattenDeclarationsFromRollupChunk({languageServiceHost, chunk, languageService, generateMap: Boolean(compilerOptions.declarationMap)});
 
 	// Write it to disk
 	writeFileSync(

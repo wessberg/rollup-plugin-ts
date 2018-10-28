@@ -9,6 +9,7 @@ export const MJSX_EXTENSION = ".mjsx";
 export const DECLARATION_EXTENSION = `.d${TS_EXTENSION}`;
 export const DECLARATION_MAP_EXTENSION = `.d${TS_EXTENSION}${SOURCE_MAP_EXTENSION}`;
 export const SOURCE_MAP_COMMENT = "\n//# sourceMappingURL";
+export const SOURCE_MAP_COMMENT_REGEXP = /\n\/\/# sourceMappingURL=.*/g;
 export const TSLIB_NAME = `tslib${DECLARATION_EXTENSION}`;
 export const REGENERATOR_RUNTIME_NAME_1 = `@babel/runtime/regenerator/index.js`;
 export const REGENERATOR_RUNTIME_NAME_2 = `babel-runtime/regenerator/index.js`;

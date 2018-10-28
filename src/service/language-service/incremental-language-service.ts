@@ -1,4 +1,4 @@
-import {CompilerOptions, CustomTransformers, getDefaultLibFileName, IScriptSnapshot, LanguageServiceHost, ScriptKind, ScriptSnapshot, sys} from "typescript";
+import {CompilerHost, CompilerOptions, CustomTransformers, getDefaultLibFileName, IScriptSnapshot, LanguageServiceHost, ScriptKind, ScriptSnapshot, SourceFile, sys} from "typescript";
 import {join} from "path";
 import {getNewLineCharacter} from "../../util/get-new-line-character/get-new-line-character";
 import {fileExistsSync, IS_FILE_SYSTEM_CASE_SENSITIVE, readFileSync} from "../../util/file-system/file-system";
@@ -14,18 +14,26 @@ import {ensureAbsolute, isInternalFile, setExtension} from "../../util/path/path
 /**
  * An implementation of a LanguageService for Typescript
  */
-export class IncrementalLanguageService implements LanguageServiceHost {
+export class IncrementalLanguageService implements LanguageServiceHost, CompilerHost {
+	/**
+	 * A Map between filenames and emitted code
+	 * @type {Map<string, string>}
+	 */
+	public emittedFiles: Map<string, string> = new Map();
 
 	/**
 	 * The Set of all files that has been added manually via the public API
 	 * @type {Set<string>}
 	 */
 	public publicFiles: Set<string> = new Set();
+
 	/**
 	 * The nearest Typescript Lib directory from the given cwd
 	 * @type {string | null}
 	 */
+
 	private readonly LIB_DIRECTORY = sync("node_modules/typescript/lib", {cwd: this.options.cwd});
+
 	/**
 	 * A Map between file names and their IFiles
 	 * @type {Map<string, IFile>}
@@ -35,6 +43,26 @@ export class IncrementalLanguageService implements LanguageServiceHost {
 	constructor (private readonly options: ILanguageServiceOptions) {
 		this.addDefaultLibs();
 		this.addDefaultFileNames();
+	}
+
+	/**
+	 * Writes a file. Will simply put it in the emittedFiles Map
+	 * @param {string} fileName
+	 * @param {string} data
+	 */
+	public writeFile (fileName: string, data: string): void {
+		this.emittedFiles.set(fileName, data);
+	}
+
+	/**
+	 * Gets a SourceFile from the given fileName
+	 * @param {string} fileName
+	 * @returns {SourceFile | undefined}
+	 */
+	public getSourceFile (fileName: string): SourceFile|undefined {
+		const program = this.options.languageService().getProgram();
+		if (program == null) return undefined;
+		return program.getSourceFile(fileName);
 	}
 
 	/**
@@ -310,7 +338,8 @@ export class IncrementalLanguageService implements LanguageServiceHost {
 			// If the file exists on disk, add it
 			if (fileExistsSync(fileName)) {
 				this.addFile({file: fileName, code: readFileSync(fileName).toString()}, isInternalFile(fileName));
-			} else {
+			}
+			else {
 				throw new ReferenceError(`The given file: '${fileName}' doesn't exist!`);
 			}
 		}
