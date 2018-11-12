@@ -3,13 +3,14 @@ import {IFlattenDeclarationsFromRollupChunkOptions} from "./i-flatten-declaratio
 import {IFlattenDeclarationsFromRollupChunkResult} from "./i-flatten-declarations-from-rollup-chunk-result";
 import {setExtension, stripExtension} from "../path/path-util";
 import {declarationTransformers} from "../../service/transformer/declaration-transformers/declaration-transformers";
+import {isDeclarationOutputFile} from "../is-declaration-output-file/is-declaration-output-file";
 
 /**
  * Flattens all the modules that are part of the given chunk and returns a single SourceDescription for a flattened file
  * @param {IFlattenDeclarationsFromRollupChunkOptions} opts
  * @returns {SourceDescription}
  */
-export function flattenDeclarationsFromRollupChunk ({chunk, languageService, languageServiceHost, generateMap}: IFlattenDeclarationsFromRollupChunkOptions): IFlattenDeclarationsFromRollupChunkResult {
+export function flattenDeclarationsFromRollupChunk ({chunk, languageService, languageServiceHost, generateMap, emitCache}: IFlattenDeclarationsFromRollupChunkOptions): IFlattenDeclarationsFromRollupChunkResult {
 	const moduleNames = Object.keys(chunk.modules);
 	const entryFileName = moduleNames.slice(-1)[0];
 
@@ -17,27 +18,25 @@ export function flattenDeclarationsFromRollupChunk ({chunk, languageService, lan
 	const declarationFilename = setExtension(chunk.fileName, DECLARATION_EXTENSION);
 	const declarationMapFilename = setExtension(chunk.fileName, DECLARATION_MAP_EXTENSION);
 
-	let program = languageService.getProgram()!;
+	let code = "";
+	for (const moduleName of moduleNames) {
+		const emitOutput = emitCache.get({dtsOnly: true, fileName: moduleName, languageService});
+		const declarationFile = emitOutput.outputFiles.find(isDeclarationOutputFile);
+		if (declarationFile == null) continue;
+
+		code += `${declarationFile.text.replace(SOURCE_MAP_COMMENT_REGEXP, "")}\n`;
+	}
+	languageServiceHost.addFile({file: declarationBundleSourceFileName, code});
+
+	code = "";
+	let map: string|undefined;
+
+	const program = languageService.getProgram()!;
 	const typeChecker = program.getTypeChecker();
 	const entrySourceFile = program.getSourceFile(entryFileName);
 
 	const usedExports: Set<string> = new Set(entrySourceFile == null ? [] : typeChecker.getExportsOfModule(typeChecker.getSymbolAtLocation(entrySourceFile)!)
 		.map(exportSymbol => exportSymbol.getName()));
-
-	let code = "";
-	for (const moduleName of moduleNames) {
-		program.emit(program.getSourceFile(moduleName), (file, data) => {
-			// Skip declaration maps this time around
-			if (file.endsWith(DECLARATION_MAP_EXTENSION)) return;
-			code += `${data.replace(SOURCE_MAP_COMMENT_REGEXP, "")}\n`;
-		}, undefined, true);
-	}
-
-	languageServiceHost.addFile({file: declarationBundleSourceFileName, code});
-
-	code = "";
-	let map: string|undefined;
-	program = languageService.getProgram()!;
 
 	program.emit(
 		program.getSourceFile(declarationBundleSourceFileName),
@@ -49,6 +48,7 @@ export function flattenDeclarationsFromRollupChunk ({chunk, languageService, lan
 		true,
 		declarationTransformers(usedExports)
 	);
+
 	languageServiceHost.deleteFile(declarationBundleSourceFileName);
 
 	return {

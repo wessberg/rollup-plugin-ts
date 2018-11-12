@@ -1,4 +1,4 @@
-import {InputOptions, OutputBundle, OutputOptions, Plugin, PluginContext, RawSourceMap, RenderedChunk, TransformSourceDescription} from "rollup";
+import {InputOptions, OutputBundle, OutputChunk, OutputOptions, Plugin, PluginContext, RawSourceMap, RenderedChunk, TransformSourceDescription} from "rollup";
 import {createDocumentRegistry, createLanguageService, LanguageService, ParsedCommandLine} from "typescript";
 import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line";
 import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options";
@@ -30,6 +30,7 @@ import {createFilter} from "rollup-pluginutils";
 import {resolveId} from "../util/resolve-id/resolve-id";
 import {mergeTransformers} from "../util/merge-transformers/merge-transformers";
 import {getTypeOnlyImportTransformers} from "../service/transformer/type-only-import-transformers/type-only-import-transformers";
+import {ensureArray} from "../util/ensure-array/ensure-array";
 
 /**
  * The name of the Rollup plugin
@@ -43,7 +44,8 @@ const PLUGIN_NAME = "Typescript";
  */
 export default function typescriptRollupPlugin (pluginInputOptions: Partial<TypescriptPluginOptions> = {}): Plugin {
 	const pluginOptions: TypescriptPluginOptions = getPluginOptions(pluginInputOptions);
-	const {include, exclude, tsconfig, transformers, cwd, browserslist} = pluginOptions;
+	const {include, exclude, tsconfig, cwd, browserslist} = pluginOptions;
+	const transformers = pluginOptions.transformers == null ? [] : ensureArray(pluginOptions.transformers);
 	// Make sure to normalize the received Browserslist
 	const normalizedBrowserslist = getBrowserslist({browserslist, cwd});
 
@@ -153,7 +155,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 			languageServiceHost = new IncrementalLanguageService({
 				parsedCommandLine,
 				transformers: mergeTransformers(
-					transformers,
+					...transformers,
 					getTypeOnlyImportTransformers()
 				),
 				cwd,
@@ -162,6 +164,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 				supportedExtensions: SUPPORTED_EXTENSIONS,
 				languageService: () => languageService
 			});
+
 			languageService = createLanguageService(languageServiceHost, createDocumentRegistry(languageServiceHost.useCaseSensitiveFileNames(), languageServiceHost.getCurrentDirectory()));
 
 			// Hook up a new ModuleResolutionHost
@@ -174,26 +177,9 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		 * and if Babel is the chosen transpiler. Otherwise, it will simply do nothing
 		 * @param {string} code
 		 * @param {RenderedChunk} chunk
-		 * @param {OutputOptions} outputOptions
 		 * @returns {Promise<{ code: string, map: RawSourceMap } | void>}
 		 */
-		async renderChunk (this: PluginContext, code: string, chunk: RenderedChunk, outputOptions: OutputOptions): Promise<{ code: string; map: RawSourceMap }|void> {
-
-			// Emit declaration files if required
-			if (Boolean(parsedCommandLine.options.declaration)) {
-
-				emitDeclarations({
-					chunk,
-					cwd,
-					outputOptions,
-					compilerOptions: parsedCommandLine.options,
-					languageService,
-					languageServiceHost
-				});
-			}
-
-			// Emit all reported diagnostics
-			Object.keys(chunk.modules).forEach(file => emitDiagnosticsThroughRollup({languageServiceHost, languageService, file, context: this}));
+		async renderChunk (this: PluginContext, code: string, chunk: RenderedChunk): Promise<{ code: string; map: RawSourceMap }|void> {
 
 			// Don't proceed if there is no minification config
 			if (babelMinifyConfig == null) return;
@@ -240,9 +226,6 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 
 					// Get some EmitOutput, optionally from the cache if the file contents are unchanged
 					const emitOutput = emitCache.get({fileName: file, languageService});
-
-					// Emit all reported diagnostics
-					emitDiagnosticsThroughRollup({languageServiceHost, languageService, file, context: this});
 
 					// Return the emit output results to Rollup
 					return getSourceDescriptionFromEmitOutput(emitOutput);
@@ -310,11 +293,31 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		/**
 		 * Invoked when a full bundle is generated. Will take all modules for all chunks and make sure to remove all removed files
 		 * from the LanguageService
-		 * @param {OutputOptions} _
+		 * @param {OutputOptions} outputOptions
 		 * @param {OutputBundle} bundle
 		 * @returns {void | Promise<void>}
 		 */
-		generateBundle (this: PluginContext, _: OutputOptions, bundle: OutputBundle): void {
+		generateBundle (this: PluginContext, outputOptions: OutputOptions, bundle: OutputBundle): void {
+
+			// Emit all reported diagnostics
+			emitDiagnosticsThroughRollup({languageServiceHost, languageService, context: this});
+
+			// Emit declaration files if required
+			if (Boolean(parsedCommandLine.options.declaration)) {
+				Object.values(bundle)
+					.filter(file => typeof file !== "string" && !(file instanceof Buffer))
+					.forEach((chunk: OutputChunk) => {
+						emitDeclarations({
+							chunk,
+							cwd,
+							outputOptions,
+							compilerOptions: parsedCommandLine.options,
+							languageService,
+							languageServiceHost,
+							emitCache
+						});
+					});
+			}
 
 			const bundledFilenames = takeBundledFilesNames(bundle);
 

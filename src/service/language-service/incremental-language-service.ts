@@ -8,6 +8,7 @@ import {getScriptKindFromPath} from "../../util/get-script-kind-from-path/get-sc
 import {sync} from "find-up";
 import {DEFAULT_LIB_NAMES} from "../../constant/constant";
 import {ensureAbsolute, isInternalFile, setExtension} from "../../util/path/path-util";
+import {CustomTransformersFunction} from "../../util/merge-transformers/i-custom-transformer-options";
 
 // tslint:disable:no-any
 
@@ -33,16 +34,21 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 */
 
 	private readonly LIB_DIRECTORY = sync("node_modules/typescript/lib", {cwd: this.options.cwd});
-
 	/**
 	 * A Map between file names and their IFiles
 	 * @type {Map<string, IFile>}
 	 */
 	private readonly files: Map<string, IFile> = new Map();
+	/**
+	 * The CustomTransformersFunction to use, if any
+	 * @type {CustomTransformersFunction}
+	 */
+	private readonly transformers: CustomTransformersFunction|undefined;
 
 	constructor (private readonly options: ILanguageServiceOptions) {
 		this.addDefaultLibs();
 		this.addDefaultFileNames();
+		this.transformers = options.transformers;
 	}
 
 	/**
@@ -231,11 +237,17 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	}
 
 	/**
-	 * Gets the Custom Transformers
+	 * Gets the Custom Transformers to use, depending on the current emit mode
 	 * @returns {CustomTransformers | undefined}
 	 */
 	public getCustomTransformers (): CustomTransformers|undefined {
-		return this.options.transformers;
+		const languageService = this.options.languageService();
+		if (this.transformers == null) return undefined;
+		return this.transformers({
+			languageService,
+			languageServiceHost: this,
+			program: languageService.getProgram()
+		});
 	}
 
 	/**
@@ -261,7 +273,9 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @returns {IScriptSnapshot | undefined}
 	 */
 	public getScriptSnapshot (fileName: string): IScriptSnapshot|undefined {
-		return this.assertHasFileName(fileName).snapshot;
+
+		const file = this.assertHasFileName(fileName);
+		return file.snapshot;
 	}
 
 	/**

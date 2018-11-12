@@ -1,19 +1,16 @@
 import {IGetDiagnosticsOptions} from "./i-get-diagnostics-options";
-import {DiagnosticCategory, flattenDiagnosticMessageText, formatDiagnosticsWithColorAndContext} from "typescript";
+import {DiagnosticCategory, flattenDiagnosticMessageText, formatDiagnosticsWithColorAndContext, getPreEmitDiagnostics} from "typescript";
 import {RollupError, RollupWarning} from "rollup";
 
 /**
  * Gets diagnostics for the given fileName
  * @param {IGetDiagnosticsOptions} options
  */
-export function emitDiagnosticsThroughRollup ({file, languageService, languageServiceHost, context}: IGetDiagnosticsOptions): void {
-	if (!languageServiceHost.hasFile(file)) return;
+export function emitDiagnosticsThroughRollup ({languageService, languageServiceHost, context}: IGetDiagnosticsOptions): void {
+	const program = languageService.getProgram();
+	if (program == null) return;
 
-	[
-		...languageService.getCompilerOptionsDiagnostics(),
-		...languageService.getSyntacticDiagnostics(file),
-		...languageService.getSemanticDiagnostics(file)
-	]
+	getPreEmitDiagnostics(program)
 		.forEach(diagnostic => {
 			const message = flattenDiagnosticMessageText(diagnostic.messageText, "\n");
 			const position = diagnostic.start == null || diagnostic.file == null

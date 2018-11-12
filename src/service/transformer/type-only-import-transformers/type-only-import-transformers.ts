@@ -29,7 +29,7 @@ export function getTypeOnlyImportTransformers (): CustomTransformers {
 	 * @param {Node} node
 	 * @returns {Node | undefined}
 	 */
-	function visitNodeBefore (node: Node): Node|undefined {
+	function visitNodeBefore (node: Node): Node {
 		if (isImportDeclaration(node)) return visitImportDeclarationBefore(node);
 		else if (isExportDeclaration(node)) return visitExportDeclarationBefore(node);
 		return node;
@@ -40,8 +40,8 @@ export function getTypeOnlyImportTransformers (): CustomTransformers {
 	 * @param {ImportDeclaration} importDeclaration
 	 * @returns {ImportDeclaration | undefined}
 	 */
-	function visitImportDeclarationBefore (importDeclaration: ImportDeclaration): ImportDeclaration|undefined {
-		if (!isStringLiteralLike(importDeclaration.moduleSpecifier)) return importDeclaration;
+	function visitImportDeclarationBefore (importDeclaration: ImportDeclaration): ImportDeclaration {
+		if (!isStringLiteralLike(importDeclaration.moduleSpecifier) || importDeclaration.getSourceFile() == null) return importDeclaration;
 
 		addPreTranspileImportedOrExportedModuleSpecifier(
 			importDeclaration.getSourceFile().fileName,
@@ -57,8 +57,8 @@ export function getTypeOnlyImportTransformers (): CustomTransformers {
 	 * @param {ExportDeclaration} exportDeclaration
 	 * @returns {ExportDeclaration | undefined}
 	 */
-	function visitExportDeclarationBefore (exportDeclaration: ExportDeclaration): ExportDeclaration|undefined {
-		if (exportDeclaration.moduleSpecifier == null || !isStringLiteralLike(exportDeclaration.moduleSpecifier)) return exportDeclaration;
+	function visitExportDeclarationBefore (exportDeclaration: ExportDeclaration): ExportDeclaration {
+		if (exportDeclaration.moduleSpecifier == null || !isStringLiteralLike(exportDeclaration.moduleSpecifier) || exportDeclaration.getSourceFile() == null) return exportDeclaration;
 
 		addPreTranspileImportedOrExportedModuleSpecifier(
 			exportDeclaration.getSourceFile().fileName,
@@ -70,7 +70,9 @@ export function getTypeOnlyImportTransformers (): CustomTransformers {
 
 	return {
 		before: [
-			(context: TransformationContext): Transformer<SourceFile> => sourceFile => visitEachChild(sourceFile, visitNodeBefore, context)
+			(context: TransformationContext): Transformer<SourceFile> => sourceFile => {
+				return visitEachChild(sourceFile, visitNodeBefore, context);
+			}
 		],
 		after: [
 			(context: TransformationContext): Transformer<SourceFile> => sourceFile => {
@@ -81,7 +83,7 @@ export function getTypeOnlyImportTransformers (): CustomTransformers {
 				 * @param {Node} node
 				 * @returns {Node | undefined}
 				 */
-				function visitNodeAfter (node: Node): Node|undefined {
+				function visitNodeAfter (node: Node): Node {
 					if (isImportDeclaration(node)) return visitImportDeclarationAfter(node);
 					else if (isExportDeclaration(node)) return visitExportDeclarationAfter(node);
 					return node;
@@ -92,7 +94,7 @@ export function getTypeOnlyImportTransformers (): CustomTransformers {
 				 * @param {ImportDeclaration} importDeclaration
 				 * @returns {ImportDeclaration | undefined}
 				 */
-				function visitImportDeclarationAfter (importDeclaration: ImportDeclaration): ImportDeclaration|undefined {
+				function visitImportDeclarationAfter (importDeclaration: ImportDeclaration): ImportDeclaration {
 					if (!isStringLiteralLike(importDeclaration.moduleSpecifier)) return importDeclaration;
 					postTranspileImportedOrExportedModuleSpecifiers.add(importDeclaration.moduleSpecifier.text);
 					return importDeclaration;
@@ -103,7 +105,7 @@ export function getTypeOnlyImportTransformers (): CustomTransformers {
 				 * @param {ExportDeclaration} exportDeclaration
 				 * @returns {ExportDeclaration | undefined}
 				 */
-				function visitExportDeclarationAfter (exportDeclaration: ExportDeclaration): ExportDeclaration|undefined {
+				function visitExportDeclarationAfter (exportDeclaration: ExportDeclaration): ExportDeclaration {
 					if (exportDeclaration.moduleSpecifier == null || !isStringLiteralLike(exportDeclaration.moduleSpecifier)) return exportDeclaration;
 					postTranspileImportedOrExportedModuleSpecifiers.add(exportDeclaration.moduleSpecifier.text);
 					return exportDeclaration;
@@ -117,7 +119,6 @@ export function getTypeOnlyImportTransformers (): CustomTransformers {
 				if (typeOnlyImports.length < 1) {
 					return newSourceFile;
 				} else {
-
 					return updateSourceFileNode(sourceFile, [
 						...typeOnlyImports.map(typeOnlyImport => createImportDeclaration(
 							undefined,
