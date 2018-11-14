@@ -34,8 +34,9 @@ export function flattenDeclarationsFromRollupChunk ({chunk, languageService, lan
 	const program = languageService.getProgram()!;
 	const typeChecker = program.getTypeChecker();
 	const entrySourceFile = program.getSourceFile(entryFileName);
+	const entrySourceFileSymbol = typeChecker.getSymbolAtLocation(entrySourceFile!);
 
-	const usedExports: Set<string> = new Set(entrySourceFile == null ? [] : typeChecker.getExportsOfModule(typeChecker.getSymbolAtLocation(entrySourceFile)!)
+	const usedExports: Set<string> = new Set(entrySourceFile == null || entrySourceFileSymbol == null ? [] : typeChecker.getExportsOfModule(entrySourceFileSymbol)
 		.map(exportSymbol => exportSymbol.getName()));
 
 	program.emit(
