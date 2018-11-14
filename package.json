@@ -7,7 +7,7 @@
     "generate:license": "scaffold license",
     "generate:contributing": "scaffold contributing",
     "generate:coc": "scaffold coc",
-    "generate:changelog": "standard-changelog",
+    "generate:changelog": "standard-changelog --first-release",
     "generate:all": "npm run generate:license & npm run generate:contributing & npm run generate:coc & npm run generate:readme & npm run generate:changelog",
     "update": "ncu -ua && npm update && npm install",
     "lint": "tsc --noEmit && tslint -c tslint.json --project tsconfig.json",
