@@ -76,6 +76,7 @@ export function getForcedCompilerOptions (options: IGetForcedCompilerOptionsOpti
 		// Typescript should never watch files. That is the job of Rollup
 		watch: false,
 		// Typescript should never watch files. That is the job of Rollup
-		preserveWatchOutput: false
+		preserveWatchOutput: false,
+		skipLibCheck: true
 	};
 }
