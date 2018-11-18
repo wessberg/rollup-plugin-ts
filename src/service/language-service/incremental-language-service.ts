@@ -9,6 +9,7 @@ import {sync} from "find-up";
 import {DEFAULT_LIB_NAMES} from "../../constant/constant";
 import {ensureAbsolute, isInternalFile, setExtension} from "../../util/path/path-util";
 import {CustomTransformersFunction} from "../../util/merge-transformers/i-custom-transformer-options";
+import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
 
 // tslint:disable:no-any
 
@@ -102,6 +103,25 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	}
 
 	/**
+	 * Gets all diagnostics reported of transformers for the given filename
+	 * @param {string} fileName
+	 * @returns {ReadonlyArray<IExtendedDiagnostic>}
+	 */
+	public getTransformerDiagnostics (fileName?: string): ReadonlyArray<IExtendedDiagnostic> {
+		// If diagnostics for only a specific file should be retrieved, try to get it from the files map and return its transformer diagnostics
+		if (fileName != null) {
+			const fileMatch = this.files.get(fileName);
+			if (fileMatch == null) return [];
+			return fileMatch.transformerDiagnostics;
+		}
+
+		// Otherwise, take all transformer diagnostics for all files
+		else {
+			return [].concat.apply([], [...this.files.values()].map(v => v.transformerDiagnostics));
+		}
+	}
+
+	/**
 	 * Adds a File to the CompilerHost
 	 * @param {IFile} file
 	 * @param {boolean} internal
@@ -116,7 +136,8 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 			...file,
 			scriptKind: getScriptKindFromPath(file.file),
 			snapshot: ScriptSnapshot.fromString(file.code),
-			version: existing != null ? existing.version + 1 : 0
+			version: existing != null ? existing.version + 1 : 0,
+			transformerDiagnostics: []
 		});
 
 		if (!internal) {
@@ -246,7 +267,24 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 		return this.transformers({
 			languageService,
 			languageServiceHost: this,
-			program: languageService.getProgram()
+			program: languageService.getProgram(),
+
+			/**
+			 * This hook can add diagnostics from within CustomTransformers. These will be emitted alongside Typescript diagnostics seamlessly
+			 * @param {FoveaDiagnostic} diagnostics
+			 */
+			addDiagnostics: (...diagnostics) => {
+				diagnostics.forEach(diagnostic => {
+					// Skip diagnostics that doesn't point to a specific file
+					if (diagnostic.file == null) return;
+					const fileMatch = this.files.get(diagnostic.file.fileName);
+					// If no file matches the one of the diagnostic, skip it
+					if (fileMatch == null) return;
+
+					// Add the diagnostic
+					fileMatch.transformerDiagnostics.push(diagnostic);
+				});
+			}
 		});
 	}
 

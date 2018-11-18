@@ -65,6 +65,7 @@
     "@types/node": "^10.12.6",
     "@types/resolve": "0.0.8",
     "@wessberg/browserslist-generator": "0.0.52",
+    "@wessberg/stringutil": "^1.0.18",
     "browserslist": "^4.3.4",
     "find-up": "^3.0.0",
     "magic-string": "^0.25.1",
@@ -89,7 +90,7 @@
     "url": "https://github.com/wessberg/rollup-plugin-ts/issues"
   },
   "engines": {
-    "node": ">=9.0.0"
+    "node": ">=10.1.0"
   },
   "scaffold": {
     "patreonUserId": "11315442",

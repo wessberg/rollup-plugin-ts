@@ -1,6 +1,7 @@
 import {IGetDiagnosticsOptions} from "./i-get-diagnostics-options";
 import {DiagnosticCategory, flattenDiagnosticMessageText, formatDiagnosticsWithColorAndContext, getPreEmitDiagnostics} from "typescript";
 import {RollupError, RollupWarning} from "rollup";
+import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
 
 /**
  * Gets diagnostics for the given fileName
@@ -10,8 +11,11 @@ export function emitDiagnosticsThroughRollup ({languageService, languageServiceH
 	const program = languageService.getProgram();
 	if (program == null) return;
 
-	getPreEmitDiagnostics(program)
-		.forEach(diagnostic => {
+	[
+		...getPreEmitDiagnostics(program),
+		...languageServiceHost.getTransformerDiagnostics()
+	]
+		.forEach((diagnostic: IExtendedDiagnostic) => {
 			const message = flattenDiagnosticMessageText(diagnostic.messageText, "\n");
 			const position = diagnostic.start == null || diagnostic.file == null
 				? undefined
@@ -21,7 +25,7 @@ export function emitDiagnosticsThroughRollup ({languageService, languageServiceH
 			const colorFormatted = formatDiagnosticsWithColorAndContext([diagnostic], languageServiceHost);
 
 			// Provide a normalized error code
-			const code = `TS${diagnostic.code}`;
+			const code = `${diagnostic.scope == null ? "TS" : diagnostic.scope}${diagnostic.code}`;
 
 			// Provide an empty Stack. There's nothing useful in seeing the internals of this Plugin in the reported error
 			const stack = "";

@@ -1,4 +1,5 @@
 import {ScriptKind, IScriptSnapshot} from "typescript";
+import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
 
 export interface IFileInput {
 	file: string;
@@ -11,4 +12,5 @@ export interface IFile {
 	scriptKind: ScriptKind;
 	snapshot: IScriptSnapshot;
 	version: number;
+	transformerDiagnostics: IExtendedDiagnostic[];
 }
