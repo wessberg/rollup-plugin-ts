@@ -8,7 +8,7 @@ import {ICustomXDecorator} from "../../util/decorator/i-custom-x-decorator";
 import {containsWhitespace, isLowerCase} from "@wessberg/stringutil";
 import {FoveaHostKind} from "@fovea/common";
 import {SourceFileContext} from "../../shared/i-source-file-context";
-import {getLiteralValue} from "../../util/expression/get-literal-value-for-expression/get-literal-value";
+import {evaluate} from "../../interpreter/evaluate";
 
 /**
  * Validates the given @custom[Element|Attribute] decorator and retrieves an array of diagnostics for it
@@ -93,10 +93,10 @@ export function validateCustomXDecorator (context: SourceFileContext, {decorator
 			};
 
 			// Attempt to resolve a literal value for that expression
-			const literal = getLiteralValue({context, node: firstArgument});
+			const literal = evaluate({context, node: firstArgument, deterministic: true, maxOps: 3000});
+			console.log({literal});
 
-			// Make sure that the first argument is statically analyzable (in this case, that it is a string literal or something like it)
-			if (literal == null) {
+			if (!literal.success) {
 				diagnostics.push(
 					createFoveaDiagnostic(
 						x === "customElement"
@@ -114,7 +114,6 @@ export function validateCustomXDecorator (context: SourceFileContext, {decorator
 				);
 			}
 
-			// The value of the literal provided as an argument must be a string
 			else if (typeof literal.value !== "string") {
 				diagnostics.push(
 					createFoveaDiagnostic(
