@@ -40,7 +40,7 @@ export function hasReferences (node: Node, usedExports: Set<string>, sourceFile:
 
 	else {
 		const referencingNodes = collectReferencingNodes(node, sourceFile, cache, identifiers);
-		returnValue = referencingNodes.length > 0 && referencingNodes.some(referencingNode => hasReferences(referencingNode, usedExports, sourceFile, cache));
+		returnValue = referencingNodes.length > 0 && referencingNodes.some(referencingNode => hasReferences(referencingNode, usedExports, sourceFile, cache, seenNodes));
 	}
 
 	cache.hasReferencesCache.set(node, returnValue);
