@@ -16,7 +16,7 @@ export function evaluateArrowFunctionExpression ({node, environment, continuatio
 
 	// Throw if the function is async
 	if (hasModifier(node, SyntaxKind.AsyncKeyword)) {
-		throw new Error(EvaluateFailureKind.IS_ASYNC);
+		throw new SyntaxError(EvaluateFailureKind.IS_ASYNC);
 	}
 
 	const returnValue = (...args: unknown[]) => {

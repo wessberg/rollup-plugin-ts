@@ -1,8 +1,8 @@
 import {SourceFileContext} from "../../shared/i-source-file-context";
 import {forEachChild, isClassDeclaration, Node, visitEachChild, VisitResult} from "typescript";
 import {visitClass} from "../class/visit-class";
-import {continuationMap} from "../continuation/continuation-map";
-import {Continuation} from "../continuation/continuation";
+import {continuationMap} from "../../interpreter/continuation/continuation-map";
+import {Continuation} from "../../interpreter/continuation/continuation";
 import {SourceFileContextKind} from "../../shared/source-file-context-kind";
 
 /**

@@ -22,7 +22,7 @@ export function evaluateNewExpression ({node, continuation, environment, determi
 
 		// Throw if evaluation should only consider expressions that are deterministic (e.g. evaluates to the same value for each invocation, no matter what)
 		if (dotPath != null && isNonDeterministic(`${dotPath}.constructor`, node.arguments)) {
-			throw new Error(EvaluateFailureKind.NONDETERMINISTIC);
+			throw new SyntaxError(EvaluateFailureKind.NONDETERMINISTIC);
 		}
 	}
 

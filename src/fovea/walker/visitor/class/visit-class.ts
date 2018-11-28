@@ -1,5 +1,5 @@
 import {ClassDeclaration, ClassExpression, VisitResult} from "typescript";
-import {Continuation} from "../continuation/continuation";
+import {Continuation} from "../../interpreter/continuation/continuation";
 import {shouldTransformClass} from "../../util/class/should-transform-class/should-transform-class";
 import {SourceFileContext} from "../../shared/i-source-file-context";
 

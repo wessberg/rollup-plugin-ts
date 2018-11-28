@@ -2,7 +2,7 @@ import {Node, NodeArray} from "typescript";
 import {LexicalEnvironment, setLexicalEnvironmentForNode} from "../lexical-environment/lexical-environment";
 import {Literal} from "../literal/literal";
 import {EvaluateFailureKind} from "../evaluate-failure";
-import {evaluateNode} from "./evaluate-node";
+import {evaluateNode} from "../evaluator/evaluate-node";
 import {SourceFileContext} from "../../shared/i-source-file-context";
 import {isNodeArray} from "../../util/node-array/is-node-array";
 
@@ -63,7 +63,7 @@ export function createContinuationFactory ({context, maxOps, deterministic, init
 
 				// Throw an error if the maximum amount of operations has been exceeded
 				if (ops >= maxOps) {
-					throw new Error(EvaluateFailureKind.MAX_OPS_EXCEEDED);
+					throw new SyntaxError(EvaluateFailureKind.MAX_OPS_EXCEEDED);
 				}
 
 				setLexicalEnvironmentForNode(newNode, newEnvironment);

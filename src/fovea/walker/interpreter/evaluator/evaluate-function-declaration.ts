@@ -15,7 +15,7 @@ import {EvaluateFailureKind} from "../evaluate-failure";
 export function evaluateFunctionDeclaration ({node, environment, continuation, continuationFactory}: IEvaluatorOptions<FunctionDeclaration>): Literal {
 	// Throw if the function is async
 	if (hasModifier(node, SyntaxKind.AsyncKeyword)) {
-		throw new Error(EvaluateFailureKind.IS_ASYNC);
+		throw new SyntaxError(EvaluateFailureKind.IS_ASYNC);
 	}
 
 	const evaluatedName = node.name == null ? undefined : continuation.run(node.name, environment);
@@ -56,7 +56,9 @@ export function evaluateFunctionDeclaration ({node, environment, continuation, c
 
 		if (node.body == null) return undefined;
 
-		const localContinuation = continuationFactory.create(localNode => !isNodeArray(localNode) && isReturnStatement(localNode));
+		const localContinuation = continuationFactory.create(
+			localNode => !isNodeArray(localNode) && isReturnStatement(localNode)
+		);
 		return localContinuation.run(node.body, localLexicalEnvironment);
 	}
 

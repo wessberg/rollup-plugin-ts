@@ -1,6 +1,6 @@
 import {BindingElement, isArrayBindingPattern, isIdentifier, isObjectBindingPattern} from "typescript";
 import {Literal} from "../../interpreter/literal/literal";
-import {IContinuation} from "../../interpreter/evaluator/continuation-function";
+import {IContinuation} from "../../interpreter/continuation/continuation-function";
 import {LexicalEnvironment} from "../../interpreter/lexical-environment/lexical-environment";
 
 /**

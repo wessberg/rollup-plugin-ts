@@ -1,9 +1,9 @@
 import {IEvaluateOptions} from "./i-evaluate-options";
 import {createLexicalEnvironment} from "./lexical-environment/lexical-environment";
 import {EvaluateResult} from "./evaluate-result";
-import {EvaluateFailureKind} from "./evaluate-failure";
-import {createContinuationFactory} from "./continuation/continuation-function";
 import {evaluateSimpleLiteral} from "./evaluator/simple/evaluate-simple-literal";
+import {createNodeEvaluator} from "./evaluator/node-evaluator/create-node-evaluator";
+import {Literal} from "./literal/literal";
 
 /**
  * Will get a literal value for the given node. If it doesn't succeed, the value will be 'undefined'
@@ -17,35 +17,19 @@ export function evaluate ({context, node, environment = {}, deterministic = fals
 
 	// Otherwise, build an environment and get to work
 	const initialEnvironment = createLexicalEnvironment(environment);
-	const continuationFactory = createContinuationFactory({context, initialEnvironment, deterministic, maxOps});
-	const continuation = continuationFactory.create();
+	const nodeEvaluator = createNodeEvaluator({maxOps, deterministic, context});
 
+	let value: Literal;
 	try {
+		nodeEvaluator(node, initialEnvironment, result => value = result);
 		return {
 			success: true,
-			value: continuation.run(node, initialEnvironment)
+			value
 		};
-	} catch (error) {
-		console.log(error);
-
-		switch (error.message) {
-
-			case EvaluateFailureKind.MAX_OPS_EXCEEDED:
-				return {
-					success: false,
-					reason: {
-						kind: EvaluateFailureKind.MAX_OPS_EXCEEDED
-					}
-				};
-
-			default:
-				return {
-					success: false,
-					reason: {
-						kind: EvaluateFailureKind.DID_THROW,
-						error
-					}
-				};
-		}
+	} catch (reason) {
+		return {
+			success: false,
+			reason
+		};
 	}
 }

@@ -14,7 +14,7 @@ import {isNodeArray} from "../../util/node-array/is-node-array";
 export function evaluateForOfStatement ({node, continuation, continuationFactory, environment}: IEvaluatorOptions<ForOfStatement>): Literal {
 	// Throw if it is an async iterator
 	if (node.awaitModifier != null) {
-		throw new Error(EvaluateFailureKind.IS_ASYNC);
+		throw new SyntaxError(EvaluateFailureKind.IS_ASYNC);
 	}
 
 	// Compute the 'of' part
