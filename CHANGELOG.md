@@ -1,3 +1,7 @@
+## [1.1.5](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.4...v1.1.5) (2018-11-28)
+
+
+
 ## [1.1.4](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.3...v1.1.4) (2018-11-14)
 
 
@@ -23,7 +27,7 @@
 
 
 
-## [1.0.12](https://github.com/wessberg/rollup-plugin-ts/compare/v1.0.11...v1.0.12) (2018-10-28)
+## [1.0.12](https://github.com/wessberg/rollup-plugin-ts/compare/1.0.12...v1.0.12) (2018-10-28)
 
 
 
@@ -102,7 +106,7 @@
 
 
 
-## [1.0.1](https://github.com/wessberg/rollup-plugin-ts/compare/v1.0.0...v1.0.1) (2018-10-17)
+## [1.0.1](https://github.com/wessberg/rollup-plugin-ts/compare/1.0.0...v1.0.1) (2018-10-17)
 
 
 ### Bug Fixes
@@ -116,8 +120,8 @@
 
 ### Features
 
-* Made JavaScript files resolved from the paths property inside a tsconfig be passed on to Rollup ([a1c990c](https://github.com/wessberg/rollup-plugin-ts/commit/a1c990c))
 * **release:** ground-up rewrite and some changes to the public API ([e43045c](https://github.com/wessberg/rollup-plugin-ts/commit/e43045c)), closes [#2](https://github.com/wessberg/rollup-plugin-ts/issues/2)
+* Made JavaScript files resolved from the paths property inside a tsconfig be passed on to Rollup ([a1c990c](https://github.com/wessberg/rollup-plugin-ts/commit/a1c990c))
 
 
 ### BREAKING CHANGES
