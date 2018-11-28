@@ -271,7 +271,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 
 			/**
 			 * This hook can add diagnostics from within CustomTransformers. These will be emitted alongside Typescript diagnostics seamlessly
-			 * @param {FoveaDiagnostic} diagnostics
+			 * @param {IExtendedDiagnostic} diagnostics
 			 */
 			addDiagnostics: (...diagnostics) => {
 				diagnostics.forEach(diagnostic => {

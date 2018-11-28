@@ -13,11 +13,22 @@ import {DEBUG} from "../../../../constant/constant";
  * @param {Set<string>} usedExports
  * @param {SourceFile} sourceFile
  * @param {IReferenceCache} cache
+ * @param {Set<Node>} [seenNodes]
  * @returns {boolean}
  */
-export function hasReferences (node: Node, usedExports: Set<string>, sourceFile: SourceFile, cache: IReferenceCache): boolean {
+export function hasReferences (node: Node, usedExports: Set<string>, sourceFile: SourceFile, cache: IReferenceCache, seenNodes: Set<Node> = new Set()): boolean {
 	if (cache.hasReferencesCache.has(node)) {
 		return cache.hasReferencesCache.get(node)!;
+	}
+
+	// Assume that the node is referenced if the received node has been visited before in the recursive stack
+	if (seenNodes.has(node)) {
+		return true;
+	}
+
+	// Otherwise, add the node to the Set of seen nodes
+	else {
+		seenNodes.add(node);
 	}
 
 	let returnValue = false;
