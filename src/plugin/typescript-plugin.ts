@@ -114,6 +114,14 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 	 */
 	let rollupInputOptions: InputOptions;
 
+	/**
+	 * Returns true if Typescript can emit something for the given file
+	 * @param {string} id
+	 * @param {string[]} supportedExtensions
+	 * @returns {boolean}
+	 */
+	let canEmitForFile: (id: string) => boolean;
+
 	return {
 		name: PLUGIN_NAME,
 
@@ -150,6 +158,8 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 				Boolean(parsedCommandLine.options.allowJs),
 				Boolean(parsedCommandLine.options.resolveJsonModule)
 			);
+
+			canEmitForFile = (id: string) => filter(id) && SUPPORTED_EXTENSIONS.includes(getExtension(id));
 
 			// Hook up a LanguageServiceHost and a LanguageService
 			languageServiceHost = new IncrementalLanguageService({
@@ -215,7 +225,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 
 			// Only pass the file through Typescript if it's extension is supported. Otherwise, if we're going to continue on with Babel,
 			// Mock a SourceDescription. Otherwise, return bind undefined
-			const sourceDescription = !SUPPORTED_EXTENSIONS.includes(getExtension(file))
+			const sourceDescription = !canEmitForFile(file)
 				? babelConfig != null ? {code, map: undefined} : undefined
 				: (() => {
 					// Remove the file from the resolve cache, now that it has changed.
@@ -314,7 +324,8 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 							compilerOptions: parsedCommandLine.options,
 							languageService,
 							languageServiceHost,
-							emitCache
+							emitCache,
+							canEmitForFile
 						});
 					});
 			}

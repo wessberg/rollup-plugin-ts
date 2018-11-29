@@ -10,8 +10,10 @@ import {isDeclarationOutputFile} from "../is-declaration-output-file/is-declarat
  * @param {IFlattenDeclarationsFromRollupChunkOptions} opts
  * @returns {SourceDescription}
  */
-export function flattenDeclarationsFromRollupChunk ({chunk, languageService, languageServiceHost, generateMap, emitCache}: IFlattenDeclarationsFromRollupChunkOptions): IFlattenDeclarationsFromRollupChunkResult {
-	const moduleNames = Object.keys(chunk.modules);
+export function flattenDeclarationsFromRollupChunk ({chunk, languageService, languageServiceHost, generateMap, emitCache, canEmitForFile}: IFlattenDeclarationsFromRollupChunkOptions): IFlattenDeclarationsFromRollupChunkResult {
+	const moduleNames = Object
+		.keys(chunk.modules)
+		.filter(canEmitForFile);
 	const entryFileName = moduleNames.slice(-1)[0];
 
 	const declarationBundleSourceFileName = setExtension(stripExtension(chunk.fileName) + "___declaration___", TS_EXTENSION);

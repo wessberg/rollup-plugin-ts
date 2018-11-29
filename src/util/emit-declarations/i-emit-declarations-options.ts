@@ -11,4 +11,5 @@ export interface IEmitDeclarationsOptions {
 	languageService: LanguageService;
 	languageServiceHost: IncrementalLanguageService;
 	emitCache: IEmitCache;
+	canEmitForFile (id: string): boolean;
 }

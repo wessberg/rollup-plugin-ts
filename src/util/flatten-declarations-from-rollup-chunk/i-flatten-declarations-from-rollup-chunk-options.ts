@@ -9,4 +9,5 @@ export interface IFlattenDeclarationsFromRollupChunkOptions {
 	languageService: LanguageService;
 	languageServiceHost: IncrementalLanguageService;
 	emitCache: IEmitCache;
+	canEmitForFile (id: string): boolean;
 }
