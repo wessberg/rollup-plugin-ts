@@ -1,4 +1,4 @@
-import {Identifier, isClassDeclaration, isEnumDeclaration, isExportDeclaration, isFunctionDeclaration, isIdentifier, isImportDeclaration, isInterfaceDeclaration, isTypeAliasDeclaration, isVariableDeclaration, isVariableDeclarationList, isVariableStatement, KeywordTypeNode, Modifier, ModifiersArray, Node, SyntaxKind} from "typescript";
+import {Identifier, isClassDeclaration, isEnumDeclaration, isExportDeclaration, isFunctionDeclaration, isIdentifier, isImportDeclaration, isInterfaceDeclaration, isNamespaceImport, isTypeAliasDeclaration, isVariableDeclaration, isVariableDeclarationList, isVariableStatement, KeywordTypeNode, Modifier, ModifiersArray, Node, SyntaxKind} from "typescript";
 import {IReferenceCache} from "../cache/i-reference-cache";
 import {DEBUG} from "../../../../constant/constant";
 
@@ -108,7 +108,7 @@ function computeIdentifiersForNode (node: Node, cache: IReferenceCache): Identif
 	}
 
 	else if (isVariableDeclarationList(node)) {
-		return [].concat.apply([], ...node.declarations.map(declaration => getIdentifiersForNode(declaration, cache)));
+		return ([] as Identifier[]).concat.apply([], node.declarations.map(declaration => getIdentifiersForNode(declaration, cache)));
 	}
 
 	else if (isVariableDeclaration(node)) {
@@ -136,6 +136,10 @@ function computeIdentifiersForNode (node: Node, cache: IReferenceCache): Identif
 	}
 
 	else if (isExportDeclaration(node) || isImportDeclaration(node)) {
+		return [];
+	}
+
+	else if (isNamespaceImport(node)) {
 		return [];
 	}
 

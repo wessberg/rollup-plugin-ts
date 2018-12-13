@@ -1,4 +1,6 @@
-import {forEachChild, Identifier, isArrayTypeNode, isClassDeclaration, isConditionalTypeNode, isEnumDeclaration, isEnumMember, isExportDeclaration, isExportSpecifier, isExpressionWithTypeArguments, isFunctionDeclaration, isFunctionTypeNode, isHeritageClause, isIdentifier, isImportDeclaration, isIndexSignatureDeclaration, isInterfaceDeclaration, isIntersectionTypeNode, isLiteralTypeNode, isMappedTypeNode, isMethodSignature, isParameter, isParenthesizedTypeNode, isPropertySignature, isQualifiedName, isToken, isTupleTypeNode, isTypeAliasDeclaration, isTypeLiteralNode, isTypeOperatorNode, isTypeParameterDeclaration, isTypePredicateNode, isTypeQueryNode, isTypeReferenceNode, isUnionTypeNode, isVariableDeclaration, isVariableStatement, Node, SourceFile, SyntaxKind} from "typescript";
+import {
+	forEachChild, Identifier, isArrayTypeNode, isArrowFunction, isClassDeclaration, isClassExpression, isComputedPropertyName, isConditionalTypeNode, isConstructorDeclaration, isEnumDeclaration, isEnumMember, isExportDeclaration, isExportSpecifier, isExpressionWithTypeArguments, isFunctionDeclaration, isFunctionExpression, isFunctionTypeNode, isGetAccessorDeclaration, isHeritageClause, isIdentifier, isImportDeclaration, isImportTypeNode, isIndexedAccessTypeNode, isIndexSignatureDeclaration, isInterfaceDeclaration, isIntersectionTypeNode, isLiteralTypeNode, isMappedTypeNode, isMethodDeclaration, isMethodSignature, isParameter, isParenthesizedTypeNode, isPropertyDeclaration, isPropertySignature, isQualifiedName, isSetAccessorDeclaration, isToken, isTupleTypeNode, isTypeAliasDeclaration, isTypeLiteralNode, isTypeOperatorNode, isTypeParameterDeclaration, isTypePredicateNode, isTypeQueryNode, isTypeReferenceNode, isUnionTypeNode, isVariableDeclaration, isVariableStatement, Node, OptionalTypeNode, SourceFile, SyntaxKind
+} from "typescript";
 import {getIdentifiersForNode, isKeywordTypeNode, nodeContainsChild} from "../util/util";
 import {IReferenceCache} from "../cache/i-reference-cache";
 import {DEBUG} from "../../../../constant/constant";
@@ -66,6 +68,33 @@ function childReferencesAnyIdentifier (child: Node, identifiers: Identifier[]): 
 		);
 	}
 
+	else if (child.kind === SyntaxKind.OptionalType) {
+		return (
+			childReferencesAnyIdentifier((child as OptionalTypeNode).type, identifiers)
+		);
+	}
+
+	else if (isConstructorDeclaration(child)) {
+		return (
+			(child.type != null && childReferencesAnyIdentifier(child.type, identifiers )) ||
+			(child.parameters.some(parameter => childReferencesAnyIdentifier(parameter, identifiers))) ||
+			(child.typeParameters != null && child.typeParameters.some(typeParameter => childReferencesAnyIdentifier(typeParameter, identifiers)))
+		);
+	}
+
+	else if (isPropertyDeclaration(child)) {
+		return (
+			(child.type != null && childReferencesAnyIdentifier(child.type, identifiers ))
+		);
+	}
+
+	else if (isIndexedAccessTypeNode(child)) {
+		return (
+			(child.indexType != null && childReferencesAnyIdentifier(child.indexType, identifiers)) ||
+			(child.objectType != null && childReferencesAnyIdentifier(child.objectType, identifiers))
+		);
+	}
+
 	else if (isTypeParameterDeclaration(child)) {
 		return (
 			(child.constraint != null && childReferencesAnyIdentifier(child.constraint, identifiers)) ||
@@ -106,7 +135,14 @@ function childReferencesAnyIdentifier (child: Node, identifiers: Identifier[]): 
 	else if (isPropertySignature(child)) {
 		return (
 			(child.initializer != null && childReferencesAnyIdentifier(child.initializer, identifiers)) ||
-			(child.type != null && childReferencesAnyIdentifier(child.type, identifiers))
+			(child.type != null && childReferencesAnyIdentifier(child.type, identifiers)) ||
+			(child.name != null && childReferencesAnyIdentifier(child.name, identifiers))
+		);
+	}
+
+	else if (isComputedPropertyName(child)) {
+		return (
+			(child.expression != null && childReferencesAnyIdentifier(child.expression, identifiers))
 		);
 	}
 
@@ -261,6 +297,10 @@ function childReferencesAnyIdentifier (child: Node, identifiers: Identifier[]): 
 		return false;
 	}
 
+	else if (isImportTypeNode(child)) {
+		return false;
+	}
+
 	if (DEBUG) {
 		console.log("childReferencesAnyIdentifier:", SyntaxKind[child.kind]);
 	}
@@ -274,7 +314,15 @@ function childReferencesAnyIdentifier (child: Node, identifiers: Identifier[]): 
  * @returns {boolean}
  */
 function identifiersAreReferencedByNode (identifiers: Identifier[], node: Node): boolean {
-	if (isFunctionDeclaration(node)) {
+	if (
+		isFunctionDeclaration(node) ||
+		isConstructorDeclaration(node) ||
+		isMethodDeclaration(node) ||
+		isFunctionExpression(node) ||
+		isSetAccessorDeclaration(node) ||
+		isGetAccessorDeclaration(node) ||
+		isArrowFunction(node)
+	) {
 		return (
 			(node.type != null && childReferencesAnyIdentifier(node.type, identifiers)) ||
 			(node.parameters.some(parameter => childReferencesAnyIdentifier(parameter, identifiers))) ||
@@ -282,9 +330,10 @@ function identifiersAreReferencedByNode (identifiers: Identifier[], node: Node):
 		);
 	}
 
-	else if (isClassDeclaration(node)) {
+	else if (isClassDeclaration(node) || isClassExpression(node)) {
 		return (
-			(node.heritageClauses != null && node.heritageClauses.some(heritageClause => childReferencesAnyIdentifier(heritageClause, identifiers)))
+			(node.heritageClauses != null && node.heritageClauses.some(heritageClause => childReferencesAnyIdentifier(heritageClause, identifiers))) ||
+			(node.members.some(member => childReferencesAnyIdentifier(member, identifiers)))
 		);
 	}
 

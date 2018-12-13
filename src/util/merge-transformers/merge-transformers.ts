@@ -1,4 +1,4 @@
-import {CustomTransformers, SourceFile, TransformerFactory} from "typescript";
+import {Bundle, CustomTransformers, SourceFile, TransformerFactory} from "typescript";
 import {CustomTransformersFunction} from "./i-custom-transformer-options";
 
 /**
@@ -13,21 +13,21 @@ export function mergeTransformers (...transformers: (CustomTransformers|CustomTr
 			.filter(transformer => transformer != null)
 			.map((transformer: CustomTransformers|CustomTransformersFunction) => typeof transformer === "function" ? transformer(options) : transformer);
 
-		const beforeTransformers: TransformerFactory<SourceFile>[] = [].concat.apply([],
+		const beforeTransformers = ([] as TransformerFactory<SourceFile>[]).concat.apply([],
 			instantiatedTransformers
-				.map(transformer => transformer.before)
+				.map(transformer => transformer.before!)
 				.filter(beforeTransformer => beforeTransformer != null)
 		);
 
-		const afterTransformers: TransformerFactory<SourceFile>[] = [].concat.apply([],
+		const afterTransformers = ([] as TransformerFactory<SourceFile>[]).concat.apply([],
 			instantiatedTransformers
-				.map(transformer => transformer.after)
+				.map(transformer => transformer.after!)
 				.filter(afterTransformer => afterTransformer != null)
 		);
 
-		const afterDeclarationsTransformers: TransformerFactory<SourceFile>[] = [].concat.apply([],
+		const afterDeclarationsTransformers = ([] as TransformerFactory<Bundle|SourceFile>[]).concat.apply([],
 			instantiatedTransformers
-				.map(transformer => transformer.afterDeclarations)
+				.map(transformer => transformer.afterDeclarations!)
 				.filter(afterDeclarationTransformer => afterDeclarationTransformer != null)
 		);
 
