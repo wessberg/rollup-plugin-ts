@@ -1,7 +1,7 @@
 {
 	"extends": "./node_modules/@wessberg/ts-config/tslint/tslint.json",
 	"linterOptions": {
-		"exclude": ["/test-app/**/*.*"]
+		"exclude": ["test-app/**"]
 	},
 	"rules": {
 		"interface-name": false
