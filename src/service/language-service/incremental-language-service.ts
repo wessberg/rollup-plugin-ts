@@ -10,6 +10,7 @@ import {DEFAULT_LIB_NAMES} from "../../constant/constant";
 import {ensureAbsolute, isInternalFile, setExtension} from "../../util/path/path-util";
 import {CustomTransformersFunction} from "../../util/merge-transformers/i-custom-transformer-options";
 import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
+import {existsSync} from "fs";
 
 // tslint:disable:no-any
 
@@ -359,9 +360,12 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 		DEFAULT_LIB_NAMES.forEach(libName => {
 			if (this.LIB_DIRECTORY == null) return;
 
+			const path = join(this.LIB_DIRECTORY, libName);
+			if (!existsSync(path)) return;
+
 			this.addFile({
 				file: libName,
-				code: readFileSync(join(this.LIB_DIRECTORY, libName)).toString()
+				code: readFileSync(path).toString()
 			}, true);
 		});
 	}

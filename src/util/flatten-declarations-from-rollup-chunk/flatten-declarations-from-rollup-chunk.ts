@@ -14,6 +14,7 @@ export function flattenDeclarationsFromRollupChunk ({chunk, languageService, lan
 	const moduleNames = Object
 		.keys(chunk.modules)
 		.filter(canEmitForFile);
+
 	const entryFileName = moduleNames.slice(-1)[0];
 
 	const declarationBundleSourceFileName = setExtension(stripExtension(chunk.fileName) + "___declaration___", TS_EXTENSION);

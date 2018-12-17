@@ -49,7 +49,7 @@
     "tslint": "^5.11.0"
   },
   "dependencies": {
-    "@babel/core": "^7.2.0",
+    "@babel/core": "^7.2.2",
     "@babel/plugin-proposal-async-generator-functions": "^7.2.0",
     "@babel/plugin-proposal-json-strings": "^7.2.0",
     "@babel/plugin-proposal-object-rest-spread": "^7.2.0",
@@ -63,12 +63,12 @@
     "@types/node": "^10.12.15",
     "@types/resolve": "0.0.8",
     "@wessberg/browserslist-generator": "0.0.54",
-    "browserslist": "^4.3.5",
+    "browserslist": "^4.3.6",
     "find-up": "^3.0.0",
     "magic-string": "^0.25.1",
     "mkdirp": "^0.5.1",
-    "resolve": "^1.8.1",
-    "rollup": "^0.67.4",
+    "resolve": "^1.9.0",
+    "rollup": "^0.68.0",
     "rollup-pluginutils": "^2.3.3",
     "tslib": "^1.9.3",
     "typescript": "^3.2.2"
