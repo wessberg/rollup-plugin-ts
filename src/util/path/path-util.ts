@@ -66,6 +66,17 @@ export function setExtension (file: string, extension: string): string {
 }
 
 /**
+ * Ensure that the given path has a leading "."
+ * @param {string} path
+ * @return {string}
+ */
+export function ensureHasLeadingDot (path: string): string {
+	if (path.startsWith(".")) return path;
+	if (path.startsWith("/")) return `.${path}`;
+	return `./${path}`;
+}
+
+/**
  * Ensures that the given path is relative
  * @param {string} root
  * @param {string} path

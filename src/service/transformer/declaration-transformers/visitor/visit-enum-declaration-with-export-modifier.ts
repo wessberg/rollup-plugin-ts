@@ -1,18 +1,15 @@
-import {EnumDeclaration, SourceFile, updateEnumDeclaration} from "typescript";
+import {EnumDeclaration, updateEnumDeclaration} from "typescript";
 import {removeExportModifier} from "../util/util";
 import {hasReferences} from "../reference/has-references";
 import {preserveExport} from "../reference/preserve-export";
-import {IReferenceCache} from "../cache/i-reference-cache";
+import {VisitorOptions} from "./visitor-options";
 
 /**
  * Visits an EnumDeclaration that has an export modifier in front of it.
- * @param {EnumDeclaration} node
- * @param {Set<string>} usedExports
- * @param {SourceFile} sourceFile
- * @param {IReferenceCache} cache
+ * @param {VisitorOptions<EnumDeclaration>} options
  * @returns {Node | undefined}
  */
-export function visitEnumDeclarationWithExportModifier (node: EnumDeclaration, usedExports: Set<string>, sourceFile: SourceFile, cache: IReferenceCache): EnumDeclaration|undefined {
+export function visitEnumDeclarationWithExportModifier ({node, usedExports, sourceFile, cache}: VisitorOptions<EnumDeclaration>): EnumDeclaration|undefined {
 	if (!hasReferences(node, usedExports, sourceFile, cache)) {
 		return undefined;
 	}

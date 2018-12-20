@@ -1,17 +1,14 @@
-import {createImportClause, ImportDeclaration, ImportSpecifier, isNamedImports, isNamespaceImport, isStringLiteralLike, SourceFile, updateImportDeclaration} from "typescript";
+import {createImportClause, ImportDeclaration, ImportSpecifier, isNamedImports, isNamespaceImport, isStringLiteralLike, updateImportDeclaration} from "typescript";
 import {isExternalLibrary} from "../../../../util/path/path-util";
 import {hasReferences} from "../reference/has-references";
-import {IReferenceCache} from "../cache/i-reference-cache";
+import {VisitorOptions} from "./visitor-options";
 
 /**
  * Visits the given ImportDeclaration or ExportDeclaration.
- * @param {ImportDeclaration} node
- * @param {Set<string>} usedExports
- * @param {SourceFile} sourceFile
- * @param {IReferenceCache} cache
+ * @param {VisitorOptions<ImportDeclaration>} options
  * @returns {ImportDeclaration | undefined}
  */
-export function visitImportDeclaration (node: ImportDeclaration, usedExports: Set<string>, sourceFile: SourceFile, cache: IReferenceCache): ImportDeclaration|undefined {
+export function visitImportDeclaration ({node, usedExports, sourceFile, cache}: VisitorOptions<ImportDeclaration>): ImportDeclaration|undefined {
 	// If the import is relative to the current project, or if nothing is imported from the module, don't include it. Everything will already be part of the SourceFile
 	if (!isStringLiteralLike(node.moduleSpecifier) || !isExternalLibrary(node.moduleSpecifier.text) || node.importClause == null) return undefined;
 

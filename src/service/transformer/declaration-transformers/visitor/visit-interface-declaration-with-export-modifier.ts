@@ -1,18 +1,15 @@
-import {InterfaceDeclaration, SourceFile, updateInterfaceDeclaration} from "typescript";
+import {InterfaceDeclaration, updateInterfaceDeclaration} from "typescript";
 import {removeExportModifier} from "../util/util";
 import {hasReferences} from "../reference/has-references";
 import {preserveExport} from "../reference/preserve-export";
-import {IReferenceCache} from "../cache/i-reference-cache";
+import {VisitorOptions} from "./visitor-options";
 
 /**
  * Visits an InterfaceDeclaration that has an export modifier in front of it.
- * @param {InterfaceDeclaration} node
- * @param {Set<string>} usedExports
- * @param {SourceFile} sourceFile
- * @param {IReferenceCache} cache
+ * @param {VisitorOptions<InterfaceDeclaration>} options
  * @returns {Node | undefined}
  */
-export function visitInterfaceDeclarationWithExportModifier (node: InterfaceDeclaration, usedExports: Set<string>, sourceFile: SourceFile, cache: IReferenceCache): InterfaceDeclaration|undefined {
+export function visitInterfaceDeclarationWithExportModifier ({node, usedExports, sourceFile, cache}: VisitorOptions<InterfaceDeclaration>): InterfaceDeclaration|undefined {
 	if (!hasReferences(node, usedExports, sourceFile, cache)) {
 		return undefined;
 	}

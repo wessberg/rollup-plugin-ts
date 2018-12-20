@@ -1,18 +1,15 @@
-import {SourceFile, TypeAliasDeclaration, updateTypeAliasDeclaration} from "typescript";
+import {TypeAliasDeclaration, updateTypeAliasDeclaration} from "typescript";
 import {removeExportModifier} from "../util/util";
 import {hasReferences} from "../reference/has-references";
 import {preserveExport} from "../reference/preserve-export";
-import {IReferenceCache} from "../cache/i-reference-cache";
+import {VisitorOptions} from "./visitor-options";
 
 /**
  * Visits a TypeAliasDeclaration that has an export modifier in front of it.
- * @param {TypeAliasDeclaration} node
- * @param {Set<string>} usedExports
- * @param {SourceFile} sourceFile
- * @param {IReferenceCache} cache
+ * @param {VisitorOptions<TypeAliasDeclaration>} options
  * @returns {Node | undefined}
  */
-export function visitTypeAliasDeclarationWithExportModifier (node: TypeAliasDeclaration, usedExports: Set<string>, sourceFile: SourceFile, cache: IReferenceCache): TypeAliasDeclaration|undefined {
+export function visitTypeAliasDeclarationWithExportModifier ({node, usedExports, sourceFile, cache}: VisitorOptions<TypeAliasDeclaration>): TypeAliasDeclaration|undefined {
 	if (!hasReferences(node, usedExports, sourceFile, cache)) {
 		return undefined;
 	}

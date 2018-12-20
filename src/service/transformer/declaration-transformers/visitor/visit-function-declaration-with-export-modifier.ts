@@ -1,18 +1,15 @@
 import {removeExportModifier} from "../util/util";
-import {FunctionDeclaration, SourceFile, updateFunctionDeclaration} from "typescript";
+import {FunctionDeclaration, updateFunctionDeclaration} from "typescript";
 import {hasReferences} from "../reference/has-references";
 import {preserveExport} from "../reference/preserve-export";
-import {IReferenceCache} from "../cache/i-reference-cache";
+import {VisitorOptions} from "./visitor-options";
 
 /**
  * Visits a FunctionDeclaration that has an export modifier in front of it.
- * @param {Node} node
- * @param {Set<string>} usedExports
- * @param {SourceFile} sourceFile
- * @param {IReferenceCache} cache
+ * @param {VisitorOptions<FunctionDeclaration>} options
  * @returns {Node | undefined}
  */
-export function visitFunctionDeclarationWithExportModifier (node: FunctionDeclaration, usedExports: Set<string>, sourceFile: SourceFile, cache: IReferenceCache): FunctionDeclaration|undefined {
+export function visitFunctionDeclarationWithExportModifier ({node, usedExports, cache, sourceFile}: VisitorOptions<FunctionDeclaration>): FunctionDeclaration|undefined {
 	if (!hasReferences(node, usedExports, sourceFile, cache)) {
 		return undefined;
 	}

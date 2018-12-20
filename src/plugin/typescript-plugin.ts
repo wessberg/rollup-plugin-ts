@@ -10,6 +10,7 @@ import {emitDeclarations} from "../util/emit-declarations/emit-declarations";
 import {emitDiagnosticsThroughRollup} from "../util/diagnostic/emit-diagnostics-through-rollup";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
 import {ensureRelative, getExtension, isNonTransformableBabelHelper} from "../util/path/path-util";
+import {join} from "path";
 import {ModuleResolutionHost} from "../service/module-resolution-host/module-resolution-host";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
 import {TypescriptPluginOptions} from "./i-typescript-plugin-options";
@@ -31,6 +32,9 @@ import {resolveId} from "../util/resolve-id/resolve-id";
 import {mergeTransformers} from "../util/merge-transformers/merge-transformers";
 import {getTypeOnlyImportTransformers} from "../service/transformer/type-only-import-transformers/type-only-import-transformers";
 import {ensureArray} from "../util/ensure-array/ensure-array";
+import {isOutputChunk} from "../util/is-output-chunk/is-output-chunk";
+import {getEntryFileNameForChunk} from "../util/get-entry-file-name-for-chunk/get-entry-file-name-for-chunk";
+import {getDeclarationOutDir} from "../util/get-declaration-out-dir/get-declaration-out-dir";
 
 /**
  * The name of the Rollup plugin
@@ -314,18 +318,38 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 
 			// Emit declaration files if required
 			if (Boolean(parsedCommandLine.options.declaration)) {
-				Object.values(bundle)
-					.filter(file => typeof file !== "string" && !(file instanceof Buffer))
+				const chunks = Object.values(bundle)
+					.filter(isOutputChunk);
+
+				const declarationOutDir = join(cwd, getDeclarationOutDir(cwd, parsedCommandLine.options, outputOptions));
+				const generateMap = Boolean(parsedCommandLine.options.declarationMap);
+
+				const chunkToOriginalFileMap: Map<string, string> = new Map(
+					chunks
+						.map(chunk => [join(declarationOutDir, chunk.fileName), getEntryFileNameForChunk(chunk, canEmitForFile)] as [string, string])
+				);
+
+				chunks
 					.forEach((chunk: OutputChunk) => {
+						const moduleNames = Object
+							.keys(chunk.modules)
+							.filter(canEmitForFile);
+
+						const entryFileName = moduleNames.slice(-1)[0];
+
 						emitDeclarations({
 							chunk,
+							generateMap,
+							declarationOutDir,
 							cwd,
 							outputOptions,
-							compilerOptions: parsedCommandLine.options,
 							languageService,
 							languageServiceHost,
 							emitCache,
-							canEmitForFile
+							chunkToOriginalFileMap,
+							moduleNames,
+							entryFileName,
+							supportedExtensions: SUPPORTED_EXTENSIONS
 						});
 					});
 			}

@@ -1,18 +1,15 @@
-import {ClassDeclaration, SourceFile, updateClassDeclaration} from "typescript";
+import {ClassDeclaration, updateClassDeclaration} from "typescript";
 import {removeExportModifier} from "../util/util";
 import {hasReferences} from "../reference/has-references";
 import {preserveExport} from "../reference/preserve-export";
-import {IReferenceCache} from "../cache/i-reference-cache";
+import {VisitorOptions} from "./visitor-options";
 
 /**
  * Visits an ClassDeclaration that has an export modifier in front of it.
- * @param {ClassDeclaration} node
- * @param {Set<string>} usedExports
- * @param {SourceFile} sourceFile
- * @param {IReferenceCache} cache
+ * @param {VisitorOptions<ClassDeclaration>} options
  * @returns {Node | undefined}
  */
-export function visitClassDeclarationWithExportModifier (node: ClassDeclaration, usedExports: Set<string>, sourceFile: SourceFile, cache: IReferenceCache): ClassDeclaration|undefined {
+export function visitClassDeclarationWithExportModifier ({node, usedExports, sourceFile, cache}: VisitorOptions<ClassDeclaration>): ClassDeclaration|undefined {
 	if (!hasReferences(node, usedExports, sourceFile, cache)) {
 		return undefined;
 	}
