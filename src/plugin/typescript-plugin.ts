@@ -326,7 +326,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 
 				const chunkToOriginalFileMap: Map<string, string> = new Map(
 					chunks
-						.map(chunk => [join(declarationOutDir, chunk.fileName), getEntryFileNameForChunk(chunk, canEmitForFile)] as [string, string])
+						.map<[string, string]>(chunk => [join(declarationOutDir, chunk.fileName), getEntryFileNameForChunk(chunk, canEmitForFile)])
 				);
 
 				chunks

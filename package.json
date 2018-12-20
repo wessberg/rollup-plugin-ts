@@ -46,7 +46,7 @@
     "@wessberg/ts-config": "^0.0.34",
     "npm-check-updates": "^2.15.0",
     "standard-changelog": "^2.0.6",
-    "tslint": "^5.11.0"
+    "tslint": "^5.12.0"
   },
   "dependencies": {
     "@babel/core": "^7.2.2",
@@ -57,10 +57,10 @@
     "@babel/plugin-proposal-unicode-property-regex": "^7.2.0",
     "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@babel/plugin-transform-runtime": "^7.2.0",
-    "@babel/preset-env": "^7.2.0",
+    "@babel/preset-env": "^7.2.3",
     "@babel/runtime": "^7.2.0",
     "@types/find-up": "^2.1.1",
-    "@types/node": "^10.12.15",
+    "@types/node": "^10.12.18",
     "@types/resolve": "0.0.8",
     "@wessberg/browserslist-generator": "0.0.54",
     "browserslist": "^4.3.6",
@@ -68,7 +68,7 @@
     "magic-string": "^0.25.1",
     "mkdirp": "^0.5.1",
     "resolve": "^1.9.0",
-    "rollup": "^0.68.0",
+    "rollup": "^0.68.1",
     "rollup-pluginutils": "^2.3.3",
     "tslib": "^1.9.3",
     "typescript": "^3.2.2"

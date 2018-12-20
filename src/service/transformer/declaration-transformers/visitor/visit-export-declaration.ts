@@ -29,9 +29,8 @@ export function visitExportDeclaration ({node, usedExports, outFileName, moduleN
 			const absoluteModuleSpecifier = join(dirname(entryFileName), node.moduleSpecifier.text);
 			// If the path that it exports from is already part of this chunk, simply exclude the module specifier
 			const match = matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, moduleNames);
-			if (match != null) {
-				if (isExportStar) return undefined;
-				else moduleSpecifier = undefined;
+			if (match != null && isExportStar) {
+				return undefined;
 			}
 
 			// Otherwise, assume that it is being exported from a generated chunk. Try to find it

@@ -4,6 +4,7 @@
 		"exclude": ["test-app/**"]
 	},
 	"rules": {
-		"interface-name": false
+		"interface-name": false,
+		"completed-docs": false
 	}
 }
