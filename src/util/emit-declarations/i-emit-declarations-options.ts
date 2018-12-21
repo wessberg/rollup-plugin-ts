@@ -14,6 +14,6 @@ export interface IEmitDeclarationsOptions {
 	languageService: LanguageService;
 	languageServiceHost: IncrementalLanguageService;
 	emitCache: IEmitCache;
-	chunkToOriginalFileMap: Map<string, string>;
+	chunkToOriginalFileMap: Map<string, string[]>;
 	supportedExtensions: string[];
 }

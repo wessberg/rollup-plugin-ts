@@ -33,7 +33,6 @@ import {mergeTransformers} from "../util/merge-transformers/merge-transformers";
 import {getTypeOnlyImportTransformers} from "../service/transformer/type-only-import-transformers/type-only-import-transformers";
 import {ensureArray} from "../util/ensure-array/ensure-array";
 import {isOutputChunk} from "../util/is-output-chunk/is-output-chunk";
-import {getEntryFileNameForChunk} from "../util/get-entry-file-name-for-chunk/get-entry-file-name-for-chunk";
 import {getDeclarationOutDir} from "../util/get-declaration-out-dir/get-declaration-out-dir";
 
 /**
@@ -324,9 +323,12 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 				const declarationOutDir = join(cwd, getDeclarationOutDir(cwd, parsedCommandLine.options, outputOptions));
 				const generateMap = Boolean(parsedCommandLine.options.declarationMap);
 
-				const chunkToOriginalFileMap: Map<string, string> = new Map(
+				// TODO: Preserve one-to-many relationship between chunk name and module names.
+				//       In VisitExportDeclaration, check if any of the module names that a chunk contains is equal to the
+				//       absoluteModuleSpecifier
+				const chunkToOriginalFileMap: Map<string, string[]> = new Map(
 					chunks
-						.map<[string, string]>(chunk => [join(declarationOutDir, chunk.fileName), getEntryFileNameForChunk(chunk, canEmitForFile)])
+						.map<[string, string[]]>(chunk => [join(declarationOutDir, chunk.fileName), Object.keys(chunk.modules)])
 				);
 
 				chunks

@@ -29,7 +29,7 @@ export function visitImportDeclaration ({node, usedExports, sourceFile, cache, e
 		if (match != null) return undefined;
 
 		// Otherwise, assume that it is being imported from a generated chunk. Try to find it
-		const matchInChunks = [...chunkToOriginalFileMap.entries()].find(([, original]) => matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, [original]) != null);
+		const matchInChunks = [...chunkToOriginalFileMap.entries()].find(([, originals]) => originals.find(original => matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, [original]) != null) != null);
 
 		// If nothing was found, ignore this ImportDeclaration
 		if (matchInChunks == null) {
@@ -45,12 +45,12 @@ export function visitImportDeclaration ({node, usedExports, sourceFile, cache, e
 	}
 
 	// Check if the default import should be removed - if it has any
-	const removeDefaultImport = node.importClause.name == null || !hasReferences(node.importClause.name, usedExports, sourceFile, cache);
+	const removeDefaultImport = node.importClause.name == null || !hasReferences(node.importClause.name, usedExports, sourceFile, cache, chunkToOriginalFileMap);
 
 	// Also check for its' named bindings
 	if (node.importClause.namedBindings != null) {
 		if (isNamespaceImport(node.importClause.namedBindings)) {
-			const removeNamespaceImport = !hasReferences(node.importClause.namedBindings, usedExports, sourceFile, cache);
+			const removeNamespaceImport = !hasReferences(node.importClause.namedBindings, usedExports, sourceFile, cache, chunkToOriginalFileMap);
 
 			// If neither the namespace import nor the default import (if it has any) are being used, don't include the node
 			if (removeDefaultImport && removeNamespaceImport) {
@@ -95,7 +95,7 @@ export function visitImportDeclaration ({node, usedExports, sourceFile, cache, e
 			for (const element of node.importClause.namedBindings.elements) {
 
 				// If the element isn't referenced, remove it
-				if (!hasReferences(element.name, usedExports, sourceFile, cache)) {
+				if (!hasReferences(element.name, usedExports, sourceFile, cache, chunkToOriginalFileMap)) {
 					importElementsToRemove.add(element);
 				}
 			}

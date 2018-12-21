@@ -4,5 +4,6 @@ export interface IDeclarationTransformersOptions {
 	moduleNames: string[];
 	entryFileName: string;
 	outFileName: string;
-	chunkToOriginalFileMap: Map<string, string>;
+	chunkToOriginalFileMap: Map<string, string[]>;
+	fileToRewrittenIncludedExportModuleSpecifiersMap: Map<string, Set<string>>;
 }

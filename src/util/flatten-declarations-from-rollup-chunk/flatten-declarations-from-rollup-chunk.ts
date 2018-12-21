@@ -69,7 +69,8 @@ export function flattenDeclarationsFromRollupChunk ({chunk, generateMap, declara
 			supportedExtensions,
 			moduleNames,
 			entryFileName,
-			chunkToOriginalFileMap
+			chunkToOriginalFileMap,
+			fileToRewrittenIncludedExportModuleSpecifiersMap: new Map()
 		})
 	);
 

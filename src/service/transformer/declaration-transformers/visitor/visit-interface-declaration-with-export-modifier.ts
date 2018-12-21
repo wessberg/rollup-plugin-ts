@@ -9,8 +9,8 @@ import {VisitorOptions} from "./visitor-options";
  * @param {VisitorOptions<InterfaceDeclaration>} options
  * @returns {Node | undefined}
  */
-export function visitInterfaceDeclarationWithExportModifier ({node, usedExports, sourceFile, cache}: VisitorOptions<InterfaceDeclaration>): InterfaceDeclaration|undefined {
-	if (!hasReferences(node, usedExports, sourceFile, cache)) {
+export function visitInterfaceDeclarationWithExportModifier ({node, usedExports, sourceFile, cache, chunkToOriginalFileMap}: VisitorOptions<InterfaceDeclaration>): InterfaceDeclaration|undefined {
+	if (!hasReferences(node, usedExports, sourceFile, cache, chunkToOriginalFileMap)) {
 		return undefined;
 	}
 

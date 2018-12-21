@@ -9,8 +9,8 @@ import {VisitorOptions} from "./visitor-options";
  * @param {VisitorOptions<EnumDeclaration>} options
  * @returns {Node | undefined}
  */
-export function visitEnumDeclarationWithExportModifier ({node, usedExports, sourceFile, cache}: VisitorOptions<EnumDeclaration>): EnumDeclaration|undefined {
-	if (!hasReferences(node, usedExports, sourceFile, cache)) {
+export function visitEnumDeclarationWithExportModifier ({node, usedExports, sourceFile, cache, chunkToOriginalFileMap}: VisitorOptions<EnumDeclaration>): EnumDeclaration|undefined {
+	if (!hasReferences(node, usedExports, sourceFile, cache, chunkToOriginalFileMap)) {
 		return undefined;
 	}
 

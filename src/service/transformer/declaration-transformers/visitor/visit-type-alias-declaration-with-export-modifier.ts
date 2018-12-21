@@ -9,8 +9,8 @@ import {VisitorOptions} from "./visitor-options";
  * @param {VisitorOptions<TypeAliasDeclaration>} options
  * @returns {Node | undefined}
  */
-export function visitTypeAliasDeclarationWithExportModifier ({node, usedExports, sourceFile, cache}: VisitorOptions<TypeAliasDeclaration>): TypeAliasDeclaration|undefined {
-	if (!hasReferences(node, usedExports, sourceFile, cache)) {
+export function visitTypeAliasDeclarationWithExportModifier ({node, usedExports, sourceFile, cache, chunkToOriginalFileMap}: VisitorOptions<TypeAliasDeclaration>): TypeAliasDeclaration|undefined {
+	if (!hasReferences(node, usedExports, sourceFile, cache, chunkToOriginalFileMap)) {
 		return undefined;
 	}
 

@@ -15,10 +15,14 @@ import {DEBUG} from "../../../../constant/constant";
  * @param {Set<string>} usedExports
  * @param {SourceFile} sourceFile
  * @param {IReferenceCache} cache
+ * @param {Map<string, string[]>} chunkToOriginalFileMap
  * @param {Set<Node>} [seenNodes]
  * @returns {boolean}
  */
-export function hasReferences (node: Node, usedExports: Set<string>, sourceFile: SourceFile, cache: IReferenceCache, seenNodes: Set<Node> = new Set()): boolean {
+export function hasReferences (node: Node, usedExports: Set<string>, sourceFile: SourceFile, cache: IReferenceCache, chunkToOriginalFileMap: Map<string, string[]>, seenNodes: Set<Node> = new Set()): boolean {
+	// If there is more than 1 chunk, expect the node to be referenced
+	if (chunkToOriginalFileMap.size > 1) return true;
+
 	if (cache.hasReferencesCache.has(node)) {
 		return cache.hasReferencesCache.get(node)!;
 	}
@@ -42,7 +46,7 @@ export function hasReferences (node: Node, usedExports: Set<string>, sourceFile:
 
 	else {
 		const referencingNodes = collectReferencingNodes(node, sourceFile, cache, identifiers);
-		returnValue = referencingNodes.length > 0 && referencingNodes.some(referencingNode => hasReferences(referencingNode, usedExports, sourceFile, cache, seenNodes));
+		returnValue = referencingNodes.length > 0 && referencingNodes.some(referencingNode => hasReferences(referencingNode, usedExports, sourceFile, cache, chunkToOriginalFileMap, seenNodes));
 	}
 
 	cache.hasReferencesCache.set(node, returnValue);

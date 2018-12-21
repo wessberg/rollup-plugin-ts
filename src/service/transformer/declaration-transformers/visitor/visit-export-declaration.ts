@@ -9,7 +9,7 @@ import {matchModuleSpecifier} from "../../../../util/match-module-specifier/matc
  * @param {VisitorOptions<ExportDeclaration>} options
  * @returns {ExportDeclaration | undefined}
  */
-export function visitExportDeclaration ({node, usedExports, outFileName, moduleNames, entryFileName, supportedExtensions, chunkToOriginalFileMap}: VisitorOptions<ExportDeclaration>): ExportDeclaration|undefined {
+export function visitExportDeclaration ({node, sourceFile, usedExports, outFileName, moduleNames, entryFileName, supportedExtensions, chunkToOriginalFileMap, fileToRewrittenIncludedExportModuleSpecifiersMap}: VisitorOptions<ExportDeclaration>): ExportDeclaration|undefined {
 	const isExternal = node.moduleSpecifier != null && isStringLiteralLike(node.moduleSpecifier) && isExternalLibrary(node.moduleSpecifier.text);
 
 	const exportElementsToRemove: Set<ExportSpecifier> = new Set();
@@ -34,7 +34,7 @@ export function visitExportDeclaration ({node, usedExports, outFileName, moduleN
 			}
 
 			// Otherwise, assume that it is being exported from a generated chunk. Try to find it
-			const matchInChunks = [...chunkToOriginalFileMap.entries()].find(([, original]) => matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, [original]) != null);
+			const matchInChunks = [...chunkToOriginalFileMap.entries()].find(([, originals]) => originals.find(original => matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, [original]) != null) != null);
 
 			// If nothing was found, ignore this ExportDeclaration
 			if (matchInChunks == null) {
@@ -43,9 +43,20 @@ export function visitExportDeclaration ({node, usedExports, outFileName, moduleN
 
 			else {
 				// Otherwise, compute a relative path and update the moduleSpecifier
-				moduleSpecifier = createStringLiteral(
-					ensureHasLeadingDot(stripExtension(ensureRelative(dirname(outFileName), matchInChunks[0])))
-				);
+				const text = ensureHasLeadingDot(stripExtension(ensureRelative(dirname(outFileName), matchInChunks[0])));
+
+				// If it is a 'star' export, verify that an export hasn't already been added to the file for the current chunk
+				if (isExportStar) {
+					const existing = fileToRewrittenIncludedExportModuleSpecifiersMap.get(sourceFile.fileName);
+					if (existing != null && existing.has(text)) return undefined;
+					else {
+						moduleSpecifier = createStringLiteral(text);
+						if (existing != null) existing.add(text);
+						else fileToRewrittenIncludedExportModuleSpecifiersMap.set(sourceFile.fileName, new Set([text]));
+					}
+				} else {
+					moduleSpecifier = createStringLiteral(text);
+				}
 			}
 		}
 	}

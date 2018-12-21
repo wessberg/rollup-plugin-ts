@@ -9,8 +9,8 @@ import {VisitorOptions} from "./visitor-options";
  * @param {VisitorOptions<VariableStatement>} options
  * @returns {Node | undefined}
  */
-export function visitVariableStatementWithExportModifier ({node, usedExports, sourceFile, cache}: VisitorOptions<VariableStatement>): VariableStatement|undefined {
-	if (!hasReferences(node, usedExports, sourceFile, cache)) {
+export function visitVariableStatementWithExportModifier ({node, usedExports, sourceFile, cache, chunkToOriginalFileMap}: VisitorOptions<VariableStatement>): VariableStatement|undefined {
+	if (!hasReferences(node, usedExports, sourceFile, cache, chunkToOriginalFileMap)) {
 		return undefined;
 	}
 
