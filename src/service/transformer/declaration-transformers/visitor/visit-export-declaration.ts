@@ -37,7 +37,9 @@ export function visitExportDeclaration ({node, usedExports, outFileName, moduleN
 			const matchInChunks = [...chunkToOriginalFileMap.entries()].find(([, original]) => matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, [original]) != null);
 
 			// If nothing was found, ignore this ExportDeclaration
-			if (matchInChunks == null) moduleSpecifier = node.moduleSpecifier;
+			if (matchInChunks == null) {
+				return undefined;
+			}
 
 			else {
 				// Otherwise, compute a relative path and update the moduleSpecifier

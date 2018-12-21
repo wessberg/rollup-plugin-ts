@@ -1,16 +1,48 @@
-import {createImportClause, ImportDeclaration, ImportSpecifier, isNamedImports, isNamespaceImport, isStringLiteralLike, updateImportDeclaration} from "typescript";
-import {isExternalLibrary} from "../../../../util/path/path-util";
+import {createImportClause, createStringLiteral, Expression, ImportDeclaration, ImportSpecifier, isNamedImports, isNamespaceImport, isStringLiteralLike, updateImportDeclaration} from "typescript";
+import {ensureHasLeadingDot, ensureRelative, isExternalLibrary, stripExtension} from "../../../../util/path/path-util";
 import {hasReferences} from "../reference/has-references";
 import {VisitorOptions} from "./visitor-options";
+import {dirname, join} from "path";
+import {matchModuleSpecifier} from "../../../../util/match-module-specifier/match-module-specifier";
 
 /**
- * Visits the given ImportDeclaration or ExportDeclaration.
+ * Visits the given ImportDeclaration.
  * @param {VisitorOptions<ImportDeclaration>} options
  * @returns {ImportDeclaration | undefined}
  */
-export function visitImportDeclaration ({node, usedExports, sourceFile, cache}: VisitorOptions<ImportDeclaration>): ImportDeclaration|undefined {
-	// If the import is relative to the current project, or if nothing is imported from the module, don't include it. Everything will already be part of the SourceFile
-	if (!isStringLiteralLike(node.moduleSpecifier) || !isExternalLibrary(node.moduleSpecifier.text) || node.importClause == null) return undefined;
+export function visitImportDeclaration ({node, usedExports, sourceFile, cache, entryFileName, supportedExtensions, moduleNames, chunkToOriginalFileMap, outFileName}: VisitorOptions<ImportDeclaration>): ImportDeclaration|undefined {
+	// If nothing is imported from the module, or if the Import is importing things that are already part of this chunk, don't include it. Everything will already be part of the SourceFile
+	if (!isStringLiteralLike(node.moduleSpecifier) || node.importClause == null) return undefined;
+
+	let moduleSpecifier: Expression|undefined;
+
+	if (isExternalLibrary(node.moduleSpecifier.text)) {
+		moduleSpecifier = node.moduleSpecifier;
+	}
+
+	else {
+		// Compute the absolute path
+		const absoluteModuleSpecifier = join(dirname(entryFileName), node.moduleSpecifier.text);
+		// If the path that it imports from is already part of this chunk, don't include the ImportDeclaration
+		const match = matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, moduleNames);
+
+		if (match != null) return undefined;
+
+		// Otherwise, assume that it is being imported from a generated chunk. Try to find it
+		const matchInChunks = [...chunkToOriginalFileMap.entries()].find(([, original]) => matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, [original]) != null);
+
+		// If nothing was found, ignore this ImportDeclaration
+		if (matchInChunks == null) {
+			return undefined;
+		}
+
+		else {
+			// Otherwise, compute a relative path and update the moduleSpecifier
+			moduleSpecifier = createStringLiteral(
+				ensureHasLeadingDot(stripExtension(ensureRelative(dirname(outFileName), matchInChunks[0])))
+			);
+		}
+	}
 
 	// Check if the default import should be removed - if it has any
 	const removeDefaultImport = node.importClause.name == null || !hasReferences(node.importClause.name, usedExports, sourceFile, cache);
@@ -34,7 +66,7 @@ export function visitImportDeclaration ({node, usedExports, sourceFile, cache}: 
 						node.importClause.name,
 						undefined
 					),
-					node.moduleSpecifier
+					moduleSpecifier
 				);
 			}
 
@@ -47,7 +79,7 @@ export function visitImportDeclaration ({node, usedExports, sourceFile, cache}: 
 						undefined,
 						node.importClause.namedBindings
 					),
-					node.moduleSpecifier
+					moduleSpecifier
 				);
 			}
 
@@ -84,7 +116,7 @@ export function visitImportDeclaration ({node, usedExports, sourceFile, cache}: 
 						node.importClause.name,
 						undefined
 					),
-					node.moduleSpecifier
+					moduleSpecifier
 				);
 			}
 
@@ -97,7 +129,7 @@ export function visitImportDeclaration ({node, usedExports, sourceFile, cache}: 
 						undefined,
 						node.importClause.namedBindings
 					),
-					node.moduleSpecifier
+					moduleSpecifier
 				);
 			}
 
