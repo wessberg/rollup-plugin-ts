@@ -1,3 +1,12 @@
+## [1.1.15](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.14...v1.1.15) (2018-12-30)
+
+
+### Bug Fixes
+
+* **chore:** updated to Rollup v1.0.0 ([e20e5b0](https://github.com/wessberg/rollup-plugin-ts/commit/e20e5b0))
+
+
+
 ## [1.1.14](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.13...v1.1.14) (2018-12-21)
 
 
