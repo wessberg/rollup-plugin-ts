@@ -190,12 +190,12 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		 * and if Babel is the chosen transpiler. Otherwise, it will simply do nothing
 		 * @param {string} code
 		 * @param {RenderedChunk} chunk
-		 * @returns {Promise<{ code: string, map: RawSourceMap } | void>}
+		 * @returns {Promise<{ code: string, map: RawSourceMap } | null>}
 		 */
-		async renderChunk (this: PluginContext, code: string, chunk: RenderedChunk): Promise<{ code: string; map: RawSourceMap }|void> {
+		async renderChunk (this: PluginContext, code: string, chunk: RenderedChunk): Promise<{ code: string; map: RawSourceMap }|null> {
 
 			// Don't proceed if there is no minification config
-			if (babelMinifyConfig == null) return;
+			if (babelMinifyConfig == null) return null;
 
 			const transpilationResult = await transformAsync(
 				code,
@@ -294,13 +294,14 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		 * to use one that is using ESM by default to play nice with Rollup even when rollup-plugin-commonjs isn't
 		 * being used
 		 * @param {string} id
-		 * @returns {string | void}
+		 * @returns {string | null}
 		 */
-		load (this: PluginContext, id: string): string|void {
+		load (this: PluginContext, id: string): string|null {
 			// Return the alternative source for the regenerator runtime if that file is attempted to be loaded
 			if (id.endsWith(REGENERATOR_RUNTIME_NAME_1) || id.endsWith(REGENERATOR_RUNTIME_NAME_2)) {
 				return REGENERATOR_SOURCE;
 			}
+			return null;
 		},
 
 		/**
@@ -341,6 +342,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 
 						emitDeclarations({
 							chunk,
+							pluginContext: this,
 							generateMap,
 							declarationOutDir,
 							cwd,

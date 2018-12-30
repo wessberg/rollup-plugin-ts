@@ -20,8 +20,6 @@ export function getOutDir (cwd: string, options?: Partial<OutputOptions>): strin
 		outDir = options.dir;
 	} else if (options.file != null) {
 		outDir = dirname(options.file);
-	} else if (options.dest != null) {
-		outDir = dirname(options.dest);
 	} else {
 		outDir = cwd;
 	}

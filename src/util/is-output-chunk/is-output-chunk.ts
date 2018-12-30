@@ -1,10 +1,10 @@
-import {OutputChunk, OutputFile} from "rollup";
+import {OutputChunk, OutputAsset} from "rollup";
 
 /**
- * Returns true if the given file is an OutputChunk
- * @param {OutputChunk | OutputFile} file
- * @return {file is OutputChunk}
+ * Returns true if the given asset is an OutputChunk
+ * @param {OutputChunk | OutputAsset} thing
+ * @return {thing is OutputChunk}
  */
-export function isOutputChunk (file: OutputChunk|OutputFile): file is OutputChunk {
-	return typeof file !== "string" && !(file instanceof Buffer);
+export function isOutputChunk (thing: OutputChunk|OutputAsset): thing is OutputChunk {
+	return !("isAsset" in thing);
 }
