@@ -32,7 +32,7 @@ export function visitImportDeclaration ({node, usedExports, sourceFile, cache, e
 		const matchInChunks = [...chunkToOriginalFileMap.entries()].find(([, originals]) => originals.find(original => matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, [original]) != null) != null);
 
 		// If nothing was found, ignore this ImportDeclaration
-		if (matchInChunks == null) {
+		if (matchInChunks == null || stripExtension(outFileName) === stripExtension(matchInChunks[0])) {
 			return undefined;
 		}
 

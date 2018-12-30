@@ -40,6 +40,8 @@ export function flattenDeclarationsFromRollupChunk ({chunk, generateMap, declara
 	const usedExports: Set<string> = new Set(entrySourceFile == null || entrySourceFileSymbol == null ? [] : typeChecker.getExportsOfModule(entrySourceFileSymbol)
 		.map(exportSymbol => exportSymbol.getName()));
 
+	console.log({usedExports, moduleNames, entryFileName});
+
 	program.emit(
 		program.getSourceFile(declarationBundleSourceFileName),
 		(file, data) => {

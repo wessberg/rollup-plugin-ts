@@ -34,10 +34,11 @@ export function visitExportDeclaration ({node, sourceFile, usedExports, outFileN
 			}
 
 			// Otherwise, assume that it is being exported from a generated chunk. Try to find it
-			const matchInChunks = [...chunkToOriginalFileMap.entries()].find(([, originals]) => originals.find(original => matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, [original]) != null) != null);
+			const matchInChunks = [...chunkToOriginalFileMap.entries()]
+				.find(([, originals]) => originals.find(original => matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, [original]) != null) != null);
 
-			// If nothing was found, ignore this ExportDeclaration
-			if (matchInChunks == null) {
+			// If nothing was found, or if the module is the same as the current one ignore this ExportDeclaration
+			if (matchInChunks == null || stripExtension(outFileName) === stripExtension(matchInChunks[0])) {
 				return undefined;
 			}
 

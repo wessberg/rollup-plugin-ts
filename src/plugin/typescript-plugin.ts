@@ -324,9 +324,6 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 				const declarationOutDir = join(cwd, getDeclarationOutDir(cwd, parsedCommandLine.options, outputOptions));
 				const generateMap = Boolean(parsedCommandLine.options.declarationMap);
 
-				// TODO: Preserve one-to-many relationship between chunk name and module names.
-				//       In VisitExportDeclaration, check if any of the module names that a chunk contains is equal to the
-				//       absoluteModuleSpecifier
 				const chunkToOriginalFileMap: Map<string, string[]> = new Map(
 					chunks
 						.map<[string, string[]]>(chunk => [join(declarationOutDir, chunk.fileName), Object.keys(chunk.modules)])
