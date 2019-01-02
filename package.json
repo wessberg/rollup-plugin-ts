@@ -1,6 +1,6 @@
 {
   "name": "@wessberg/rollup-plugin-ts",
-  "version": "1.1.16",
+  "version": "1.1.17",
   "description": "A Rollup plugin for Typescript that respects Browserslists",
   "scripts": {
     "generate:readme": "scaffold readme",
