@@ -46,13 +46,22 @@ export function isExportModifier (node: Modifier): boolean {
 }
 
 /**
+ * Returns true if the given modifier has an Default keyword in front of it
+ * @param {Node} node
+ * @returns {boolean}
+ */
+export function isDefaultModifier (node: Modifier): boolean {
+	return node.kind === SyntaxKind.DefaultKeyword;
+}
+
+/**
  * Removes an export modifier from the given ModifiersArray
  * @param {ModifiersArray} modifiers
  * @returns {Modifier[]}
  */
 export function removeExportModifier (modifiers: ModifiersArray|undefined): Modifier[]|undefined {
 	if (modifiers == null) return modifiers;
-	return modifiers.filter(modifier => !isExportModifier(modifier));
+	return modifiers.filter(modifier => !isExportModifier(modifier) && !isDefaultModifier(modifier));
 }
 
 /**

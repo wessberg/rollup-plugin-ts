@@ -46,7 +46,7 @@
     "@wessberg/ts-config": "^0.0.34",
     "npm-check-updates": "^2.15.0",
     "standard-changelog": "^2.0.6",
-    "tslint": "^5.12.0"
+    "tslint": "^5.12.1"
   },
   "dependencies": {
     "@babel/core": "^7.2.2",
@@ -62,13 +62,13 @@
     "@types/find-up": "^2.1.1",
     "@types/node": "^10.12.18",
     "@types/resolve": "0.0.8",
-    "@wessberg/browserslist-generator": "0.0.56",
-    "browserslist": "^4.3.6",
+    "@wessberg/browserslist-generator": "1.0.3",
+    "browserslist": "^4.4.0",
     "find-up": "^3.0.0",
     "magic-string": "^0.25.1",
     "mkdirp": "^0.5.1",
     "resolve": "^1.9.0",
-    "rollup": "^1.0.0",
+    "rollup": "^1.1.0",
     "rollup-pluginutils": "^2.3.3",
     "tslib": "^1.9.3",
     "typescript": "^3.2.2"
