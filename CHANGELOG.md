@@ -1,3 +1,12 @@
+## [1.1.18](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.17...v1.1.18) (2019-01-17)
+
+
+### Bug Fixes
+
+* **bug:** fixes an issue where 'default' keywords would not be stripped from nodes for which the 'export' keyword had been removed ([ff0233e](https://github.com/wessberg/rollup-plugin-ts/commit/ff0233e))
+
+
+
 ## [1.1.17](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.16...v1.1.17) (2019-01-02)
 
 
