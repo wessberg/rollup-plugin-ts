@@ -43,12 +43,12 @@ Using the plugin is as simple as it can be. Here's an example within a Rollup co
 ```javascript
 import ts from "@wessberg/rollup-plugin-ts";
 export default {
-  // ...
-  plugins: [
-    ts({
-      /* Plugin options */
-    })
-  ]
+	// ...
+	plugins: [
+		ts({
+			/* Plugin options */
+		})
+	]
 };
 ```
 
@@ -65,7 +65,7 @@ If your config has a different name, or if you use different configs dynamically
 
 ```javascript
 ts({
-  tsconfig: PRODUCTION ? "tsconfig.prod.json" : "tsconfig.json"
+	tsconfig: PRODUCTION ? "tsconfig.prod.json" : "tsconfig.json"
 });
 ```
 
@@ -73,11 +73,11 @@ You an also pass in [CompilerOptions](https://www.typescriptlang.org/docs/handbo
 
 ```javascript
 ts({
-  tsconfig: {
-    target: ScriptTarget.ES2018,
-    allowSyntheticDefaultImports: true,
-    allowJs: true
-  }
+	tsconfig: {
+		target: ScriptTarget.ES2018,
+		allowSyntheticDefaultImports: true,
+		allowJs: true
+	}
 });
 ```
 
@@ -97,7 +97,7 @@ You can explicitly pass in Browserslist options. Here's an example with a raw Br
 
 ```javascript
 ts({
-  browserslist: ["last 1 version", "> 1%"]
+	browserslist: ["last 1 version", "> 1%"]
 });
 ```
 
@@ -105,9 +105,9 @@ You can also provide a configuration object instead of a raw query. Here's one w
 
 ```javascript
 ts({
-  browserslist: {
-    query: ["last 1 version", "> 1%"]
-  }
+	browserslist: {
+		query: ["last 1 version", "> 1%"]
+	}
 });
 ```
 
@@ -115,9 +115,9 @@ ts({
 
 ```javascript
 ts({
-  browserslist: {
-    path: ".mybrowserslistrc"
-  }
+	browserslist: {
+		path: ".mybrowserslistrc"
+	}
 });
 ```
 
@@ -130,7 +130,7 @@ You can explicitly request that no Browserslist will be used by setting the `bro
 
 ```javascript
 ts({
-  browserslist: false
+	browserslist: false
 });
 ```
 
@@ -143,7 +143,7 @@ To use Babel, simply set the `transpiler` plugin option to `"babel"`:
 
 ```javascript
 ts({
-  transpiler: "babel"
+	transpiler: "babel"
 });
 ```
 
@@ -177,10 +177,10 @@ This enables you to very efficiently transform Typescript before code generation
 
 ```javascript
 ts({
-  // If your tsconfig is already called 'tsconfig.json', this option can be left out
-  tsconfig: "tsconfig.json",
-  // If there is no .browserslistrc within your project, and if your package.json doesn't include a Browserslist property, this option can be left out
-  browserslist: false
+	// If your tsconfig is already called 'tsconfig.json', this option can be left out
+	tsconfig: "tsconfig.json",
+	// If there is no .browserslistrc within your project, and if your package.json doesn't include a Browserslist property, this option can be left out
+	browserslist: false
 });
 ```
 
@@ -191,12 +191,12 @@ shows how you can provide one explicitly
 
 ```javascript
 ts({
-  browserslist: ["last 1 version", "> 1%"]
+	browserslist: ["last 1 version", "> 1%"]
 });
 
 // or
 ts({
-  browserslist: {path: ".mybrowserslistrc"}
+	browserslist: {path: ".mybrowserslistrc"}
 });
 ```
 
@@ -207,11 +207,11 @@ And, [as described here](#typescript-with-browserslist-example), the same goes f
 
 ```javascript
 ts({
-  transpiler: "babel",
-  browserslist: ["last 1 version", "> 1%"],
-  babelConfig: {
-    plugins: ["my-babel-plugin"]
-  }
+	transpiler: "babel",
+	browserslist: ["last 1 version", "> 1%"],
+	babelConfig: {
+		plugins: ["my-babel-plugin"]
+	}
 });
 ```
 
@@ -219,11 +219,11 @@ ts({
 
 ```javascript
 ts({
-  transformers: {
-    before: [myTransformer1, myTransformer2],
-    after: [myTransformer3, myTransformer4],
-    afterDeclarations: [myTransformer5, myTransformer6]
-  }
+	transformers: {
+		before: [myTransformer1, myTransformer2],
+		after: [myTransformer3, myTransformer4],
+		afterDeclarations: [myTransformer5, myTransformer6]
+	}
 });
 ```
 
@@ -240,24 +240,24 @@ const APP_ROOT = "/some/project/root/folder";
 const awesomeFrameworkTransformers = getAwesomeFrameworkCustomTransformers();
 
 ts({
-  // Use Babel for Syntax transformations
-  transpiler: "babel",
-  // Don't use process.cwd(), but instead another root directory
-  cwd: APP_ROOT,
-  // Load a different tsconfig file in production
-  tsconfig: IS_PRODUCTION ? "tsconfig.prod.json" : "tsconfig.json",
-  // Load a different browserslist if currently targeting a modern environment
-  browserslist: {
-    path: BUNDLE_TARGET === "modern" ? ".browserlistrc-modern" : ".browserslistrc-legacy"
-  },
-  // Load a different babel config file in production
-  babelConfig: IS_PRODUCTION ? "babel.config.prod.js" : "babel.config.js",
+	// Use Babel for Syntax transformations
+	transpiler: "babel",
+	// Don't use process.cwd(), but instead another root directory
+	cwd: APP_ROOT,
+	// Load a different tsconfig file in production
+	tsconfig: IS_PRODUCTION ? "tsconfig.prod.json" : "tsconfig.json",
+	// Load a different browserslist if currently targeting a modern environment
+	browserslist: {
+		path: BUNDLE_TARGET === "modern" ? ".browserlistrc-modern" : ".browserslistrc-legacy"
+	},
+	// Load a different babel config file in production
+	babelConfig: IS_PRODUCTION ? "babel.config.prod.js" : "babel.config.js",
 
-  // Exclude files within node_modules when not in production
-  exclude: IS_PRODUCTION ? [] : ["node_modules/**/*.*"],
+	// Exclude files within node_modules when not in production
+	exclude: IS_PRODUCTION ? [] : ["node_modules/**/*.*"],
 
-  // Apply CustomTransformers, for example to transform the Source Code with a framework that uses some
-  transformers: awesomeFrameworkTransformers
+	// Apply CustomTransformers, for example to transform the Source Code with a framework that uses some
+	transformers: awesomeFrameworkTransformers
 });
 ```
 
