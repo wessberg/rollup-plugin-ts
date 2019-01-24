@@ -7,19 +7,18 @@ import {ensureDirectory} from "../file-system/file-system";
  * A map between id's and their results from previous resolving
  * @type {Map<string, string|undefined>}
  */
-const cache: Map<string, string|null> = new Map();
+const cache: Map<string, string | null> = new Map();
 
 /**
  * A function that can resolve a file from the given options
  * @param {IResolveOptions} [options={}]
  */
-export function resolve ({
-													 id,
-													 parent = process.cwd(),
-													 mainFields = ["module", "es2015", "jsnext:main", "main"],
-													 extensions = [".js", ".mjs", ".jsx", ".ts", ".tsx", ".json"]
-												 }: IResolveOptions): string|undefined {
-
+export function resolve({
+	id,
+	parent = process.cwd(),
+	mainFields = ["module", "es2015", "jsnext:main", "main"],
+	extensions = [".js", ".mjs", ".jsx", ".ts", ".tsx", ".json"]
+}: IResolveOptions): string | undefined {
 	// If the given id is already an absolute path, it is resolved already
 	if (isAbsolute(id)) return id;
 
@@ -37,11 +36,11 @@ export function resolve ({
 		const resolveResult = sync(id, {
 			basedir: ensureDirectory(parent),
 			extensions,
-			packageFilter (pkg: { main: string }): { main: string } {
-				let property: (keyof typeof pkg)|undefined;
+			packageFilter(pkg: {main: string}): {main: string} {
+				let property: (keyof typeof pkg) | undefined;
 
 				const packageKeys = Object.keys(pkg);
-				property = <keyof typeof pkg> mainFields.find(key => packageKeys.includes(key));
+				property = <keyof typeof pkg>mainFields.find(key => packageKeys.includes(key));
 
 				// If a property was resolved, set the 'main' property to it (resolve will use the main property no matter what)
 				if (property != null) {
@@ -58,7 +57,6 @@ export function resolve ({
 
 		// Return it
 		return resolveResult;
-
 	} catch (ex) {
 		// No file could be resolved. Set it in the cache as unresolvable and return void
 		cache.set(id, null);

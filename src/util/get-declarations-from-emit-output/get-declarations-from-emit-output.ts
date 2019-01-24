@@ -8,7 +8,7 @@ import {isDeclarationMapOutputFile} from "../is-declaration-map-output-file/is-d
  * @param {EmitOutput} output
  * @returns {IGetDeclarationsFromEmitOutputResult}
  */
-export function getDeclarationsFromEmitOutput (output: EmitOutput): IGetDeclarationsFromEmitOutputResult {
+export function getDeclarationsFromEmitOutput(output: EmitOutput): IGetDeclarationsFromEmitOutputResult {
 	return {
 		code: output.outputFiles.filter(isDeclarationOutputFile),
 		maps: output.outputFiles.filter(isDeclarationMapOutputFile)

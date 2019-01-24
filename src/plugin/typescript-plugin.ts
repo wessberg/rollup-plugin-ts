@@ -45,7 +45,7 @@ const PLUGIN_NAME = "Typescript";
  * A Rollup plugin that transpiles the given input with Typescript
  * @param {TypescriptPluginOptions} [pluginInputOptions={}]
  */
-export default function typescriptRollupPlugin (pluginInputOptions: Partial<TypescriptPluginOptions> = {}): Plugin {
+export default function typescriptRollupPlugin(pluginInputOptions: Partial<TypescriptPluginOptions> = {}): Plugin {
 	const pluginOptions: TypescriptPluginOptions = getPluginOptions(pluginInputOptions);
 	const {include, exclude, tsconfig, cwd, browserslist} = pluginOptions;
 	const transformers = pluginOptions.transformers == null ? [] : ensureArray(pluginOptions.transformers);
@@ -62,13 +62,13 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 	 * The config to use with Babel, if Babel should transpile source code
 	 * @type {IBabelConfig}
 	 */
-	let babelConfig: IBabelConfig|undefined;
+	let babelConfig: IBabelConfig | undefined;
 
 	/**
 	 * If babel are to be used, and if one or more minify presets/plugins has been passed, this config will be used
 	 * @type {boolean}
 	 */
-	let babelMinifyConfig: IBabelConfig|undefined;
+	let babelMinifyConfig: IBabelConfig | undefined;
 
 	/**
 	 * The (Incremental) LanguageServiceHost to use
@@ -132,7 +132,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		 * Invoked when Input options has been received by Rollup
 		 * @param {InputOptions} options
 		 */
-		options (options: InputOptions): void {
+		options(options: InputOptions): void {
 			// Break if we've already received options
 			if (rollupInputOptions != null) return;
 
@@ -157,20 +157,14 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 				babelMinifyConfig = babelConfigResult.minifyConfig;
 			}
 
-			SUPPORTED_EXTENSIONS = getSupportedExtensions(
-				Boolean(parsedCommandLine.options.allowJs),
-				Boolean(parsedCommandLine.options.resolveJsonModule)
-			);
+			SUPPORTED_EXTENSIONS = getSupportedExtensions(Boolean(parsedCommandLine.options.allowJs), Boolean(parsedCommandLine.options.resolveJsonModule));
 
 			canEmitForFile = (id: string) => filter(id) && SUPPORTED_EXTENSIONS.includes(getExtension(id));
 
 			// Hook up a LanguageServiceHost and a LanguageService
 			languageServiceHost = new IncrementalLanguageService({
 				parsedCommandLine,
-				transformers: mergeTransformers(
-					...transformers,
-					getTypeOnlyImportTransformers()
-				),
+				transformers: mergeTransformers(...transformers, getTypeOnlyImportTransformers()),
 				cwd,
 				emitCache,
 				rollupInputOptions,
@@ -192,19 +186,15 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		 * @param {RenderedChunk} chunk
 		 * @returns {Promise<{ code: string, map: RawSourceMap } | null>}
 		 */
-		async renderChunk (this: PluginContext, code: string, chunk: RenderedChunk): Promise<{ code: string; map: RawSourceMap }|null> {
-
+		async renderChunk(this: PluginContext, code: string, chunk: RenderedChunk): Promise<{code: string; map: RawSourceMap} | null> {
 			// Don't proceed if there is no minification config
 			if (babelMinifyConfig == null) return null;
 
-			const transpilationResult = await transformAsync(
-				code,
-				{
-					...babelMinifyConfig,
-					filename: chunk.fileName,
-					filenameRelative: ensureRelative(cwd, chunk.fileName)
-				}
-			);
+			const transpilationResult = await transformAsync(code, {
+				...babelMinifyConfig,
+				filename: chunk.fileName,
+				filenameRelative: ensureRelative(cwd, chunk.fileName)
+			});
 
 			// Return the results
 			return {
@@ -219,8 +209,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		 * @param {string} file
 		 * @returns {Promise<TransformSourceDescription?>}
 		 */
-		async transform (this: PluginContext, code: string, file: string): Promise<TransformSourceDescription|undefined> {
-
+		async transform(this: PluginContext, code: string, file: string): Promise<TransformSourceDescription | undefined> {
 			// Skip the file if it doesn't match the filter or if the helper cannot be transformed
 			if (!filter(file) || isNonTransformableBabelHelper(file)) {
 				return undefined;
@@ -229,20 +218,22 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 			// Only pass the file through Typescript if it's extension is supported. Otherwise, if we're going to continue on with Babel,
 			// Mock a SourceDescription. Otherwise, return bind undefined
 			const sourceDescription = !canEmitForFile(file)
-				? babelConfig != null ? {code, map: undefined} : undefined
+				? babelConfig != null
+					? {code, map: undefined}
+					: undefined
 				: (() => {
-					// Remove the file from the resolve cache, now that it has changed.
-					resolveCache.delete(file);
+						// Remove the file from the resolve cache, now that it has changed.
+						resolveCache.delete(file);
 
-					// Add the file to the LanguageServiceHost
-					languageServiceHost.addFile({file, code});
+						// Add the file to the LanguageServiceHost
+						languageServiceHost.addFile({file, code});
 
-					// Get some EmitOutput, optionally from the cache if the file contents are unchanged
-					const emitOutput = emitCache.get({fileName: file, languageService});
+						// Get some EmitOutput, optionally from the cache if the file contents are unchanged
+						const emitOutput = emitCache.get({fileName: file, languageService});
 
-					// Return the emit output results to Rollup
-					return getSourceDescriptionFromEmitOutput(emitOutput);
-				})();
+						// Return the emit output results to Rollup
+						return getSourceDescriptionFromEmitOutput(emitOutput);
+				  })();
 
 			// If nothing was emitted, simply return undefined
 			if (sourceDescription == null) {
@@ -256,17 +247,12 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 
 			// Otherwise, pass it on to Babel to perform the rest of the transpilation steps
 			else {
-				const transpilationResult = await transformAsync(
-					sourceDescription.code,
-					{
-						...babelConfig,
-						filename: file,
-						filenameRelative: ensureRelative(cwd, file),
-						inputSourceMap: typeof sourceDescription.map === "string"
-							? JSON.parse(sourceDescription.map)
-							: sourceDescription.map
-					}
-				);
+				const transpilationResult = await transformAsync(sourceDescription.code, {
+					...babelConfig,
+					filename: file,
+					filenameRelative: ensureRelative(cwd, file),
+					inputSourceMap: typeof sourceDescription.map === "string" ? JSON.parse(sourceDescription.map) : sourceDescription.map
+				});
 
 				// Return the results
 				return {
@@ -282,7 +268,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		 * @param {string} parent
 		 * @returns {string | void}
 		 */
-		resolveId (this: PluginContext, id: string, parent: string|undefined): string|void {
+		resolveId(this: PluginContext, id: string, parent: string | undefined): string | void {
 			// Don't proceed if there is no parent (in which case this is an entry module)
 			if (parent == null) return;
 
@@ -296,7 +282,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		 * @param {string} id
 		 * @returns {string | null}
 		 */
-		load (this: PluginContext, id: string): string|null {
+		load(this: PluginContext, id: string): string | null {
 			// Return the alternative source for the regenerator runtime if that file is attempted to be loaded
 			if (id.endsWith(REGENERATOR_RUNTIME_NAME_1) || id.endsWith(REGENERATOR_RUNTIME_NAME_2)) {
 				return REGENERATOR_SOURCE;
@@ -311,48 +297,40 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		 * @param {OutputBundle} bundle
 		 * @returns {void | Promise<void>}
 		 */
-		generateBundle (this: PluginContext, outputOptions: OutputOptions, bundle: OutputBundle): void {
-
+		generateBundle(this: PluginContext, outputOptions: OutputOptions, bundle: OutputBundle): void {
 			// Emit all reported diagnostics
 			emitDiagnosticsThroughRollup({languageServiceHost, languageService, context: this});
 
 			// Emit declaration files if required
 			if (Boolean(parsedCommandLine.options.declaration)) {
-				const chunks = Object.values(bundle)
-					.filter(isOutputChunk);
+				const chunks = Object.values(bundle).filter(isOutputChunk);
 
 				const declarationOutDir = join(cwd, getDeclarationOutDir(cwd, parsedCommandLine.options, outputOptions));
 				const generateMap = Boolean(parsedCommandLine.options.declarationMap);
 
-				const chunkToOriginalFileMap: Map<string, string[]> = new Map(
-					chunks
-						.map<[string, string[]]>(chunk => [join(declarationOutDir, chunk.fileName), Object.keys(chunk.modules)])
-				);
+				const chunkToOriginalFileMap: Map<string, string[]> = new Map(chunks.map<[string, string[]]>(chunk => [join(declarationOutDir, chunk.fileName), Object.keys(chunk.modules)]));
 
-				chunks
-					.forEach((chunk: OutputChunk) => {
-						const moduleNames = Object
-							.keys(chunk.modules)
-							.filter(canEmitForFile);
+				chunks.forEach((chunk: OutputChunk) => {
+					const moduleNames = Object.keys(chunk.modules).filter(canEmitForFile);
 
-						const entryFileName = moduleNames.slice(-1)[0];
+					const entryFileName = moduleNames.slice(-1)[0];
 
-						emitDeclarations({
-							chunk,
-							pluginContext: this,
-							generateMap,
-							declarationOutDir,
-							cwd,
-							outputOptions,
-							languageService,
-							languageServiceHost,
-							emitCache,
-							chunkToOriginalFileMap,
-							moduleNames,
-							entryFileName,
-							supportedExtensions: SUPPORTED_EXTENSIONS
-						});
+					emitDeclarations({
+						chunk,
+						pluginContext: this,
+						generateMap,
+						declarationOutDir,
+						cwd,
+						outputOptions,
+						languageService,
+						languageServiceHost,
+						emitCache,
+						chunkToOriginalFileMap,
+						moduleNames,
+						entryFileName,
+						supportedExtensions: SUPPORTED_EXTENSIONS
 					});
+				});
 			}
 
 			const bundledFilenames = takeBundledFilesNames(bundle);

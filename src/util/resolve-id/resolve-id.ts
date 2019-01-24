@@ -6,7 +6,7 @@ import {isBuiltInModule} from "../module/module-util";
  * @param {IResolveModuleOptions} opts
  * @returns {string | undefined}
  */
-export function resolveId ({id, parent, options, cwd, moduleResolutionHost, resolveCache}: IResolveModuleOptions): string|void {
+export function resolveId({id, parent, options, cwd, moduleResolutionHost, resolveCache}: IResolveModuleOptions): string | void {
 	// Don't proceed if there is no parent (in which case this is an entry module)
 	if (parent == null) return;
 

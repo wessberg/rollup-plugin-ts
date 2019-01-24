@@ -9,8 +9,8 @@ import {generateRandomHash} from "../hash/generate-random-hash";
  * @param {Partial<OutputOptions>} [options]
  * @returns {string?}
  */
-export function getOutDir (cwd: string, options?: Partial<OutputOptions>): string {
-	let outDir: string|undefined;
+export function getOutDir(cwd: string, options?: Partial<OutputOptions>): string {
+	let outDir: string | undefined;
 	if (options == null) {
 		// Generate a random output directory. The idea is that this will never match any existing files on disk.
 		// The reason being that Typescript may erroneously think that input files may be overwritten if 'allowJs' is true

@@ -12,7 +12,7 @@ import {IDeclarationTransformersOptions} from "./i-declaration-transformers-opti
  * @param {IDeclarationTransformersOptions} options
  * @returns {TransformerFactory<SourceFile>}
  */
-function transformerImplementation ({usedExports, ...rest}: IDeclarationTransformersOptions): TransformerFactory<SourceFile> {
+function transformerImplementation({usedExports, ...rest}: IDeclarationTransformersOptions): TransformerFactory<SourceFile> {
 	return context => sourceFile => {
 		// Prepare a cache
 		const cache: IReferenceCache = {
@@ -34,7 +34,7 @@ function transformerImplementation ({usedExports, ...rest}: IDeclarationTransfor
 		 * @param {Node} node
 		 * @returns {Node | undefined}
 		 */
-		function visitor (node: Node): Node|undefined {
+		function visitor(node: Node): Node | undefined {
 			if (isImportDeclaration(node)) return visitImportDeclaration({node, ...visitorOptions});
 			else if (isExportDeclaration(node)) return visitExportDeclaration({node, ...visitorOptions});
 			else if (hasExportModifier(node)) return visitNodeWithExportModifier({node, ...visitorOptions});
@@ -50,11 +50,8 @@ function transformerImplementation ({usedExports, ...rest}: IDeclarationTransfor
  * @param {IDeclarationTransformersOptions} options
  * @returns {CustomTransformers}
  */
-export function declarationTransformers (options: IDeclarationTransformersOptions): CustomTransformers {
-
+export function declarationTransformers(options: IDeclarationTransformersOptions): CustomTransformers {
 	return {
-		afterDeclarations: [
-			transformerImplementation(options)
-		]
+		afterDeclarations: [transformerImplementation(options)]
 	};
 }

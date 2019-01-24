@@ -9,7 +9,7 @@ import {getOutDir} from "../get-out-dir/get-out-dir";
  * @param {IGetForcedCompilerOptionsOptions} options
  * @returns {object}
  */
-function getForcedModuleKindOption ({rollupOutputOptions}: IGetForcedCompilerOptionsOptions): { module: ModuleKind } {
+function getForcedModuleKindOption({rollupOutputOptions}: IGetForcedCompilerOptionsOptions): {module: ModuleKind} {
 	// If no OutputOptions is given, or if no format is given in the OutputOptions, use ESNext. Otherwise, convert the
 	// Rollup option into one that Typescript can understand
 	if (rollupOutputOptions == null || rollupOutputOptions.format == null) {
@@ -24,7 +24,7 @@ function getForcedModuleKindOption ({rollupOutputOptions}: IGetForcedCompilerOpt
  * @param {IGetForcedCompilerOptionsOptions} options
  * @returns {object}
  */
-function getForcedScriptTargetOption ({pluginOptions, browserslist}: IGetForcedCompilerOptionsOptions): { target?: ScriptTarget } {
+function getForcedScriptTargetOption({pluginOptions, browserslist}: IGetForcedCompilerOptionsOptions): {target?: ScriptTarget} {
 	// If Babel should perform the transpilation, always target the latest ECMAScript version and let Babel take care of the rest
 	if (pluginOptions.transpiler === "babel") {
 		return {target: ScriptTarget.ESNext};
@@ -44,8 +44,7 @@ function getForcedScriptTargetOption ({pluginOptions, browserslist}: IGetForcedC
  * @param {IGetForcedCompilerOptionsOptions} options
  * @returns {Partial<CompilerOptions>}
  */
-export function getForcedCompilerOptions (options: IGetForcedCompilerOptionsOptions): Partial<CompilerOptions> {
-
+export function getForcedCompilerOptions(options: IGetForcedCompilerOptionsOptions): Partial<CompilerOptions> {
 	return {
 		...getForcedModuleKindOption(options),
 		...getForcedScriptTargetOption(options),

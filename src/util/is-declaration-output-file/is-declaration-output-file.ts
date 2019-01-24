@@ -7,6 +7,6 @@ import {getExtension} from "../path/path-util";
  * @param {string} name
  * @returns {boolean}
  */
-export function isDeclarationOutputFile ({name}: OutputFile): boolean {
+export function isDeclarationOutputFile({name}: OutputFile): boolean {
 	return getExtension(name) === DECLARATION_EXTENSION;
 }

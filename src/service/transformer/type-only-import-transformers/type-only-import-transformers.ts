@@ -1,4 +1,19 @@
-import {createImportDeclaration, createLiteral, CustomTransformers, ExportDeclaration, ImportDeclaration, isExportDeclaration, isImportDeclaration, isStringLiteralLike, Node, SourceFile, TransformationContext, Transformer, updateSourceFileNode, visitEachChild} from "typescript";
+import {
+	createImportDeclaration,
+	createLiteral,
+	CustomTransformers,
+	ExportDeclaration,
+	ImportDeclaration,
+	isExportDeclaration,
+	isImportDeclaration,
+	isStringLiteralLike,
+	Node,
+	SourceFile,
+	TransformationContext,
+	Transformer,
+	updateSourceFileNode,
+	visitEachChild
+} from "typescript";
 import {isExternalLibrary} from "../../../util/path/path-util";
 
 /**
@@ -7,7 +22,7 @@ import {isExternalLibrary} from "../../../util/path/path-util";
  * @param {string} id
  * @param {Map<string, Set<string>>} map
  */
-function addPreTranspileImportedOrExportedModuleSpecifier (parent: string, id: string, map: Map<string, Set<string>>): void {
+function addPreTranspileImportedOrExportedModuleSpecifier(parent: string, id: string, map: Map<string, Set<string>>): void {
 	let existingSet = map.get(parent);
 	if (existingSet == null) {
 		existingSet = new Set();
@@ -21,7 +36,7 @@ function addPreTranspileImportedOrExportedModuleSpecifier (parent: string, id: s
  * to make Rollup track those files as well
  * @returns {CustomTransformers}
  */
-export function getTypeOnlyImportTransformers (): CustomTransformers {
+export function getTypeOnlyImportTransformers(): CustomTransformers {
 	const preTranspileImportedModuleSpecifiers: Map<string, Set<string>> = new Map();
 
 	/**
@@ -29,7 +44,7 @@ export function getTypeOnlyImportTransformers (): CustomTransformers {
 	 * @param {Node} node
 	 * @returns {Node | undefined}
 	 */
-	function visitNodeBefore (node: Node): Node {
+	function visitNodeBefore(node: Node): Node {
 		if (isImportDeclaration(node)) return visitImportDeclarationBefore(node);
 		else if (isExportDeclaration(node)) return visitExportDeclarationBefore(node);
 		return node;
@@ -40,31 +55,22 @@ export function getTypeOnlyImportTransformers (): CustomTransformers {
 	 * @param {ImportDeclaration} importDeclaration
 	 * @returns {ImportDeclaration | undefined}
 	 */
-	function visitImportDeclarationBefore (importDeclaration: ImportDeclaration): ImportDeclaration {
+	function visitImportDeclarationBefore(importDeclaration: ImportDeclaration): ImportDeclaration {
 		if (!isStringLiteralLike(importDeclaration.moduleSpecifier) || importDeclaration.getSourceFile() == null) return importDeclaration;
 
-		addPreTranspileImportedOrExportedModuleSpecifier(
-			importDeclaration.getSourceFile().fileName,
-			importDeclaration.moduleSpecifier.text,
-			preTranspileImportedModuleSpecifiers
-		);
+		addPreTranspileImportedOrExportedModuleSpecifier(importDeclaration.getSourceFile().fileName, importDeclaration.moduleSpecifier.text, preTranspileImportedModuleSpecifiers);
 		return importDeclaration;
 	}
-
 
 	/**
 	 * Visits the given ExportDeclaration before transpilation
 	 * @param {ExportDeclaration} exportDeclaration
 	 * @returns {ExportDeclaration | undefined}
 	 */
-	function visitExportDeclarationBefore (exportDeclaration: ExportDeclaration): ExportDeclaration {
+	function visitExportDeclarationBefore(exportDeclaration: ExportDeclaration): ExportDeclaration {
 		if (exportDeclaration.moduleSpecifier == null || !isStringLiteralLike(exportDeclaration.moduleSpecifier) || exportDeclaration.getSourceFile() == null) return exportDeclaration;
 
-		addPreTranspileImportedOrExportedModuleSpecifier(
-			exportDeclaration.getSourceFile().fileName,
-			exportDeclaration.moduleSpecifier.text,
-			preTranspileImportedModuleSpecifiers
-		);
+		addPreTranspileImportedOrExportedModuleSpecifier(exportDeclaration.getSourceFile().fileName, exportDeclaration.moduleSpecifier.text, preTranspileImportedModuleSpecifiers);
 		return exportDeclaration;
 	}
 
@@ -83,7 +89,7 @@ export function getTypeOnlyImportTransformers (): CustomTransformers {
 				 * @param {Node} node
 				 * @returns {Node | undefined}
 				 */
-				function visitNodeAfter (node: Node): Node {
+				function visitNodeAfter(node: Node): Node {
 					if (isImportDeclaration(node)) return visitImportDeclarationAfter(node);
 					else if (isExportDeclaration(node)) return visitExportDeclarationAfter(node);
 					return node;
@@ -94,7 +100,7 @@ export function getTypeOnlyImportTransformers (): CustomTransformers {
 				 * @param {ImportDeclaration} importDeclaration
 				 * @returns {ImportDeclaration | undefined}
 				 */
-				function visitImportDeclarationAfter (importDeclaration: ImportDeclaration): ImportDeclaration {
+				function visitImportDeclarationAfter(importDeclaration: ImportDeclaration): ImportDeclaration {
 					if (!isStringLiteralLike(importDeclaration.moduleSpecifier)) return importDeclaration;
 					postTranspileImportedOrExportedModuleSpecifiers.add(importDeclaration.moduleSpecifier.text);
 					return importDeclaration;
@@ -105,7 +111,7 @@ export function getTypeOnlyImportTransformers (): CustomTransformers {
 				 * @param {ExportDeclaration} exportDeclaration
 				 * @returns {ExportDeclaration | undefined}
 				 */
-				function visitExportDeclarationAfter (exportDeclaration: ExportDeclaration): ExportDeclaration {
+				function visitExportDeclarationAfter(exportDeclaration: ExportDeclaration): ExportDeclaration {
 					if (exportDeclaration.moduleSpecifier == null || !isStringLiteralLike(exportDeclaration.moduleSpecifier)) return exportDeclaration;
 					postTranspileImportedOrExportedModuleSpecifiers.add(exportDeclaration.moduleSpecifier.text);
 					return exportDeclaration;
@@ -113,19 +119,16 @@ export function getTypeOnlyImportTransformers (): CustomTransformers {
 
 				const newSourceFile = visitEachChild(sourceFile, visitNodeAfter, context);
 				const preTranspileSet = preTranspileImportedModuleSpecifiers.get(sourceFile.fileName);
-				const typeOnlyImports = [...(preTranspileSet == null ? [] : preTranspileSet)]
-					.filter(preTranspileFileName => !postTranspileImportedOrExportedModuleSpecifiers.has(preTranspileFileName) && !isExternalLibrary(preTranspileFileName));
+				const typeOnlyImports = [...(preTranspileSet == null ? [] : preTranspileSet)].filter(
+					preTranspileFileName => !postTranspileImportedOrExportedModuleSpecifiers.has(preTranspileFileName) && !isExternalLibrary(preTranspileFileName)
+				);
 
 				if (typeOnlyImports.length < 1) {
 					return newSourceFile;
 				} else {
 					return updateSourceFileNode(sourceFile, [
-						...typeOnlyImports.map(typeOnlyImport => createImportDeclaration(
-							undefined,
-							undefined,
-							undefined,
-							createLiteral(typeOnlyImport)
-						)), ...sourceFile.statements
+						...typeOnlyImports.map(typeOnlyImport => createImportDeclaration(undefined, undefined, undefined, createLiteral(typeOnlyImport))),
+						...sourceFile.statements
 					]);
 				}
 			}

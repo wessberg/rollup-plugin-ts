@@ -9,7 +9,7 @@ import {isMapOutputFile} from "../is-map-output-file/is-map-output-file";
  * @param {EmitOutput} output
  * @returns {Partial<SourceDescription>}
  */
-export function getSourceDescriptionFromEmitOutput (output: EmitOutput): SourceDescription|undefined {
+export function getSourceDescriptionFromEmitOutput(output: EmitOutput): SourceDescription | undefined {
 	const code = output.outputFiles.find(isCodeOutputFile);
 	if (code == null) return undefined;
 

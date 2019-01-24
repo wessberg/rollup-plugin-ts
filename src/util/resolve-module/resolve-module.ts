@@ -8,12 +8,10 @@ import {MAIN_FIELDS, MAIN_FIELDS_BROWSER} from "../../constant/constant";
  * @param {object} rest
  * @returns {string | undefined}
  */
-export function resolveModule ({isBrowserScope, extensions, ...rest}: IResolveModuleOptions): string|undefined {
+export function resolveModule({isBrowserScope, extensions, ...rest}: IResolveModuleOptions): string | undefined {
 	return resolve({
 		...rest,
-		mainFields: isBrowserScope
-			? MAIN_FIELDS_BROWSER
-			: MAIN_FIELDS,
+		mainFields: isBrowserScope ? MAIN_FIELDS_BROWSER : MAIN_FIELDS,
 		extensions
 	});
 }

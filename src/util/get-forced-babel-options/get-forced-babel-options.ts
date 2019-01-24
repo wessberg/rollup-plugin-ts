@@ -6,8 +6,7 @@ import {IGetForcedBabelOptionsResult} from "./i-get-forced-babel-options-result"
  * @param {IGetForcedBabelOptionsOptions} _options
  * @returns {IGetForcedBabelOptionsResult}
  */
-export function getForcedBabelOptions ({cwd}: IGetForcedBabelOptionsOptions): IGetForcedBabelOptionsResult {
-
+export function getForcedBabelOptions({cwd}: IGetForcedBabelOptionsOptions): IGetForcedBabelOptionsResult {
 	return {
 		// Always produce sourcemaps. Rollup will be the decider of what to do with them.
 		sourceMaps: true,

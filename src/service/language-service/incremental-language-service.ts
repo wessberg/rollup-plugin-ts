@@ -45,9 +45,9 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * The CustomTransformersFunction to use, if any
 	 * @type {CustomTransformersFunction}
 	 */
-	private readonly transformers: CustomTransformersFunction|undefined;
+	private readonly transformers: CustomTransformersFunction | undefined;
 
-	constructor (private readonly options: ILanguageServiceOptions) {
+	constructor(private readonly options: ILanguageServiceOptions) {
 		this.addDefaultLibs();
 		this.addDefaultFileNames();
 		this.transformers = options.transformers;
@@ -58,7 +58,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {string} fileName
 	 * @param {string} data
 	 */
-	public writeFile (fileName: string, data: string): void {
+	public writeFile(fileName: string, data: string): void {
 		this.emittedFiles.set(fileName, data);
 	}
 
@@ -67,7 +67,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {string} fileName
 	 * @returns {SourceFile | undefined}
 	 */
-	public getSourceFile (fileName: string): SourceFile|undefined {
+	public getSourceFile(fileName: string): SourceFile | undefined {
 		const program = this.options.languageService().getProgram();
 		if (program == null) return undefined;
 		return program.getSourceFile(fileName);
@@ -78,7 +78,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {string} fileName
 	 * @returns {boolean}
 	 */
-	public hasFile (fileName: string): boolean {
+	public hasFile(fileName: string): boolean {
 		return this.files.has(fileName);
 	}
 
@@ -89,7 +89,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {string} fileName
 	 * @returns {string | undefined}
 	 */
-	public getClosestFileName (fileName: string): string|undefined {
+	public getClosestFileName(fileName: string): string | undefined {
 		const absolute = ensureAbsolute(this.options.cwd, fileName);
 
 		if (this.hasFile(fileName)) return fileName;
@@ -108,7 +108,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {string} fileName
 	 * @returns {ReadonlyArray<IExtendedDiagnostic>}
 	 */
-	public getTransformerDiagnostics (fileName?: string): ReadonlyArray<IExtendedDiagnostic> {
+	public getTransformerDiagnostics(fileName?: string): ReadonlyArray<IExtendedDiagnostic> {
 		// If diagnostics for only a specific file should be retrieved, try to get it from the files map and return its transformer diagnostics
 		if (fileName != null) {
 			const fileMatch = this.files.get(fileName);
@@ -127,7 +127,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {IFile} file
 	 * @param {boolean} internal
 	 */
-	public addFile (file: IFileInput, internal: boolean = false): void {
+	public addFile(file: IFileInput, internal: boolean = false): void {
 		const existing = this.files.get(file.file);
 
 		// Don't proceed if the file contents are completely unchanged
@@ -155,7 +155,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {string} fileName
 	 * @returns {boolean}
 	 */
-	public deleteFile (fileName: string): boolean {
+	public deleteFile(fileName: string): boolean {
 		const filesResult = this.files.delete(fileName);
 		const publicFilesResult = this.publicFiles.delete(fileName);
 		const cacheResult = this.options.emitCache.delete(fileName);
@@ -167,20 +167,19 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {string} fileName
 	 * @returns {boolean}
 	 */
-	public fileExists (fileName: string): boolean {
+	public fileExists(fileName: string): boolean {
 		// Check if the file exists cached
 		if (this.files.has(fileName)) return true;
 
 		// Otherwise, check if it exists on disk
 		return sys.fileExists(fileName) || fileExistsSync(fileName);
-
 	}
 
 	/**
 	 * Gets the current directory
 	 * @returns {string}
 	 */
-	public getCurrentDirectory (): string {
+	public getCurrentDirectory(): string {
 		return this.options.cwd;
 	}
 
@@ -190,8 +189,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {string} [encoding]
 	 * @returns {string | undefined}
 	 */
-	public readFile (fileName: string, encoding?: string): string|undefined {
-
+	public readFile(fileName: string, encoding?: string): string | undefined {
 		// Check if the file exists within the cached files and return it if so
 		const result = this.files.get(fileName);
 		if (result != null) return result.code;
@@ -210,7 +208,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {number} depth
 	 * @returns {string[]}
 	 */
-	public readDirectory (path: string, extensions?: ReadonlyArray<string>, exclude?: ReadonlyArray<string>, include?: ReadonlyArray<string>, depth?: number): string[] {
+	public readDirectory(path: string, extensions?: ReadonlyArray<string>, exclude?: ReadonlyArray<string>, include?: ReadonlyArray<string>, depth?: number): string[] {
 		return sys.readDirectory(path, extensions, exclude, include, depth);
 	}
 
@@ -219,7 +217,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {string} path
 	 * @returns {string}
 	 */
-	public realpath (path: string): string {
+	public realpath(path: string): string {
 		return sys.realpath == null ? path : sys.realpath(path);
 	}
 
@@ -228,7 +226,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {CompilerOptions} options
 	 * @returns {string}
 	 */
-	public getDefaultLibFileName (options: CompilerOptions): string {
+	public getDefaultLibFileName(options: CompilerOptions): string {
 		return getDefaultLibFileName(options);
 	}
 
@@ -236,17 +234,15 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * Gets the newline to use
 	 * @returns {string}
 	 */
-	public getNewLine (): string {
-		return this.options.parsedCommandLine.options.newLine != null
-			? getNewLineCharacter(this.options.parsedCommandLine.options.newLine)
-			: sys.newLine;
+	public getNewLine(): string {
+		return this.options.parsedCommandLine.options.newLine != null ? getNewLineCharacter(this.options.parsedCommandLine.options.newLine) : sys.newLine;
 	}
 
 	/**
 	 * Returns true if file names should be treated as case-sensitive
 	 * @returns {boolean}
 	 */
-	public useCaseSensitiveFileNames (): boolean {
+	public useCaseSensitiveFileNames(): boolean {
 		return IS_FILE_SYSTEM_CASE_SENSITIVE;
 	}
 
@@ -254,7 +250,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * Gets the CompilerOptions provided in the constructor
 	 * @returns {CompilerOptions}
 	 */
-	public getCompilationSettings (): CompilerOptions {
+	public getCompilationSettings(): CompilerOptions {
 		return this.options.parsedCommandLine.options;
 	}
 
@@ -262,7 +258,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * Gets the Custom Transformers to use, depending on the current emit mode
 	 * @returns {CustomTransformers | undefined}
 	 */
-	public getCustomTransformers (): CustomTransformers|undefined {
+	public getCustomTransformers(): CustomTransformers | undefined {
 		const languageService = this.options.languageService();
 		if (this.transformers == null) return undefined;
 		return this.transformers({
@@ -293,7 +289,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * Gets all Script file names
 	 * @returns {string[]}
 	 */
-	public getScriptFileNames (): string[] {
+	public getScriptFileNames(): string[] {
 		return [...this.files.keys()];
 	}
 
@@ -302,7 +298,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {string} fileName
 	 * @returns {ScriptKind}
 	 */
-	public getScriptKind (fileName: string): ScriptKind {
+	public getScriptKind(fileName: string): ScriptKind {
 		return this.assertHasFileName(fileName).scriptKind;
 	}
 
@@ -311,8 +307,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {string} fileName
 	 * @returns {IScriptSnapshot | undefined}
 	 */
-	public getScriptSnapshot (fileName: string): IScriptSnapshot|undefined {
-
+	public getScriptSnapshot(fileName: string): IScriptSnapshot | undefined {
 		const file = this.assertHasFileName(fileName);
 		return file.snapshot;
 	}
@@ -322,7 +317,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {string} fileName
 	 * @returns {string}
 	 */
-	public getScriptVersion (fileName: string): string {
+	public getScriptVersion(fileName: string): string {
 		return String(this.assertHasFileName(fileName).version);
 	}
 
@@ -331,7 +326,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {string} fileName
 	 * @returns {string}
 	 */
-	public getCanonicalFileName (fileName: string): string {
+	public getCanonicalFileName(fileName: string): string {
 		return this.useCaseSensitiveFileNames() ? fileName : fileName.toLowerCase();
 	}
 
@@ -340,7 +335,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {string} directoryName
 	 * @returns {string[]}
 	 */
-	public getDirectories (directoryName: string): string[] {
+	public getDirectories(directoryName: string): string[] {
 		return sys.getDirectories(directoryName);
 	}
 
@@ -349,37 +344,42 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {string} directoryName
 	 * @returns {boolean}
 	 */
-	public directoryExists (directoryName: string): boolean {
+	public directoryExists(directoryName: string): boolean {
 		return sys.directoryExists(directoryName);
 	}
 
 	/**
 	 * Adds all default lib files to the LanguageService
 	 */
-	private addDefaultLibs (): void {
+	private addDefaultLibs(): void {
 		DEFAULT_LIB_NAMES.forEach(libName => {
 			if (this.LIB_DIRECTORY == null) return;
 
 			const path = join(this.LIB_DIRECTORY, libName);
 			if (!existsSync(path)) return;
 
-			this.addFile({
-				file: libName,
-				code: readFileSync(path).toString()
-			}, true);
+			this.addFile(
+				{
+					file: libName,
+					code: readFileSync(path).toString()
+				},
+				true
+			);
 		});
 	}
 
 	/**
 	 * Adds all default declaration files to the LanguageService
 	 */
-	private addDefaultFileNames (): void {
+	private addDefaultFileNames(): void {
 		this.options.parsedCommandLine.fileNames.forEach(file => {
-
-			this.addFile({
-				file: file,
-				code: readFileSync(ensureAbsolute(this.options.cwd, file)).toString()
-			}, true);
+			this.addFile(
+				{
+					file: file,
+					code: readFileSync(ensureAbsolute(this.options.cwd, file)).toString()
+				},
+				true
+			);
 		});
 	}
 
@@ -388,14 +388,12 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {string} fileName
 	 * @returns {IFile}
 	 */
-	private assertHasFileName (fileName: string): IFile {
+	private assertHasFileName(fileName: string): IFile {
 		if (!this.files.has(fileName)) {
-
 			// If the file exists on disk, add it
 			if (fileExistsSync(fileName)) {
 				this.addFile({file: fileName, code: readFileSync(fileName).toString()}, isInternalFile(fileName));
-			}
-			else {
+			} else {
 				throw new ReferenceError(`The given file: '${fileName}' doesn't exist!`);
 			}
 		}

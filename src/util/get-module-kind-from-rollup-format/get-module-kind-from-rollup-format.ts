@@ -6,7 +6,7 @@ import {ModuleKind} from "typescript";
  * @param {ModuleFormat} format
  * @returns {ModuleKind}
  */
-export function getModuleKindFromRollupFormat (format: ModuleFormat): ModuleKind {
+export function getModuleKindFromRollupFormat(format: ModuleFormat): ModuleKind {
 	switch (format) {
 		case "amd":
 			return ModuleKind.AMD;

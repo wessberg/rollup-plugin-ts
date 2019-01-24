@@ -15,24 +15,18 @@ import {VisitorOptions} from "./visitor-options";
  * @param {VisitorOptions<Node>} options
  * @returns {Node | undefined}
  */
-export function visitNodeWithExportModifier ({node, ...rest}: VisitorOptions<Node>): Node|undefined {
-
+export function visitNodeWithExportModifier({node, ...rest}: VisitorOptions<Node>): Node | undefined {
 	if (isVariableStatement(node)) {
 		return visitVariableStatementWithExportModifier({node, ...rest});
-	}
-	else if (isFunctionDeclaration(node)) {
+	} else if (isFunctionDeclaration(node)) {
 		return visitFunctionDeclarationWithExportModifier({node, ...rest});
-	}
-	else if (isTypeAliasDeclaration(node)) {
+	} else if (isTypeAliasDeclaration(node)) {
 		return visitTypeAliasDeclarationWithExportModifier({node, ...rest});
-	}
-	else if (isInterfaceDeclaration(node)) {
+	} else if (isInterfaceDeclaration(node)) {
 		return visitInterfaceDeclarationWithExportModifier({node, ...rest});
-	}
-	else if (isClassDeclaration(node)) {
+	} else if (isClassDeclaration(node)) {
 		return visitClassDeclarationWithExportModifier({node, ...rest});
-	}
-	else if (isEnumDeclaration(node)) {
+	} else if (isEnumDeclaration(node)) {
 		return visitEnumDeclarationWithExportModifier({node, ...rest});
 	}
 

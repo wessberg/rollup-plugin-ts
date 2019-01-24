@@ -65,6 +65,19 @@ export function removeExportModifier (modifiers: ModifiersArray|undefined): Modi
 }
 
 /**
+ * Returns true if the given modifiers contain the keywords 'export' and 'default'
+ * @param {ModifiersArray} modifiers
+ * @returns {Modifier[]}
+ */
+export function hasDefaultExportModifiers (modifiers: ModifiersArray|undefined): boolean {
+	if (modifiers == null) return false;
+	return (
+		modifiers.some(modifier => isExportModifier(modifier)) &&
+		modifiers.some(modifier => isDefaultModifier(modifier))
+	);
+}
+
+/**
  * Returns true if the given Node contains the given Child Node
  * @param {Node} parent
  * @param {Node} potentialChild
@@ -92,7 +105,6 @@ export function getIdentifiersForNode (node: Node, cache: IReferenceCache): Iden
 	if (cache.identifiersForNodeCache.has(node)) {
 		return cache.identifiersForNodeCache.get(node);
 	}
-
 	else {
 		const identifiers = computeIdentifiersForNode(node, cache);
 		cache.identifiersForNodeCache.add(node, ...identifiers);
@@ -107,7 +119,6 @@ export function getIdentifiersForNode (node: Node, cache: IReferenceCache): Iden
  * @returns {Identifier[]}
  */
 function computeIdentifiersForNode (node: Node, cache: IReferenceCache): Identifier[] {
-
 	if (isIdentifier(node)) {
 		return [node];
 	}
@@ -115,43 +126,33 @@ function computeIdentifiersForNode (node: Node, cache: IReferenceCache): Identif
 	if (isVariableStatement(node)) {
 		return getIdentifiersForNode(node.declarationList, cache);
 	}
-
 	else if (isVariableDeclarationList(node)) {
 		return ([] as Identifier[]).concat.apply([], node.declarations.map(declaration => getIdentifiersForNode(declaration, cache)));
 	}
-
 	else if (isVariableDeclaration(node)) {
 		return isIdentifier(node.name) ? [node.name] : [];
 	}
-
 	else if (isFunctionDeclaration(node)) {
 		return node.name != null ? [node.name] : [];
 	}
-
 	else if (isInterfaceDeclaration(node)) {
 		return [node.name];
 	}
-
 	else if (isTypeAliasDeclaration(node)) {
 		return [node.name];
 	}
-
 	else if (isClassDeclaration(node)) {
 		return node.name != null ? [node.name] : [];
 	}
-
 	else if (isEnumDeclaration(node)) {
 		return [node.name];
 	}
-
 	else if (isExportDeclaration(node) || isImportDeclaration(node)) {
 		return [];
 	}
-
 	else if (isNamespaceImport(node)) {
 		return [];
 	}
-
 	else if (node.kind === SyntaxKind.EndOfFileToken) {
 		return [];
 	}

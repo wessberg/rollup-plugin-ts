@@ -9,21 +9,13 @@ import {VisitorOptions} from "./visitor-options";
  * @param {VisitorOptions<VariableStatement>} options
  * @returns {Node | undefined}
  */
-export function visitVariableStatementWithExportModifier ({node, usedExports, sourceFile, cache, chunkToOriginalFileMap}: VisitorOptions<VariableStatement>): VariableStatement|undefined {
+export function visitVariableStatementWithExportModifier({node, usedExports, sourceFile, cache, chunkToOriginalFileMap}: VisitorOptions<VariableStatement>): VariableStatement | undefined {
 	if (!hasReferences(node, usedExports, sourceFile, cache, chunkToOriginalFileMap)) {
 		return undefined;
-	}
-
-	else if (!preserveExport(node, usedExports, cache)) {
+	} else if (!preserveExport(node, usedExports, cache)) {
 		// Otherwise, change its' name so that it follows the alias
-		return updateVariableStatement(
-			node,
-			removeExportModifier(node.modifiers),
-			node.declarationList
-		);
-	}
-
-	else {
+		return updateVariableStatement(node, removeExportModifier(node.modifiers), node.declarationList);
+	} else {
 		return node;
 	}
 }

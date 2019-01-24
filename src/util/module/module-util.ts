@@ -13,6 +13,6 @@ export const BUILT_IN_MODULES: Set<string> = new Set(_builtInModules);
  * @param {string} moduleName
  * @returns {boolean}
  */
-export function isBuiltInModule (moduleName: string): boolean {
+export function isBuiltInModule(moduleName: string): boolean {
 	return BUILT_IN_MODULES.has(moduleName) || BUILT_IN_MODULES.has(stripExtension(moduleName));
 }

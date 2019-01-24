@@ -9,22 +9,12 @@ import {VisitorOptions} from "./visitor-options";
  * @param {VisitorOptions<EnumDeclaration>} options
  * @returns {Node | undefined}
  */
-export function visitEnumDeclarationWithExportModifier ({node, usedExports, sourceFile, cache, chunkToOriginalFileMap}: VisitorOptions<EnumDeclaration>): EnumDeclaration|undefined {
+export function visitEnumDeclarationWithExportModifier({node, usedExports, sourceFile, cache, chunkToOriginalFileMap}: VisitorOptions<EnumDeclaration>): EnumDeclaration | undefined {
 	if (!hasReferences(node, usedExports, sourceFile, cache, chunkToOriginalFileMap)) {
 		return undefined;
-	}
-
-	else if (!preserveExport(node, usedExports, cache)) {
-		return updateEnumDeclaration(
-			node,
-			node.decorators,
-			removeExportModifier(node.modifiers),
-			node.name,
-			node.members
-		);
-	}
-
-	else {
+	} else if (!preserveExport(node, usedExports, cache)) {
+		return updateEnumDeclaration(node, node.decorators, removeExportModifier(node.modifiers), node.name, node.members);
+	} else {
 		return node;
 	}
 }

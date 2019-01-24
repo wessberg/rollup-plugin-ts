@@ -9,20 +9,11 @@ import {VisitorOptions} from "./visitor-options";
  * @param {VisitorOptions<TypeAliasDeclaration>} options
  * @returns {Node | undefined}
  */
-export function visitTypeAliasDeclarationWithExportModifier ({node, usedExports, sourceFile, cache, chunkToOriginalFileMap}: VisitorOptions<TypeAliasDeclaration>): TypeAliasDeclaration|undefined {
+export function visitTypeAliasDeclarationWithExportModifier({node, usedExports, sourceFile, cache, chunkToOriginalFileMap}: VisitorOptions<TypeAliasDeclaration>): TypeAliasDeclaration | undefined {
 	if (!hasReferences(node, usedExports, sourceFile, cache, chunkToOriginalFileMap)) {
 		return undefined;
-	}
-
-	else if (!preserveExport(node, usedExports, cache)) {
-		return updateTypeAliasDeclaration(
-			node,
-			node.decorators,
-			removeExportModifier(node.modifiers),
-			node.name,
-			node.typeParameters,
-			node.type
-		);
+	} else if (!preserveExport(node, usedExports, cache)) {
+		return updateTypeAliasDeclaration(node, node.decorators, removeExportModifier(node.modifiers), node.name, node.typeParameters, node.type);
 	}
 
 	return node;

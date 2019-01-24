@@ -6,29 +6,25 @@ import {CustomTransformersFunction} from "./i-custom-transformer-options";
  * @param {(CustomTransformers|CustomTransformersFunction|undefined)[]} transformers
  * @returns {CustomTransformersFunction}
  */
-export function mergeTransformers (...transformers: (CustomTransformers|CustomTransformersFunction|undefined)[]): CustomTransformersFunction {
-
+export function mergeTransformers(...transformers: (CustomTransformers | CustomTransformersFunction | undefined)[]): CustomTransformersFunction {
 	return options => {
 		const instantiatedTransformers = transformers
 			.filter(transformer => transformer != null)
-			.map((transformer: CustomTransformers|CustomTransformersFunction) => typeof transformer === "function" ? transformer(options) : transformer);
+			.map((transformer: CustomTransformers | CustomTransformersFunction) => (typeof transformer === "function" ? transformer(options) : transformer));
 
-		const beforeTransformers = ([] as TransformerFactory<SourceFile>[]).concat.apply([],
-			instantiatedTransformers
-				.map(transformer => transformer.before!)
-				.filter(beforeTransformer => beforeTransformer != null)
+		const beforeTransformers = ([] as TransformerFactory<SourceFile>[]).concat.apply(
+			[],
+			instantiatedTransformers.map(transformer => transformer.before!).filter(beforeTransformer => beforeTransformer != null)
 		);
 
-		const afterTransformers = ([] as TransformerFactory<SourceFile>[]).concat.apply([],
-			instantiatedTransformers
-				.map(transformer => transformer.after!)
-				.filter(afterTransformer => afterTransformer != null)
+		const afterTransformers = ([] as TransformerFactory<SourceFile>[]).concat.apply(
+			[],
+			instantiatedTransformers.map(transformer => transformer.after!).filter(afterTransformer => afterTransformer != null)
 		);
 
-		const afterDeclarationsTransformers = ([] as TransformerFactory<Bundle|SourceFile>[]).concat.apply([],
-			instantiatedTransformers
-				.map(transformer => transformer.afterDeclarations!)
-				.filter(afterDeclarationTransformer => afterDeclarationTransformer != null)
+		const afterDeclarationsTransformers = ([] as TransformerFactory<Bundle | SourceFile>[]).concat.apply(
+			[],
+			instantiatedTransformers.map(transformer => transformer.afterDeclarations!).filter(afterDeclarationTransformer => afterDeclarationTransformer != null)
 		);
 
 		return {

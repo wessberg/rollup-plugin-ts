@@ -11,12 +11,11 @@ import {ensureDirectory} from "../../../util/file-system/file-system";
  * A Cache over resolved modules
  */
 export class ResolveCache implements IResolveCache {
-
 	/**
 	 * A memory-persistent cache of resolved modules for files over time
 	 * @type {Map<string, Map<string|null>>}
 	 */
-	private readonly RESOLVE_CACHE: Map<string, Map<string, string|null>> = new Map();
+	private readonly RESOLVE_CACHE: Map<string, Map<string, string | null>> = new Map();
 
 	/**
 	 * Gets the resolved path for an id from a parent
@@ -24,7 +23,7 @@ export class ResolveCache implements IResolveCache {
 	 * @param {string} parent
 	 * @returns {string | null | undefined}
 	 */
-	public getFromCache (id: string, parent: string): string|null|undefined {
+	public getFromCache(id: string, parent: string): string | null | undefined {
 		const parentMap = this.RESOLVE_CACHE.get(parent);
 		if (parentMap == null) return undefined;
 		return parentMap.get(id);
@@ -35,7 +34,7 @@ export class ResolveCache implements IResolveCache {
 	 * @param {string} parent
 	 * @returns {boolean}
 	 */
-	public delete (parent: string): boolean {
+	public delete(parent: string): boolean {
 		return this.RESOLVE_CACHE.delete(parent);
 	}
 
@@ -46,7 +45,7 @@ export class ResolveCache implements IResolveCache {
 	 * @param {string} parent
 	 * @returns {string|null}
 	 */
-	public setInCache (result: string|null, id: string, parent: string): string|null {
+	public setInCache(result: string | null, id: string, parent: string): string | null {
 		let parentMap = this.RESOLVE_CACHE.get(parent);
 		if (parentMap == null) {
 			parentMap = new Map();
@@ -62,7 +61,7 @@ export class ResolveCache implements IResolveCache {
 	 * @param {IGetResolvedIdWithCachingOptions} opts
 	 * @returns {string|null}
 	 */
-	public get ({id, parent, moduleResolutionHost, options, cwd}: IGetResolvedIdWithCachingOptions): string|null {
+	public get({id, parent, moduleResolutionHost, options, cwd}: IGetResolvedIdWithCachingOptions): string | null {
 		let cacheResult = this.getFromCache(id, parent);
 		if (cacheResult != null) {
 			return cacheResult;
@@ -84,7 +83,6 @@ export class ResolveCache implements IResolveCache {
 			// If it is an external library, re-resolve since we may want to use a different package.json key than "main",
 			// for example in order get the ES-module variant of the library
 			if (resolvedModule.isExternalLibraryImport === true) {
-
 				// Find the package.json located closest to the resolved file
 				const packageJsonPath = sync("package.json", {cwd: resolvedModule.resolvedFileName});
 				if (packageJsonPath != null) {

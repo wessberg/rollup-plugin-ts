@@ -6,7 +6,7 @@ import {getAppropriateEcmaVersionForBrowserslist} from "@wessberg/browserslist-g
  * @param {string[]} browserslist
  * @returns {ScriptTarget}
  */
-export function getScriptTargetFromBrowserslist (browserslist: string[]): ScriptTarget {
+export function getScriptTargetFromBrowserslist(browserslist: string[]): ScriptTarget {
 	switch (getAppropriateEcmaVersionForBrowserslist(browserslist)) {
 		case "es3":
 			return ScriptTarget.ES3;

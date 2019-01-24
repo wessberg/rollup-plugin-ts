@@ -6,7 +6,6 @@ import {IEmitCache} from "./i-emit-cache";
  * A cache over EmitOutputs
  */
 export class EmitCache implements IEmitCache {
-
 	/**
 	 * A memory-persistent cache of EmitOutputs for files over time
 	 * @type {Map<string, EmitOutput>}
@@ -16,10 +15,10 @@ export class EmitCache implements IEmitCache {
 	/**
 	 * Gets an EmitOutput from the emit cache
 	 * @param {string} fileName
-	 * @param {boolean} dtsOnly
+	 * @param {boolean} [dtsOnly=false]
 	 * @returns {EmitOutput | undefined}
 	 */
-	public getFromCache (fileName: string, dtsOnly?: boolean): EmitOutput|undefined {
+	public getFromCache(fileName: string, dtsOnly: boolean = false): EmitOutput | undefined {
 		return this.EMIT_CACHE.get(this.computeCacheKey(fileName, dtsOnly));
 	}
 
@@ -28,7 +27,7 @@ export class EmitCache implements IEmitCache {
 	 * @param {string} fileName
 	 * @returns {boolean}
 	 */
-	public delete (fileName: string): boolean {
+	public delete(fileName: string): boolean {
 		const dtsCacheResult = this.EMIT_CACHE.delete(this.computeCacheKey(fileName, true));
 		const nonDtsCacheResult = this.EMIT_CACHE.delete(this.computeCacheKey(fileName, false));
 		return dtsCacheResult || nonDtsCacheResult;
@@ -38,10 +37,10 @@ export class EmitCache implements IEmitCache {
 	 * Sets the given EmitOutput in the emit cache
 	 * @param {EmitOutput} emitOutput
 	 * @param {string} fileName
-	 * @param {boolean} dtsOnly
+	 * @param {boolean} [dtsOnly=false]
 	 * @returns {EmitOutput}
 	 */
-	public setInCache (emitOutput: EmitOutput, fileName: string, dtsOnly?: boolean): EmitOutput {
+	public setInCache(emitOutput: EmitOutput, fileName: string, dtsOnly: boolean = false): EmitOutput {
 		this.EMIT_CACHE.set(this.computeCacheKey(fileName, dtsOnly), emitOutput);
 		return emitOutput;
 	}
@@ -52,7 +51,7 @@ export class EmitCache implements IEmitCache {
 	 * @param {IGetEmitOutputWithCachingOptions} options
 	 * @returns {EmitOutput}
 	 */
-	public get ({fileName, dtsOnly, languageService}: IGetEmitOutputWithCachingOptions): EmitOutput {
+	public get({fileName, dtsOnly, languageService}: IGetEmitOutputWithCachingOptions): EmitOutput {
 		const cacheResult = this.getFromCache(fileName, dtsOnly);
 		if (cacheResult != null) {
 			return cacheResult;
@@ -70,8 +69,7 @@ export class EmitCache implements IEmitCache {
 	 * @param {boolean} dtsOnly
 	 * @returns {string}
 	 */
-	private computeCacheKey (fileName: string, dtsOnly: boolean = false): string {
+	private computeCacheKey(fileName: string, dtsOnly: boolean = false): string {
 		return `${fileName}.${Number(dtsOnly)}`;
 	}
-
 }

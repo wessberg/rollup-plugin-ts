@@ -7,8 +7,8 @@ export class MultiMap<K, V, C extends V[] = V[]> {
 	 * @template K, C
 	 * @type {WeakMap<K, C>}
 	 */
-		// @ts-ignore
-	protected readonly map: Map<K, C>|WeakMap<K, C> = new Map();
+	// @ts-ignore
+	protected readonly map: Map<K, C> | WeakMap<K, C> = new Map();
 
 	/**
 	 * Gets the value for the given key. If it is not defined, it will initialize a new collection for it
@@ -16,10 +16,10 @@ export class MultiMap<K, V, C extends V[] = V[]> {
 	 * @param {K} key
 	 * @returns {C}
 	 */
-	public get (key: K): C {
+	public get(key: K): C {
 		let match = this.map.get(key);
 		if (match == null) {
-			match = <C><unknown> [];
+			match = <C>(<unknown>[]);
 			this.map.set(key, match);
 		}
 		return match;
@@ -32,7 +32,7 @@ export class MultiMap<K, V, C extends V[] = V[]> {
 	 * @param {V[]} value
 	 * @returns {number}
 	 */
-	public add (key: K, ...value: V[]): void {
+	public add(key: K, ...value: V[]): void {
 		const collection = this.get(key);
 		collection.push(...value);
 	}
@@ -43,7 +43,7 @@ export class MultiMap<K, V, C extends V[] = V[]> {
 	 * @param {K} key
 	 * @returns {boolean}
 	 */
-	public delete (key: K): boolean {
+	public delete(key: K): boolean {
 		return this.map.delete(key);
 	}
 
@@ -53,7 +53,7 @@ export class MultiMap<K, V, C extends V[] = V[]> {
 	 * @param {K} key
 	 * @returns {boolean}
 	 */
-	public has (key: K): boolean {
+	public has(key: K): boolean {
 		return this.map.has(key);
 	}
 
@@ -64,7 +64,7 @@ export class MultiMap<K, V, C extends V[] = V[]> {
 	 * @param {V} value
 	 * @returns {boolean}
 	 */
-	public hasValue (key: K, value: V): boolean {
+	public hasValue(key: K, value: V): boolean {
 		if (!this.has(key)) return false;
 		const collection = this.get(key);
 		return collection.includes(value);
@@ -77,11 +77,11 @@ export class MultiMap<K, V, C extends V[] = V[]> {
 	 * @param {Function} callback
 	 * @returns {boolean}
 	 */
-	public findValue<S extends V> (key: K, callback: (value: V, collection: C) => boolean): S|undefined {
+	public findValue<S extends V>(key: K, callback: (value: V, collection: C) => boolean): S | undefined {
 		if (!this.has(key)) return undefined;
 		const collection = this.get(key);
 		for (const value of collection) {
-			if (callback(value, collection)) return <S> value;
+			if (callback(value, collection)) return <S>value;
 		}
 		return undefined;
 	}
@@ -93,7 +93,7 @@ export class MultiMap<K, V, C extends V[] = V[]> {
 	 * @param {Function} callback
 	 * @returns {boolean}
 	 */
-	public someValue (key: K, callback: (value: V, collection: C) => boolean): boolean {
+	public someValue(key: K, callback: (value: V, collection: C) => boolean): boolean {
 		return this.findValue(key, callback) != null;
 	}
 
@@ -104,7 +104,7 @@ export class MultiMap<K, V, C extends V[] = V[]> {
 	 * @param {Function} callback
 	 * @returns {boolean}
 	 */
-	public mapValue<U> (key: K, callback: (value: V, collection: C) => U): U[] {
+	public mapValue<U>(key: K, callback: (value: V, collection: C) => U): U[] {
 		if (!this.has(key)) return [];
 		const collection = this.get(key);
 		const mapped: U[] = [];
@@ -122,7 +122,7 @@ export class MultiMap<K, V, C extends V[] = V[]> {
 	 * @param {Function} callback
 	 * @returns {V[]}
 	 */
-	public filterValues (key: K, callback: (value: V, collection: C) => boolean): V[] {
+	public filterValues(key: K, callback: (value: V, collection: C) => boolean): V[] {
 		if (!this.has(key)) return [];
 		const collection = this.get(key);
 		const filtered: V[] = [];
@@ -141,7 +141,7 @@ export class MultiMap<K, V, C extends V[] = V[]> {
 	 * @param {K} key
 	 * @returns {number}
 	 */
-	public sizeForKey (key: K): number {
+	public sizeForKey(key: K): number {
 		if (!this.has(key)) return 0;
 		return this.get(key).length;
 	}
@@ -152,7 +152,7 @@ export class MultiMap<K, V, C extends V[] = V[]> {
 	 * @param {K} key
 	 * @param {V} value
 	 */
-	public deleteValue (key: K, value: V): void {
+	public deleteValue(key: K, value: V): void {
 		if (!this.has(key)) return;
 		const collection = this.get(key);
 		const index = collection.indexOf(value);
@@ -169,7 +169,7 @@ export class MultiMap<K, V, C extends V[] = V[]> {
 	 * @param {K} key
 	 * @param {(item: V) => void} callback
 	 */
-	public popAll (key: K, callback: (item: V) => void): void {
+	public popAll(key: K, callback: (item: V) => void): void {
 		this.forEach(key, callback);
 		this.delete(key);
 	}
@@ -180,7 +180,7 @@ export class MultiMap<K, V, C extends V[] = V[]> {
 	 * @param {K} key
 	 * @param {(item: V) => void} callback
 	 */
-	public forEach (key: K, callback: (item: V) => void): void {
+	public forEach(key: K, callback: (item: V) => void): void {
 		// Do nothing if there are no collection associated with the key
 		if (!this.has(key)) return;
 		this.get(key).forEach(callback);

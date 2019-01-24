@@ -7,6 +7,6 @@ import {getExtension} from "../path/path-util";
  * @param {string} name
  * @returns {boolean}
  */
-export function isDeclarationMapOutputFile ({name}: OutputFile): boolean {
+export function isDeclarationMapOutputFile({name}: OutputFile): boolean {
 	return getExtension(name) === DECLARATION_MAP_EXTENSION;
 }

@@ -6,7 +6,7 @@ import {OutputChunk} from "rollup";
  * @param {Function} canEmitForFile
  * @return {string}
  */
-export function getEntryFileNameForChunk (chunk: OutputChunk, canEmitForFile: (id: string) => boolean): string {
+export function getEntryFileNameForChunk(chunk: OutputChunk, canEmitForFile: (id: string) => boolean): string {
 	return Object.keys(chunk.modules)
 		.filter(canEmitForFile)
 		.slice(-1)[0];

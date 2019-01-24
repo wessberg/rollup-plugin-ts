@@ -12,7 +12,7 @@ import {ensureArray} from "../ensure-array/ensure-array";
  * @param {IGetBrowserslistOptions["browserslist"]} browserslist
  * @returns {boolean}
  */
-function isBrowserslistInput (browserslist: IGetBrowserslistOptions["browserslist"]): browserslist is (string[]|string) {
+function isBrowserslistInput(browserslist: IGetBrowserslistOptions["browserslist"]): browserslist is string[] | string {
 	return typeof browserslist === "string" || Array.isArray(browserslist);
 }
 
@@ -21,7 +21,7 @@ function isBrowserslistInput (browserslist: IGetBrowserslistOptions["browserslis
  * @param {IGetBrowserslistOptions["browserslist"]} browserslist
  * @returns {boolean}
  */
-function isBrowserslistQueryConfig (browserslist: IGetBrowserslistOptions["browserslist"]): browserslist is IBrowserslistQueryConfig {
+function isBrowserslistQueryConfig(browserslist: IGetBrowserslistOptions["browserslist"]): browserslist is IBrowserslistQueryConfig {
 	return browserslist != null && !isBrowserslistInput(browserslist) && browserslist !== false && "query" in browserslist && browserslist.query != null;
 }
 
@@ -30,7 +30,7 @@ function isBrowserslistQueryConfig (browserslist: IGetBrowserslistOptions["brows
  * @param {IGetBrowserslistOptions["browserslist"]} browserslist
  * @returns {boolean}
  */
-function isBrowserslistPathConfig (browserslist: IGetBrowserslistOptions["browserslist"]): browserslist is IBrowserslistPathConfig {
+function isBrowserslistPathConfig(browserslist: IGetBrowserslistOptions["browserslist"]): browserslist is IBrowserslistPathConfig {
 	return browserslist != null && !isBrowserslistInput(browserslist) && browserslist !== false && "path" in browserslist && browserslist.path != null;
 }
 
@@ -39,10 +39,9 @@ function isBrowserslistPathConfig (browserslist: IGetBrowserslistOptions["browse
  * @param {IGetBrowserslistOptions} options
  * @returns {string[]?}
  */
-export function getBrowserslist ({browserslist, cwd}: IGetBrowserslistOptions): string[]|undefined {
+export function getBrowserslist({browserslist, cwd}: IGetBrowserslistOptions): string[] | undefined {
 	// If a Browserslist is provided directly from the options, use that
 	if (browserslist != null) {
-
 		// If the Browserslist is equal to false, it should never be used. Return undefined
 		if (browserslist === false) {
 			return undefined;

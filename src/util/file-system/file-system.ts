@@ -14,7 +14,7 @@ export const fileExistsSync = existsSync;
  * @param {string} path
  * @returns {string}
  */
-export function ensureDirectory (path: string): string {
+export function ensureDirectory(path: string): string {
 	return statSync(path).isDirectory() ? path : dirname(path);
 }
 
@@ -24,7 +24,7 @@ export function ensureDirectory (path: string): string {
  * @param {T} data
  * @param {WriteFileOptions} options
  */
-export function writeFileSync<T> (path: PathLike | number, data: T, options?: WriteFileOptions): void {
+export function writeFileSync<T>(path: PathLike | number, data: T, options?: WriteFileOptions): void {
 	if (typeof path === "string") sync(dirname(path));
 	return _writeFileSync(path, data, options);
 }
@@ -37,7 +37,7 @@ export function writeFileSync<T> (path: PathLike | number, data: T, options?: Wr
  */
 export const IS_FILE_SYSTEM_CASE_SENSITIVE: boolean = (() => {
 	// win32\win64 are case insensitive platforms
-	if (platform === "win32" || (<any>platform) === "win64") {
+	if (platform === "win32" || <any>platform === "win64") {
 		return false;
 	}
 	// If this file exists under a different case, we must be case-insensitive.

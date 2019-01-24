@@ -11,7 +11,18 @@ import {basename, join} from "path";
  * @param {IFlattenDeclarationsFromRollupChunkOptions} opts
  * @returns {SourceDescription}
  */
-export function flattenDeclarationsFromRollupChunk ({chunk, generateMap, declarationOutDir, languageService, languageServiceHost, emitCache, supportedExtensions, entryFileName, moduleNames, chunkToOriginalFileMap}: IFlattenDeclarationsFromRollupChunkOptions): IFlattenDeclarationsFromRollupChunkResult {
+export function flattenDeclarationsFromRollupChunk({
+	chunk,
+	generateMap,
+	declarationOutDir,
+	languageService,
+	languageServiceHost,
+	emitCache,
+	supportedExtensions,
+	entryFileName,
+	moduleNames,
+	chunkToOriginalFileMap
+}: IFlattenDeclarationsFromRollupChunkOptions): IFlattenDeclarationsFromRollupChunkResult {
 	const declarationBundleSourceFileName = setExtension(stripExtension(chunk.fileName) + "___declaration___", TS_EXTENSION);
 
 	const declarationFilename = setExtension(chunk.fileName, DECLARATION_EXTENSION);
@@ -30,15 +41,16 @@ export function flattenDeclarationsFromRollupChunk ({chunk, generateMap, declara
 	languageServiceHost.addFile({file: declarationBundleSourceFileName, code});
 
 	code = "";
-	let map: string|undefined;
+	let map: string | undefined;
 
 	const program = languageService.getProgram()!;
 	const typeChecker = program.getTypeChecker();
 	const entrySourceFile = program.getSourceFile(entryFileName);
 	const entrySourceFileSymbol = typeChecker.getSymbolAtLocation(entrySourceFile!);
 
-	const usedExports: Set<string> = new Set(entrySourceFile == null || entrySourceFileSymbol == null ? [] : typeChecker.getExportsOfModule(entrySourceFileSymbol)
-		.map(exportSymbol => exportSymbol.getName()));
+	const usedExports: Set<string> = new Set(
+		entrySourceFile == null || entrySourceFileSymbol == null ? [] : typeChecker.getExportsOfModule(entrySourceFileSymbol).map(exportSymbol => exportSymbol.getName())
+	);
 
 	program.emit(
 		program.getSourceFile(declarationBundleSourceFileName),
@@ -50,7 +62,7 @@ export function flattenDeclarationsFromRollupChunk ({chunk, generateMap, declara
 					alteredData.includes(basename(declarationBundleSourceFileName)) ||
 					alteredData.includes(basename(setExtension(declarationBundleSourceFileName, DECLARATION_EXTENSION))) ||
 					alteredData.includes(setExtension(declarationBundleSourceFileName, DECLARATION_EXTENSION))
-					) {
+				) {
 					alteredData = alteredData
 						.replace(declarationBundleSourceFileName, declarationFilename)
 						.replace(basename(declarationBundleSourceFileName), basename(declarationFilename))
@@ -58,8 +70,7 @@ export function flattenDeclarationsFromRollupChunk ({chunk, generateMap, declara
 						.replace(basename(setExtension(declarationBundleSourceFileName, DECLARATION_EXTENSION)), basename(setExtension(declarationFilename, DECLARATION_EXTENSION)));
 				}
 				map = alteredData;
-			}
-			else code += `${data.replace(SOURCE_MAP_COMMENT_REGEXP, "")}\n${generateMap ? `${SOURCE_MAP_COMMENT}=${basename(declarationMapFilename)}` : ``}`;
+			} else code += `${data.replace(SOURCE_MAP_COMMENT_REGEXP, "")}\n${generateMap ? `${SOURCE_MAP_COMMENT}=${basename(declarationMapFilename)}` : ``}`;
 		},
 		undefined,
 		true,

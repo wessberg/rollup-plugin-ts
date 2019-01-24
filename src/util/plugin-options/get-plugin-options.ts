@@ -5,17 +5,9 @@ import {TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options"
  * @param {Partial<TypescriptPluginOptions>} options
  * @returns {TypescriptPluginOptions}
  */
-export function getPluginOptions (options: Partial<TypescriptPluginOptions>): TypescriptPluginOptions {
+export function getPluginOptions(options: Partial<TypescriptPluginOptions>): TypescriptPluginOptions {
 	// Destructure the options and provide defaults
-	const {
-		browserslist,
-		transpiler = "typescript",
-		cwd = process.cwd(),
-		tsconfig,
-		transformers,
-		include = [],
-		exclude = []
-	} = options;
+	const {browserslist, transpiler = "typescript", cwd = process.cwd(), tsconfig, transformers, include = [], exclude = []} = options;
 
 	// These options will be used no matter what
 	const baseOptions = {

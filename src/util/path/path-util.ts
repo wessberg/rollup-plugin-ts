@@ -1,14 +1,28 @@
 import {isAbsolute, join, parse, relative, extname} from "path";
-import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION, JS_EXTENSION, JSX_EXTENSION, MJS_EXTENSION, TSX_EXTENSION, TS_EXTENSION, DEFAULT_LIB_NAMES, TSLIB_NAME, TYPEOF_BABEL_HELPER_NAME_1, TYPEOF_BABEL_HELPER_NAME_2, TYPEOF_BABEL_HELPER_NAME_3, TYPEOF_BABEL_HELPER_NAME_4} from "../../constant/constant";
+import {
+	DECLARATION_EXTENSION,
+	DECLARATION_MAP_EXTENSION,
+	JS_EXTENSION,
+	JSX_EXTENSION,
+	MJS_EXTENSION,
+	TSX_EXTENSION,
+	TS_EXTENSION,
+	DEFAULT_LIB_NAMES,
+	TSLIB_NAME,
+	TYPEOF_BABEL_HELPER_NAME_1,
+	TYPEOF_BABEL_HELPER_NAME_2,
+	TYPEOF_BABEL_HELPER_NAME_3,
+	TYPEOF_BABEL_HELPER_NAME_4
+} from "../../constant/constant";
 
 /**
  * Gets the extension of the given file
  * @param {string} file
  * @returns {string}
  */
-export function getExtension (file: string): string {
+export function getExtension(file: string): string {
 	if (file.endsWith(DECLARATION_EXTENSION)) return DECLARATION_EXTENSION;
-	else if ( file.endsWith(DECLARATION_MAP_EXTENSION)) return DECLARATION_MAP_EXTENSION;
+	else if (file.endsWith(DECLARATION_MAP_EXTENSION)) return DECLARATION_MAP_EXTENSION;
 	return extname(file);
 }
 
@@ -17,7 +31,7 @@ export function getExtension (file: string): string {
  * @param {string} path
  * @returns {boolean}
  */
-export function isExternalLibrary (path: string): boolean {
+export function isExternalLibrary(path: string): boolean {
 	return !path.startsWith(".") && !path.startsWith("/");
 }
 
@@ -26,7 +40,7 @@ export function isExternalLibrary (path: string): boolean {
  * @param {string} path
  * @returns {boolean}
  */
-export function isInternalFile (path: string): boolean {
+export function isInternalFile(path: string): boolean {
 	return DEFAULT_LIB_NAMES.has(path) || path.toLowerCase().endsWith(TSLIB_NAME);
 }
 
@@ -35,17 +49,16 @@ export function isInternalFile (path: string): boolean {
  * @param {string} path
  * @returns {boolean}
  */
-export function isNonTransformableBabelHelper (path: string): boolean {
+export function isNonTransformableBabelHelper(path: string): boolean {
 	return path.endsWith(TYPEOF_BABEL_HELPER_NAME_1) || path.endsWith(TYPEOF_BABEL_HELPER_NAME_2) || path.endsWith(TYPEOF_BABEL_HELPER_NAME_3) || path.endsWith(TYPEOF_BABEL_HELPER_NAME_4);
 }
-
 
 /**
  * Strips the extension from a file
  * @param {string} file
  * @returns {string}
  */
-export function stripExtension (file: string): string {
+export function stripExtension(file: string): string {
 	if (extname(file) === "") return file;
 	let {dir, name} = parse(file);
 
@@ -61,7 +74,7 @@ export function stripExtension (file: string): string {
  * @param {string} extension
  * @returns {string}
  */
-export function setExtension (file: string, extension: string): string {
+export function setExtension(file: string, extension: string): string {
 	return `${stripExtension(file)}${extension}`;
 }
 
@@ -70,7 +83,7 @@ export function setExtension (file: string, extension: string): string {
  * @param {string} path
  * @return {string}
  */
-export function ensureHasLeadingDot (path: string): string {
+export function ensureHasLeadingDot(path: string): string {
 	if (path.startsWith(".")) return path;
 	if (path.startsWith("/")) return `.${path}`;
 	return `./${path}`;
@@ -82,7 +95,7 @@ export function ensureHasLeadingDot (path: string): string {
  * @param {string} path
  * @returns {string}
  */
-export function ensureRelative (root: string, path: string): string {
+export function ensureRelative(root: string, path: string): string {
 	// If the path is already relative, simply return it
 	if (!isAbsolute(path)) {
 		return path;
@@ -98,7 +111,7 @@ export function ensureRelative (root: string, path: string): string {
  * @param {string} path
  * @returns {string}
  */
-export function ensureAbsolute (root: string, path: string): string {
+export function ensureAbsolute(root: string, path: string): string {
 	// If the path is already absolute, simply return it
 	if (isAbsolute(path)) {
 		return path;
@@ -113,7 +126,7 @@ export function ensureAbsolute (root: string, path: string): string {
  * @param {string} file
  * @returns {boolean}
  */
-export function isJSFile (file: string): boolean {
+export function isJSFile(file: string): boolean {
 	return file.endsWith(JS_EXTENSION) || file.endsWith(JSX_EXTENSION) || file.endsWith(MJS_EXTENSION);
 }
 
@@ -122,7 +135,7 @@ export function isJSFile (file: string): boolean {
  * @param {string} file
  * @returns {boolean}
  */
-export function isTSFile (file: string): boolean {
+export function isTSFile(file: string): boolean {
 	return file.endsWith(TS_EXTENSION) || file.endsWith(TSX_EXTENSION);
 }
 
@@ -131,7 +144,7 @@ export function isTSFile (file: string): boolean {
  * @param {string} file
  * @returns {boolean}
  */
-export function isDTSFile (file: string): boolean {
+export function isDTSFile(file: string): boolean {
 	return file.endsWith(DECLARATION_EXTENSION);
 }
 
@@ -140,7 +153,7 @@ export function isDTSFile (file: string): boolean {
  * @param {string} file
  * @returns {boolean}
  */
-export function isDTSMapFile (file: string): boolean {
+export function isDTSMapFile(file: string): boolean {
 	return file.endsWith(DECLARATION_MAP_EXTENSION);
 }
 
@@ -150,7 +163,7 @@ export function isDTSMapFile (file: string): boolean {
  * @param {string} file
  * @returns {string}
  */
-export function ensureTs (file: string): string {
+export function ensureTs(file: string): string {
 	return setExtension(file, TS_EXTENSION);
 }
 
@@ -160,7 +173,7 @@ export function ensureTs (file: string): string {
  * @param {string} file
  * @returns {string}
  */
-export function ensureJs (file: string): string {
+export function ensureJs(file: string): string {
 	return setExtension(file, JS_EXTENSION);
 }
 
@@ -169,6 +182,6 @@ export function ensureJs (file: string): string {
  * @param {string} file
  * @returns {string}
  */
-export function ensureDTS (file: string): string {
+export function ensureDTS(file: string): string {
 	return setExtension(file, DECLARATION_EXTENSION);
 }

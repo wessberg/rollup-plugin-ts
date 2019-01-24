@@ -3,10 +3,10 @@ import {IncrementalLanguageService} from "../../service/language-service/increme
 import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
 
 export interface ICustomTransformerOptions {
-	program: Program|undefined;
+	program: Program | undefined;
 	languageService: LanguageService;
 	languageServiceHost: IncrementalLanguageService;
-	addDiagnostics (...diagnostics: IExtendedDiagnostic[]): void;
+	addDiagnostics(...diagnostics: IExtendedDiagnostic[]): void;
 }
 
 export type CustomTransformersFunction = (options: ICustomTransformerOptions) => CustomTransformers;

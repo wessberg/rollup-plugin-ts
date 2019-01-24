@@ -7,7 +7,7 @@ import {getExtension} from "../path/path-util";
  * @param {string} name
  * @returns {boolean}
  */
-export function isCodeOutputFile ({name}: OutputFile): boolean {
+export function isCodeOutputFile({name}: OutputFile): boolean {
 	const extension = getExtension(name);
 	return [SOURCE_MAP_EXTENSION, DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION].every(otherExtension => extension !== otherExtension);
 }

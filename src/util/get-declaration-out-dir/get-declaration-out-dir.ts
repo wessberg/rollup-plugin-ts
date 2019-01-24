@@ -10,7 +10,7 @@ import {getOutDir} from "../get-out-dir/get-out-dir";
  * @param {Partial<OutputOptions>} [options]
  * @returns {string?}
  */
-export function getDeclarationOutDir (cwd: string, compilerOptions: CompilerOptions, options?: Partial<OutputOptions>): string {
+export function getDeclarationOutDir(cwd: string, compilerOptions: CompilerOptions, options?: Partial<OutputOptions>): string {
 	const outDir = compilerOptions.declarationDir != null ? ensureRelative(cwd, compilerOptions.declarationDir) : getOutDir(cwd, options);
 
 	// Default to "." if it should be equal to cwd

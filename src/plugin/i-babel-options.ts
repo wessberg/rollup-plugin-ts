@@ -15,14 +15,13 @@ export interface IBabelInputOptions {
 	presets: {}[];
 	plugins: {}[];
 	retainLines: boolean;
-	compact: boolean|"auto";
+	compact: boolean | "auto";
 	minified: boolean;
 	auxiliaryCommentBefore: string;
 	auxiliaryCommentAfter: string;
 	comments: boolean;
-	shouldPrintComment (value: string): boolean;
+	shouldPrintComment(value: string): boolean;
 }
-
 
 export interface IBabelConfig extends Partial<IBabelInputOptions> {
 	cwd: string;

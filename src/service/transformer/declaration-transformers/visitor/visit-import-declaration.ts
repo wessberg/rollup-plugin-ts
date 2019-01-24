@@ -10,17 +10,25 @@ import {matchModuleSpecifier} from "../../../../util/match-module-specifier/matc
  * @param {VisitorOptions<ImportDeclaration>} options
  * @returns {ImportDeclaration | undefined}
  */
-export function visitImportDeclaration ({node, usedExports, sourceFile, cache, entryFileName, supportedExtensions, moduleNames, chunkToOriginalFileMap, outFileName}: VisitorOptions<ImportDeclaration>): ImportDeclaration|undefined {
+export function visitImportDeclaration({
+	node,
+	usedExports,
+	sourceFile,
+	cache,
+	entryFileName,
+	supportedExtensions,
+	moduleNames,
+	chunkToOriginalFileMap,
+	outFileName
+}: VisitorOptions<ImportDeclaration>): ImportDeclaration | undefined {
 	// If nothing is imported from the module, or if the Import is importing things that are already part of this chunk, don't include it. Everything will already be part of the SourceFile
 	if (!isStringLiteralLike(node.moduleSpecifier) || node.importClause == null) return undefined;
 
-	let moduleSpecifier: Expression|undefined;
+	let moduleSpecifier: Expression | undefined;
 
 	if (isExternalLibrary(node.moduleSpecifier.text)) {
 		moduleSpecifier = node.moduleSpecifier;
-	}
-
-	else {
+	} else {
 		// Compute the absolute path
 		const absoluteModuleSpecifier = join(dirname(entryFileName), node.moduleSpecifier.text);
 		// If the path that it imports from is already part of this chunk, don't include the ImportDeclaration
@@ -29,18 +37,16 @@ export function visitImportDeclaration ({node, usedExports, sourceFile, cache, e
 		if (match != null) return undefined;
 
 		// Otherwise, assume that it is being imported from a generated chunk. Try to find it
-		const matchInChunks = [...chunkToOriginalFileMap.entries()].find(([, originals]) => originals.find(original => matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, [original]) != null) != null);
+		const matchInChunks = [...chunkToOriginalFileMap.entries()].find(
+			([, originals]) => originals.find(original => matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, [original]) != null) != null
+		);
 
 		// If nothing was found, ignore this ImportDeclaration
 		if (matchInChunks == null || stripExtension(outFileName) === stripExtension(matchInChunks[0])) {
 			return undefined;
-		}
-
-		else {
+		} else {
 			// Otherwise, compute a relative path and update the moduleSpecifier
-			moduleSpecifier = createStringLiteral(
-				ensureHasLeadingDot(stripExtension(ensureRelative(dirname(outFileName), matchInChunks[0])))
-			);
+			moduleSpecifier = createStringLiteral(ensureHasLeadingDot(stripExtension(ensureRelative(dirname(outFileName), matchInChunks[0]))));
 		}
 	}
 
@@ -55,45 +61,20 @@ export function visitImportDeclaration ({node, usedExports, sourceFile, cache, e
 			// If neither the namespace import nor the default import (if it has any) are being used, don't include the node
 			if (removeDefaultImport && removeNamespaceImport) {
 				return undefined;
-			}
-
-			else if (!removeDefaultImport && removeNamespaceImport) {
-				return updateImportDeclaration(
-					node,
-					node.decorators,
-					node.modifiers,
-					createImportClause(
-						node.importClause.name,
-						undefined
-					),
-					moduleSpecifier
-				);
-			}
-
-			else if (removeDefaultImport && !removeNamespaceImport) {
-				return updateImportDeclaration(
-					node,
-					node.decorators,
-					node.modifiers,
-					createImportClause(
-						undefined,
-						node.importClause.namedBindings
-					),
-					moduleSpecifier
-				);
+			} else if (!removeDefaultImport && removeNamespaceImport) {
+				return updateImportDeclaration(node, node.decorators, node.modifiers, createImportClause(node.importClause.name, undefined), moduleSpecifier);
+			} else if (removeDefaultImport && !removeNamespaceImport) {
+				return updateImportDeclaration(node, node.decorators, node.modifiers, createImportClause(undefined, node.importClause.namedBindings), moduleSpecifier);
 			}
 
 			// Otherwise, everything is used. Keep it as it is
 			else {
 				return node;
 			}
-		}
-
-		else if (isNamedImports(node.importClause.namedBindings)) {
+		} else if (isNamedImports(node.importClause.namedBindings)) {
 			const importElementsToRemove: Set<ImportSpecifier> = new Set();
 
 			for (const element of node.importClause.namedBindings.elements) {
-
 				// If the element isn't referenced, remove it
 				if (!hasReferences(element.name, usedExports, sourceFile, cache, chunkToOriginalFileMap)) {
 					importElementsToRemove.add(element);
@@ -105,32 +86,10 @@ export function visitImportDeclaration ({node, usedExports, sourceFile, cache, e
 			// If neither the namespace import nor any of the imported bindings (if it has any) are being used, don't include the node
 			if (removeDefaultImport && filteredElements.length === 0) {
 				return undefined;
-			}
-
-			else if (!removeDefaultImport && filteredElements.length === 0) {
-				return updateImportDeclaration(
-					node,
-					node.decorators,
-					node.modifiers,
-					createImportClause(
-						node.importClause.name,
-						undefined
-					),
-					moduleSpecifier
-				);
-			}
-
-			else if (removeDefaultImport) {
-				return updateImportDeclaration(
-					node,
-					node.decorators,
-					node.modifiers,
-					createImportClause(
-						undefined,
-						node.importClause.namedBindings
-					),
-					moduleSpecifier
-				);
+			} else if (!removeDefaultImport && filteredElements.length === 0) {
+				return updateImportDeclaration(node, node.decorators, node.modifiers, createImportClause(node.importClause.name, undefined), moduleSpecifier);
+			} else if (removeDefaultImport) {
+				return updateImportDeclaration(node, node.decorators, node.modifiers, createImportClause(undefined, node.importClause.namedBindings), moduleSpecifier);
 			}
 
 			// Otherwise, everything is being used

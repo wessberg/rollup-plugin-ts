@@ -6,7 +6,7 @@ import {writeFileSync} from "../file-system/file-system";
  * Emits declaration files based on the given options
  * @param {IEmitDeclarationsOptions} options
  */
-export function emitDeclarations (options: IEmitDeclarationsOptions): void {
+export function emitDeclarations(options: IEmitDeclarationsOptions): void {
 	// Generate declaration files for this chunk
 	const {absoluteDeclarationMapFilename, absoluteDeclarationFilename, sourceDescription} = flattenDeclarationsFromRollupChunk(options);
 

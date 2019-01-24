@@ -1,10 +1,6 @@
 {
-	"extends": "./node_modules/@wessberg/ts-config/tslint/tslint.json",
+	"extends": "./node_modules/@wessberg/ts-config/tslint.json",
 	"linterOptions": {
 		"exclude": ["test-app/**"]
-	},
-	"rules": {
-		"interface-name": false,
-		"completed-docs": false
 	}
 }

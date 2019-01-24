@@ -5,7 +5,7 @@ import {NewLineKind} from "typescript";
  * @param {NewLineKind} newLine
  * @returns {string}
  */
-export function getNewLineCharacter (newLine: NewLineKind): string {
+export function getNewLineCharacter(newLine: NewLineKind): string {
 	switch (newLine) {
 		case NewLineKind.CarriageReturnLineFeed:
 			return "\r\n";

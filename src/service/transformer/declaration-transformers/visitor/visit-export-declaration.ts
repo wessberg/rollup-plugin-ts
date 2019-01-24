@@ -9,21 +9,28 @@ import {matchModuleSpecifier} from "../../../../util/match-module-specifier/matc
  * @param {VisitorOptions<ExportDeclaration>} options
  * @returns {ExportDeclaration | undefined}
  */
-export function visitExportDeclaration ({node, sourceFile, usedExports, outFileName, moduleNames, entryFileName, supportedExtensions, chunkToOriginalFileMap, fileToRewrittenIncludedExportModuleSpecifiersMap}: VisitorOptions<ExportDeclaration>): ExportDeclaration|undefined {
+export function visitExportDeclaration({
+	node,
+	sourceFile,
+	usedExports,
+	outFileName,
+	moduleNames,
+	entryFileName,
+	supportedExtensions,
+	chunkToOriginalFileMap,
+	fileToRewrittenIncludedExportModuleSpecifiersMap
+}: VisitorOptions<ExportDeclaration>): ExportDeclaration | undefined {
 	const isExternal = node.moduleSpecifier != null && isStringLiteralLike(node.moduleSpecifier) && isExternalLibrary(node.moduleSpecifier.text);
 
 	const exportElementsToRemove: Set<ExportSpecifier> = new Set();
-	const symbol = (node as { symbol?: Symbol }).symbol;
+	const symbol = (node as {symbol?: Symbol}).symbol;
 	const isExportStar = symbol != null && (symbol.flags & SymbolFlags.ExportStar) !== 0;
 
-	let moduleSpecifier: Expression|undefined;
+	let moduleSpecifier: Expression | undefined;
 	if (isExternal) {
 		moduleSpecifier = node.moduleSpecifier;
-	}
-
-	else {
+	} else {
 		if (node.moduleSpecifier == null || !isStringLiteralLike(node.moduleSpecifier)) moduleSpecifier = node.moduleSpecifier;
-
 		else {
 			// Compute the absolute path
 			const absoluteModuleSpecifier = join(dirname(entryFileName), node.moduleSpecifier.text);
@@ -34,15 +41,14 @@ export function visitExportDeclaration ({node, sourceFile, usedExports, outFileN
 			}
 
 			// Otherwise, assume that it is being exported from a generated chunk. Try to find it
-			const matchInChunks = [...chunkToOriginalFileMap.entries()]
-				.find(([, originals]) => originals.find(original => matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, [original]) != null) != null);
+			const matchInChunks = [...chunkToOriginalFileMap.entries()].find(
+				([, originals]) => originals.find(original => matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, [original]) != null) != null
+			);
 
 			// If nothing was found, or if the module is the same as the current one ignore this ExportDeclaration
 			if (matchInChunks == null || stripExtension(outFileName) === stripExtension(matchInChunks[0])) {
 				return undefined;
-			}
-
-			else {
+			} else {
 				// Otherwise, compute a relative path and update the moduleSpecifier
 				const text = ensureHasLeadingDot(stripExtension(ensureRelative(dirname(outFileName), matchInChunks[0])));
 
@@ -63,18 +69,11 @@ export function visitExportDeclaration ({node, sourceFile, usedExports, outFileN
 	}
 
 	if (isExportStar) {
-		return updateExportDeclaration(
-			node,
-			node.decorators,
-			node.modifiers,
-			node.exportClause,
-			moduleSpecifier
-		);
+		return updateExportDeclaration(node, node.decorators, node.modifiers, node.exportClause, moduleSpecifier);
 	}
 
 	if (node.exportClause != null) {
 		for (const element of node.exportClause.elements) {
-
 			// If the element isn't part of the used exports, or if it isn't aliased, remove it
 			if (!usedExports.has(element.name.text) || (!isExternal && moduleSpecifier == null && element.propertyName == null)) {
 				exportElementsToRemove.add(element);
@@ -90,13 +89,7 @@ export function visitExportDeclaration ({node, sourceFile, usedExports, outFileN
 
 		// Otherwise, leave the relevant exports
 		else {
-			return updateExportDeclaration(
-				node,
-				node.decorators,
-				node.modifiers,
-				createNamedExports(filteredElements),
-				moduleSpecifier
-			);
+			return updateExportDeclaration(node, node.decorators, node.modifiers, createNamedExports(filteredElements), moduleSpecifier);
 		}
 	}
 
