@@ -1,3 +1,9 @@
+## [1.1.20](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.19...v1.1.20) (2019-01-24)
+
+### Bug Fixes
+
+- **package:** removes unneeded scripts ([43a4c0d](https://github.com/wessberg/rollup-plugin-ts/commit/43a4c0d))
+
 ## [1.1.19](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.18...v1.1.19) (2019-01-24)
 
 ### Bug Fixes
