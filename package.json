@@ -68,7 +68,8 @@
 		"resolve": "^1.10.0",
 		"rollup": "^1.1.2",
 		"rollup-pluginutils": "^2.3.3",
-		"typescript": "^3.2.4"
+		"typescript": "^3.2.4",
+		"tslib": "^1.9.3"
 	},
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/esm/index.js",
