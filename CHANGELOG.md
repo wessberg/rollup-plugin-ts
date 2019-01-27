@@ -1,3 +1,9 @@
+## [1.1.21](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.20...v1.1.21) (2019-01-27)
+
+### Bug Fixes
+
+- **package:** adds back tslib as a hard dependency ([e6bcf1c](https://github.com/wessberg/rollup-plugin-ts/commit/e6bcf1c))
+
 ## [1.1.20](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.19...v1.1.20) (2019-01-24)
 
 ### Bug Fixes
