@@ -9,12 +9,20 @@ import {VisitorOptions} from "./visitor-options";
  * @param {VisitorOptions<ClassDeclaration>} options
  * @returns {Node | undefined}
  */
-export function visitClassDeclarationWithExportModifier({node, usedExports, sourceFile, chunkToOriginalFileMap, cache}: VisitorOptions<ClassDeclaration>): ClassDeclaration | undefined {
+export function visitClassDeclarationWithExportModifier({node, usedExports, sourceFile, chunkToOriginalFileMap, cache, continuation}: VisitorOptions<ClassDeclaration>): ClassDeclaration | undefined {
 	if (!hasReferences(node, usedExports, sourceFile, cache, chunkToOriginalFileMap)) {
 		return undefined;
 	} else if (!preserveExport(node, usedExports, cache)) {
-		return updateClassDeclaration(node, node.decorators, removeExportModifier(node.modifiers), node.name, node.typeParameters, node.heritageClauses, node.members);
+		return updateClassDeclaration(
+			continuation(node),
+			node.decorators,
+			removeExportModifier(node.modifiers),
+			node.name,
+			node.typeParameters == null ? undefined : node.typeParameters.map(continuation),
+			node.heritageClauses == null ? undefined : node.heritageClauses.map(continuation),
+			node.members.map(continuation)
+		);
 	} else {
-		return node;
+		return continuation(node);
 	}
 }

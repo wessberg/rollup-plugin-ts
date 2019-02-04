@@ -1,7 +1,7 @@
 import {createNamedExports, createStringLiteral, ExportDeclaration, ExportSpecifier, Expression, isStringLiteralLike, Symbol, SymbolFlags, updateExportDeclaration} from "typescript";
 import {ensureHasLeadingDot, ensureRelative, isExternalLibrary, stripExtension} from "../../../../util/path/path-util";
 import {VisitorOptions} from "./visitor-options";
-import {join, dirname} from "path";
+import {dirname, join} from "path";
 import {matchModuleSpecifier} from "../../../../util/match-module-specifier/match-module-specifier";
 
 /**

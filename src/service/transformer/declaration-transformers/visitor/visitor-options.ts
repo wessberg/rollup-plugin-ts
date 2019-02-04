@@ -6,4 +6,5 @@ export interface VisitorOptions<T extends Node> extends IDeclarationTransformers
 	node: T;
 	sourceFile: SourceFile;
 	cache: IReferenceCache;
+	continuation<U extends Node>(node: U): U;
 }
