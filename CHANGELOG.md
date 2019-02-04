@@ -1,3 +1,10 @@
+## [1.1.22](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.21...v1.1.22) (2019-02-04)
+
+### Bug Fixes
+
+- **declarations:** fixes an issue with generating declarations when ImportTypeNodes are being used ([493d8b1](https://github.com/wessberg/rollup-plugin-ts/commit/493d8b1))
+- **dependencies:** updates dependencies ([ff72436](https://github.com/wessberg/rollup-plugin-ts/commit/ff72436))
+
 ## [1.1.21](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.20...v1.1.21) (2019-01-27)
 
 ### Bug Fixes
