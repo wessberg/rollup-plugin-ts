@@ -21,8 +21,8 @@ export function visitVariableStatementWithExportModifier({
 		return undefined;
 	} else if (!preserveExport(node, usedExports, cache)) {
 		// Otherwise, change its' name so that it follows the alias
-		return updateVariableStatement(continuation(node) as VariableStatement, removeExportModifier(node.modifiers), node.declarationList);
+		return updateVariableStatement(continuation(node), removeExportModifier(node.modifiers), node.declarationList);
 	} else {
-		return continuation(node) as VariableStatement;
+		return continuation(node);
 	}
 }

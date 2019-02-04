@@ -28,7 +28,7 @@ function transformerImplementation({usedExports, ...rest}: IDeclarationTransform
 			sourceFile,
 			cache,
 			...rest,
-			continuation: <U extends Node>(node: U) => visitEachChild(node, visitor, context) as U
+			continuation: <U extends Node>(node: U) => visitEachChild(node, visitor, context)
 		};
 
 		/**
