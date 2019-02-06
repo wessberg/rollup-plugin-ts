@@ -21,6 +21,7 @@ export function flattenDeclarationsFromRollupChunk({
 	supportedExtensions,
 	entryFileName,
 	moduleNames,
+	localModuleNames,
 	chunkToOriginalFileMap
 }: IFlattenDeclarationsFromRollupChunkOptions): IFlattenDeclarationsFromRollupChunkResult {
 	const declarationBundleSourceFileName = setExtension(stripExtension(chunk.fileName) + "___declaration___", TS_EXTENSION);
@@ -31,7 +32,7 @@ export function flattenDeclarationsFromRollupChunk({
 	const absoluteDeclarationMapFilename = join(declarationOutDir, declarationMapFilename);
 
 	let code = "";
-	for (const moduleName of moduleNames) {
+	for (const moduleName of localModuleNames) {
 		const emitOutput = emitCache.get({dtsOnly: true, fileName: moduleName, languageService});
 		const declarationFile = emitOutput.outputFiles.find(isDeclarationOutputFile);
 		if (declarationFile == null) continue;
@@ -78,6 +79,7 @@ export function flattenDeclarationsFromRollupChunk({
 			usedExports,
 			outFileName: absoluteDeclarationFilename,
 			supportedExtensions,
+			localModuleNames,
 			moduleNames,
 			entryFileName,
 			chunkToOriginalFileMap,

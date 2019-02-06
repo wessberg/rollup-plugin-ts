@@ -10,6 +10,7 @@ export interface IEmitDeclarationsOptions {
 	generateMap: boolean;
 	chunk: OutputChunk;
 	moduleNames: string[];
+	localModuleNames: string[];
 	entryFileName: string;
 	outputOptions: OutputOptions;
 	languageService: LanguageService;

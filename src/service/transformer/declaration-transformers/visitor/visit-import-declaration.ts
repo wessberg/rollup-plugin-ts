@@ -2,8 +2,9 @@ import {createImportClause, createStringLiteral, Expression, ImportDeclaration, 
 import {ensureHasLeadingDot, ensureRelative, isExternalLibrary, stripExtension} from "../../../../util/path/path-util";
 import {hasReferences} from "../reference/has-references";
 import {VisitorOptions} from "./visitor-options";
-import {dirname, join} from "path";
+import {dirname} from "path";
 import {matchModuleSpecifier} from "../../../../util/match-module-specifier/match-module-specifier";
+import {tryFindAbsolutePath} from "../../../../util/try-find-absolute-path/try-find-absolute-path";
 
 /**
  * Visits the given ImportDeclaration.
@@ -15,9 +16,9 @@ export function visitImportDeclaration({
 	usedExports,
 	sourceFile,
 	cache,
-	entryFileName,
 	supportedExtensions,
 	moduleNames,
+	localModuleNames,
 	chunkToOriginalFileMap,
 	outFileName
 }: VisitorOptions<ImportDeclaration>): ImportDeclaration | undefined {
@@ -29,9 +30,9 @@ export function visitImportDeclaration({
 		moduleSpecifier = node.moduleSpecifier;
 	} else {
 		// Compute the absolute path
-		const absoluteModuleSpecifier = join(dirname(entryFileName), node.moduleSpecifier.text);
+		const absoluteModuleSpecifier = tryFindAbsolutePath(node.moduleSpecifier.text, supportedExtensions, moduleNames);
 		// If the path that it imports from is already part of this chunk, don't include the ImportDeclaration
-		const match = matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, moduleNames);
+		const match = matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, localModuleNames);
 
 		if (match != null) return undefined;
 

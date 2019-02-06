@@ -1,15 +1,16 @@
 import {createLiteralTypeNode, createStringLiteral, ImportTypeNode, isLiteralTypeNode, isStringLiteralLike, Node, updateImportTypeNode} from "typescript";
 import {ensureHasLeadingDot, ensureRelative, isExternalLibrary, stripExtension} from "../../../../util/path/path-util";
 import {VisitorOptions} from "./visitor-options";
-import {dirname, join} from "path";
+import {dirname} from "path";
 import {matchModuleSpecifier} from "../../../../util/match-module-specifier/match-module-specifier";
+import {tryFindAbsolutePath} from "../../../../util/try-find-absolute-path/try-find-absolute-path";
 
 /**
  * Visits the given ImportTypeNode.
  * @param {VisitorOptions<ImportTypeNode>} options
  * @returns {ImportTypeNode | undefined}
  */
-export function visitImportTypeNode({node, entryFileName, supportedExtensions, moduleNames, chunkToOriginalFileMap, outFileName}: VisitorOptions<ImportTypeNode>): Node | undefined {
+export function visitImportTypeNode({node, supportedExtensions, moduleNames, localModuleNames, chunkToOriginalFileMap, outFileName}: VisitorOptions<ImportTypeNode>): Node | undefined {
 	// If nothing is imported from the module, or if the Import is importing things that are already part of this chunk, don't include it. Everything will already be part of the SourceFile
 	if (!isLiteralTypeNode(node.argument) || !isStringLiteralLike(node.argument.literal)) return node;
 
@@ -17,9 +18,9 @@ export function visitImportTypeNode({node, entryFileName, supportedExtensions, m
 		return node;
 	} else {
 		// Compute the absolute path
-		const absoluteModuleSpecifier = join(dirname(entryFileName), node.argument.literal.text);
+		const absoluteModuleSpecifier = tryFindAbsolutePath(node.argument.literal.text, supportedExtensions, moduleNames);
 		// If the path that it imports from is already part of this chunk, Include only the qualifier
-		const match = matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, moduleNames);
+		const match = matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, localModuleNames);
 
 		if (match != null) {
 			// Return only the Qualifier

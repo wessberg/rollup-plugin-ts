@@ -1,8 +1,9 @@
 import {createNamedExports, createStringLiteral, ExportDeclaration, ExportSpecifier, Expression, isStringLiteralLike, Symbol, SymbolFlags, updateExportDeclaration} from "typescript";
 import {ensureHasLeadingDot, ensureRelative, isExternalLibrary, stripExtension} from "../../../../util/path/path-util";
 import {VisitorOptions} from "./visitor-options";
-import {dirname, join} from "path";
+import {dirname} from "path";
 import {matchModuleSpecifier} from "../../../../util/match-module-specifier/match-module-specifier";
+import {tryFindAbsolutePath} from "../../../../util/try-find-absolute-path/try-find-absolute-path";
 
 /**
  * Visits the given ExportDeclaration.
@@ -15,7 +16,7 @@ export function visitExportDeclaration({
 	usedExports,
 	outFileName,
 	moduleNames,
-	entryFileName,
+	localModuleNames,
 	supportedExtensions,
 	chunkToOriginalFileMap,
 	fileToRewrittenIncludedExportModuleSpecifiersMap
@@ -33,9 +34,10 @@ export function visitExportDeclaration({
 		if (node.moduleSpecifier == null || !isStringLiteralLike(node.moduleSpecifier)) moduleSpecifier = node.moduleSpecifier;
 		else {
 			// Compute the absolute path
-			const absoluteModuleSpecifier = join(dirname(entryFileName), node.moduleSpecifier.text);
+			const absoluteModuleSpecifier = tryFindAbsolutePath(node.moduleSpecifier.text, supportedExtensions, moduleNames);
 			// If the path that it exports from is already part of this chunk, simply exclude the module specifier
-			const match = matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, moduleNames);
+			const match = matchModuleSpecifier(absoluteModuleSpecifier, supportedExtensions, localModuleNames);
+
 			if (match != null && isExportStar) {
 				return undefined;
 			}

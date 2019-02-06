@@ -345,6 +345,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 						emitCache,
 						chunkToOriginalFileMap,
 						moduleNames,
+						localModuleNames,
 						entryFileName,
 						supportedExtensions: SUPPORTED_EXTENSIONS
 					});
