@@ -1,41 +1,19 @@
-<!-- SHADOW_SECTION_LOGO_START -->
+<img alt="Logo for @wessberg/rollup-plugin-ts" src="https://raw.githubusercontent.com/wessberg/rollup-plugin-ts/master/documentation/asset/rollup-plugin-ts-logo.png" height="200"></img><br>
+<a href="https://npmcharts.com/compare/@wessberg/rollup-plugin-ts?minimal=true"><img alt="Downloads per month" src="https://img.shields.io/npm/dm/%40wessberg%2Frollup-plugin-ts.svg" height="20"></img></a>
+<a href="https://david-dm.org/wessberg/rollup-plugin-ts"><img alt="Dependencies" src="https://img.shields.io/david/wessberg/rollup-plugin-ts.svg" height="20"></img></a>
+<a href="https://www.npmjs.com/package/@wessberg/rollup-plugin-ts"><img alt="NPM Version" src="https://badge.fury.io/js/%40wessberg%2Frollup-plugin-ts.svg" height="20"></img></a>
+<a href="https://github.com/wessberg/rollup-plugin-ts/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/wessberg%2Frollup-plugin-ts.svg" height="20"></img></a>
+<a href="https://opensource.org/licenses/MIT"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-yellow.svg" height="20"></img></a>
+<a href="https://www.patreon.com/bePatron?u=11315442"><img alt="Support on Patreon" src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" height="20"></img></a>
 
-<div><img alt="Logo" src="https://raw.githubusercontent.com/wessberg/rollup-plugin-ts/master/documentation/asset/rollup-plugin-ts-logo.png" height="150"   /></div>
+# `@wessberg/rollup-plugin-ts`
 
-<!-- SHADOW_SECTION_LOGO_END -->
-
-<!-- SHADOW_SECTION_DESCRIPTION_SHORT_START -->
-
-> A Rollup plugin for Typescript that respects Browserslists
-
-<!-- SHADOW_SECTION_DESCRIPTION_SHORT_END -->
-
-<!-- SHADOW_SECTION_BADGES_START -->
-
-<a href="https://npmcharts.com/compare/%40wessberg%2Frollup-plugin-ts?minimal=true"><img alt="Downloads per month" src="https://img.shields.io/npm/dm/%40wessberg%2Frollup-plugin-ts.svg"    /></a>
-<a href="https://david-dm.org/wessberg/rollup-plugin-ts"><img alt="Dependencies" src="https://img.shields.io/david/wessberg%2Frollup-plugin-ts.svg"    /></a>
-<a href="https://github.com/wessberg/rollup-plugin-ts/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/wessberg%2Frollup-plugin-ts.svg"    /></a>
-<a href="https://github.com/prettier/prettier"><img alt="code style: prettier" src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square"    /></a>
-<a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg"    /></a>
-<a href="https://www.patreon.com/bePatron?u=11315442"><img alt="Support on Patreon" src="https://img.shields.io/badge/patreon-donate-green.svg"    /></a>
-
-<!-- SHADOW_SECTION_BADGES_END -->
-
-<!-- SHADOW_SECTION_DESCRIPTION_LONG_START -->
+> A Rollup plugin that enables seamless integration between Typescript, Babel, and Browserslists
 
 ## Description
 
-<!-- SHADOW_SECTION_DESCRIPTION_LONG_END -->
-
 This is a Rollup plugin that enables integration between Typescript, Babel, Browserslists, and Rollup.
 It is first and foremost a Typescript plugin that enables full interoperability with Rollup.
-
-<!-- SHADOW_SECTION_FEATURES_START -->
-
-### Features
-
-<!-- SHADOW_SECTION_FEATURES_END -->
-
 In comparison with the [official plugin](https://github.com/rollup/rollup-plugin-typescript), this one has several significant improvements:
 
 - Compiler diagnostics are correctly emitted and brought into the Rollup build lifecycle
@@ -43,55 +21,6 @@ In comparison with the [official plugin](https://github.com/rollup/rollup-plugin
 - Generation of Definition files (`.d.ts`) are supported and fully supports code splitting
 - A [Browserslist](https://github.com/browserslist/browserslist) can be provided instead of a target version of ECMAScript such that your code is transpiled in relation to the baseline of browsers defined in your Browserslist instead.
 - Babel can be used as the transpiler, rather than Typescript, such that Typescript handles diagnostics, declarations, and stripping away types, and Babel is used for syntax transformation.
-
-<!-- SHADOW_SECTION_FEATURE_IMAGE_START -->
-
-<!-- SHADOW_SECTION_FEATURE_IMAGE_END -->
-
-<!-- SHADOW_SECTION_TOC_START -->
-
-## Table of Contents
-
-- [Description](#description)
-  - [Features](#features)
-- [Table of Contents](#table-of-contents)
-- [Install](#install)
-  - [NPM](#npm)
-  - [Yarn](#yarn)
-- [Usage](#usage)
-  - [Using it with just Typescript](#using-it-with-just-typescript)
-    - [Typescript and tslib helpers](#typescript-and-tslib-helpers)
-  - [Combining Typescript with a Browserslist](#combining-typescript-with-a-browserslist)
-    - [Using the plugin with Typescript, but without Browserslists](#using-the-plugin-with-typescript-but-without-browserslists)
-  - [Combining Typescript with Babel](#combining-typescript-with-babel)
-    - [Special handling for minification plugins/presets](#special-handling-for-minification-pluginspresets)
-    - [`@babel/runtime` and external helpers](#babelruntime-and-external-helpers)
-    - [`@babel/runtime` and polyfills](#babelruntime-and-polyfills)
-  - [Using `CustomTransformers`](#using-customtransformers)
-- [Examples](#examples)
-  - [Pure Typescript example](#pure-typescript-example)
-  - [Typescript with Browserslist example](#typescript-with-browserslist-example)
-  - [Typescript, Babel, and Browserslist example](#typescript-babel-and-browserslist-example)
-  - [Pure Typescript with CustomTransformers](#pure-typescript-with-customtransformers)
-  - [Advanced example of using Typescript, Babel, and Browserslists together](#advanced-example-of-using-typescript-babel-and-browserslists-together)
-- [Ignored/overridden options](#ignoredoverridden-options)
-  - [Ignored/overridden Typescript options](#ignoredoverridden-typescript-options)
-  - [Ignored/overridden Babel options](#ignoredoverridden-babel-options)
-  - [Default Babel plugins](#default-babel-plugins)
-- [Contributing](#contributing)
-- [Maintainers](#maintainers)
-- [Backers 🏅](#backers-%F0%9F%8F%85)
-  - [Patreon](#patreon)
-  - [FAQ](#faq)
-    - [Does this plugin work with Code Splitting?](#does-this-plugin-work-with-code-splitting)
-    - [Why wouldn't you use just Typescript?](#why-wouldnt-you-use-just-typescript)
-    - [Okay, then why wouldn't you use just babel?](#okay-then-why-wouldnt-you-use-just-babel)
-    - [When combined with Babel, what does Typescript do, and what does Babel do?](#when-combined-with-babel-what-does-typescript-do-and-what-does-babel-do)
-- [License 📄](#license-%F0%9F%93%84)
-
-<!-- SHADOW_SECTION_TOC_END -->
-
-<!-- SHADOW_SECTION_INSTALL_START -->
 
 ## Install
 
@@ -107,13 +36,7 @@ $ npm install @wessberg/rollup-plugin-ts
 $ yarn add @wessberg/rollup-plugin-ts
 ```
 
-<!-- SHADOW_SECTION_INSTALL_END -->
-
-<!-- SHADOW_SECTION_USAGE_START -->
-
 ## Usage
-
-<!-- SHADOW_SECTION_USAGE_END -->
 
 Using the plugin is as simple as it can be. Here's an example within a Rollup config:
 
@@ -404,41 +327,15 @@ Here's table with a full overview of the specifics:
 | `@babel/plugin-proposal-unicode-property-regex`    | You don't provide this plugin yourself within your Babel config                                                        | This plugin is needed in order to support [RegExp Unicode Property Escapes](https://github.com/tc39/proposal-regexp-unicode-property-escapes) syntax, something that is a Stage 4 proposal for ECMAScript and [will be part of ES2018](https://github.com/tc39/proposals/blob/master/finished-proposals.md).                                                                                             |
 | `@babel/plugin-proposal-json-strings`              | You don't provide this plugin yourself within your Babel config                                                        | This plugin is needed in order to support [JSON superset](https://github.com/tc39/proposal-json-superset) syntax, something that is a Stage 4 proposal for ECMAScript and [will be part of ES2019](https://github.com/tc39/proposals/blob/master/finished-proposals.md).                                                                                                                                 |
 
-<!-- SHADOW_SECTION_CONTRIBUTING_START -->
-
 ## Contributing
 
 Do you want to contribute? Awesome! Please follow [these recommendations](./CONTRIBUTING.md).
 
-<!-- SHADOW_SECTION_CONTRIBUTING_END -->
-
-<!-- SHADOW_SECTION_MAINTAINERS_START -->
-
 ## Maintainers
 
-| <img alt="Frederik Wessberg" src="https://avatars2.githubusercontent.com/u/20454213?s=460&v=4" height="70"   />                   |
-| --------------------------------------------------------------------------------------------------------------------------------- |
-| [Frederik Wessberg](mailto:frederikwessberg@hotmail.com)<br>[@FredWessberg](https://twitter.com/FredWessberg)<br>_Lead Developer_ |
+- <a href="https://github.com/wessberg"><img alt="Frederik Wessberg" src="https://avatars2.githubusercontent.com/u/20454213?s=460&v=4" height="11"></img></a> [Frederik Wessberg](https://github.com/wessberg): _Maintainer_
 
-<!-- SHADOW_SECTION_MAINTAINERS_END -->
-
-<!-- SHADOW_SECTION_BACKERS_START -->
-
-## Backers 🏅
-
-### Patreon
-
-[Become a backer](https://www.patreon.com/bePatron?u=11315442) and get your name, avatar, and Twitter handle listed here.
-
-<a href="https://www.patreon.com/bePatron?u=11315442"><img alt="Backers on Patreon" src="https://patreon-badge.herokuapp.com/11315442.png"  width="500"  /></a>
-
-<!-- SHADOW_SECTION_BACKERS_END -->
-
-<!-- SHADOW_SECTION_FAQ_START -->
-
-### FAQ
-
-<!-- SHADOW_SECTION_FAQ_END -->
+## FAQ
 
 #### Does this plugin work with Code Splitting?
 
@@ -480,10 +377,10 @@ First, Typescript will be used for:
 
 Babel will then be used for all other syntax transformation from then on, depending on the combination of default, provided, and forced presets and plugins.
 
-<!-- SHADOW_SECTION_LICENSE_START -->
+## Backers 🏅
+
+[Become a backer](https://www.patreon.com/bePatron?u=11315442) and get your name, logo, and link to your site listed here.
 
 ## License 📄
 
-MIT © [Frederik Wessberg](mailto:frederikwessberg@hotmail.com) ([@FredWessberg](https://twitter.com/FredWessberg)) ([Website](https://github.com/wessberg))
-
-<!-- SHADOW_SECTION_LICENSE_END -->
+MIT © [Frederik Wessberg](https://github.com/wessberg)

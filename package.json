@@ -3,12 +3,12 @@
 	"version": "1.1.22",
 	"description": "A Rollup plugin for Typescript that respects Browserslists",
 	"scripts": {
-		"generate:readme": "scaffold readme",
-		"generate:license": "scaffold license",
-		"generate:contributing": "scaffold contributing",
-		"generate:coc": "scaffold coc",
+		"generate:readme": "scaffold readme --yes",
+		"generate:license": "scaffold license --yes",
+		"generate:contributing": "scaffold contributing --yes",
+		"generate:coc": "scaffold coc --yes",
 		"generate:changelog": "standard-changelog --first-release",
-		"generate:all": "npm run generate:license & npm run generate:contributing & npm run generate:coc & npm run generate:readme  & npm run generate:changelog",
+		"generate:all": "npm run generate:license & npm run generate:contributing & npm run generate:coc & npm run generate:readme && npm run generate:changelog",
 		"clean:dist": "rm -rf dist",
 		"clean": "npm run clean:dist",
 		"lint": "tsc --noEmit && tslint -c tslint.json --project tsconfig.json",
@@ -31,11 +31,16 @@
 	"files": [
 		"dist/**/*.*"
 	],
-	"author": {
-		"name": "Frederik Wessberg",
-		"email": "frederikwessberg@hotmail.com",
-		"url": "https://github.com/wessberg"
-	},
+	"contributors": [
+		{
+			"name": "Frederik Wessberg",
+			"email": "frederikwessberg@hotmail.com",
+			"url": "https://github.com/wessberg",
+			"imageUrl": "https://avatars2.githubusercontent.com/u/20454213?s=460&v=4",
+			"role": "Lead Developer",
+			"twitter": "FredWessberg"
+		}
+	],
 	"license": "MIT",
 	"devDependencies": {
 		"@wessberg/scaffold": "^1.0.10",
@@ -88,20 +93,7 @@
 		"url": "https://github.com/wessberg/rollup-plugin-ts/issues"
 	},
 	"engines": {
-		"node": ">=10.1.0"
-	},
-	"scaffold": {
-		"patreonUserId": "11315442",
-		"logo": "https://raw.githubusercontent.com/wessberg/rollup-plugin-ts/master/documentation/asset/rollup-plugin-ts-logo.png",
-		"contributorMeta": {
-			"Frederik Wessberg": {
-				"imageUrl": "https://avatars2.githubusercontent.com/u/20454213?s=460&v=4",
-				"role": "Maintainer",
-				"twitterHandle": "FredWessberg",
-				"isCocEnforcer": true
-			}
-		},
-		"backers": []
+		"node": ">=9.0.0"
 	},
 	"husky": {
 		"hooks": {
