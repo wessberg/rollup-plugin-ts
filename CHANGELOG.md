@@ -1,3 +1,9 @@
+## [1.1.26](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.25...v1.1.26) (2019-02-06)
+
+### Bug Fixes
+
+- **declarations:** fixes an issue with detecting the entry file name for a chunk ([7786000](https://github.com/wessberg/rollup-plugin-ts/commit/7786000))
+
 ## [1.1.25](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.24...v1.1.25) (2019-02-06)
 
 ### Bug Fixes
