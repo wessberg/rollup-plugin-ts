@@ -21,13 +21,14 @@ export function getMagicStringContainer(code: string, file: string): MagicString
 		},
 		replaceAll(content: string, replacement: string): void {
 			hasModified = true;
-			let copy = code;
+			let offset = 0;
 			while (true) {
-				const startIndex = copy.indexOf(content);
+				const startIndex = code.indexOf(content, offset);
 				if (startIndex < 0) break;
 				const endIndex = startIndex + content.length;
-				copy = copy.replace(content, replacement);
+				if (endIndex > code.length) break;
 				magicString.overwrite(startIndex, endIndex, replacement);
+				offset = endIndex;
 			}
 		},
 		get hasModified() {
