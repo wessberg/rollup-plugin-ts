@@ -34,7 +34,7 @@ import {getTypeOnlyImportTransformers} from "../service/transformer/type-only-im
 import {ensureArray} from "../util/ensure-array/ensure-array";
 import {isOutputChunk} from "../util/is-output-chunk/is-output-chunk";
 import {getDeclarationOutDir} from "../util/get-declaration-out-dir/get-declaration-out-dir";
-import MagicString from "magic-string";
+import {getMagicStringContainer} from "../service/magic-string-container/get-magic-string-container";
 
 /**
  * The name of the Rollup plugin
@@ -188,33 +188,24 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * @returns {Promise<{ code: string, map: RawSourceMap } | null>}
 		 */
 		async renderChunk(this: PluginContext, code: string, chunk: RenderedChunk): Promise<{code: string; map: RawSourceMap} | null> {
+			const updatedCode = getMagicStringContainer(code, chunk.fileName);
+
+			if (code.includes(PRESERVING_PROPERTY_ACCESS_EXPRESSION)) {
+				updatedCode.replaceAll(PRESERVING_PROPERTY_ACCESS_EXPRESSION, "");
+			}
+
 			if (babelMinifyConfig == null) {
-				// Check if the code includes the temporary property access expression added to force empty chunks to become part of the compilation
-				const indexOfPreservingPropertyAccessExpression = code.indexOf(PRESERVING_PROPERTY_ACCESS_EXPRESSION);
-
-				// If it does, remove it
-				if (indexOfPreservingPropertyAccessExpression >= 0) {
-					const endIndex = indexOfPreservingPropertyAccessExpression + PRESERVING_PROPERTY_ACCESS_EXPRESSION.length;
-
-					const magicString = new MagicString(code, {filename: chunk.fileName, indentExclusionRanges: []});
-					magicString.overwrite(indexOfPreservingPropertyAccessExpression, endIndex, "");
-
-					return {
-						code: magicString.toString(),
-						map: magicString.generateMap({hires: true, includeContent: true}) as RawSourceMap
-					};
-				} else {
-					return null;
-				}
+				return updatedCode.hasModified
+					? {
+							code: updatedCode.code,
+							map: updatedCode.map
+					  }
+					: null;
 			}
 
 			// Otherwise, if babel minify should be run, replace the temporary property access expression before proceeding
 			else {
-				if (code.includes(PRESERVING_PROPERTY_ACCESS_EXPRESSION)) {
-					code = code.replace(PRESERVING_PROPERTY_ACCESS_EXPRESSION, "");
-				}
-
-				const transpilationResult = await transformAsync(code, {
+				const transpilationResult = await transformAsync(updatedCode.code, {
 					...babelMinifyConfig,
 					filename: chunk.fileName,
 					filenameRelative: ensureRelative(cwd, chunk.fileName)
@@ -334,10 +325,9 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				const generateMap = Boolean(parsedCommandLine.options.declarationMap);
 
 				const chunkToOriginalFileMap: Map<string, string[]> = new Map(chunks.map<[string, string[]]>(chunk => [join(declarationOutDir, chunk.fileName), Object.keys(chunk.modules)]));
+				const moduleNames = [...new Set(([] as string[]).concat.apply([], chunks.map(chunk => Object.keys(chunk.modules).filter(canEmitForFile))))];
 
 				chunks.forEach((chunk: OutputChunk) => {
-					const moduleNames = Object.keys(chunk.modules).filter(canEmitForFile);
-
 					const entryFileName = moduleNames.slice(-1)[0];
 
 					emitDeclarations({

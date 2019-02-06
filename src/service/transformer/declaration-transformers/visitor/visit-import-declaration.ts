@@ -25,7 +25,6 @@ export function visitImportDeclaration({
 	if (!isStringLiteralLike(node.moduleSpecifier) || node.importClause == null) return undefined;
 
 	let moduleSpecifier: Expression | undefined;
-
 	if (isExternalLibrary(node.moduleSpecifier.text)) {
 		moduleSpecifier = node.moduleSpecifier;
 	} else {

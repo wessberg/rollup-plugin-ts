@@ -13,6 +13,7 @@ import {
 	Node,
 	SourceFile,
 	Statement,
+	SyntaxKind,
 	TransformationContext,
 	Transformer,
 	updateSourceFileNode,
@@ -133,7 +134,9 @@ export function getTypeOnlyImportTransformers(): CustomTransformers {
 				const extraStatements: Statement[] = [];
 
 				const preTranspileStatementCount = preTranspileStatementCounts.get(sourceFile.fileName);
-				const postTranspileStatementCount = sourceFile.statements.length;
+				const postTranspileStatementCount = sourceFile.statements
+					// Don't include statements that represent content that isn't emitted
+					.filter(statement => statement.kind !== SyntaxKind.NotEmittedStatement).length;
 
 				// If there *was* statements before transpilation, but isn't anymore, it is because all type-related information has been removed.
 				// Add some code back in such that Rollup will include the file in transpilation
