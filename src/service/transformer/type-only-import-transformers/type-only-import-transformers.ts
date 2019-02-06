@@ -1,6 +1,9 @@
 import {
+	createExpressionStatement,
+	createIdentifier,
 	createImportDeclaration,
 	createLiteral,
+	createPropertyAccess,
 	CustomTransformers,
 	ExportDeclaration,
 	ImportDeclaration,
@@ -9,12 +12,14 @@ import {
 	isStringLiteralLike,
 	Node,
 	SourceFile,
+	Statement,
 	TransformationContext,
 	Transformer,
 	updateSourceFileNode,
 	visitEachChild
 } from "typescript";
 import {isExternalLibrary} from "../../../util/path/path-util";
+import {PRESERVING_PROPERTY_ACCESS_EXPRESSION_EXPRESSION, PRESERVING_PROPERTY_ACCESS_EXPRESSION_NAME} from "../../../constant/constant";
 
 /**
  * Adds a module specifier to the given map
@@ -38,6 +43,7 @@ function addPreTranspileImportedOrExportedModuleSpecifier(parent: string, id: st
  */
 export function getTypeOnlyImportTransformers(): CustomTransformers {
 	const preTranspileImportedModuleSpecifiers: Map<string, Set<string>> = new Map();
+	const preTranspileStatementCounts: Map<string, number> = new Map();
 
 	/**
 	 * Visits the given node before transpilation
@@ -77,6 +83,7 @@ export function getTypeOnlyImportTransformers(): CustomTransformers {
 	return {
 		before: [
 			(context: TransformationContext): Transformer<SourceFile> => sourceFile => {
+				preTranspileStatementCounts.set(sourceFile.fileName, sourceFile.statements.length);
 				return visitEachChild(sourceFile, visitNodeBefore, context);
 			}
 		],
@@ -123,12 +130,27 @@ export function getTypeOnlyImportTransformers(): CustomTransformers {
 					preTranspileFileName => !postTranspileImportedOrExportedModuleSpecifiers.has(preTranspileFileName) && !isExternalLibrary(preTranspileFileName)
 				);
 
-				if (typeOnlyImports.length < 1) {
+				const extraStatements: Statement[] = [];
+
+				const preTranspileStatementCount = preTranspileStatementCounts.get(sourceFile.fileName);
+				const postTranspileStatementCount = sourceFile.statements.length;
+
+				// If there *was* statements before transpilation, but isn't anymore, it is because all type-related information has been removed.
+				// Add some code back in such that Rollup will include the file in transpilation
+				const shouldAddPreservingStatement = preTranspileStatementCount != null && preTranspileStatementCount >= 1 && postTranspileStatementCount < 1;
+				if (shouldAddPreservingStatement) {
+					extraStatements.push(
+						createExpressionStatement(createPropertyAccess(createIdentifier(PRESERVING_PROPERTY_ACCESS_EXPRESSION_EXPRESSION), createIdentifier(PRESERVING_PROPERTY_ACCESS_EXPRESSION_NAME)))
+					);
+				}
+
+				if (typeOnlyImports.length < 1 && !shouldAddPreservingStatement) {
 					return newSourceFile;
 				} else {
 					return updateSourceFileNode(sourceFile, [
 						...typeOnlyImports.map(typeOnlyImport => createImportDeclaration(undefined, undefined, undefined, createLiteral(typeOnlyImport))),
-						...sourceFile.statements
+						...sourceFile.statements,
+						...extraStatements
 					]);
 				}
 			}

@@ -49,6 +49,10 @@ export const BABEL_MINIFY_PLUGIN_NAMES = [
 	"babel-plugin-transform-undefined-to-void"
 ];
 
+export const PRESERVING_PROPERTY_ACCESS_EXPRESSION_EXPRESSION = "__rollup_plugin_ts_temporary__";
+export const PRESERVING_PROPERTY_ACCESS_EXPRESSION_NAME = "__property_access_member__";
+export const PRESERVING_PROPERTY_ACCESS_EXPRESSION = `${PRESERVING_PROPERTY_ACCESS_EXPRESSION_EXPRESSION}.${PRESERVING_PROPERTY_ACCESS_EXPRESSION_NAME};`;
+
 export const FORCED_BABEL_OPTIONS = {
 	modules: false
 };

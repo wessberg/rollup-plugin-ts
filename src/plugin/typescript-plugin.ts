@@ -21,7 +21,7 @@ import {getForcedBabelOptions} from "../util/get-forced-babel-options/get-forced
 import {getBrowserslist} from "../util/get-browserslist/get-browserslist";
 import {IResolveCache} from "../service/cache/resolve-cache/i-resolve-cache";
 import {ResolveCache} from "../service/cache/resolve-cache/resolve-cache";
-import {REGENERATOR_RUNTIME_NAME_1, REGENERATOR_RUNTIME_NAME_2} from "../constant/constant";
+import {PRESERVING_PROPERTY_ACCESS_EXPRESSION, REGENERATOR_RUNTIME_NAME_1, REGENERATOR_RUNTIME_NAME_2} from "../constant/constant";
 import {REGENERATOR_SOURCE} from "../lib/regenerator/regenerator";
 import {getDefaultBabelOptions} from "../util/get-default-babel-options/get-default-babel-options";
 // @ts-ignore
@@ -34,6 +34,7 @@ import {getTypeOnlyImportTransformers} from "../service/transformer/type-only-im
 import {ensureArray} from "../util/ensure-array/ensure-array";
 import {isOutputChunk} from "../util/is-output-chunk/is-output-chunk";
 import {getDeclarationOutDir} from "../util/get-declaration-out-dir/get-declaration-out-dir";
+import MagicString from "magic-string";
 
 /**
  * The name of the Rollup plugin
@@ -187,20 +188,44 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * @returns {Promise<{ code: string, map: RawSourceMap } | null>}
 		 */
 		async renderChunk(this: PluginContext, code: string, chunk: RenderedChunk): Promise<{code: string; map: RawSourceMap} | null> {
-			// Don't proceed if there is no minification config
-			if (babelMinifyConfig == null) return null;
+			if (babelMinifyConfig == null) {
+				// Check if the code includes the temporary property access expression added to force empty chunks to become part of the compilation
+				const indexOfPreservingPropertyAccessExpression = code.indexOf(PRESERVING_PROPERTY_ACCESS_EXPRESSION);
 
-			const transpilationResult = await transformAsync(code, {
-				...babelMinifyConfig,
-				filename: chunk.fileName,
-				filenameRelative: ensureRelative(cwd, chunk.fileName)
-			});
+				// If it does, remove it
+				if (indexOfPreservingPropertyAccessExpression >= 0) {
+					const endIndex = indexOfPreservingPropertyAccessExpression + PRESERVING_PROPERTY_ACCESS_EXPRESSION.length;
 
-			// Return the results
-			return {
-				code: transpilationResult.code,
-				map: transpilationResult.map == null ? undefined : transpilationResult.map
-			};
+					const magicString = new MagicString(code, {filename: chunk.fileName, indentExclusionRanges: []});
+					magicString.overwrite(indexOfPreservingPropertyAccessExpression, endIndex, "");
+
+					return {
+						code: magicString.toString(),
+						map: magicString.generateMap({hires: true, includeContent: true}) as RawSourceMap
+					};
+				} else {
+					return null;
+				}
+			}
+
+			// Otherwise, if babel minify should be run, replace the temporary property access expression before proceeding
+			else {
+				if (code.includes(PRESERVING_PROPERTY_ACCESS_EXPRESSION)) {
+					code = code.replace(PRESERVING_PROPERTY_ACCESS_EXPRESSION, "");
+				}
+
+				const transpilationResult = await transformAsync(code, {
+					...babelMinifyConfig,
+					filename: chunk.fileName,
+					filenameRelative: ensureRelative(cwd, chunk.fileName)
+				});
+
+				// Return the results
+				return {
+					code: transpilationResult.code,
+					map: transpilationResult.map == null ? undefined : transpilationResult.map
+				};
+			}
 		},
 
 		/**
@@ -217,7 +242,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 			// Only pass the file through Typescript if it's extension is supported. Otherwise, if we're going to continue on with Babel,
 			// Mock a SourceDescription. Otherwise, return bind undefined
-			const sourceDescription = !canEmitForFile(file)
+			let sourceDescription = !canEmitForFile(file)
 				? babelConfig != null
 					? {code, map: undefined}
 					: undefined
@@ -238,27 +263,27 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// If nothing was emitted, simply return undefined
 			if (sourceDescription == null) {
 				return undefined;
-			}
+			} else {
+				// If Babel shouldn't be used, simply return the emitted results
+				if (babelConfig == null) {
+					return sourceDescription;
+				}
 
-			// If Babel shouldn't be used, simply return the emitted results
-			else if (babelConfig == null) {
-				return sourceDescription;
-			}
+				// Otherwise, pass it on to Babel to perform the rest of the transpilation steps
+				else {
+					const transpilationResult = await transformAsync(sourceDescription.code, {
+						...babelConfig,
+						filename: file,
+						filenameRelative: ensureRelative(cwd, file),
+						inputSourceMap: typeof sourceDescription.map === "string" ? JSON.parse(sourceDescription.map) : sourceDescription.map
+					});
 
-			// Otherwise, pass it on to Babel to perform the rest of the transpilation steps
-			else {
-				const transpilationResult = await transformAsync(sourceDescription.code, {
-					...babelConfig,
-					filename: file,
-					filenameRelative: ensureRelative(cwd, file),
-					inputSourceMap: typeof sourceDescription.map === "string" ? JSON.parse(sourceDescription.map) : sourceDescription.map
-				});
-
-				// Return the results
-				return {
-					code: transpilationResult.code,
-					map: transpilationResult.map == null ? undefined : transpilationResult.map
-				};
+					// Return the results
+					return {
+						code: transpilationResult.code,
+						map: transpilationResult.map == null ? undefined : transpilationResult.map
+					};
+				}
 			}
 		},
 
