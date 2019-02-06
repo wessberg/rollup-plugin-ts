@@ -14,7 +14,7 @@ export function visitClassDeclarationWithExportModifier({node, usedExports, sour
 		return undefined;
 	} else if (!preserveExport(node, usedExports, cache)) {
 		return updateClassDeclaration(
-			continuation(node),
+			node,
 			node.decorators,
 			removeExportModifier(node.modifiers),
 			node.name,

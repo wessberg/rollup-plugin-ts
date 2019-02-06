@@ -20,7 +20,7 @@ export function visitInterfaceDeclarationWithExportModifier({
 	if (!hasReferences(node, usedExports, sourceFile, cache, chunkToOriginalFileMap)) {
 		return undefined;
 	} else if (!preserveExport(node, usedExports, cache)) {
-		return updateInterfaceDeclaration(continuation(node), node.decorators, removeExportModifier(node.modifiers), node.name, node.typeParameters, node.heritageClauses, node.members.map(continuation));
+		return updateInterfaceDeclaration(node, node.decorators, removeExportModifier(node.modifiers), node.name, node.typeParameters, node.heritageClauses, node.members.map(continuation));
 	} else {
 		return continuation(node);
 	}

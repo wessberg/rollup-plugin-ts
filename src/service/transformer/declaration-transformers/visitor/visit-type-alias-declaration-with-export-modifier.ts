@@ -20,7 +20,7 @@ export function visitTypeAliasDeclarationWithExportModifier({
 	if (!hasReferences(node, usedExports, sourceFile, cache, chunkToOriginalFileMap)) {
 		return undefined;
 	} else if (!preserveExport(node, usedExports, cache)) {
-		return updateTypeAliasDeclaration(continuation(node), node.decorators, removeExportModifier(node.modifiers), node.name, node.typeParameters, continuation(node.type));
+		return updateTypeAliasDeclaration(node, node.decorators, removeExportModifier(node.modifiers), node.name, node.typeParameters, continuation(node.type));
 	}
 
 	return continuation(node);

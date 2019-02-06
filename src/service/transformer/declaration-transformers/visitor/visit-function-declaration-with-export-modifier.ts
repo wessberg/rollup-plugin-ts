@@ -21,7 +21,7 @@ export function visitFunctionDeclarationWithExportModifier({
 		return undefined;
 	} else if (!preserveExport(node, usedExports, cache) && chunkToOriginalFileMap.size < 2) {
 		return updateFunctionDeclaration(
-			continuation(node),
+			node,
 			node.decorators,
 			removeExportModifier(node.modifiers),
 			node.asteriskToken,
