@@ -1,3 +1,10 @@
+## [1.1.23](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.22...v1.1.23) (2019-02-06)
+
+### Bug Fixes
+
+- **declarations:** fixes a variety of issues with generating declarations related to type-only files not being parsed in the declaration-emition phase ([50310ae](https://github.com/wessberg/rollup-plugin-ts/commit/50310ae))
+- **declarations:** fixes an issue that arose with Rollup v1 where type-only files would not be part of the modules of emitted chunks. ([043ae50](https://github.com/wessberg/rollup-plugin-ts/commit/043ae50))
+
 ## [1.1.22](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.21...v1.1.22) (2019-02-04)
 
 ### Bug Fixes
