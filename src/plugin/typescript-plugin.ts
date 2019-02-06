@@ -328,7 +328,8 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				const moduleNames = [...new Set(([] as string[]).concat.apply([], chunks.map(chunk => Object.keys(chunk.modules).filter(canEmitForFile))))];
 
 				chunks.forEach((chunk: OutputChunk) => {
-					const entryFileName = moduleNames.slice(-1)[0];
+					const localModuleNames = Object.keys(chunk.modules).filter(canEmitForFile);
+					const entryFileName = localModuleNames.slice(-1)[0];
 
 					emitDeclarations({
 						chunk,
