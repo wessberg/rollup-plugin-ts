@@ -1,3 +1,9 @@
+## [1.1.24](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.23...v1.1.24) (2019-02-06)
+
+### Bug Fixes
+
+- **bug:** fixes a bug that could lead to misaligned content replacements ([d40ddbf](https://github.com/wessberg/rollup-plugin-ts/commit/d40ddbf))
+
 ## [1.1.23](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.22...v1.1.23) (2019-02-06)
 
 ### Bug Fixes
