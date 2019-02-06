@@ -43,10 +43,10 @@
 	],
 	"license": "MIT",
 	"devDependencies": {
-		"@wessberg/scaffold": "^1.0.10",
+		"@wessberg/scaffold": "^1.0.13",
 		"@wessberg/ts-config": "^0.0.39",
 		"standard-changelog": "^2.0.6",
-		"@wessberg/rollup-plugin-ts": "^1.1.22",
+		"@wessberg/rollup-plugin-ts": "^1.1.26",
 		"tslint": "^5.12.1",
 		"prettier": "^1.16.4",
 		"pretty-quick": "^1.10.0",

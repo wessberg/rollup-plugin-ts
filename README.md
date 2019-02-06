@@ -80,14 +80,14 @@ In comparison with the [official plugin](https://github.com/rollup/rollup-plugin
   - [Default Babel plugins](#default-babel-plugins)
 - [Contributing](#contributing)
 - [Maintainers](#maintainers)
-- [Backers 🏅](#backers-%F0%9F%8F%85)
+- [Backers](#backers)
   - [Patreon](#patreon)
   - [FAQ](#faq)
     - [Does this plugin work with Code Splitting?](#does-this-plugin-work-with-code-splitting)
     - [Why wouldn't you use just Typescript?](#why-wouldnt-you-use-just-typescript)
     - [Okay, then why wouldn't you use just babel?](#okay-then-why-wouldnt-you-use-just-babel)
     - [When combined with Babel, what does Typescript do, and what does Babel do?](#when-combined-with-babel-what-does-typescript-do-and-what-does-babel-do)
-- [License 📄](#license-%F0%9F%93%84)
+- [License](#license)
 
 <!-- SHADOW_SECTION_TOC_END -->
 
@@ -424,7 +424,7 @@ Do you want to contribute? Awesome! Please follow [these recommendations](./CONT
 
 <!-- SHADOW_SECTION_BACKERS_START -->
 
-## Backers 🏅
+## Backers
 
 ### Patreon
 
@@ -482,7 +482,7 @@ Babel will then be used for all other syntax transformation from then on, depend
 
 <!-- SHADOW_SECTION_LICENSE_START -->
 
-## License 📄
+## License
 
 MIT © [Frederik Wessberg](mailto:frederikwessberg@hotmail.com) ([@FredWessberg](https://twitter.com/FredWessberg)) ([Website](https://github.com/wessberg))
 
