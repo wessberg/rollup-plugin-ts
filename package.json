@@ -65,7 +65,7 @@
 		"@babel/preset-env": "^7.3.1",
 		"@babel/runtime": "^7.3.1",
 		"@types/find-up": "^2.1.1",
-		"@types/node": "^11.9.4",
+		"@types/node": "^11.9.5",
 		"@types/mkdirp": "^0.5.2",
 		"@types/resolve": "0.0.8",
 		"@wessberg/browserslist-generator": "1.0.11",
