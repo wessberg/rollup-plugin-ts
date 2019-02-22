@@ -82,6 +82,7 @@ export function flattenDeclarationsFromRollupChunk({
 			localModuleNames,
 			moduleNames,
 			entryFileName,
+			typeChecker: program.getTypeChecker(),
 			chunkToOriginalFileMap,
 			fileToRewrittenIncludedExportModuleSpecifiersMap: new Map()
 		})

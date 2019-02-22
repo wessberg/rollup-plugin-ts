@@ -4,6 +4,7 @@
 /.vscode/
 *.log
 /test-app/
+/test-app_old/
 /logs/
 npm-debug.log*
 /lib-cov/
