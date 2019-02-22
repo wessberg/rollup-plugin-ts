@@ -9,7 +9,7 @@ import {IReferenceCache} from "../cache/i-reference-cache";
  * @param {IReferenceCache} cache
  * @returns {boolean}
  */
-export function preserveExport (node: Node, usedExports: Set<string>, cache: IReferenceCache): boolean {
+export function preserveExport(node: Node, usedExports: Set<string>, cache: IReferenceCache): boolean {
 	if (!hasExportModifier(node)) return false;
 	const identifiers = getIdentifiersForNode(node, cache);
 

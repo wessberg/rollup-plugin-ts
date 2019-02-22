@@ -1,5 +1,56 @@
 import {
-	forEachChild, Identifier, isArrayTypeNode, isArrowFunction, isClassDeclaration, isClassExpression, isComputedPropertyName, isConditionalTypeNode, isConstructorDeclaration, isEnumDeclaration, isEnumMember, isExportDeclaration, isExportSpecifier, isExpressionWithTypeArguments, isFunctionDeclaration, isFunctionExpression, isFunctionTypeNode, isGetAccessorDeclaration, isHeritageClause, isIdentifier, isImportDeclaration, isImportTypeNode, isIndexedAccessTypeNode, isIndexSignatureDeclaration, isInterfaceDeclaration, isIntersectionTypeNode, isLiteralTypeNode, isMappedTypeNode, isMethodDeclaration, isMethodSignature, isParameter, isParenthesizedTypeNode, isPropertyDeclaration, isPropertySignature, isQualifiedName, isSetAccessorDeclaration, isToken, isTupleTypeNode, isTypeAliasDeclaration, isTypeLiteralNode, isTypeOperatorNode, isTypeParameterDeclaration, isTypePredicateNode, isTypeQueryNode, isTypeReferenceNode, isUnionTypeNode, isVariableDeclaration, isVariableStatement, Node, OptionalTypeNode, SourceFile, SyntaxKind
+	forEachChild,
+	Identifier,
+	isArrayTypeNode,
+	isArrowFunction,
+	isClassDeclaration,
+	isClassExpression,
+	isComputedPropertyName,
+	isConditionalTypeNode,
+	isConstructorDeclaration,
+	isEnumDeclaration,
+	isEnumMember,
+	isExportDeclaration,
+	isExportSpecifier,
+	isExpressionWithTypeArguments,
+	isFunctionDeclaration,
+	isFunctionExpression,
+	isFunctionTypeNode,
+	isGetAccessorDeclaration,
+	isHeritageClause,
+	isIdentifier,
+	isImportDeclaration,
+	isImportTypeNode,
+	isIndexedAccessTypeNode,
+	isIndexSignatureDeclaration,
+	isInterfaceDeclaration,
+	isIntersectionTypeNode,
+	isLiteralTypeNode,
+	isMappedTypeNode,
+	isMethodDeclaration,
+	isMethodSignature,
+	isParameter,
+	isParenthesizedTypeNode,
+	isPropertyDeclaration,
+	isPropertySignature,
+	isQualifiedName,
+	isSetAccessorDeclaration,
+	isToken,
+	isTupleTypeNode,
+	isTypeAliasDeclaration,
+	isTypeLiteralNode,
+	isTypeOperatorNode,
+	isTypeParameterDeclaration,
+	isTypePredicateNode,
+	isTypeQueryNode,
+	isTypeReferenceNode,
+	isUnionTypeNode,
+	isVariableDeclaration,
+	isVariableStatement,
+	Node,
+	OptionalTypeNode,
+	SourceFile,
+	SyntaxKind
 } from "typescript";
 import {getIdentifiersForNode, hasDefaultExportModifiers, isKeywordTypeNode, nodeContainsChild} from "../util/util";
 import {IReferenceCache} from "../cache/i-reference-cache";
@@ -19,7 +70,7 @@ import {DEBUG} from "../../../../constant/constant";
  * @param {Set<Node>} [seenNodes]
  * @returns {boolean}
  */
-export function hasReferences (
+export function hasReferences(
 	node: Node,
 	usedExports: Set<string>,
 	sourceFile: SourceFile,
@@ -49,8 +100,7 @@ export function hasReferences (
 
 	if (exportsContainsIdentifiers(identifiers, usedExports) || (usedExports.has("default") && hasDefaultExportModifiers(node.modifiers))) {
 		returnValue = true;
-	}
-	else {
+	} else {
 		const referencingNodes = collectReferencingNodes(node, sourceFile, cache, identifiers);
 		returnValue = referencingNodes.length > 0 && referencingNodes.some(referencingNode => hasReferences(referencingNode, usedExports, sourceFile, cache, chunkToOriginalFileMap, seenNodes));
 	}
@@ -65,160 +115,124 @@ export function hasReferences (
  * @param {Identifier[]} identifiers
  * @returns {boolean}
  */
-function childReferencesAnyIdentifier (child: Node, identifiers: Identifier[]): boolean {
+function childReferencesAnyIdentifier(child: Node, identifiers: Identifier[]): boolean {
 	if (isIdentifier(child)) {
 		return identifiers.some(identifier => child.text === identifier.text);
-	}
-	else if (isTypeReferenceNode(child)) {
+	} else if (isTypeReferenceNode(child)) {
 		return (
 			childReferencesAnyIdentifier(child.typeName, identifiers) || (child.typeArguments != null && child.typeArguments.some(typeArgument => childReferencesAnyIdentifier(typeArgument, identifiers)))
 		);
-	}
-	else if (child.kind === SyntaxKind.OptionalType) {
+	} else if (child.kind === SyntaxKind.OptionalType) {
 		return childReferencesAnyIdentifier((child as OptionalTypeNode).type, identifiers);
-	}
-	else if (isConstructorDeclaration(child)) {
+	} else if (isConstructorDeclaration(child)) {
 		return (
 			(child.type != null && childReferencesAnyIdentifier(child.type, identifiers)) ||
 			child.parameters.some(parameter => childReferencesAnyIdentifier(parameter, identifiers)) ||
 			(child.typeParameters != null && child.typeParameters.some(typeParameter => childReferencesAnyIdentifier(typeParameter, identifiers)))
 		);
-	}
-	else if (isPropertyDeclaration(child)) {
+	} else if (isPropertyDeclaration(child)) {
 		return child.type != null && childReferencesAnyIdentifier(child.type, identifiers);
-	}
-	else if (isIndexedAccessTypeNode(child)) {
+	} else if (isIndexedAccessTypeNode(child)) {
 		return (child.indexType != null && childReferencesAnyIdentifier(child.indexType, identifiers)) || (child.objectType != null && childReferencesAnyIdentifier(child.objectType, identifiers));
-	}
-	else if (isTypeParameterDeclaration(child)) {
+	} else if (isTypeParameterDeclaration(child)) {
 		return (
 			(child.constraint != null && childReferencesAnyIdentifier(child.constraint, identifiers)) ||
 			(child.default != null && childReferencesAnyIdentifier(child.default, identifiers)) ||
 			(child.expression != null && childReferencesAnyIdentifier(child.expression, identifiers))
 		);
-	}
-	else if (isInterfaceDeclaration(child)) {
+	} else if (isInterfaceDeclaration(child)) {
 		return (
 			(child.heritageClauses != null && child.heritageClauses.some(heritageClause => childReferencesAnyIdentifier(heritageClause, identifiers))) ||
 			(child.typeParameters != null && child.typeParameters.some(typeParameter => childReferencesAnyIdentifier(typeParameter, identifiers))) ||
 			child.members.some(member => childReferencesAnyIdentifier(member, identifiers))
 		);
-	}
-	else if (isClassDeclaration(child)) {
+	} else if (isClassDeclaration(child)) {
 		return (
 			(child.heritageClauses != null && child.heritageClauses.some(heritageClause => childReferencesAnyIdentifier(heritageClause, identifiers))) ||
 			(child.typeParameters != null && child.typeParameters.some(typeParameter => childReferencesAnyIdentifier(typeParameter, identifiers))) ||
 			child.members.some(member => childReferencesAnyIdentifier(member, identifiers))
 		);
-	}
-	else if (isHeritageClause(child)) {
+	} else if (isHeritageClause(child)) {
 		return child.types.some(type => childReferencesAnyIdentifier(type, identifiers));
-	}
-	else if (isExpressionWithTypeArguments(child)) {
+	} else if (isExpressionWithTypeArguments(child)) {
 		return (
 			(child.typeArguments != null && child.typeArguments.some(typeArgument => childReferencesAnyIdentifier(typeArgument, identifiers))) || childReferencesAnyIdentifier(child.expression, identifiers)
 		);
-	}
-	else if (isPropertySignature(child)) {
+	} else if (isPropertySignature(child)) {
 		return (
 			(child.initializer != null && childReferencesAnyIdentifier(child.initializer, identifiers)) ||
 			(child.type != null && childReferencesAnyIdentifier(child.type, identifiers)) ||
 			(child.name != null && childReferencesAnyIdentifier(child.name, identifiers))
 		);
-	}
-	else if (isComputedPropertyName(child)) {
+	} else if (isComputedPropertyName(child)) {
 		return child.expression != null && childReferencesAnyIdentifier(child.expression, identifiers);
-	}
-	else if (isEnumMember(child)) {
+	} else if (isEnumMember(child)) {
 		return child.initializer != null && childReferencesAnyIdentifier(child.initializer, identifiers);
-	}
-	else if (isExportSpecifier(child)) {
+	} else if (isExportSpecifier(child)) {
 		return (child.propertyName != null && childReferencesAnyIdentifier(child.propertyName, identifiers)) || (child.propertyName == null && childReferencesAnyIdentifier(child.name, identifiers));
-	}
-	else if (isTypeAliasDeclaration(child)) {
+	} else if (isTypeAliasDeclaration(child)) {
 		return (
 			(child.typeParameters != null && child.typeParameters.some(typeParameter => childReferencesAnyIdentifier(typeParameter, identifiers))) || childReferencesAnyIdentifier(child.type, identifiers)
 		);
-	}
-	else if (isMethodSignature(child)) {
+	} else if (isMethodSignature(child)) {
 		return (
 			(child.typeParameters != null && child.typeParameters.some(typeParameter => childReferencesAnyIdentifier(typeParameter, identifiers))) ||
 			(child.type != null && childReferencesAnyIdentifier(child.type, identifiers)) ||
 			child.parameters.some(parameter => childReferencesAnyIdentifier(parameter, identifiers)) ||
 			child.parameters.some(parameter => childReferencesAnyIdentifier(parameter, identifiers))
 		);
-	}
-	else if (isParameter(child)) {
+	} else if (isParameter(child)) {
 		return (child.initializer != null && childReferencesAnyIdentifier(child.initializer, identifiers)) || (child.type != null && childReferencesAnyIdentifier(child.type, identifiers));
-	}
-	else if (isTypeLiteralNode(child)) {
+	} else if (isTypeLiteralNode(child)) {
 		return child.members.some(member => childReferencesAnyIdentifier(member, identifiers));
-	}
-	else if (isArrayTypeNode(child)) {
+	} else if (isArrayTypeNode(child)) {
 		return childReferencesAnyIdentifier(child.elementType, identifiers);
-	}
-	else if (isUnionTypeNode(child)) {
+	} else if (isUnionTypeNode(child)) {
 		return child.types.some(type => childReferencesAnyIdentifier(type, identifiers));
-	}
-	else if (isIntersectionTypeNode(child)) {
+	} else if (isIntersectionTypeNode(child)) {
 		return child.types.some(type => childReferencesAnyIdentifier(type, identifiers));
-	}
-	else if (isTypeQueryNode(child)) {
+	} else if (isTypeQueryNode(child)) {
 		return childReferencesAnyIdentifier(child.exprName, identifiers);
-	}
-	else if (isTypePredicateNode(child)) {
+	} else if (isTypePredicateNode(child)) {
 		return childReferencesAnyIdentifier(child.parameterName, identifiers) || childReferencesAnyIdentifier(child.type, identifiers);
-	}
-	else if (isQualifiedName(child)) {
+	} else if (isQualifiedName(child)) {
 		return childReferencesAnyIdentifier(child.left, identifiers) || childReferencesAnyIdentifier(child.right, identifiers);
-	}
-	else if (isParenthesizedTypeNode(child)) {
+	} else if (isParenthesizedTypeNode(child)) {
 		return childReferencesAnyIdentifier(child.type, identifiers);
-	}
-	else if (isTupleTypeNode(child)) {
+	} else if (isTupleTypeNode(child)) {
 		return child.elementTypes.some(type => childReferencesAnyIdentifier(type, identifiers));
-	}
-	else if (isMappedTypeNode(child)) {
+	} else if (isMappedTypeNode(child)) {
 		return (child.type != null && childReferencesAnyIdentifier(child.type, identifiers)) || childReferencesAnyIdentifier(child.typeParameter, identifiers);
-	}
-	else if (isFunctionTypeNode(child)) {
+	} else if (isFunctionTypeNode(child)) {
 		return (
 			child.parameters.some(parameter => childReferencesAnyIdentifier(parameter, identifiers)) ||
 			(child.typeParameters != null && child.typeParameters.some(typeParameter => childReferencesAnyIdentifier(typeParameter, identifiers))) ||
 			childReferencesAnyIdentifier(child.type, identifiers)
 		);
-	}
-	else if (isVariableDeclaration(child)) {
+	} else if (isVariableDeclaration(child)) {
 		return (child.type != null && childReferencesAnyIdentifier(child.type, identifiers)) || (child.initializer != null && childReferencesAnyIdentifier(child.initializer, identifiers));
-	}
-	else if (isTypeOperatorNode(child)) {
+	} else if (isTypeOperatorNode(child)) {
 		return childReferencesAnyIdentifier(child.type, identifiers);
-	}
-	else if (isConditionalTypeNode(child)) {
+	} else if (isConditionalTypeNode(child)) {
 		return (
 			childReferencesAnyIdentifier(child.checkType, identifiers) ||
 			childReferencesAnyIdentifier(child.extendsType, identifiers) ||
 			childReferencesAnyIdentifier(child.falseType, identifiers) ||
 			childReferencesAnyIdentifier(child.trueType, identifiers)
 		);
-	}
-	else if (isLiteralTypeNode(child)) {
+	} else if (isLiteralTypeNode(child)) {
 		return childReferencesAnyIdentifier(child.literal, identifiers);
-	}
-	else if (isIndexSignatureDeclaration(child)) {
+	} else if (isIndexSignatureDeclaration(child)) {
 		return (
 			(child.typeParameters != null && child.typeParameters.some(typeParameter => childReferencesAnyIdentifier(typeParameter, identifiers))) ||
 			child.parameters.some(parameter => childReferencesAnyIdentifier(parameter, identifiers)) ||
 			(child.type != null && childReferencesAnyIdentifier(child.type, identifiers))
 		);
-	}
-	else if (isToken(child)) {
+	} else if (isToken(child)) {
 		return false;
-	}
-	else if (isKeywordTypeNode(child)) {
+	} else if (isKeywordTypeNode(child)) {
 		return false;
-	}
-	else if (isImportTypeNode(child)) {
+	} else if (isImportTypeNode(child)) {
 		return false;
 	}
 
@@ -234,7 +248,7 @@ function childReferencesAnyIdentifier (child: Node, identifiers: Identifier[]): 
  * @param {Node} node
  * @returns {boolean}
  */
-function identifiersAreReferencedByNode (identifiers: Identifier[], node: Node): boolean {
+function identifiersAreReferencedByNode(identifiers: Identifier[], node: Node): boolean {
 	if (
 		isFunctionDeclaration(node) ||
 		isConstructorDeclaration(node) ||
@@ -249,39 +263,31 @@ function identifiersAreReferencedByNode (identifiers: Identifier[], node: Node):
 			node.parameters.some(parameter => childReferencesAnyIdentifier(parameter, identifiers)) ||
 			(node.typeParameters != null && node.typeParameters.some(typeParameter => childReferencesAnyIdentifier(typeParameter, identifiers)))
 		);
-	}
-	else if (isClassDeclaration(node) || isClassExpression(node)) {
+	} else if (isClassDeclaration(node) || isClassExpression(node)) {
 		return (
 			(node.heritageClauses != null && node.heritageClauses.some(heritageClause => childReferencesAnyIdentifier(heritageClause, identifiers))) ||
 			node.members.some(member => childReferencesAnyIdentifier(member, identifiers))
 		);
-	}
-	else if (isTypeAliasDeclaration(node)) {
+	} else if (isTypeAliasDeclaration(node)) {
 		return (
 			(node.type != null && childReferencesAnyIdentifier(node.type, identifiers)) ||
 			(node.typeParameters != null && node.typeParameters.some(typeParameter => childReferencesAnyIdentifier(typeParameter, identifiers)))
 		);
-	}
-	else if (isInterfaceDeclaration(node)) {
+	} else if (isInterfaceDeclaration(node)) {
 		return (
 			(node.typeParameters != null && node.typeParameters.some(typeParameter => childReferencesAnyIdentifier(typeParameter, identifiers))) ||
 			(node.heritageClauses != null && node.heritageClauses.some(heritageClause => childReferencesAnyIdentifier(heritageClause, identifiers))) ||
 			node.members.some(member => childReferencesAnyIdentifier(member, identifiers))
 		);
-	}
-	else if (isEnumDeclaration(node)) {
+	} else if (isEnumDeclaration(node)) {
 		return node.members.some(member => childReferencesAnyIdentifier(member, identifiers));
-	}
-	else if (isExportDeclaration(node)) {
+	} else if (isExportDeclaration(node)) {
 		return node.exportClause != null && node.exportClause.elements.some(element => childReferencesAnyIdentifier(element, identifiers));
-	}
-	else if (isVariableStatement(node)) {
+	} else if (isVariableStatement(node)) {
 		return node.declarationList.declarations.some(declaration => childReferencesAnyIdentifier(declaration, identifiers));
-	}
-	else if (isImportDeclaration(node)) {
+	} else if (isImportDeclaration(node)) {
 		return false;
-	}
-	else {
+	} else {
 		return false;
 	}
 }
@@ -292,7 +298,7 @@ function identifiersAreReferencedByNode (identifiers: Identifier[], node: Node):
  * @param {Set<string>} usedExports
  * @returns {boolean}
  */
-function exportsContainsIdentifiers (identifiers: Identifier[], usedExports: Set<string>): boolean {
+function exportsContainsIdentifiers(identifiers: Identifier[], usedExports: Set<string>): boolean {
 	return identifiers.some(identifier => usedExports.has(identifier.text));
 }
 
@@ -304,7 +310,7 @@ function exportsContainsIdentifiers (identifiers: Identifier[], usedExports: Set
  * @param {Identifier[]} identifiers
  * @returns {boolean}
  */
-export function collectReferencingNodes (node: Node, sourceFile: SourceFile, cache: IReferenceCache, identifiers: Identifier[] = getIdentifiersForNode(node, cache)): Node[] {
+export function collectReferencingNodes(node: Node, sourceFile: SourceFile, cache: IReferenceCache, identifiers: Identifier[] = getIdentifiersForNode(node, cache)): Node[] {
 	if (cache.referencingNodesCache.has(node)) {
 		return cache.referencingNodesCache.get(node);
 	}

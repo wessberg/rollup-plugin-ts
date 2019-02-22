@@ -1,4 +1,23 @@
-import {Identifier, isClassDeclaration, isEnumDeclaration, isExportDeclaration, isFunctionDeclaration, isIdentifier, isImportDeclaration, isInterfaceDeclaration, isNamespaceImport, isTypeAliasDeclaration, isVariableDeclaration, isVariableDeclarationList, isVariableStatement, KeywordTypeNode, Modifier, ModifiersArray, Node, SyntaxKind} from "typescript";
+import {
+	Identifier,
+	isClassDeclaration,
+	isEnumDeclaration,
+	isExportDeclaration,
+	isFunctionDeclaration,
+	isIdentifier,
+	isImportDeclaration,
+	isInterfaceDeclaration,
+	isNamespaceImport,
+	isTypeAliasDeclaration,
+	isVariableDeclaration,
+	isVariableDeclarationList,
+	isVariableStatement,
+	KeywordTypeNode,
+	Modifier,
+	ModifiersArray,
+	Node,
+	SyntaxKind
+} from "typescript";
 import {IReferenceCache} from "../cache/i-reference-cache";
 import {DEBUG} from "../../../../constant/constant";
 
@@ -7,7 +26,7 @@ import {DEBUG} from "../../../../constant/constant";
  * @param {Node} node
  * @returns {boolean}
  */
-export function hasExportModifier (node: Node): boolean {
+export function hasExportModifier(node: Node): boolean {
 	return node.modifiers != null && node.modifiers.some(isExportModifier);
 }
 
@@ -16,7 +35,7 @@ export function hasExportModifier (node: Node): boolean {
  * @param {Node} node
  * @returns {node is KeywordTypeNode}
  */
-export function isKeywordTypeNode (node: Node): node is KeywordTypeNode {
+export function isKeywordTypeNode(node: Node): node is KeywordTypeNode {
 	switch (node.kind) {
 		case SyntaxKind.UnknownKeyword:
 		case SyntaxKind.NumberKeyword:
@@ -41,7 +60,7 @@ export function isKeywordTypeNode (node: Node): node is KeywordTypeNode {
  * @param {Node} node
  * @returns {boolean}
  */
-export function isExportModifier (node: Modifier): boolean {
+export function isExportModifier(node: Modifier): boolean {
 	return node.kind === SyntaxKind.ExportKeyword;
 }
 
@@ -50,7 +69,7 @@ export function isExportModifier (node: Modifier): boolean {
  * @param {Node} node
  * @returns {boolean}
  */
-export function isDefaultModifier (node: Modifier): boolean {
+export function isDefaultModifier(node: Modifier): boolean {
 	return node.kind === SyntaxKind.DefaultKeyword;
 }
 
@@ -59,7 +78,7 @@ export function isDefaultModifier (node: Modifier): boolean {
  * @param {ModifiersArray} modifiers
  * @returns {Modifier[]}
  */
-export function removeExportModifier (modifiers: ModifiersArray|undefined): Modifier[]|undefined {
+export function removeExportModifier(modifiers: ModifiersArray | undefined): Modifier[] | undefined {
 	if (modifiers == null) return modifiers;
 	return modifiers.filter(modifier => !isExportModifier(modifier) && !isDefaultModifier(modifier));
 }
@@ -69,12 +88,9 @@ export function removeExportModifier (modifiers: ModifiersArray|undefined): Modi
  * @param {ModifiersArray} modifiers
  * @returns {Modifier[]}
  */
-export function hasDefaultExportModifiers (modifiers: ModifiersArray|undefined): boolean {
+export function hasDefaultExportModifiers(modifiers: ModifiersArray | undefined): boolean {
 	if (modifiers == null) return false;
-	return (
-		modifiers.some(modifier => isExportModifier(modifier)) &&
-		modifiers.some(modifier => isDefaultModifier(modifier))
-	);
+	return modifiers.some(modifier => isExportModifier(modifier)) && modifiers.some(modifier => isDefaultModifier(modifier));
 }
 
 /**
@@ -83,7 +99,7 @@ export function hasDefaultExportModifiers (modifiers: ModifiersArray|undefined):
  * @param {Node} potentialChild
  * @returns {boolean}
  */
-export function nodeContainsChild (parent: Node, potentialChild: Node): boolean {
+export function nodeContainsChild(parent: Node, potentialChild: Node): boolean {
 	if (parent === potentialChild) return false;
 
 	let candidate = potentialChild;
@@ -101,11 +117,10 @@ export function nodeContainsChild (parent: Node, potentialChild: Node): boolean 
  * @param {IReferenceCache} cache
  * @returns {Identifier[]}
  */
-export function getIdentifiersForNode (node: Node, cache: IReferenceCache): Identifier[] {
+export function getIdentifiersForNode(node: Node, cache: IReferenceCache): Identifier[] {
 	if (cache.identifiersForNodeCache.has(node)) {
 		return cache.identifiersForNodeCache.get(node);
-	}
-	else {
+	} else {
 		const identifiers = computeIdentifiersForNode(node, cache);
 		cache.identifiersForNodeCache.add(node, ...identifiers);
 		return identifiers;
@@ -118,42 +133,32 @@ export function getIdentifiersForNode (node: Node, cache: IReferenceCache): Iden
  * @param {IReferenceCache} cache
  * @returns {Identifier[]}
  */
-function computeIdentifiersForNode (node: Node, cache: IReferenceCache): Identifier[] {
+function computeIdentifiersForNode(node: Node, cache: IReferenceCache): Identifier[] {
 	if (isIdentifier(node)) {
 		return [node];
 	}
 
 	if (isVariableStatement(node)) {
 		return getIdentifiersForNode(node.declarationList, cache);
-	}
-	else if (isVariableDeclarationList(node)) {
+	} else if (isVariableDeclarationList(node)) {
 		return ([] as Identifier[]).concat.apply([], node.declarations.map(declaration => getIdentifiersForNode(declaration, cache)));
-	}
-	else if (isVariableDeclaration(node)) {
+	} else if (isVariableDeclaration(node)) {
 		return isIdentifier(node.name) ? [node.name] : [];
-	}
-	else if (isFunctionDeclaration(node)) {
+	} else if (isFunctionDeclaration(node)) {
 		return node.name != null ? [node.name] : [];
-	}
-	else if (isInterfaceDeclaration(node)) {
+	} else if (isInterfaceDeclaration(node)) {
 		return [node.name];
-	}
-	else if (isTypeAliasDeclaration(node)) {
+	} else if (isTypeAliasDeclaration(node)) {
 		return [node.name];
-	}
-	else if (isClassDeclaration(node)) {
+	} else if (isClassDeclaration(node)) {
 		return node.name != null ? [node.name] : [];
-	}
-	else if (isEnumDeclaration(node)) {
+	} else if (isEnumDeclaration(node)) {
 		return [node.name];
-	}
-	else if (isExportDeclaration(node) || isImportDeclaration(node)) {
+	} else if (isExportDeclaration(node) || isImportDeclaration(node)) {
 		return [];
-	}
-	else if (isNamespaceImport(node)) {
+	} else if (isNamespaceImport(node)) {
 		return [];
-	}
-	else if (node.kind === SyntaxKind.EndOfFileToken) {
+	} else if (node.kind === SyntaxKind.EndOfFileToken) {
 		return [];
 	}
 

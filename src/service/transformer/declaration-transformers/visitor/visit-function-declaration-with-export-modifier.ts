@@ -15,7 +15,7 @@ export function visitFunctionDeclarationWithExportModifier({
 	cache,
 	sourceFile,
 	chunkToOriginalFileMap,
-	continuation,
+	continuation
 }: VisitorOptions<FunctionDeclaration>): FunctionDeclaration | undefined {
 	if (!hasReferences(node, usedExports, sourceFile, cache, chunkToOriginalFileMap)) {
 		return undefined;

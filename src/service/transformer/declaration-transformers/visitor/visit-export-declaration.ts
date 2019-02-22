@@ -11,29 +11,28 @@ import {hasExportModifier} from "../util/util";
  * @param {VisitorOptions<ExportDeclaration>} options
  * @returns {ExportDeclaration | undefined}
  */
-export function visitExportDeclaration ({
-																					node,
-																					sourceFile,
-																					usedExports,
-																					outFileName,
-																					moduleNames,
-																					localModuleNames,
-																					supportedExtensions,
-																					chunkToOriginalFileMap,
-																					fileToRewrittenIncludedExportModuleSpecifiersMap,
-																					typeChecker
-																				}: VisitorOptions<ExportDeclaration>): ExportDeclaration|undefined {
+export function visitExportDeclaration({
+	node,
+	sourceFile,
+	usedExports,
+	outFileName,
+	moduleNames,
+	localModuleNames,
+	supportedExtensions,
+	chunkToOriginalFileMap,
+	fileToRewrittenIncludedExportModuleSpecifiersMap,
+	typeChecker
+}: VisitorOptions<ExportDeclaration>): ExportDeclaration | undefined {
 	const isExternal = node.moduleSpecifier != null && isStringLiteralLike(node.moduleSpecifier) && isExternalLibrary(node.moduleSpecifier.text);
 
 	const exportElementsToRemove: Set<ExportSpecifier> = new Set();
-	const symbol = (node as { symbol?: Symbol }).symbol;
+	const symbol = (node as {symbol?: Symbol}).symbol;
 	const isExportStar = symbol != null && (symbol.flags & SymbolFlags.ExportStar) !== 0;
 
-	let moduleSpecifier: Expression|undefined;
+	let moduleSpecifier: Expression | undefined;
 	if (isExternal) {
 		moduleSpecifier = node.moduleSpecifier;
-	}
-	else {
+	} else {
 		if (node.moduleSpecifier == null || !isStringLiteralLike(node.moduleSpecifier)) moduleSpecifier = node.moduleSpecifier;
 		else {
 			// Compute the absolute path
@@ -53,8 +52,7 @@ export function visitExportDeclaration ({
 			// If nothing was found, or if the module is the same as the current one ignore this ExportDeclaration
 			if (matchInChunks == null || stripExtension(outFileName) === stripExtension(matchInChunks[0])) {
 				return undefined;
-			}
-			else {
+			} else {
 				// Otherwise, compute a relative path and update the moduleSpecifier
 				const text = ensureHasLeadingDot(stripExtension(ensureRelative(dirname(outFileName), matchInChunks[0])));
 
@@ -67,8 +65,7 @@ export function visitExportDeclaration ({
 						if (existing != null) existing.add(text);
 						else fileToRewrittenIncludedExportModuleSpecifiersMap.set(sourceFile.fileName, new Set([text]));
 					}
-				}
-				else {
+				} else {
 					moduleSpecifier = createStringLiteral(text);
 				}
 			}
@@ -81,22 +78,21 @@ export function visitExportDeclaration ({
 
 	if (node.exportClause != null) {
 		for (const element of node.exportClause.elements) {
-
 			// If the element isn't part of the used exports, or if it isn't aliased, it may duplicate another identifier within the chunk that already exports the identifier. Resolve the symbol for it, and then see if it is
 			if (!usedExports.has(element.name.text) || (!isExternal && moduleSpecifier == null && element.propertyName == null)) {
-				let elementSymbol = (element as { symbol?: Symbol }).symbol;
+				let elementSymbol = (element as {symbol?: Symbol}).symbol;
 
 				if (elementSymbol != null) {
 					try {
 						elementSymbol = typeChecker.getAliasedSymbol(elementSymbol);
-					} catch {
-					}
+					} catch {}
 				}
 
 				if (
 					elementSymbol == null ||
 					(elementSymbol.valueDeclaration != null && hasExportModifier(elementSymbol.valueDeclaration)) ||
-					(elementSymbol.declarations != null && elementSymbol.declarations.some(hasExportModifier))) {
+					(elementSymbol.declarations != null && elementSymbol.declarations.some(hasExportModifier))
+				) {
 					exportElementsToRemove.add(element);
 				}
 			}
