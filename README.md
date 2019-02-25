@@ -256,16 +256,16 @@ This enables you to very efficiently transform Typescript before code generation
 Typescript declaration files are normally distributed in a folder structure that resembles the structure of the source folder.
 With `tsc`, you would get something like this:
 
-[!TSC emitted code](https://raw.githubusercontent.com/wessberg/rollup-plugin-ts/master/documentation/asset/tsc-output-example.png)
+![TSC emitted code](https://raw.githubusercontent.com/wessberg/rollup-plugin-ts/master/documentation/asset/tsc-output-example.png)
 
 Rollup is a bundler, and with it, we can produce clean, small files that are easy to distribute.
 With `rollup-plugin-ts`, declaration files will be bundled, tree-shaken and emitted alongside the chunks emitted by Rollup:
 
-[!Plugin emitted code](https://raw.githubusercontent.com/wessberg/rollup-plugin-ts/master/documentation/asset/plugin-output-example.png)
+![Plugin emitted code](https://raw.githubusercontent.com/wessberg/rollup-plugin-ts/master/documentation/asset/plugin-output-example.png)
 
 And, it even works in complex code splitting scenarios:
 
-[!Plugin emitted code](https://raw.githubusercontent.com/wessberg/rollup-plugin-ts/master/documentation/asset/plugin-output-example-code-splitting.png)
+![Plugin emitted code](https://raw.githubusercontent.com/wessberg/rollup-plugin-ts/master/documentation/asset/plugin-output-example-code-splitting.png)
 
 ## Examples
 
