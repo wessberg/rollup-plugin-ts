@@ -7,8 +7,4 @@ export interface UpdateExportsVisitorOptions<T extends Node> extends VisitorOpti
 	getExportedSpecifiersFromModule(moduleName: string): Set<string>;
 	parsedExportedSymbols: Set<string>;
 	exportedSpecifiersFromModule: Set<string>;
-
-	isIdentifierFree(identifier: string): boolean;
-	rootLevelIdentifiersForModule: Set<string>;
-	generateUniqueVariableName(candidate: string): string;
 }

@@ -2,6 +2,9 @@ import {createVariableDeclaration, isIdentifier, updateVariableDeclarationList, 
 import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
 import {hasDefaultExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
 import {getIdentifiersForBindingName} from "../../util/binding-name/get-identifiers-for-binding-name";
+import {pascalCase} from "@wessberg/stringutil";
+import {basename} from "path";
+import {stripExtension} from "../../../../../util/path/path-util";
 
 /**
  * Visits the given VariableStatement.
@@ -15,18 +18,14 @@ export function visitVariableStatement({
 	isEntry,
 	identifiersForDefaultExportsForModules,
 	parsedExportedSymbols,
-	exportedSpecifiersFromModule,
-	generateUniqueVariableName,
-	rootLevelIdentifiersForModule
+	exportedSpecifiersFromModule
 }: UpdateExportsVisitorOptions<VariableStatement>): VariableStatement | undefined {
-	for (const declaration of node.declarationList.declarations) {
-		// Add all of the named bindings to the exported symbols
-		for (const identifier of getIdentifiersForBindingName(declaration.name)) {
-			if (isEntry && !hasDefaultExportModifier(node.modifiers)) {
+	if (isEntry && !hasDefaultExportModifier(node.modifiers)) {
+		for (const declaration of node.declarationList.declarations) {
+			// Add all of the named bindings to the exported symbols
+			for (const identifier of getIdentifiersForBindingName(declaration.name)) {
 				exportedSpecifiersFromModule.add(identifier);
 			}
-
-			rootLevelIdentifiersForModule.add(identifier);
 		}
 	}
 
@@ -42,7 +41,7 @@ export function visitVariableStatement({
 		// If the name of the declaration is '_default', it is an assignment to a const before exporting it as default
 		if (isIdentifier(declaration.name) && declaration.name.text === "_default") {
 			// Give it a unique variable name and bind it to a new variable
-			const name = generateUniqueVariableName(declaration.name.text);
+			const name = `default${pascalCase(stripExtension(basename(sourceFile.fileName)))}Export`;
 			identifiersForDefaultExportsForModules.set(sourceFile.fileName, name);
 
 			return continuation(

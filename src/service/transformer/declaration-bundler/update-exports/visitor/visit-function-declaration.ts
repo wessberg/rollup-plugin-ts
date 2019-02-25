@@ -14,13 +14,8 @@ export function visitFunctionDeclaration({
 	isEntry,
 	exportedSpecifiersFromModule,
 	parsedExportedSymbols,
-	identifiersForDefaultExportsForModules,
-	rootLevelIdentifiersForModule
+	identifiersForDefaultExportsForModules
 }: UpdateExportsVisitorOptions<FunctionDeclaration>): FunctionDeclaration | undefined {
-	if (node.name != null) {
-		rootLevelIdentifiersForModule.add(node.name.text);
-	}
-
 	// If the node has no export modifier, leave it as it is
 	if (!hasExportModifier(node)) return continuation(node);
 

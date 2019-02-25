@@ -14,11 +14,8 @@ export function visitTypeAliasDeclaration({
 	isEntry,
 	exportedSpecifiersFromModule,
 	parsedExportedSymbols,
-	identifiersForDefaultExportsForModules,
-	rootLevelIdentifiersForModule
+	identifiersForDefaultExportsForModules
 }: UpdateExportsVisitorOptions<TypeAliasDeclaration>): TypeAliasDeclaration | undefined {
-	rootLevelIdentifiersForModule.add(node.name.text);
-
 	// If the node has no export modifier, leave it as it is
 	if (!hasExportModifier(node)) return continuation(node);
 

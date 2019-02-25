@@ -1,5 +1,5 @@
 import {Identifier} from "typescript";
-import {ReferenceVisitorOptions} from "../../reference-visitor-options";
+import {ReferenceVisitorOptions} from "../reference-visitor-options";
 
 /**
  * Visits the given Identifier.

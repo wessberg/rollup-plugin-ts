@@ -38,8 +38,6 @@ import {setExtension} from "../../../../util/path/path-util";
 export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions): TransformerFactory<SourceFile> {
 	const parsedExportedSymbolsMap: Map<string, Set<string>> = new Map();
 	const exportedSpecifiersFromModuleMap: Map<string, Set<string>> = new Map();
-	const rootLevelIdentifiersForModuleMap: Map<string, Set<string>> = new Map();
-	const generatedVariableNamesForChunkMap: Map<string, Set<string>> = new Map();
 
 	return context => {
 		return sourceFile => {
@@ -49,14 +47,7 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 			const chunkFilename = getChunkFilename(sourceFile.fileName, rest.supportedExtensions, rest.chunkToOriginalFileMap);
 
 			let parsedExportedSymbols = parsedExportedSymbolsMap.get(sourceFile.fileName);
-			let rootLevelIdentifiersForModule = rootLevelIdentifiersForModuleMap.get(sourceFile.fileName);
 			let exportedSpecifiersFromModule = exportedSpecifiersFromModuleMap.get(sourceFile.fileName);
-			let generatedVariableNamesForChunk = generatedVariableNamesForChunkMap.get(chunkFilename);
-
-			if (rootLevelIdentifiersForModule == null) {
-				rootLevelIdentifiersForModule = new Set();
-				rootLevelIdentifiersForModuleMap.set(sourceFile.fileName, rootLevelIdentifiersForModule);
-			}
 
 			if (parsedExportedSymbols == null) {
 				parsedExportedSymbols = new Set();
@@ -68,11 +59,6 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 				exportedSpecifiersFromModuleMap.set(sourceFile.fileName, exportedSpecifiersFromModule);
 			}
 
-			if (generatedVariableNamesForChunk == null) {
-				generatedVariableNamesForChunk = new Set();
-				generatedVariableNamesForChunkMap.set(chunkFilename, generatedVariableNamesForChunk);
-			}
-
 			// Prepare some VisitorOptions
 			const visitorOptions = {
 				usedExports,
@@ -80,17 +66,6 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 				isEntry: sourceFile.fileName === rest.entryFileName,
 				...rest,
 				continuation: <U extends Node>(node: U) => visitEachChild(node, visitor, context),
-
-				isIdentifierFree(identifier: string): boolean {
-					for (const module of rest.localModuleNames) {
-						// Skip the current module
-						if (module === sourceFile.fileName) continue;
-
-						const identifiersForModule = rootLevelIdentifiersForModuleMap.get(module);
-						if (identifiersForModule != null && identifiersForModule.has(identifier)) return false;
-					}
-					return true;
-				},
 
 				getParsedExportedSymbolsForModule(moduleName: string): Set<string> {
 					let matched: Set<string> | undefined;
@@ -119,22 +94,7 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 					return matched;
 				},
 				parsedExportedSymbols,
-				rootLevelIdentifiersForModule,
-				exportedSpecifiersFromModule,
-				generateUniqueVariableName(candidate: string): string {
-					const suffix = "_$";
-					let counter = 0;
-
-					while (true) {
-						let currentCandidate = candidate + suffix + counter;
-						if (generatedVariableNamesForChunk!.has(currentCandidate)) {
-							counter++;
-						} else {
-							generatedVariableNamesForChunk!.add(currentCandidate);
-							return currentCandidate;
-						}
-					}
-				}
+				exportedSpecifiersFromModule
 			};
 
 			/**
