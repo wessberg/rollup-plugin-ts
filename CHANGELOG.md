@@ -1,3 +1,18 @@
+## [1.1.29](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.28...v1.1.29) (2019-02-25)
+
+### Bug Fixes
+
+- **bug:** adds support for missing node types ([b5de5ee](https://github.com/wessberg/rollup-plugin-ts/commit/b5de5ee))
+- **bug:** adds support for missing node types ([608d38d](https://github.com/wessberg/rollup-plugin-ts/commit/608d38d))
+- **bug:** adds support for missing node types ([9079f2d](https://github.com/wessberg/rollup-plugin-ts/commit/9079f2d))
+- **bug:** adds support for missing node types ([6a90228](https://github.com/wessberg/rollup-plugin-ts/commit/6a90228))
+- **bug:** fixes an issue where named exports could be removed under some circumstances ([322df0c](https://github.com/wessberg/rollup-plugin-ts/commit/322df0c))
+- **bug:** fixes an issue with ExportAssignmens ([cafa7ad](https://github.com/wessberg/rollup-plugin-ts/commit/cafa7ad))
+
+### Features
+
+- **declarations:** far improved support for default exports/imports while bundling declarations across chunks ([4ad18d2](https://github.com/wessberg/rollup-plugin-ts/commit/4ad18d2))
+
 ## [1.1.28](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.27...v1.1.28) (2019-02-06)
 
 ### Bug Fixes
