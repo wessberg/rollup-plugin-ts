@@ -29,7 +29,8 @@
 <!-- SHADOW_SECTION_DESCRIPTION_LONG_END -->
 
 This is a Rollup plugin that enables integration between Typescript, Babel, Browserslists, and Rollup.
-It is first and foremost a Typescript plugin that enables full interoperability with Rollup.
+It is first and foremost a Typescript plugin that enables full interoperability with Rollup. With it comes
+very powerful bundling and tree-shaking of generated Typescript declaration files that works seamlessly with code splitting.
 
 <!-- SHADOW_SECTION_FEATURES_START -->
 
@@ -41,7 +42,7 @@ In comparison with the [official plugin](https://github.com/rollup/rollup-plugin
 
 - Compiler diagnostics are correctly emitted and brought into the Rollup build lifecycle
 - [Emit-less types](https://github.com/rollup/rollup-plugin-typescript/issues/28) are correctly handled
-- Generation of Definition files (`.d.ts`) are supported and fully supports code splitting
+- Generation and bundling of Definition files (`.d.ts`) are supported and fully supports code splitting
 - A [Browserslist](https://github.com/browserslist/browserslist) can be provided instead of a target version of ECMAScript such that your code is transpiled in relation to the baseline of browsers defined in your Browserslist instead.
 - Babel can be used as the transpiler, rather than Typescript, such that Typescript handles diagnostics, declarations, and stripping away types, and Babel is used for syntax transformation.
 
@@ -248,6 +249,22 @@ If you would like this behavior, simply add either `@babel/plugin-transform-runt
 
 This plugin enables you to pass in [`CustomTranformers`](https://github.com/Microsoft/TypeScript/pull/13940) which allows you to transform the Typescript AST during code transpilation.
 This enables you to very efficiently transform Typescript before code generation and additionally enables you to use this plugin with tools that leverage this, such as some modern web frameworks and libraries do.
+
+## Declaration files
+
+Typescript declaration files are normally distributed in a folder structure that resembles the structure of the source folder.
+With `tsc`, you would get something like this:
+
+[!TSC emitted code](https://raw.githubusercontent.com/wessberg/rollup-plugin-ts/master/documentation/asset/tsc-output-example.png)
+
+Rollup is a bundler, and with it, we can produce clean, small files that are easy to distribute.
+With `rollup-plugin-ts`, declaration files will be bundled, tree-shaken and emitted alongside the chunks emitted by Rollup:
+
+[!Plugin emitted code](https://raw.githubusercontent.com/wessberg/rollup-plugin-ts/master/documentation/asset/plugin-output-example.png)
+
+And, it even works in complex code splitting scenarios:
+
+[!Plugin emitted code](https://raw.githubusercontent.com/wessberg/rollup-plugin-ts/master/documentation/asset/plugin-output-example-code-splitting.png)
 
 ## Examples
 
