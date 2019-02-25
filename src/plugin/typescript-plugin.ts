@@ -35,6 +35,7 @@ import {ensureArray} from "../util/ensure-array/ensure-array";
 import {isOutputChunk} from "../util/is-output-chunk/is-output-chunk";
 import {getDeclarationOutDir} from "../util/get-declaration-out-dir/get-declaration-out-dir";
 import {getMagicStringContainer} from "../service/magic-string-container/get-magic-string-container";
+import {getOutDir} from "../util/get-out-dir/get-out-dir";
 
 /**
  * The name of the Rollup plugin
@@ -322,6 +323,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				const chunks = Object.values(bundle).filter(isOutputChunk);
 
 				const declarationOutDir = join(cwd, getDeclarationOutDir(cwd, parsedCommandLine.options, outputOptions));
+				const outDir = join(cwd, getOutDir(cwd, outputOptions));
 				const generateMap = Boolean(parsedCommandLine.options.declarationMap);
 
 				const chunkToOriginalFileMap: Map<string, string[]> = new Map(chunks.map<[string, string[]]>(chunk => [join(declarationOutDir, chunk.fileName), Object.keys(chunk.modules)]));
@@ -338,6 +340,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 						pluginContext: this,
 						generateMap,
 						declarationOutDir,
+						outDir,
 						cwd,
 						outputOptions,
 						languageService,

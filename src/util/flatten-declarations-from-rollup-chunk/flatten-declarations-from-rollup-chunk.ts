@@ -1,10 +1,13 @@
-import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION, SOURCE_MAP_COMMENT, SOURCE_MAP_COMMENT_REGEXP, TS_EXTENSION} from "../../constant/constant";
+import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION} from "../../constant/constant";
 import {IFlattenDeclarationsFromRollupChunkOptions} from "./i-flatten-declarations-from-rollup-chunk-options";
 import {IFlattenDeclarationsFromRollupChunkResult} from "./i-flatten-declarations-from-rollup-chunk-result";
-import {setExtension, stripExtension} from "../path/path-util";
-import {declarationTransformers} from "../../service/transformer/declaration-transformers/declaration-transformers";
-import {isDeclarationOutputFile} from "../is-declaration-output-file/is-declaration-output-file";
-import {basename, join} from "path";
+import {ensureHasLeadingDot, setExtension} from "../path/path-util";
+import {declarationBundler} from "../../service/transformer/declaration-bundler/declaration-bundler";
+import {dirname, join} from "path";
+import {createPrinter, createProgram, createSourceFile, ScriptKind, ScriptTarget, SourceFile, transform} from "typescript";
+import {getChunkFilename} from "../../service/transformer/declaration-bundler/util/get-chunk-filename/get-chunk-filename";
+import {ExistingRawSourceMap} from "rollup";
+import {declarationTreeShaker} from "../../service/transformer/declaration-tree-shaker/declaration-tree-shaker";
 
 /**
  * Flattens all the modules that are part of the given chunk and returns a single SourceDescription for a flattened file
@@ -13,38 +16,29 @@ import {basename, join} from "path";
  */
 export function flattenDeclarationsFromRollupChunk({
 	chunk,
-	generateMap,
 	declarationOutDir,
-	languageService,
+	outDir,
 	languageServiceHost,
-	emitCache,
 	supportedExtensions,
 	entryFileName,
 	moduleNames,
+	generateMap,
 	localModuleNames,
 	chunkToOriginalFileMap
 }: IFlattenDeclarationsFromRollupChunkOptions): IFlattenDeclarationsFromRollupChunkResult {
-	const declarationBundleSourceFileName = setExtension(stripExtension(chunk.fileName) + "___declaration___", TS_EXTENSION);
-
+	const absoluteChunkFileName = join(outDir, chunk.fileName);
 	const declarationFilename = setExtension(chunk.fileName, DECLARATION_EXTENSION);
 	const absoluteDeclarationFilename = join(declarationOutDir, declarationFilename);
 	const declarationMapFilename = setExtension(chunk.fileName, DECLARATION_MAP_EXTENSION);
+	const declarationMapFilenameDir = ensureHasLeadingDot(dirname(declarationMapFilename));
 	const absoluteDeclarationMapFilename = join(declarationOutDir, declarationMapFilename);
 
-	let code = "";
-	for (const moduleName of localModuleNames) {
-		const emitOutput = emitCache.get({dtsOnly: true, fileName: moduleName, languageService});
-		const declarationFile = emitOutput.outputFiles.find(isDeclarationOutputFile);
-		if (declarationFile == null) continue;
+	const program = createProgram({
+		rootNames: localModuleNames,
+		options: languageServiceHost.getCompilationSettings(),
+		host: languageServiceHost
+	});
 
-		code += `${declarationFile.text.replace(SOURCE_MAP_COMMENT_REGEXP, "")}\n`;
-	}
-	languageServiceHost.addFile({file: declarationBundleSourceFileName, code});
-
-	code = "";
-	let map: string | undefined;
-
-	const program = languageService.getProgram()!;
 	const typeChecker = program.getTypeChecker();
 	const entrySourceFile = program.getSourceFile(entryFileName);
 	const entrySourceFileSymbol = typeChecker.getSymbolAtLocation(entrySourceFile!);
@@ -53,47 +47,88 @@ export function flattenDeclarationsFromRollupChunk({
 		entrySourceFile == null || entrySourceFileSymbol == null ? [] : typeChecker.getExportsOfModule(entrySourceFileSymbol).map(exportSymbol => exportSymbol.getName())
 	);
 
+	const generatedOutDir = languageServiceHost.getCompilationSettings().outDir!;
+
+	let code: string = "";
+	let map: ExistingRawSourceMap | undefined;
+
 	program.emit(
-		program.getSourceFile(declarationBundleSourceFileName),
+		undefined,
 		(file, data) => {
-			if (file.endsWith(DECLARATION_MAP_EXTENSION)) {
-				let alteredData = data;
-				while (
-					alteredData.includes(declarationBundleSourceFileName) ||
-					alteredData.includes(basename(declarationBundleSourceFileName)) ||
-					alteredData.includes(basename(setExtension(declarationBundleSourceFileName, DECLARATION_EXTENSION))) ||
-					alteredData.includes(setExtension(declarationBundleSourceFileName, DECLARATION_EXTENSION))
-				) {
-					alteredData = alteredData
-						.replace(declarationBundleSourceFileName, declarationFilename)
-						.replace(basename(declarationBundleSourceFileName), basename(declarationFilename))
-						.replace(setExtension(declarationBundleSourceFileName, DECLARATION_EXTENSION), setExtension(declarationFilename, DECLARATION_EXTENSION))
-						.replace(basename(setExtension(declarationBundleSourceFileName, DECLARATION_EXTENSION)), basename(setExtension(declarationFilename, DECLARATION_EXTENSION)));
+			const replacedFile = ensureHasLeadingDot(file.replace(generatedOutDir, ""));
+			const replacedFileDir = ensureHasLeadingDot(dirname(replacedFile));
+
+			if (replacedFile.endsWith(DECLARATION_MAP_EXTENSION)) {
+				const parsedData = JSON.parse(data) as ExistingRawSourceMap;
+				parsedData.file = declarationFilename;
+				parsedData.sources = parsedData.sources
+					.map(source => {
+						if (replacedFileDir !== declarationMapFilenameDir) {
+							return join(replacedFileDir, source);
+						} else {
+							return source;
+						}
+					})
+					// Include only those sources that are actually part of the chunk
+					.filter(source => {
+						const absoluteSource = join(declarationOutDir, source);
+						const chunkFileName = getChunkFilename(absoluteSource, supportedExtensions, chunkToOriginalFileMap);
+						return chunkFileName === absoluteChunkFileName;
+					});
+
+				// If there are sources for this chunk, include it
+				if (parsedData.sources.length > 0) {
+					if (map == null) {
+						map = parsedData;
+					} else {
+						map.sources = [...new Set([...map.sources, ...parsedData.sources])];
+						map.mappings += parsedData.mappings;
+					}
 				}
-				map = alteredData;
-			} else code += `${data.replace(SOURCE_MAP_COMMENT_REGEXP, "")}\n${generateMap ? `${SOURCE_MAP_COMMENT}=${basename(declarationMapFilename)}` : ``}`;
+			} else if (replacedFile.endsWith(DECLARATION_EXTENSION)) {
+				const replacedData = data.replace(/(\/\/# sourceMappingURL=)(.*\.map)/g, () => "") + "\n";
+
+				// Only add the data if it contains anything else than pure whitespace
+				if (/\S/gm.test(replacedData)) {
+					code += replacedData;
+				}
+			}
 		},
 		undefined,
 		true,
-		declarationTransformers({
+		declarationBundler({
 			usedExports,
-			outFileName: absoluteDeclarationFilename,
+			chunk,
 			supportedExtensions,
 			localModuleNames,
 			moduleNames,
 			entryFileName,
-			typeChecker: program.getTypeChecker(),
+			relativeOutFileName: ensureHasLeadingDot(declarationFilename),
+			absoluteOutFileName: absoluteDeclarationFilename,
 			chunkToOriginalFileMap,
-			fileToRewrittenIncludedExportModuleSpecifiersMap: new Map()
+			identifiersForDefaultExportsForModules: new Map()
 		})
 	);
 
-	languageServiceHost.deleteFile(declarationBundleSourceFileName);
+	// Run a tree-shaking pass on the code
+	const result = transform(
+		createSourceFile(declarationFilename, code, ScriptTarget.ESNext, true, ScriptKind.TS),
+		declarationTreeShaker({relativeOutFileName: declarationFilename}).afterDeclarations!,
+		languageServiceHost.getCompilationSettings()
+	);
+
+	// Print the Source code and update the code with it
+	code = createPrinter({newLine: languageServiceHost.getCompilationSettings().newLine}).printFile(result.transformed[0] as SourceFile);
+
+	// Add a source mapping URL if a map should be generated
+	if (generateMap) {
+		code += (code.endsWith("\n") ? "" : "\n") + `//# sourceMappingURL=${declarationMapFilename}`;
+	}
 
 	return {
 		sourceDescription: {
 			code,
-			map
+			...(map == null ? {} : {map: JSON.stringify(map)})
 		},
 		declarationFilename,
 		absoluteDeclarationFilename,

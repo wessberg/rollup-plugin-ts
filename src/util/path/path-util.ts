@@ -65,6 +65,7 @@ export function stripExtension(file: string): string {
 	if (name.endsWith(".d")) {
 		name = name.slice(0, -2);
 	}
+	if (dir === ".") return `./${name}`;
 	return join(dir, name);
 }
 
