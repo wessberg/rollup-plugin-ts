@@ -1,13 +1,14 @@
-import {TypeChecker} from "typescript";
+import {OutputChunk} from "rollup";
 
 export interface IDeclarationTransformersOptions {
+	chunk: OutputChunk;
 	usedExports: Set<string>;
 	supportedExtensions: string[];
 	localModuleNames: string[];
 	moduleNames: string[];
+	relativeOutFileName: string;
+	absoluteOutFileName: string;
 	entryFileName: string;
-	outFileName: string;
-	typeChecker: TypeChecker;
 	chunkToOriginalFileMap: Map<string, string[]>;
-	fileToRewrittenIncludedExportModuleSpecifiersMap: Map<string, Set<string>>;
+	identifiersForDefaultExportsForModules: Map<string, string>;
 }

@@ -6,6 +6,7 @@ import {IEmitCache} from "../../service/cache/emit-cache/i-emit-cache";
 export interface IEmitDeclarationsOptions {
 	pluginContext: PluginContext;
 	cwd: string;
+	outDir: string;
 	declarationOutDir: string;
 	generateMap: boolean;
 	chunk: OutputChunk;
