@@ -2,10 +2,10 @@ import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION} from "../../constant/c
 import {IFlattenDeclarationsFromRollupChunkOptions} from "./i-flatten-declarations-from-rollup-chunk-options";
 import {IFlattenDeclarationsFromRollupChunkResult} from "./i-flatten-declarations-from-rollup-chunk-result";
 import {ensureHasLeadingDot, setExtension} from "../path/path-util";
-import {declarationTransformers} from "../../service/transformer/declaration-transformers/declaration-transformers";
+import {declarationBundler} from "../../service/transformer/declaration-bundler/declaration-bundler";
 import {dirname, join} from "path";
 import {createPrinter, createProgram, createSourceFile, ScriptKind, ScriptTarget, SourceFile, transform} from "typescript";
-import {getChunkFilename} from "../../service/transformer/declaration-transformers/util/get-chunk-filename/get-chunk-filename";
+import {getChunkFilename} from "../../service/transformer/declaration-bundler/util/get-chunk-filename/get-chunk-filename";
 import {ExistingRawSourceMap} from "rollup";
 import {declarationTreeShaker} from "../../service/transformer/declaration-tree-shaker/declaration-tree-shaker";
 
@@ -96,7 +96,7 @@ export function flattenDeclarationsFromRollupChunk({
 		},
 		undefined,
 		true,
-		declarationTransformers({
+		declarationBundler({
 			usedExports,
 			chunk,
 			supportedExtensions,

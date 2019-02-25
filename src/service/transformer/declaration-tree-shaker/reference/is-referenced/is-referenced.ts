@@ -49,54 +49,111 @@ import {
 } from "typescript";
 import {IsReferencedOptions} from "./is-referenced-options";
 import {nodeContainsChild} from "../../util/node-contains-child";
-import {VisitorOptions} from "./visitor-options";
-import {visitExportDeclaration} from "./visitor/visit-export-declaration";
-import {visitInterfaceDeclaration} from "./visitor/visit-interface-declaration";
-import {visitIdentifier} from "./visitor/visit-identifier";
-import {visitTypeReferenceNode} from "./visitor/visit-type-reference-node";
-import {visitKeywordTypeNode} from "./visitor/visit-keyword-type-node";
-import {visitToken} from "./visitor/visit-token";
-import {visitImportDeclaration} from "./visitor/visit-import-declaration";
-import {visitParameterDeclaration} from "./visitor/visit-parameter-declaration";
-import {visitUnionTypeNode} from "./visitor/visit-union-type-node";
-import {visitIntersectionTypeNode} from "./visitor/visit-intersection-type-node";
-import {visitTypeLiteralNode} from "./visitor/visit-type-literal-node";
-import {visitArrayTypeNode} from "./visitor/visit-array-type-node";
-import {visitTypeParameterDeclaration} from "./visitor/visit-type-parameter-declaration";
-import {visitFunctionDeclaration} from "./visitor/visit-function-declaration";
-import {visitVariableStatement} from "./visitor/visit-variable-statement";
-import {visitVariableDeclarationList} from "./visitor/visit-variable-declaration-list";
-import {visitVariableDeclaration} from "./visitor/visit-variable-declaration";
-import {visitIndexedAccessTypeNode} from "./visitor/visit-indexed-access-type-node";
-import {visitPropertySignature} from "./visitor/visit-property-signature";
-import {visitClassDeclaration} from "./visitor/visit-class-declaration";
-import {visitTypeAliasDeclaration} from "./visitor/visit-type-alias-declaration";
-import {visitLiteralTypeNode} from "./visitor/visit-literal-type-node";
-import {visitParenthesizedTypeNode} from "./visitor/visit-parenthesized-type-node";
-import {visitBindingPattern} from "./visitor/visit-binding-pattern";
-import {visitBindingElement} from "./visitor/visit-binding-element";
-import {visitMethodSignature} from "./visitor/visit-method-signature";
-import {visitIndexSignatureDeclaration} from "./visitor/visit-index-signature-declaration";
-import {visitExpressionWithTypeArguments} from "./visitor/visit-expression-with-type-arguments";
-import {visitTypeQueryNode} from "./visitor/visit-type-query-node";
-import {visitPropertyDeclaration} from "./visitor/visit-property-declaration";
-import {visitConstructorDeclaration} from "./visitor/visit-constructor-declaration";
-import {visitMethodDeclaration} from "./visitor/visit-method-declaration";
-import {visitFunctionTypeNode} from "./visitor/visit-function-type-node";
-import {visitTypePredicateNode} from "./visitor/visit-type-predicate-node";
-import {visitExportSpecifier} from "./visitor/visit-export-specifier";
 import {getIdentifiersForNode} from "../../util/get-identifiers-for-node";
 import {isKeywordTypeNode} from "../../util/is-keyword-type-node";
-import {visitExportAssignment} from "./visitor/visit-export-assignment";
-import {hasExportModifier} from "../../../declaration-transformers/util/modifier/modifier-util";
-import {visitEnumDeclaration} from "./visitor/visit-enum-declaration";
-import {visitEnumMember} from "./visitor/visit-enum-member";
-import {visitPropertyAccessExpression} from "./visitor/visit-property-access-expression";
-import {visitQualifiedName} from "./visitor/visit-qualified-name";
-import {visitConditionalTypeNode} from "./visitor/visit-conditional-type-node";
-import {visitTupleTypeNode} from "./visitor/visit-tuple-type-node";
-import {visitOptionalTypeNode} from "./visitor/visit-optional-type-node";
-import {visitCallSignatureDeclaration} from "./visitor/visit-call-signature-declaration";
+import {hasExportModifier} from "../../../declaration-bundler/util/modifier/modifier-util";
+import {ReferenceVisitorOptions} from "./reference-visitor-options";
+import {checkExportDeclaration} from "./visitor/reference-visitor/check-export-declaration";
+import {checkMethodDeclaration} from "./visitor/reference-visitor/check-method-declaration";
+import {checkFunctionTypeNode} from "./visitor/reference-visitor/check-function-type-node";
+import {checkBindingElement} from "./visitor/reference-visitor/check-binding-element";
+import {checkParenthesizedTypeNode} from "./visitor/reference-visitor/check-parenthesized-type-node";
+import {checkExportSpecifier} from "./visitor/reference-visitor/check-export-specifier";
+import {checkVariableDeclaration} from "./visitor/reference-visitor/check-variable-declaration";
+import {checkInterfaceDeclaration} from "./visitor/reference-visitor/check-interface-declaration";
+import {checkOptionalTypeNode} from "./visitor/reference-visitor/check-optional-type-node";
+import {checkTypeAliasDeclaration} from "./visitor/reference-visitor/check-type-alias-declaration";
+import {checkExportAssignment} from "./visitor/reference-visitor/check-export-assignment";
+import {checkKeywordTypeNode} from "./visitor/reference-visitor/check-keyword-type-node";
+import {checkTypeLiteralNode} from "./visitor/reference-visitor/check-type-literal-node";
+import {checkParameterDeclaration} from "./visitor/reference-visitor/check-parameter-declaration";
+import {checkUnionTypeNode} from "./visitor/reference-visitor/check-union-type-node";
+import {checkExpressionWithTypeArguments} from "./visitor/reference-visitor/check-expression-with-type-arguments";
+import {checkTypeParameterDeclaration} from "./visitor/reference-visitor/check-type-parameter-declaration";
+import {checkConstructorDeclaration} from "./visitor/reference-visitor/check-constructor-declaration";
+import {checkPropertyDeclaration} from "./visitor/reference-visitor/check-property-declaration";
+import {checkTypePredicateNode} from "./visitor/reference-visitor/check-type-predicate-node";
+import {checkIdentifier} from "./visitor/reference-visitor/check-identifier";
+import {checkEnumMember} from "./visitor/reference-visitor/check-enum-member";
+import {checkQualifiedName} from "./visitor/reference-visitor/check-qualified-name";
+import {checkTupleTypeNode} from "./visitor/reference-visitor/check-tuple-type-node";
+import {checkFunctionDeclaration} from "./visitor/reference-visitor/check-function-declaration";
+import {checkIndexSignatureDeclaration} from "./visitor/reference-visitor/check-index-signature-declaration";
+import {checkArrayTypeNode} from "./visitor/reference-visitor/check-array-type-node";
+import {checkPropertySignature} from "./visitor/reference-visitor/check-property-signature";
+import {checkBindingPattern} from "./visitor/reference-visitor/check-binding-pattern";
+import {checkTypeReferenceNode} from "./visitor/reference-visitor/check-type-reference-node";
+import {checkLiteralTypeNode} from "./visitor/reference-visitor/check-literal-type-node";
+import {checkIndexedAccessTypeNode} from "./visitor/reference-visitor/check-indexed-access-type-node";
+import {checkTypeQueryNode} from "./visitor/reference-visitor/check-type-query-node";
+import {checkPropertyAccessExpression} from "./visitor/reference-visitor/check-property-access-expression";
+import {checkIntersectionTypeNode} from "./visitor/reference-visitor/check-intersection-type-node";
+import {checkEnumDeclaration} from "./visitor/reference-visitor/check-enum-declaration";
+import {checkToken} from "./visitor/reference-visitor/check-token";
+import {checkClassDeclaration} from "./visitor/reference-visitor/check-class-declaration";
+import {checkImportDeclaration} from "./visitor/reference-visitor/check-import-declaration";
+import {checkVariableStatement} from "./visitor/reference-visitor/check-variable-statement";
+import {checkMethodSignature} from "./visitor/reference-visitor/check-method-signature";
+import {checkConditionalTypeNode} from "./visitor/reference-visitor/check-conditional-type-node";
+import {checkCallSignatureDeclaration} from "./visitor/reference-visitor/check-call-signature-declaration";
+import {checkVariableDeclarationList} from "./visitor/reference-visitor/check-variable-declaration-list";
+import {isAmbientModuleRootLevelNode} from "../../util/is-ambient-module-root-level-node";
+
+/**
+ * Visits the given node. Returns true if it references the node to check for references, and false otherwise
+ * @param {Node} currentNode
+ * @param {ReferenceVisitorOptions} options
+ * @return {boolean}
+ */
+function checkNode(currentNode: Node, options: ReferenceVisitorOptions): boolean {
+	if (options.node === currentNode || nodeContainsChild(options.node, currentNode)) return false;
+	if (isExportDeclaration(currentNode)) return checkExportDeclaration(currentNode, options);
+	else if (isExportAssignment(currentNode)) return checkExportAssignment(currentNode, options);
+	else if (isImportDeclaration(currentNode)) return checkImportDeclaration(currentNode, options);
+	else if (isExportSpecifier(currentNode)) return checkExportSpecifier(currentNode, options);
+	else if (isParameter(currentNode)) return checkParameterDeclaration(currentNode, options);
+	else if (isIdentifier(currentNode)) return checkIdentifier(currentNode, options);
+	else if (isTypeReferenceNode(currentNode)) return checkTypeReferenceNode(currentNode, options);
+	else if (isUnionTypeNode(currentNode)) return checkUnionTypeNode(currentNode, options);
+	else if (isIntersectionTypeNode(currentNode)) return checkIntersectionTypeNode(currentNode, options);
+	else if (isInterfaceDeclaration(currentNode)) return checkInterfaceDeclaration(currentNode, options);
+	else if (isEnumDeclaration(currentNode)) return checkEnumDeclaration(currentNode, options);
+	else if (isEnumMember(currentNode)) return checkEnumMember(currentNode, options);
+	else if (isConditionalTypeNode(currentNode)) return checkConditionalTypeNode(currentNode, options);
+	else if (isTupleTypeNode(currentNode)) return checkTupleTypeNode(currentNode, options);
+	else if (isPropertyAccessExpression(currentNode)) return checkPropertyAccessExpression(currentNode, options);
+	else if (isClassDeclaration(currentNode)) return checkClassDeclaration(currentNode, options);
+	else if (isLiteralTypeNode(currentNode)) return checkLiteralTypeNode(currentNode, options);
+	else if (isParenthesizedTypeNode(currentNode)) return checkParenthesizedTypeNode(currentNode, options);
+	else if (isTypeParameterDeclaration(currentNode)) return checkTypeParameterDeclaration(currentNode, options);
+	else if (isTypeAliasDeclaration(currentNode)) return checkTypeAliasDeclaration(currentNode, options);
+	else if (isFunctionDeclaration(currentNode)) return checkFunctionDeclaration(currentNode, options);
+	else if (isConstructorDeclaration(currentNode)) return checkConstructorDeclaration(currentNode, options);
+	else if (isVariableStatement(currentNode)) return checkVariableStatement(currentNode, options);
+	else if (isVariableDeclarationList(currentNode)) return checkVariableDeclarationList(currentNode, options);
+	else if (isVariableDeclaration(currentNode)) return checkVariableDeclaration(currentNode, options);
+	else if (isIndexedAccessTypeNode(currentNode)) return checkIndexedAccessTypeNode(currentNode, options);
+	else if (isPropertySignature(currentNode)) return checkPropertySignature(currentNode, options);
+	else if (isPropertyDeclaration(currentNode)) return checkPropertyDeclaration(currentNode, options);
+	else if (isMethodDeclaration(currentNode)) return checkMethodDeclaration(currentNode, options);
+	else if (isCallSignatureDeclaration(currentNode)) return checkCallSignatureDeclaration(currentNode, options);
+	else if (isFunctionTypeNode(currentNode)) return checkFunctionTypeNode(currentNode, options);
+	else if (isMethodSignature(currentNode)) return checkMethodSignature(currentNode, options);
+	else if (isIndexSignatureDeclaration(currentNode)) return checkIndexSignatureDeclaration(currentNode, options);
+	else if (isExpressionWithTypeArguments(currentNode)) return checkExpressionWithTypeArguments(currentNode, options);
+	else if (isTypeQueryNode(currentNode)) return checkTypeQueryNode(currentNode, options);
+	else if (isTypeLiteralNode(currentNode)) return checkTypeLiteralNode(currentNode, options);
+	else if (isArrayTypeNode(currentNode)) return checkArrayTypeNode(currentNode, options);
+	else if (isTypePredicateNode(currentNode)) return checkTypePredicateNode(currentNode, options);
+	else if (isKeywordTypeNode(currentNode)) return checkKeywordTypeNode(currentNode, options);
+	else if (isBindingElement(currentNode)) return checkBindingElement(currentNode, options);
+	else if (isObjectBindingPattern(currentNode) || isArrayBindingPattern(currentNode)) return checkBindingPattern(currentNode, options);
+	else if (isToken(currentNode)) return checkToken(currentNode, options);
+	else if (isQualifiedName(currentNode)) return checkQualifiedName(currentNode, options);
+	else if (currentNode.kind === SyntaxKind.OptionalType) return checkOptionalTypeNode(currentNode as OptionalTypeNode, options);
+
+	throw new TypeError(`Could not handle Node of kind: ${SyntaxKind[currentNode.kind]}`);
+}
 
 /**
  * Visits the given node. Returns true if it references the node to check for references, and false otherwise
@@ -104,54 +161,12 @@ import {visitCallSignatureDeclaration} from "./visitor/visit-call-signature-decl
  * @param {VisitorOptions} options
  * @return {Node?}
  */
-function visitNode(currentNode: Node, options: VisitorOptions): void {
+function visitNode(currentNode: Node, options: ReferenceVisitorOptions): void {
 	if (options.node === currentNode || nodeContainsChild(options.node, currentNode)) return;
-	if (isExportDeclaration(currentNode)) return visitExportDeclaration(currentNode, options);
-	else if (isExportAssignment(currentNode)) return visitExportAssignment(currentNode, options);
-	else if (isImportDeclaration(currentNode)) return visitImportDeclaration(currentNode, options);
-	else if (isExportSpecifier(currentNode)) return visitExportSpecifier(currentNode, options);
-	else if (isParameter(currentNode)) return visitParameterDeclaration(currentNode, options);
-	else if (isIdentifier(currentNode)) return visitIdentifier(currentNode, options);
-	else if (isTypeReferenceNode(currentNode)) return visitTypeReferenceNode(currentNode, options);
-	else if (isUnionTypeNode(currentNode)) return visitUnionTypeNode(currentNode, options);
-	else if (isIntersectionTypeNode(currentNode)) return visitIntersectionTypeNode(currentNode, options);
-	else if (isInterfaceDeclaration(currentNode)) return visitInterfaceDeclaration(currentNode, options);
-	else if (isEnumDeclaration(currentNode)) return visitEnumDeclaration(currentNode, options);
-	else if (isEnumMember(currentNode)) return visitEnumMember(currentNode, options);
-	else if (isConditionalTypeNode(currentNode)) return visitConditionalTypeNode(currentNode, options);
-	else if (isTupleTypeNode(currentNode)) return visitTupleTypeNode(currentNode, options);
-	else if (isPropertyAccessExpression(currentNode)) return visitPropertyAccessExpression(currentNode, options);
-	else if (isClassDeclaration(currentNode)) return visitClassDeclaration(currentNode, options);
-	else if (isLiteralTypeNode(currentNode)) return visitLiteralTypeNode(currentNode, options);
-	else if (isParenthesizedTypeNode(currentNode)) return visitParenthesizedTypeNode(currentNode, options);
-	else if (isTypeParameterDeclaration(currentNode)) return visitTypeParameterDeclaration(currentNode, options);
-	else if (isTypeAliasDeclaration(currentNode)) return visitTypeAliasDeclaration(currentNode, options);
-	else if (isFunctionDeclaration(currentNode)) return visitFunctionDeclaration(currentNode, options);
-	else if (isConstructorDeclaration(currentNode)) return visitConstructorDeclaration(currentNode, options);
-	else if (isVariableStatement(currentNode)) return visitVariableStatement(currentNode, options);
-	else if (isVariableDeclarationList(currentNode)) return visitVariableDeclarationList(currentNode, options);
-	else if (isVariableDeclaration(currentNode)) return visitVariableDeclaration(currentNode, options);
-	else if (isIndexedAccessTypeNode(currentNode)) return visitIndexedAccessTypeNode(currentNode, options);
-	else if (isPropertySignature(currentNode)) return visitPropertySignature(currentNode, options);
-	else if (isPropertyDeclaration(currentNode)) return visitPropertyDeclaration(currentNode, options);
-	else if (isMethodDeclaration(currentNode)) return visitMethodDeclaration(currentNode, options);
-	else if (isCallSignatureDeclaration(currentNode)) return visitCallSignatureDeclaration(currentNode, options);
-	else if (isFunctionTypeNode(currentNode)) return visitFunctionTypeNode(currentNode, options);
-	else if (isMethodSignature(currentNode)) return visitMethodSignature(currentNode, options);
-	else if (isIndexSignatureDeclaration(currentNode)) return visitIndexSignatureDeclaration(currentNode, options);
-	else if (isExpressionWithTypeArguments(currentNode)) return visitExpressionWithTypeArguments(currentNode, options);
-	else if (isTypeQueryNode(currentNode)) return visitTypeQueryNode(currentNode, options);
-	else if (isTypeLiteralNode(currentNode)) return visitTypeLiteralNode(currentNode, options);
-	else if (isArrayTypeNode(currentNode)) return visitArrayTypeNode(currentNode, options);
-	else if (isTypePredicateNode(currentNode)) return visitTypePredicateNode(currentNode, options);
-	else if (isKeywordTypeNode(currentNode)) return visitKeywordTypeNode(currentNode, options);
-	else if (isBindingElement(currentNode)) return visitBindingElement(currentNode, options);
-	else if (isObjectBindingPattern(currentNode) || isArrayBindingPattern(currentNode)) return visitBindingPattern(currentNode, options);
-	else if (isToken(currentNode)) return visitToken(currentNode, options);
-	else if (isQualifiedName(currentNode)) return visitQualifiedName(currentNode, options);
-	else if (currentNode.kind === SyntaxKind.OptionalType) return visitOptionalTypeNode(currentNode as OptionalTypeNode, options);
 
-	throw new TypeError(`Could not handle Node of kind: ${SyntaxKind[currentNode.kind]}`);
+	if (isAmbientModuleRootLevelNode(currentNode) && options.continuation(currentNode)) {
+		options.referencingNodes.add(currentNode);
+	}
 }
 
 /**
@@ -188,23 +203,15 @@ export function isReferenced<T extends Node>({seenNodes = new Set(), ...options}
 }
 
 function collectReferences<T extends Node>(options: IsReferencedOptions<T>): Node[] {
-	// Prepare some VisitorOptions
-	let lastContext: Node | undefined;
-
 	const visitorOptions = {
 		...options,
 		referencingNodes: new Set(),
 		identifiers: getIdentifiersForNode(options.node, options.cache),
-		continuation: (node: Node, context?: Node) => {
-			if (context != null) {
-				lastContext = context;
-			}
-
-			return visitNode(node, {...visitorOptions, context: lastContext});
-		}
+		continuation: (node: Node): boolean => checkNode(node, visitorOptions)
 	};
 
 	const sourceFile = options.node.getSourceFile();
-	forEachChild<void>(sourceFile, node => visitorOptions.continuation(node, node));
+	forEachChild<void>(sourceFile, node => visitNode(node, visitorOptions));
+	console.log(SyntaxKind[visitorOptions.node.kind], [...visitorOptions.referencingNodes].map(n => (isInterfaceDeclaration(n) ? n.name.text : SyntaxKind[n.kind])));
 	return [...visitorOptions.referencingNodes];
 }
