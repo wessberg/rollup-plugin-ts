@@ -5,6 +5,7 @@ import {
 	isBindingElement,
 	isClassDeclaration,
 	isConstructorDeclaration,
+	isExportAssignment,
 	isExportDeclaration,
 	isExportSpecifier,
 	isExpressionWithTypeArguments,
@@ -78,6 +79,8 @@ import {visitTypePredicateNode} from "./visitor/visit-type-predicate-node";
 import {visitExportSpecifier} from "./visitor/visit-export-specifier";
 import {getIdentifiersForNode} from "../../util/get-identifiers-for-node";
 import {isKeywordTypeNode} from "../../util/is-keyword-type-node";
+import {visitExportAssignment} from "./visitor/visit-export-assignment";
+import {hasExportModifier} from "../../../declaration-transformers/util/modifier/modifier-util";
 
 /**
  * Visits the given node. Returns true if it references the node to check for references, and false otherwise
@@ -89,6 +92,7 @@ function visitNode(currentNode: Node, options: VisitorOptions): void {
 	if (options.node === currentNode || nodeContainsChild(options.node, currentNode)) return;
 
 	if (isExportDeclaration(currentNode)) return visitExportDeclaration(currentNode, options);
+	else if (isExportAssignment(currentNode)) return visitExportAssignment(currentNode, options);
 	else if (isImportDeclaration(currentNode)) return visitImportDeclaration(currentNode, options);
 	else if (isExportSpecifier(currentNode)) return visitExportSpecifier(currentNode, options);
 	else if (isParameter(currentNode)) return visitParameterDeclaration(currentNode, options);
@@ -134,7 +138,7 @@ function visitNode(currentNode: Node, options: VisitorOptions): void {
  */
 export function isReferenced<T extends Node>({seenNodes = new Set(), ...options}: IsReferencedOptions<T>): boolean {
 	// Exports are always referenced and should never be removed
-	if (isExportDeclaration(options.node) || isExportSpecifier(options.node)) return true;
+	if (isExportDeclaration(options.node) || isExportSpecifier(options.node) || isExportAssignment(options.node) || hasExportModifier(options.node)) return true;
 
 	// If it has been computed previously, use the cached result
 	if (options.cache.hasReferencesCache.has(options.node)) {

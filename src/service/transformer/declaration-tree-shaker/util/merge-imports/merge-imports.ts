@@ -116,6 +116,9 @@ export function mergeImports(statements: Statement[]): Statement[] {
 	// Add all named imports from the module (They may have different local names)
 	for (const [module, collections] of namedImportsFromModulesMap) {
 		for (const collection of collections) {
+			// Don't add empty collections
+			if (collection.length < 1) continue;
+
 			importDeclarations.add(
 				createImportDeclaration(
 					undefined,
