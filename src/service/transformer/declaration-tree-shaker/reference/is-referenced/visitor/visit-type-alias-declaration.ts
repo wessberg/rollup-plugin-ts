@@ -10,9 +10,9 @@ export function visitTypeAliasDeclaration(currentNode: TypeAliasDeclaration, {co
 	// Check if any of the type parameters references the Node
 	if (currentNode.typeParameters != null) {
 		for (const typeParameter of currentNode.typeParameters) {
-			continuation(typeParameter);
+			continuation(typeParameter, currentNode);
 		}
 	}
 
-	continuation(currentNode.type);
+	continuation(currentNode.type, currentNode);
 }

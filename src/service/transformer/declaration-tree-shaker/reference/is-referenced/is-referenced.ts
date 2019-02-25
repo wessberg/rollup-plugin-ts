@@ -3,8 +3,12 @@ import {
 	isArrayBindingPattern,
 	isArrayTypeNode,
 	isBindingElement,
+	isCallSignatureDeclaration,
 	isClassDeclaration,
+	isConditionalTypeNode,
 	isConstructorDeclaration,
+	isEnumDeclaration,
+	isEnumMember,
 	isExportAssignment,
 	isExportDeclaration,
 	isExportSpecifier,
@@ -23,9 +27,12 @@ import {
 	isObjectBindingPattern,
 	isParameter,
 	isParenthesizedTypeNode,
+	isPropertyAccessExpression,
 	isPropertyDeclaration,
 	isPropertySignature,
+	isQualifiedName,
 	isToken,
+	isTupleTypeNode,
 	isTypeAliasDeclaration,
 	isTypeLiteralNode,
 	isTypeParameterDeclaration,
@@ -37,6 +44,7 @@ import {
 	isVariableDeclarationList,
 	isVariableStatement,
 	Node,
+	OptionalTypeNode,
 	SyntaxKind
 } from "typescript";
 import {IsReferencedOptions} from "./is-referenced-options";
@@ -81,6 +89,14 @@ import {getIdentifiersForNode} from "../../util/get-identifiers-for-node";
 import {isKeywordTypeNode} from "../../util/is-keyword-type-node";
 import {visitExportAssignment} from "./visitor/visit-export-assignment";
 import {hasExportModifier} from "../../../declaration-transformers/util/modifier/modifier-util";
+import {visitEnumDeclaration} from "./visitor/visit-enum-declaration";
+import {visitEnumMember} from "./visitor/visit-enum-member";
+import {visitPropertyAccessExpression} from "./visitor/visit-property-access-expression";
+import {visitQualifiedName} from "./visitor/visit-qualified-name";
+import {visitConditionalTypeNode} from "./visitor/visit-conditional-type-node";
+import {visitTupleTypeNode} from "./visitor/visit-tuple-type-node";
+import {visitOptionalTypeNode} from "./visitor/visit-optional-type-node";
+import {visitCallSignatureDeclaration} from "./visitor/visit-call-signature-declaration";
 
 /**
  * Visits the given node. Returns true if it references the node to check for references, and false otherwise
@@ -90,7 +106,6 @@ import {hasExportModifier} from "../../../declaration-transformers/util/modifier
  */
 function visitNode(currentNode: Node, options: VisitorOptions): void {
 	if (options.node === currentNode || nodeContainsChild(options.node, currentNode)) return;
-
 	if (isExportDeclaration(currentNode)) return visitExportDeclaration(currentNode, options);
 	else if (isExportAssignment(currentNode)) return visitExportAssignment(currentNode, options);
 	else if (isImportDeclaration(currentNode)) return visitImportDeclaration(currentNode, options);
@@ -101,6 +116,11 @@ function visitNode(currentNode: Node, options: VisitorOptions): void {
 	else if (isUnionTypeNode(currentNode)) return visitUnionTypeNode(currentNode, options);
 	else if (isIntersectionTypeNode(currentNode)) return visitIntersectionTypeNode(currentNode, options);
 	else if (isInterfaceDeclaration(currentNode)) return visitInterfaceDeclaration(currentNode, options);
+	else if (isEnumDeclaration(currentNode)) return visitEnumDeclaration(currentNode, options);
+	else if (isEnumMember(currentNode)) return visitEnumMember(currentNode, options);
+	else if (isConditionalTypeNode(currentNode)) return visitConditionalTypeNode(currentNode, options);
+	else if (isTupleTypeNode(currentNode)) return visitTupleTypeNode(currentNode, options);
+	else if (isPropertyAccessExpression(currentNode)) return visitPropertyAccessExpression(currentNode, options);
 	else if (isClassDeclaration(currentNode)) return visitClassDeclaration(currentNode, options);
 	else if (isLiteralTypeNode(currentNode)) return visitLiteralTypeNode(currentNode, options);
 	else if (isParenthesizedTypeNode(currentNode)) return visitParenthesizedTypeNode(currentNode, options);
@@ -115,6 +135,7 @@ function visitNode(currentNode: Node, options: VisitorOptions): void {
 	else if (isPropertySignature(currentNode)) return visitPropertySignature(currentNode, options);
 	else if (isPropertyDeclaration(currentNode)) return visitPropertyDeclaration(currentNode, options);
 	else if (isMethodDeclaration(currentNode)) return visitMethodDeclaration(currentNode, options);
+	else if (isCallSignatureDeclaration(currentNode)) return visitCallSignatureDeclaration(currentNode, options);
 	else if (isFunctionTypeNode(currentNode)) return visitFunctionTypeNode(currentNode, options);
 	else if (isMethodSignature(currentNode)) return visitMethodSignature(currentNode, options);
 	else if (isIndexSignatureDeclaration(currentNode)) return visitIndexSignatureDeclaration(currentNode, options);
@@ -127,6 +148,8 @@ function visitNode(currentNode: Node, options: VisitorOptions): void {
 	else if (isBindingElement(currentNode)) return visitBindingElement(currentNode, options);
 	else if (isObjectBindingPattern(currentNode) || isArrayBindingPattern(currentNode)) return visitBindingPattern(currentNode, options);
 	else if (isToken(currentNode)) return visitToken(currentNode, options);
+	else if (isQualifiedName(currentNode)) return visitQualifiedName(currentNode, options);
+	else if (currentNode.kind === SyntaxKind.OptionalType) return visitOptionalTypeNode(currentNode as OptionalTypeNode, options);
 
 	throw new TypeError(`Could not handle Node of kind: ${SyntaxKind[currentNode.kind]}`);
 }
