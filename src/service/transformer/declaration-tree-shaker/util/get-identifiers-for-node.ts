@@ -15,7 +15,6 @@ import {
 	Node,
 	SyntaxKind
 } from "typescript";
-import {DEBUG} from "../../../../constant/constant";
 
 /**
  * Gets all Identifiers for the given Node
@@ -77,10 +76,6 @@ function computeIdentifiersForNode(node: Node, cache: ReferenceCache): string[] 
 		return [];
 	} else if (node.kind === SyntaxKind.EndOfFileToken) {
 		return [];
-	}
-
-	if (DEBUG) {
-		console.log("getIdentifiersForNode:", SyntaxKind[node.kind]);
 	}
 
 	return [];

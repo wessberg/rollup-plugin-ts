@@ -212,6 +212,5 @@ function collectReferences<T extends Node>(options: IsReferencedOptions<T>): Nod
 
 	const sourceFile = options.node.getSourceFile();
 	forEachChild<void>(sourceFile, node => visitNode(node, visitorOptions));
-	console.log(SyntaxKind[visitorOptions.node.kind], [...visitorOptions.referencingNodes].map(n => (isInterfaceDeclaration(n) ? n.name.text : SyntaxKind[n.kind])));
 	return [...visitorOptions.referencingNodes];
 }
