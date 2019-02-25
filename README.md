@@ -6,7 +6,7 @@
 
 <!-- SHADOW_SECTION_DESCRIPTION_SHORT_START -->
 
-> A Rollup plugin for Typescript that respects Browserslists
+> A Typescript Rollup plugin that bundles declarations and respects Browserslists
 
 <!-- SHADOW_SECTION_DESCRIPTION_SHORT_END -->
 
@@ -70,6 +70,7 @@ In comparison with the [official plugin](https://github.com/rollup/rollup-plugin
     - [`@babel/runtime` and external helpers](#babelruntime-and-external-helpers)
     - [`@babel/runtime` and polyfills](#babelruntime-and-polyfills)
   - [Using `CustomTransformers`](#using-customtransformers)
+- [Declaration files](#declaration-files)
 - [Examples](#examples)
   - [Pure Typescript example](#pure-typescript-example)
   - [Typescript with Browserslist example](#typescript-with-browserslist-example)
