@@ -1,13 +1,14 @@
 import {
-	Node,
 	isClassDeclaration,
 	isEnumDeclaration,
 	isExportAssignment,
 	isExportDeclaration,
 	isFunctionDeclaration,
 	isInterfaceDeclaration,
+	isModuleDeclaration,
 	isTypeAliasDeclaration,
-	isVariableStatement
+	isVariableStatement,
+	Node
 } from "typescript";
 
 /**
@@ -20,6 +21,7 @@ export function isAmbientModuleRootLevelNode(node: Node): boolean {
 		isExportDeclaration(node) ||
 		isExportAssignment(node) ||
 		isInterfaceDeclaration(node) ||
+		isModuleDeclaration(node) ||
 		isEnumDeclaration(node) ||
 		isClassDeclaration(node) ||
 		isTypeAliasDeclaration(node) ||
