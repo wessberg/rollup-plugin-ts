@@ -135,7 +135,7 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 			let updatedSourceFile = visitEachChild(sourceFile, visitor, context);
 			const extraStatements: Statement[] = [];
 
-			if (visitorOptions.isEntry) {
+			if (visitorOptions.isEntry || !rest.chunk.isEntry) {
 				let missingExportSpecifiers: string[];
 
 				// If it is a non-entry chunk, ensure that every parsed exported symbol is exported from it
