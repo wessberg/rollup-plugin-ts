@@ -49,7 +49,7 @@ export function visitImportDeclaration({
 		// If it imports a default export from the same chunk, this will have been rewritten to a named export. Create a variable statement instead that aliases it
 		if (node.importClause != null && node.importClause.name != null) {
 			for (const extension of ["", ...supportedExtensions]) {
-				const path = setExtension(join(dirname(sourceFile.fileName), specifier.text), extension);
+				const path = extension === "" ? join(dirname(sourceFile.fileName), specifier.text) : setExtension(join(dirname(sourceFile.fileName), specifier.text), extension);
 				if (identifiersForDefaultExportsForModules.has(path)) {
 					return createVariableStatement(
 						[createModifier(SyntaxKind.DeclareKeyword)],

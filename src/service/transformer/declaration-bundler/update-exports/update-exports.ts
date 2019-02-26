@@ -34,6 +34,7 @@ import {visitEnumDeclaration} from "./visitor/visit-enum-declaration";
 import {visitInterfaceDeclaration} from "./visitor/visit-interface-declaration";
 import {visitModuleDeclaration} from "./visitor/visit-module-declaration";
 import {setExtension} from "../../../../util/path/path-util";
+import {extname} from "path";
 
 export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions): TransformerFactory<SourceFile> {
 	const parsedExportedSymbolsMap: Map<string, Set<string>> = new Map();
@@ -69,27 +70,41 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 
 				getParsedExportedSymbolsForModule(moduleName: string): Set<string> {
 					let matched: Set<string> | undefined;
-					for (const extension of ["", ...rest.supportedExtensions]) {
-						matched = parsedExportedSymbolsMap.get(setExtension(moduleName, extension));
-						if (matched != null) break;
+					let matchedModuleName: string = moduleName;
+
+					const extensions = extname(moduleName) !== "" ? extname(moduleName) : rest.supportedExtensions;
+					for (const extension of extensions) {
+						const tryPath = setExtension(moduleName, extension);
+						matched = parsedExportedSymbolsMap.get(tryPath);
+						if (matched != null) {
+							matchedModuleName = tryPath;
+							break;
+						}
 					}
 
 					if (matched == null) {
 						matched = new Set();
-						parsedExportedSymbolsMap.set(moduleName, matched);
+						parsedExportedSymbolsMap.set(matchedModuleName, matched);
 					}
 					return matched;
 				},
 				getExportedSpecifiersFromModule(moduleName: string): Set<string> {
 					let matched: Set<string> | undefined;
-					for (const extension of ["", ...rest.supportedExtensions]) {
-						matched = exportedSpecifiersFromModuleMap.get(setExtension(moduleName, extension));
-						if (matched != null) break;
+					let matchedModuleName: string = moduleName;
+
+					const extensions = extname(moduleName) !== "" ? extname(moduleName) : rest.supportedExtensions;
+					for (const extension of extensions) {
+						const tryPath = setExtension(moduleName, extension);
+						matched = exportedSpecifiersFromModuleMap.get(tryPath);
+						if (matched != null) {
+							matchedModuleName = tryPath;
+							break;
+						}
 					}
 
 					if (matched == null) {
 						matched = new Set();
-						exportedSpecifiersFromModuleMap.set(moduleName, matched);
+						exportedSpecifiersFromModuleMap.set(matchedModuleName, matched);
 					}
 					return matched;
 				},

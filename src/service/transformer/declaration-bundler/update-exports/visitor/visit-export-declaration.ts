@@ -81,7 +81,7 @@ export function visitExportDeclaration({
 					const propertyName = element.propertyName != null ? element.propertyName.text : element.name.text;
 					if (propertyName === "default") {
 						for (const extension of ["", ...supportedExtensions]) {
-							const path = setExtension(join(dirname(sourceFile.fileName), specifier.text), extension);
+							const path = extension === "" ? join(dirname(sourceFile.fileName), specifier.text) : setExtension(join(dirname(sourceFile.fileName), specifier.text), extension);
 							if (identifiersForDefaultExportsForModules.has(path)) {
 								// We have a match!
 								if (element.propertyName != null) {
