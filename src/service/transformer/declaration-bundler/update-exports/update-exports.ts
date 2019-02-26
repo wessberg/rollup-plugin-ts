@@ -72,7 +72,7 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 					let matched: Set<string> | undefined;
 					let matchedModuleName: string = moduleName;
 
-					const extensions = extname(moduleName) !== "" ? extname(moduleName) : rest.supportedExtensions;
+					const extensions = extname(moduleName) !== "" ? [extname(moduleName)] : rest.supportedExtensions;
 					for (const extension of extensions) {
 						const tryPath = setExtension(moduleName, extension);
 						matched = parsedExportedSymbolsMap.get(tryPath);
@@ -92,7 +92,7 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 					let matched: Set<string> | undefined;
 					let matchedModuleName: string = moduleName;
 
-					const extensions = extname(moduleName) !== "" ? extname(moduleName) : rest.supportedExtensions;
+					const extensions = extname(moduleName) !== "" ? [extname(moduleName)] : rest.supportedExtensions;
 					for (const extension of extensions) {
 						const tryPath = setExtension(moduleName, extension);
 						matched = exportedSpecifiersFromModuleMap.get(tryPath);
