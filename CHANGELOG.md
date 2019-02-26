@@ -1,3 +1,10 @@
+## [1.1.34](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.33...v1.1.34) (2019-02-26)
+
+### Bug Fixes
+
+- **bug:** don't treeshake module declarations ([a022c5d](https://github.com/wessberg/rollup-plugin-ts/commit/a022c5d))
+- **bug:** fixed an issue with declarations ([fb7e2ec](https://github.com/wessberg/rollup-plugin-ts/commit/fb7e2ec))
+
 ## [1.1.33](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.32...v1.1.33) (2019-02-26)
 
 ### Bug Fixes
