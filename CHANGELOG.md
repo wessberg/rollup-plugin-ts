@@ -1,3 +1,9 @@
+## [1.1.32](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.31...v1.1.32) (2019-02-26)
+
+### Bug Fixes
+
+- **bug:** fixes a bug where files with identical basenames, but varying extensions could lead to false positives when matching the cache under some circumstances ([b560c03](https://github.com/wessberg/rollup-plugin-ts/commit/b560c03))
+
 ## [1.1.31](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.30...v1.1.31) (2019-02-25)
 
 ## [1.1.30](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.29...v1.1.30) (2019-02-25)
