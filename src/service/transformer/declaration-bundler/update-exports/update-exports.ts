@@ -66,7 +66,9 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 				sourceFile,
 				isEntry: sourceFile.fileName === rest.entryFileName,
 				...rest,
-				continuation: <U extends Node>(node: U) => visitEachChild(node, visitor, context),
+				continuation: <U extends Node>(node: U) => {
+					return visitEachChild(node, visitor, context);
+				},
 
 				getParsedExportedSymbolsForModule(moduleName: string): Set<string> {
 					let matched: Set<string> | undefined;
