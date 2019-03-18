@@ -1,3 +1,10 @@
+## [1.1.36](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.35...v1.1.36) (2019-03-18)
+
+### Features
+
+- **option:** adds a new option 'transpileOnly' that can be toggled on to skip emitting (and checking for) diagnostics ([1a916d5](https://github.com/wessberg/rollup-plugin-ts/commit/1a916d5))
+- **option:** adds a new option 'transpileOnly' that can be toggled on to skip emitting (and checking for) diagnostics ([90aaf8d](https://github.com/wessberg/rollup-plugin-ts/commit/90aaf8d))
+
 ## [1.1.35](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.34...v1.1.35) (2019-03-14)
 
 ## [1.1.34](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.33...v1.1.34) (2019-02-26)
