@@ -22,7 +22,7 @@ export interface ITypescriptPluginBaseOptions {
 	transformers?: (CustomTransformers | CustomTransformersFunction)[] | CustomTransformers | CustomTransformersFunction;
 	include: string[] | string;
 	exclude: string[] | string;
-	transpileOnly: boolean;
+	transpileOnly?: boolean;
 }
 
 export interface ITypescriptPluginTypescriptOptions extends ITypescriptPluginBaseOptions {
