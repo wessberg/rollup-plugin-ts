@@ -315,8 +315,11 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * @returns {void | Promise<void>}
 		 */
 		generateBundle(this: PluginContext, outputOptions: OutputOptions, bundle: OutputBundle): void {
-			// Emit all reported diagnostics
-			emitDiagnosticsThroughRollup({languageServiceHost, languageService, context: this});
+			// Only emit diagnostics if the plugin options allow it
+			if (!Boolean(pluginOptions.transpileOnly)) {
+				// Emit all reported diagnostics
+				emitDiagnosticsThroughRollup({languageServiceHost, languageService, context: this});
+			}
 
 			// Emit declaration files if required
 			if (Boolean(parsedCommandLine.options.declaration)) {
