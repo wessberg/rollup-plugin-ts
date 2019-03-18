@@ -189,9 +189,14 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * @returns {Promise<{ code: string, map: RawSourceMap } | null>}
 		 */
 		async renderChunk(this: PluginContext, code: string, chunk: RenderedChunk): Promise<{code: string; map: RawSourceMap} | null> {
+			const includesPropertyAccessExpression = code.includes(PRESERVING_PROPERTY_ACCESS_EXPRESSION);
+
+			// If the code doesn't include a PropertyAccessExpression that needs replacement, and if no additional minification should be applied, return immediately.
+			if (!includesPropertyAccessExpression && babelMinifyConfig == null) return null;
+
 			const updatedCode = getMagicStringContainer(code, chunk.fileName);
 
-			if (code.includes(PRESERVING_PROPERTY_ACCESS_EXPRESSION)) {
+			if (includesPropertyAccessExpression) {
 				updatedCode.replaceAll(PRESERVING_PROPERTY_ACCESS_EXPRESSION, "");
 			}
 
