@@ -1,3 +1,9 @@
+## [1.1.38](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.37...v1.1.38) (2019-03-19)
+
+### Bug Fixes
+
+- **babel:** made it possible to babel to use the 'target' of a tsconfig without a browserslist. Made it possible to resolve tslib and babel helpers without additional resolver plugins ([76fd8a3](https://github.com/wessberg/rollup-plugin-ts/commit/76fd8a3))
+
 ## [1.1.37](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.36...v1.1.37) (2019-03-18)
 
 ## [1.1.36](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.35...v1.1.36) (2019-03-18)
