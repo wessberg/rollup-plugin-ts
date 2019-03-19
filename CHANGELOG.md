@@ -1,3 +1,9 @@
+## [1.1.40](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.39...v1.1.40) (2019-03-19)
+
+### Bug Fixes
+
+- **bug:** removes a console.log ([1450fa7](https://github.com/wessberg/rollup-plugin-ts/commit/1450fa7))
+
 ## [1.1.39](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.38...v1.1.39) (2019-03-19)
 
 ### Bug Fixes
