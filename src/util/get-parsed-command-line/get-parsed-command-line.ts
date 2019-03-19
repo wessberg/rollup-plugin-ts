@@ -3,6 +3,7 @@ import {IGetParsedCommandLineOptions} from "./i-get-parsed-command-line-options"
 import {fileExistsSync, readFileSync} from "../file-system/file-system";
 import {ensureAbsolute} from "../path/path-util";
 import {DECLARATION_EXTENSION} from "../../constant/constant";
+import {GetParsedCommandLineResult} from "./get-parsed-command-line-result";
 
 /**
  * Returns true if the given tsconfig is a ParsedCommandLine
@@ -25,20 +26,23 @@ export function isCompilerOptions(tsconfig?: IGetParsedCommandLineOptions["tscon
 /**
  * Gets a ParsedCommandLine based on the given options
  * @param {IGetParsedCommandLineOptions} options
- * @returns {ParsedCommandLine}
+ * @returns {GetParsedCommandLineResult}
  */
-export function getParsedCommandLine({cwd, tsconfig, forcedCompilerOptions = {}}: IGetParsedCommandLineOptions): ParsedCommandLine {
+export function getParsedCommandLine({cwd, tsconfig, forcedCompilerOptions = {}}: IGetParsedCommandLineOptions): GetParsedCommandLineResult {
 	const hasProvidedTsconfig = tsconfig != null;
+	let originalCompilerOptions: CompilerOptions | undefined;
 	let parsedCommandLine: ParsedCommandLine;
 
 	// If the given tsconfig is already a ParsedCommandLine, use that one, but apply the forced CompilerOptions
 	if (isParsedCommandLine(tsconfig)) {
+		originalCompilerOptions = tsconfig.options;
 		tsconfig.options = {...tsconfig.options, ...forcedCompilerOptions};
 		parsedCommandLine = tsconfig;
 	}
 
 	// If the user provided CompilerOptions directly, use those to build a ParsedCommandLine
 	else if (isCompilerOptions(tsconfig)) {
+		originalCompilerOptions = tsconfig;
 		parsedCommandLine = parseJsonConfigFileContent({compilerOptions: tsconfig}, sys, cwd, forcedCompilerOptions);
 	}
 
@@ -62,10 +66,15 @@ export function getParsedCommandLine({cwd, tsconfig, forcedCompilerOptions = {}}
 			throw new ReferenceError(`The given tsconfig: '${tsconfigPath}' doesn't exist!`);
 		}
 
+		originalCompilerOptions = parseJsonConfigFileContent(parseConfigFileTextToJson(tsconfigPath, tsconfigContent).config, sys, cwd, {}, tsconfigPath).options;
 		parsedCommandLine = parseJsonConfigFileContent(parseConfigFileTextToJson(tsconfigPath, tsconfigContent).config, sys, cwd, forcedCompilerOptions, tsconfigPath);
 	}
 
 	// Remove all non-declaration files from the default file names since these will be handled separately by Rollup
 	parsedCommandLine.fileNames = parsedCommandLine.fileNames.filter(file => file.endsWith(DECLARATION_EXTENSION));
-	return parsedCommandLine;
+
+	return {
+		parsedCommandLine,
+		originalCompilerOptions
+	};
 }

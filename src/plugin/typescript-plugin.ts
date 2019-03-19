@@ -1,5 +1,5 @@
 import {InputOptions, OutputBundle, OutputChunk, OutputOptions, Plugin, PluginContext, RawSourceMap, RenderedChunk, TransformSourceDescription} from "rollup";
-import {createDocumentRegistry, createLanguageService, LanguageService, ParsedCommandLine} from "typescript";
+import {createDocumentRegistry, createLanguageService, LanguageService} from "typescript";
 import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line";
 import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options";
 import {IncrementalLanguageService} from "../service/language-service/incremental-language-service";
@@ -36,6 +36,7 @@ import {isOutputChunk} from "../util/is-output-chunk/is-output-chunk";
 import {getDeclarationOutDir} from "../util/get-declaration-out-dir/get-declaration-out-dir";
 import {getMagicStringContainer} from "../service/magic-string-container/get-magic-string-container";
 import {getOutDir} from "../util/get-out-dir/get-out-dir";
+import {GetParsedCommandLineResult} from "../util/get-parsed-command-line/get-parsed-command-line-result";
 
 /**
  * The name of the Rollup plugin
@@ -56,9 +57,9 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 	/**
 	 * The ParsedCommandLine to use with Typescript
-	 * @type {ParsedCommandLine?}
+	 * @type {GetParsedCommandLineResult?}
 	 */
-	let parsedCommandLine: ParsedCommandLine;
+	let parsedCommandLineResult: GetParsedCommandLineResult;
 
 	/**
 	 * The config to use with Babel, if Babel should transpile source code
@@ -141,7 +142,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			rollupInputOptions = options;
 
 			// Make sure we have a proper ParsedCommandLine to work with
-			parsedCommandLine = getParsedCommandLine({
+			parsedCommandLineResult = getParsedCommandLine({
 				tsconfig,
 				forcedCompilerOptions: getForcedCompilerOptions({pluginOptions, rollupInputOptions, browserslist: normalizedBrowserslist}),
 				cwd
@@ -153,19 +154,19 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 					babelConfig: pluginOptions.babelConfig,
 					cwd,
 					forcedOptions: getForcedBabelOptions({cwd, pluginOptions, rollupInputOptions, browserslist: normalizedBrowserslist}),
-					defaultOptions: getDefaultBabelOptions({pluginOptions, rollupInputOptions, browserslist: normalizedBrowserslist})
+					defaultOptions: getDefaultBabelOptions({pluginOptions, rollupInputOptions, browserslist: normalizedBrowserslist, originalCompilerOptions: parsedCommandLineResult.originalCompilerOptions})
 				});
 				babelConfig = babelConfigResult.config;
 				babelMinifyConfig = babelConfigResult.minifyConfig;
 			}
 
-			SUPPORTED_EXTENSIONS = getSupportedExtensions(Boolean(parsedCommandLine.options.allowJs), Boolean(parsedCommandLine.options.resolveJsonModule));
+			SUPPORTED_EXTENSIONS = getSupportedExtensions(Boolean(parsedCommandLineResult.parsedCommandLine.options.allowJs), Boolean(parsedCommandLineResult.parsedCommandLine.options.resolveJsonModule));
 
 			canEmitForFile = (id: string) => filter(id) && SUPPORTED_EXTENSIONS.includes(getExtension(id));
 
 			// Hook up a LanguageServiceHost and a LanguageService
 			languageServiceHost = new IncrementalLanguageService({
-				parsedCommandLine,
+				parsedCommandLine: parsedCommandLineResult.parsedCommandLine,
 				transformers: mergeTransformers(...transformers, getTypeOnlyImportTransformers()),
 				cwd,
 				emitCache,
@@ -294,7 +295,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// Don't proceed if there is no parent (in which case this is an entry module)
 			if (parent == null) return;
 
-			return resolveId({id, parent, cwd, options: parsedCommandLine.options, moduleResolutionHost, resolveCache});
+			return resolveId({id, parent, cwd, options: parsedCommandLineResult.parsedCommandLine.options, moduleResolutionHost, resolveCache});
 		},
 
 		/**
@@ -327,12 +328,12 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			}
 
 			// Emit declaration files if required
-			if (Boolean(parsedCommandLine.options.declaration)) {
+			if (Boolean(parsedCommandLineResult.parsedCommandLine.options.declaration)) {
 				const chunks = Object.values(bundle).filter(isOutputChunk);
 
-				const declarationOutDir = join(cwd, getDeclarationOutDir(cwd, parsedCommandLine.options, outputOptions));
+				const declarationOutDir = join(cwd, getDeclarationOutDir(cwd, parsedCommandLineResult.parsedCommandLine.options, outputOptions));
 				const outDir = join(cwd, getOutDir(cwd, outputOptions));
-				const generateMap = Boolean(parsedCommandLine.options.declarationMap);
+				const generateMap = Boolean(parsedCommandLineResult.parsedCommandLine.options.declarationMap);
 
 				const chunkToOriginalFileMap: Map<string, string[]> = new Map(chunks.map<[string, string[]]>(chunk => [join(declarationOutDir, chunk.fileName), Object.keys(chunk.modules)]));
 				const moduleNames = [...new Set(([] as string[]).concat.apply([], chunks.map(chunk => Object.keys(chunk.modules).filter(canEmitForFile))))];

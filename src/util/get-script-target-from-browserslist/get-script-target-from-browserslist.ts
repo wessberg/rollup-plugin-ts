@@ -22,3 +22,27 @@ export function getScriptTargetFromBrowserslist(browserslist: string[]): ScriptT
 			return ScriptTarget.ES2018;
 	}
 }
+
+/**
+ * Gets the EcmaVersion that represents the given ScriptTarget
+ * @param {ScriptTarget} scriptTarget
+ * @returns {string}
+ */
+export function getEcmaVersionForScriptTarget(scriptTarget: ScriptTarget): "es3" | "es5" | "es2015" | "es2016" | "es2017" | "es2018" {
+	switch (scriptTarget) {
+		case ScriptTarget.ES3:
+			return "es3";
+		case ScriptTarget.ES5:
+			return "es5";
+		case ScriptTarget.ES2015:
+			return "es2015";
+		case ScriptTarget.ES2016:
+			return "es2016";
+		case ScriptTarget.ES2017:
+			return "es2017";
+		case ScriptTarget.ES2018:
+		case ScriptTarget.ESNext:
+		case ScriptTarget.JSON:
+			return "es2018";
+	}
+}

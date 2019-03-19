@@ -12,7 +12,9 @@ import {
 	TYPEOF_BABEL_HELPER_NAME_1,
 	TYPEOF_BABEL_HELPER_NAME_2,
 	TYPEOF_BABEL_HELPER_NAME_3,
-	TYPEOF_BABEL_HELPER_NAME_4
+	TYPEOF_BABEL_HELPER_NAME_4,
+	BABEL_RUNTIME_PREFIX_1,
+	BABEL_RUNTIME_PREFIX_2
 } from "../../constant/constant";
 
 /**
@@ -45,12 +47,30 @@ export function isInternalFile(path: string): boolean {
 }
 
 /**
+ * Returns true if the given id represents tslib
+ * @param {string} path
+ * @return {boolean}
+ */
+export function isTslib(path: string): boolean {
+	return path === "tslib" || path.endsWith(`/tslib/${TSLIB_NAME}`) || path.endsWith("/tslib/tslib.es6.js") || path.endsWith("/tslib/tslib.js");
+}
+
+/**
  * Returns true if the given path represents a Babel helper that shouldn't be transformed
  * @param {string} path
  * @returns {boolean}
  */
 export function isNonTransformableBabelHelper(path: string): boolean {
 	return path.endsWith(TYPEOF_BABEL_HELPER_NAME_1) || path.endsWith(TYPEOF_BABEL_HELPER_NAME_2) || path.endsWith(TYPEOF_BABEL_HELPER_NAME_3) || path.endsWith(TYPEOF_BABEL_HELPER_NAME_4);
+}
+
+/**
+ * Returns true if the given path represents a Babel helper
+ * @param {string} path
+ * @returns {boolean}
+ */
+export function isBabelHelper(path: string): boolean {
+	return path.startsWith(BABEL_RUNTIME_PREFIX_1) || path.startsWith(BABEL_RUNTIME_PREFIX_2);
 }
 
 /**

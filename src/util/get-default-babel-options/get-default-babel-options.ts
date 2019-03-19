@@ -1,6 +1,8 @@
 import {IGetDefaultBabelOptionsOptions} from "./i-get-default-babel-options-options";
 import {IGetDefaultBabelOptionsResult} from "./i-get-default-babel-options-result";
 import {FORCED_BABEL_OPTIONS} from "../../constant/constant";
+import {browsersWithSupportForEcmaVersion} from "@wessberg/browserslist-generator";
+import {getEcmaVersionForScriptTarget} from "../get-script-target-from-browserslist/get-script-target-from-browserslist";
 
 /**
  * Retrieves the Babel config options that will be used by default. If the user provides the same keys/presets/plugins, *they*
@@ -8,8 +10,16 @@ import {FORCED_BABEL_OPTIONS} from "../../constant/constant";
  * @param {IGetDefaultBabelOptionsOptions} _options
  * @returns {IGetDefaultBabelOptionsResult}
  */
-export function getDefaultBabelOptions({browserslist}: IGetDefaultBabelOptionsOptions): IGetDefaultBabelOptionsResult {
-	const includePresetEnv = browserslist != null;
+export function getDefaultBabelOptions({browserslist, originalCompilerOptions}: IGetDefaultBabelOptionsOptions): IGetDefaultBabelOptionsResult {
+	const normalizedBrowserslist =
+		browserslist != null
+			? // If a browserslist is given, use that one
+			  browserslist
+			: // Otherwise, generate a browserslist based on the tsconfig target if given
+			originalCompilerOptions.target == null
+			? undefined
+			: browsersWithSupportForEcmaVersion(getEcmaVersionForScriptTarget(originalCompilerOptions.target));
+	const includePresetEnv = normalizedBrowserslist != null;
 
 	return {
 		presets: [
@@ -28,7 +38,7 @@ export function getDefaultBabelOptions({browserslist}: IGetDefaultBabelOptionsOp
 								ignoreBrowserslistConfig: false,
 								shippedProposals: true,
 								targets: {
-									browsers: browserslist
+									browsers: normalizedBrowserslist
 								}
 							}
 						]

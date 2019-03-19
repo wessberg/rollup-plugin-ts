@@ -8,15 +8,18 @@ export const MJS_EXTENSION = ".mjs";
 export const MJSX_EXTENSION = ".mjsx";
 export const DECLARATION_EXTENSION = `.d${TS_EXTENSION}`;
 export const DECLARATION_MAP_EXTENSION = `.d${TS_EXTENSION}${SOURCE_MAP_EXTENSION}`;
+export const PACKAGE_JSON_FILENAME = "package.json";
 export const SOURCE_MAP_COMMENT = "\n//# sourceMappingURL";
 export const SOURCE_MAP_COMMENT_REGEXP = /\n\/\/# sourceMappingURL=.*/g;
 export const TSLIB_NAME = `tslib${DECLARATION_EXTENSION}`;
-export const REGENERATOR_RUNTIME_NAME_1 = `@babel/runtime/regenerator/index.js`;
-export const REGENERATOR_RUNTIME_NAME_2 = `babel-runtime/regenerator/index.js`;
-export const TYPEOF_BABEL_HELPER_NAME_1 = `@babel/runtime/helpers/esm/typeof.js`;
-export const TYPEOF_BABEL_HELPER_NAME_2 = `@babel/runtime/helpers/typeof.js`;
-export const TYPEOF_BABEL_HELPER_NAME_3 = `babel-runtime/helpers/esm/typeof.js`;
-export const TYPEOF_BABEL_HELPER_NAME_4 = `babel-runtime/helpers/typeof.js`;
+export const BABEL_RUNTIME_PREFIX_1 = "@babel/runtime/";
+export const BABEL_RUNTIME_PREFIX_2 = "babel-runtime/";
+export const REGENERATOR_RUNTIME_NAME_1 = `${BABEL_RUNTIME_PREFIX_1}regenerator/index.js`;
+export const REGENERATOR_RUNTIME_NAME_2 = `${BABEL_RUNTIME_PREFIX_2}regenerator/index.js`;
+export const TYPEOF_BABEL_HELPER_NAME_1 = `${BABEL_RUNTIME_PREFIX_1}helpers/esm/typeof.js`;
+export const TYPEOF_BABEL_HELPER_NAME_2 = `${BABEL_RUNTIME_PREFIX_1}helpers/typeof.js`;
+export const TYPEOF_BABEL_HELPER_NAME_3 = `${BABEL_RUNTIME_PREFIX_2}helpers/esm/typeof.js`;
+export const TYPEOF_BABEL_HELPER_NAME_4 = `${BABEL_RUNTIME_PREFIX_2}helpers/typeof.js`;
 
 export const BABEL_MINIFY_PRESET_NAMES = ["babel-preset-minify"];
 

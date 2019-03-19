@@ -36,6 +36,12 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 */
 
 	private readonly LIB_DIRECTORY = sync("node_modules/typescript/lib", {cwd: this.options.cwd});
+
+	/**
+	 * The lookup location for the tslib file
+	 * @type {string}
+	 */
+
 	/**
 	 * A Map between file names and their IFiles
 	 * @type {Map<string, IFile>}

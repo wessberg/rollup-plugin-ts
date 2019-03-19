@@ -1,11 +1,12 @@
-import {resolveModuleName} from "typescript";
+import {CompilerOptions, Extension, ModuleResolutionCache, ModuleResolutionHost, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, resolveModuleName} from "typescript";
 import {IGetResolvedIdWithCachingOptions} from "./i-get-resolved-id-with-caching-options";
 import {IResolveCache} from "./i-resolve-cache";
-import {ensureAbsolute} from "../../../util/path/path-util";
+import {ensureAbsolute, isBabelHelper, isTslib, setExtension} from "../../../util/path/path-util";
 import {sync} from "find-up";
 import {takeBestSubModuleFromPackage} from "../../../util/take-best-sub-module-from-package/take-best-sub-module-from-package";
 import {join} from "path";
 import {ensureDirectory} from "../../../util/file-system/file-system";
+import {JS_EXTENSION, PACKAGE_JSON_FILENAME} from "../../../constant/constant";
 
 /**
  * A Cache over resolved modules
@@ -56,6 +57,51 @@ export class ResolveCache implements IResolveCache {
 	}
 
 	/**
+	 * Resolves a module name, including internal helpers such as tslib, even if they aren't included in the language service
+	 * @type {string | null}
+	 */
+	public resolveModuleName(
+		cwd: string,
+		moduleName: string,
+		containingFile: string,
+		compilerOptions: CompilerOptions,
+		host: ModuleResolutionHost,
+		cache?: ModuleResolutionCache,
+		redirectedReference?: ResolvedProjectReference
+	): ResolvedModuleWithFailedLookupLocations {
+		// Handle tslib differently
+		if (isTslib(moduleName)) {
+			const tslibPath = sync(`node_modules/tslib/tslib.es6.js`, {cwd});
+			if (tslibPath != null) {
+				return {
+					resolvedModule: {
+						resolvedFileName: tslibPath,
+						isExternalLibraryImport: false,
+						extension: Extension.Js
+					}
+				};
+			}
+		}
+
+		// Handle Babel helpers differently
+		else if (isBabelHelper(moduleName)) {
+			const babelHelperPath = sync(`node_modules/${setExtension(moduleName, JS_EXTENSION)}`, {cwd});
+			if (babelHelperPath != null) {
+				return {
+					resolvedModule: {
+						resolvedFileName: babelHelperPath,
+						isExternalLibraryImport: false,
+						extension: Extension.Js
+					}
+				};
+			}
+		}
+
+		// Otherwise, default to using Typescript's resolver directly
+		return resolveModuleName(moduleName, containingFile, compilerOptions, host, cache, redirectedReference);
+	}
+
+	/**
 	 * Gets a cached module result for the given file from the given parent and returns it if it exists already.
 	 * If not, it will compute it, update the cache, and then return it
 	 * @param {IGetResolvedIdWithCachingOptions} opts
@@ -68,7 +114,7 @@ export class ResolveCache implements IResolveCache {
 		}
 
 		// Resolve the file via Typescript, either through classic or node module resolution
-		const {resolvedModule} = resolveModuleName(id, parent, options, moduleResolutionHost);
+		const {resolvedModule} = this.resolveModuleName(cwd, id, parent, options, moduleResolutionHost);
 
 		// If it could not be resolved, the cache result will be equal to null
 		if (resolvedModule == null) {
@@ -84,7 +130,7 @@ export class ResolveCache implements IResolveCache {
 			// for example in order get the ES-module variant of the library
 			if (resolvedModule.isExternalLibraryImport === true) {
 				// Find the package.json located closest to the resolved file
-				const packageJsonPath = sync("package.json", {cwd: resolvedModule.resolvedFileName});
+				const packageJsonPath = sync(PACKAGE_JSON_FILENAME, {cwd: resolvedModule.resolvedFileName});
 				if (packageJsonPath != null) {
 					const submodule = takeBestSubModuleFromPackage(packageJsonPath);
 					if (submodule != null) {
