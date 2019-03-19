@@ -2,7 +2,7 @@ import {IBabelConfigItem, IBabelInputOptions} from "../../plugin/i-babel-options
 import {IGetBabelConfigOptions} from "./i-get-babel-config-options";
 import {ensureAbsolute} from "../path/path-util";
 import {IGetBabelConfigResult} from "./i-get-babel-config-result";
-import {BABEL_MINIFY_PLUGIN_NAMES, BABEL_MINIFY_PRESET_NAMES} from "../../constant/constant";
+import {BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES, BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES, BABEL_MINIFY_PLUGIN_NAMES, BABEL_MINIFY_PRESET_NAMES} from "../../constant/constant";
 // @ts-ignore
 import {loadOptions, loadPartialConfig} from "@babel/core";
 
@@ -43,12 +43,21 @@ function combineConfigItems(userItems: IBabelConfigItem[], defaultItems: IBabelC
 }
 
 /**
+ * Returns true if the given configItem is related to minification
+ * @param {string} resolved
+ * @returns {boolean}
+ */
+function configItemIsMinificationRelated({file: {resolved}}: IBabelConfigItem): boolean {
+	return BABEL_MINIFY_PRESET_NAMES.some(preset => resolved.includes(preset)) || BABEL_MINIFY_PLUGIN_NAMES.some(plugin => resolved.includes(plugin));
+}
+
+/**
  * Returns true if the given configItem is allowed during minification
  * @param {string} resolved
  * @returns {boolean}
  */
 function configItemIsAllowedDuringMinification({file: {resolved}}: IBabelConfigItem): boolean {
-	return BABEL_MINIFY_PRESET_NAMES.some(preset => resolved.includes(preset)) || BABEL_MINIFY_PLUGIN_NAMES.some(plugin => resolved.includes(plugin));
+	return BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES.every(preset => !resolved.includes(preset)) && BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES.every(plugin => !resolved.includes(plugin));
 }
 
 /**
@@ -125,6 +134,7 @@ export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOpt
 	return {
 		config: loadOptions(combined),
 		// Only return the minify config if it includes at least one plugin or preset
-		minifyConfig: minifyCombined.plugins.length < 1 && minifyCombined.presets.length < 1 ? undefined : loadOptions(minifyCombined)
+		minifyConfig: minifyCombined.plugins.length < 1 && minifyCombined.presets.length < 1 ? undefined : loadOptions(minifyCombined),
+		hasMinifyOptions: [...minifyCombined.plugins.filter(configItemIsMinificationRelated), ...minifyCombined.presets.filter(configItemIsMinificationRelated)].length > 0
 	};
 }

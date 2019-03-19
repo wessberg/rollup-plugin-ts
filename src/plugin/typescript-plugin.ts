@@ -68,10 +68,16 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	let babelConfig: IBabelConfig | undefined;
 
 	/**
-	 * If babel are to be used, and if one or more minify presets/plugins has been passed, this config will be used
+	 * If babel is to be used, and if one or more minify presets/plugins has been passed, this config will be used
 	 * @type {boolean}
 	 */
 	let babelMinifyConfig: IBabelConfig | undefined;
+
+	/**
+	 * If babel is to be used, and if one or more minify presets/plugins has been passed, this will be true
+	 * @type {boolean}
+	 */
+	let hasBabelMinifyOptions: boolean = false;
 
 	/**
 	 * The (Incremental) LanguageServiceHost to use
@@ -158,6 +164,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				});
 				babelConfig = babelConfigResult.config;
 				babelMinifyConfig = babelConfigResult.minifyConfig;
+				hasBabelMinifyOptions = babelConfigResult.hasMinifyOptions;
 			}
 
 			SUPPORTED_EXTENSIONS = getSupportedExtensions(Boolean(parsedCommandLineResult.parsedCommandLine.options.allowJs), Boolean(parsedCommandLineResult.parsedCommandLine.options.resolveJsonModule));
@@ -192,8 +199,10 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		async renderChunk(this: PluginContext, code: string, chunk: RenderedChunk): Promise<{code: string; map: RawSourceMap} | null> {
 			const includesPropertyAccessExpression = code.includes(PRESERVING_PROPERTY_ACCESS_EXPRESSION);
 
+			console.log(babelMinifyConfig, hasBabelMinifyOptions);
+
 			// If the code doesn't include a PropertyAccessExpression that needs replacement, and if no additional minification should be applied, return immediately.
-			if (!includesPropertyAccessExpression && babelMinifyConfig == null) return null;
+			if (!includesPropertyAccessExpression && (!hasBabelMinifyOptions || babelMinifyConfig == null)) return null;
 
 			const updatedCode = getMagicStringContainer(code, chunk.fileName);
 
@@ -201,7 +210,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				updatedCode.replaceAll(PRESERVING_PROPERTY_ACCESS_EXPRESSION, "");
 			}
 
-			if (babelMinifyConfig == null) {
+			if (!hasBabelMinifyOptions || babelMinifyConfig == null) {
 				return updatedCode.hasModified
 					? {
 							code: updatedCode.code,

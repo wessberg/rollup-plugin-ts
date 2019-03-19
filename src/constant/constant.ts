@@ -21,6 +21,10 @@ export const TYPEOF_BABEL_HELPER_NAME_2 = `${BABEL_RUNTIME_PREFIX_1}helpers/type
 export const TYPEOF_BABEL_HELPER_NAME_3 = `${BABEL_RUNTIME_PREFIX_2}helpers/esm/typeof.js`;
 export const TYPEOF_BABEL_HELPER_NAME_4 = `${BABEL_RUNTIME_PREFIX_2}helpers/typeof.js`;
 
+export const BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES = [];
+
+export const BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES = ["@babel/plugin-transform-runtime", "babel-plugin-transform-runtime"];
+
 export const BABEL_MINIFY_PRESET_NAMES = ["babel-preset-minify"];
 
 export const BABEL_MINIFY_PLUGIN_NAMES = [
