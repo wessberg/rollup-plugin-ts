@@ -199,8 +199,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		async renderChunk(this: PluginContext, code: string, chunk: RenderedChunk): Promise<{code: string; map: RawSourceMap} | null> {
 			const includesPropertyAccessExpression = code.includes(PRESERVING_PROPERTY_ACCESS_EXPRESSION);
 
-			console.log(babelMinifyConfig, hasBabelMinifyOptions);
-
 			// If the code doesn't include a PropertyAccessExpression that needs replacement, and if no additional minification should be applied, return immediately.
 			if (!includesPropertyAccessExpression && (!hasBabelMinifyOptions || babelMinifyConfig == null)) return null;
 
