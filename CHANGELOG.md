@@ -1,3 +1,9 @@
+## [1.1.39](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.38...v1.1.39) (2019-03-19)
+
+### Bug Fixes
+
+- **bug:** fixes an issue with babel where applying minification-related plugins could lead to syntax errors ([2a91b7f](https://github.com/wessberg/rollup-plugin-ts/commit/2a91b7f))
+
 ## [1.1.38](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.37...v1.1.38) (2019-03-19)
 
 ### Bug Fixes
