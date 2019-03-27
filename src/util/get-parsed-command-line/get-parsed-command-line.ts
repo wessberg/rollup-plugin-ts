@@ -42,7 +42,7 @@ export function getParsedCommandLine({cwd, tsconfig, forcedCompilerOptions = {}}
 
 	// If the user provided CompilerOptions directly, use those to build a ParsedCommandLine
 	else if (isCompilerOptions(tsconfig)) {
-		originalCompilerOptions = tsconfig;
+		originalCompilerOptions = parseJsonConfigFileContent({compilerOptions: tsconfig}, sys, cwd).options;
 		parsedCommandLine = parseJsonConfigFileContent({compilerOptions: tsconfig}, sys, cwd, forcedCompilerOptions);
 	}
 

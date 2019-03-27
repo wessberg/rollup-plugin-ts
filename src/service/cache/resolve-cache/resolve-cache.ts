@@ -5,7 +5,7 @@ import {ensureAbsolute, isBabelHelper, isTslib, setExtension} from "../../../uti
 import {sync} from "find-up";
 import {takeBestSubModuleFromPackage} from "../../../util/take-best-sub-module-from-package/take-best-sub-module-from-package";
 import {join} from "path";
-import {ensureDirectory} from "../../../util/file-system/file-system";
+import {ensureDirectory, readFileSync} from "../../../util/file-system/file-system";
 import {JS_EXTENSION, PACKAGE_JSON_FILENAME} from "../../../constant/constant";
 
 /**
@@ -146,10 +146,18 @@ export class ResolveCache implements IResolveCache {
 				// Find the package.json located closest to the resolved file
 				const packageJsonPath = sync(PACKAGE_JSON_FILENAME, {cwd: resolvedModule.resolvedFileName});
 				if (packageJsonPath != null) {
-					const submodule = takeBestSubModuleFromPackage(packageJsonPath);
-					if (submodule != null) {
-						// Rollup plays nice with ES-modules by default, so if there is any module property in the package, chances are that is using ES modules
-						resolvedModule.resolvedFileName = join(ensureDirectory(packageJsonPath), submodule);
+					// Resolve the package.json file
+					const pkg = JSON.parse(readFileSync(packageJsonPath).toString());
+					// Compute the absolute path to the path pointed to by the 'main' property
+					const mainPath = pkg.main == null ? "index.js" : join(ensureDirectory(packageJsonPath), pkg.main);
+
+					// If the resolved file name is equal to that of the main property, check if there is another path on the "module" field (which will be better suited for Rollup)
+					if (mainPath != null && resolvedModule.resolvedFileName === mainPath) {
+						const submodule = takeBestSubModuleFromPackage(pkg);
+						if (submodule != null) {
+							// Rollup plays nice with ES-modules by default, so if there is any module property in the package, chances are that is using ES modules
+							resolvedModule.resolvedFileName = join(ensureDirectory(packageJsonPath), submodule);
+						}
 					}
 				}
 			}
