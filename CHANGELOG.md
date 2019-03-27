@@ -1,3 +1,10 @@
+## [1.1.41](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.40...v1.1.41) (2019-03-27)
+
+### Bug Fixes
+
+- **bug:** fixes an issue with resolving regenerator-runtime ([a7039ca](https://github.com/wessberg/rollup-plugin-ts/commit/a7039ca))
+- **bug:** fixes bugs when 'allowJs' is true. Fixes bugs with providing tsconfig options directly ([40d2152](https://github.com/wessberg/rollup-plugin-ts/commit/40d2152))
+
 ## [1.1.40](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.39...v1.1.40) (2019-03-19)
 
 ### Bug Fixes
