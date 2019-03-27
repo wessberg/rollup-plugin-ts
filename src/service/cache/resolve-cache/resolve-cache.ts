@@ -71,7 +71,7 @@ export class ResolveCache implements IResolveCache {
 	): ResolvedModuleWithFailedLookupLocations {
 		// Handle tslib differently
 		if (isTslib(moduleName)) {
-			const tslibPath = sync(`node_modules/tslib/tslib.es6.js`, {cwd});
+			const tslibPath = this.findHelperFromNodeModules("tslib/tslib.es6.js", cwd);
 			if (tslibPath != null) {
 				return {
 					resolvedModule: {
@@ -85,7 +85,7 @@ export class ResolveCache implements IResolveCache {
 
 		// Handle Babel helpers differently
 		else if (isBabelHelper(moduleName)) {
-			const babelHelperPath = sync(`node_modules/${setExtension(moduleName, JS_EXTENSION)}`, {cwd});
+			const babelHelperPath = this.findHelperFromNodeModules(moduleName, cwd);
 			if (babelHelperPath != null) {
 				return {
 					resolvedModule: {
@@ -99,6 +99,20 @@ export class ResolveCache implements IResolveCache {
 
 		// Otherwise, default to using Typescript's resolver directly
 		return resolveModuleName(moduleName, containingFile, compilerOptions, host, cache, redirectedReference);
+	}
+
+	/**
+	 * Finds the given helper inside node_modules (or at least attempts to)
+	 * @param {string} path
+	 * @param {string} cwd
+	 * @return {string | undefined}
+	 */
+	private findHelperFromNodeModules(path: string, cwd: string): string | undefined {
+		for (const resolvedPath of [sync(`node_modules/${setExtension(path, JS_EXTENSION)}`, {cwd}), sync(`node_modules/${path}/index.js`, {cwd})]) {
+			if (resolvedPath != null) return resolvedPath;
+		}
+
+		return undefined;
 	}
 
 	/**
