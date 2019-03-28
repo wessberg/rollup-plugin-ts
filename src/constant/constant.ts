@@ -17,9 +17,11 @@ export const BABEL_RUNTIME_PREFIX_2 = "babel-runtime/";
 export const REGENERATOR_RUNTIME_NAME_1 = `${BABEL_RUNTIME_PREFIX_1}regenerator/index.js`;
 export const REGENERATOR_RUNTIME_NAME_2 = `${BABEL_RUNTIME_PREFIX_2}regenerator/index.js`;
 export const TYPEOF_BABEL_HELPER_NAME_1 = `${BABEL_RUNTIME_PREFIX_1}helpers/esm/typeof.js`;
-export const TYPEOF_BABEL_HELPER_NAME_2 = `${BABEL_RUNTIME_PREFIX_1}helpers/typeof.js`;
-export const TYPEOF_BABEL_HELPER_NAME_3 = `${BABEL_RUNTIME_PREFIX_2}helpers/esm/typeof.js`;
+export const TYPEOF_BABEL_HELPER_NAME_2 = `${BABEL_RUNTIME_PREFIX_2}helpers/typeof.js`;
+export const TYPEOF_BABEL_HELPER_NAME_3 = `${BABEL_RUNTIME_PREFIX_1}helpers/esm/typeof.js`;
 export const TYPEOF_BABEL_HELPER_NAME_4 = `${BABEL_RUNTIME_PREFIX_2}helpers/typeof.js`;
+export const TYPEOF_BABEL_HELPER_NAME_5 = `${BABEL_RUNTIME_PREFIX_1}helpers/esm/instanceof.js`;
+export const TYPEOF_BABEL_HELPER_NAME_6 = `${BABEL_RUNTIME_PREFIX_2}helpers/instanceof.js`;
 
 export const BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES = [];
 
@@ -56,8 +58,18 @@ export const PRESERVING_PROPERTY_ACCESS_EXPRESSION_EXPRESSION = "__rollup_plugin
 export const PRESERVING_PROPERTY_ACCESS_EXPRESSION_NAME = "__property_access_member__";
 export const PRESERVING_PROPERTY_ACCESS_EXPRESSION = `${PRESERVING_PROPERTY_ACCESS_EXPRESSION_EXPRESSION}.${PRESERVING_PROPERTY_ACCESS_EXPRESSION_NAME};`;
 
-export const FORCED_BABEL_OPTIONS = {
+export const FORCED_BABEL_PRESET_ENV_OPTIONS = {
 	modules: false
+};
+
+export const FORCED_BABEL_YEARLY_PRESET_OPTIONS = {
+	...FORCED_BABEL_PRESET_ENV_OPTIONS
+};
+
+export const FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS = {
+	helpers: true,
+	useESModules: true,
+	regenerator: true
 };
 
 export const MAIN_FIELDS = ["module", "es2015", "esm2015", "jsnext:main", "main"];

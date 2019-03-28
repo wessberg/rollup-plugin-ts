@@ -4,6 +4,7 @@ import {IGetDefaultBabelOptionsResult} from "../get-default-babel-options/i-get-
 
 export interface IGetBabelConfigOptions {
 	cwd: string;
+	browserslist: string[] | undefined;
 	babelConfig?: ITypescriptPluginBabelOptions["babelConfig"];
 	forcedOptions?: IGetForcedBabelOptionsResult;
 	defaultOptions?: IGetDefaultBabelOptionsResult;

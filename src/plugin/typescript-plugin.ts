@@ -37,6 +37,7 @@ import {getDeclarationOutDir} from "../util/get-declaration-out-dir/get-declarat
 import {getMagicStringContainer} from "../service/magic-string-container/get-magic-string-container";
 import {getOutDir} from "../util/get-out-dir/get-out-dir";
 import {GetParsedCommandLineResult} from "../util/get-parsed-command-line/get-parsed-command-line-result";
+import {takeBrowserslistOrComputeBasedOnCompilerOptions} from "../util/take-browserslist-or-compute-based-on-compiler-options/take-browserslist-or-compute-based-on-compiler-options";
 
 /**
  * The name of the Rollup plugin
@@ -65,13 +66,13 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	 * The config to use with Babel, if Babel should transpile source code
 	 * @type {IBabelConfig}
 	 */
-	let babelConfig: IBabelConfig | undefined;
+	let babelConfig: ((filename: string) => IBabelConfig) | undefined;
 
 	/**
 	 * If babel is to be used, and if one or more minify presets/plugins has been passed, this config will be used
 	 * @type {boolean}
 	 */
-	let babelMinifyConfig: IBabelConfig | undefined;
+	let babelMinifyConfig: ((filename: string) => IBabelConfig) | undefined;
 
 	/**
 	 * If babel is to be used, and if one or more minify presets/plugins has been passed, this will be true
@@ -156,11 +157,15 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 			// Prepare a Babel config if Babel should be the transpiler
 			if (pluginOptions.transpiler === "babel") {
+				// A browserslist may already be provided, but if that is not the case, one can be computed based on the "target" from the tsconfig
+				const computedBrowserslist = takeBrowserslistOrComputeBasedOnCompilerOptions(normalizedBrowserslist, parsedCommandLineResult.originalCompilerOptions);
+
 				const babelConfigResult = getBabelConfig({
-					babelConfig: pluginOptions.babelConfig,
 					cwd,
-					forcedOptions: getForcedBabelOptions({cwd, pluginOptions, rollupInputOptions, browserslist: normalizedBrowserslist}),
-					defaultOptions: getDefaultBabelOptions({pluginOptions, rollupInputOptions, browserslist: normalizedBrowserslist, originalCompilerOptions: parsedCommandLineResult.originalCompilerOptions})
+					babelConfig: pluginOptions.babelConfig,
+					forcedOptions: getForcedBabelOptions({cwd, pluginOptions, rollupInputOptions, browserslist: computedBrowserslist}),
+					defaultOptions: getDefaultBabelOptions({pluginOptions, rollupInputOptions, browserslist: computedBrowserslist}),
+					browserslist: computedBrowserslist
 				});
 				babelConfig = babelConfigResult.config;
 				babelMinifyConfig = babelConfigResult.minifyConfig;
@@ -220,7 +225,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// Otherwise, if babel minify should be run, replace the temporary property access expression before proceeding
 			else {
 				const transpilationResult = await transformAsync(updatedCode.code, {
-					...babelMinifyConfig,
+					...babelMinifyConfig(chunk.fileName),
 					filename: chunk.fileName,
 					filenameRelative: ensureRelative(cwd, chunk.fileName)
 				});
@@ -277,7 +282,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				// Otherwise, pass it on to Babel to perform the rest of the transpilation steps
 				else {
 					const transpilationResult = await transformAsync(sourceDescription.code, {
-						...babelConfig,
+						...babelConfig(file),
 						filename: file,
 						filenameRelative: ensureRelative(cwd, file),
 						inputSourceMap: typeof sourceDescription.map === "string" ? JSON.parse(sourceDescription.map) : sourceDescription.map

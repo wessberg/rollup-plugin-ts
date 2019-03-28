@@ -14,7 +14,9 @@ import {
 	TYPEOF_BABEL_HELPER_NAME_3,
 	TYPEOF_BABEL_HELPER_NAME_4,
 	BABEL_RUNTIME_PREFIX_1,
-	BABEL_RUNTIME_PREFIX_2
+	BABEL_RUNTIME_PREFIX_2,
+	TYPEOF_BABEL_HELPER_NAME_6,
+	TYPEOF_BABEL_HELPER_NAME_5
 } from "../../constant/constant";
 
 /**
@@ -61,7 +63,14 @@ export function isTslib(path: string): boolean {
  * @returns {boolean}
  */
 export function isNonTransformableBabelHelper(path: string): boolean {
-	return path.endsWith(TYPEOF_BABEL_HELPER_NAME_1) || path.endsWith(TYPEOF_BABEL_HELPER_NAME_2) || path.endsWith(TYPEOF_BABEL_HELPER_NAME_3) || path.endsWith(TYPEOF_BABEL_HELPER_NAME_4);
+	return (
+		path.endsWith(TYPEOF_BABEL_HELPER_NAME_1) ||
+		path.endsWith(TYPEOF_BABEL_HELPER_NAME_2) ||
+		path.endsWith(TYPEOF_BABEL_HELPER_NAME_3) ||
+		path.endsWith(TYPEOF_BABEL_HELPER_NAME_4) ||
+		path.endsWith(TYPEOF_BABEL_HELPER_NAME_5) ||
+		path.endsWith(TYPEOF_BABEL_HELPER_NAME_6)
+	);
 }
 
 /**
@@ -71,6 +80,42 @@ export function isNonTransformableBabelHelper(path: string): boolean {
  */
 export function isBabelHelper(path: string): boolean {
 	return path.startsWith(BABEL_RUNTIME_PREFIX_1) || path.startsWith(BABEL_RUNTIME_PREFIX_2);
+}
+
+/**
+ * Returns true if the given path represents @babel/preset-env
+ * @param {string} path
+ * @return {boolean}
+ */
+export function isBabelPresetEnv(path: string): boolean {
+	return path.includes("@babel/preset-env") || path.includes("babel-preset-env");
+}
+
+/**
+ * Returns true if the given path represents @babel/preset-es2015
+ * @param {string} path
+ * @return {boolean}
+ */
+export function isBabelPresetEs2015(path: string): boolean {
+	return path.includes("@babel/preset-es2015") || path.includes("babel-preset-es2015");
+}
+
+/**
+ * Returns true if the given path represents @babel/preset-es[2015|2016|2017]
+ * @param {string} path
+ * @return {boolean}
+ */
+export function isYearlyBabelPreset(path: string): boolean {
+	return path.includes("@babel/preset-es") || path.includes("babel-preset-es");
+}
+
+/**
+ * Returns true if the given path represents @babel/plugin-transform-runtime
+ * @param {string} path
+ * @return {boolean}
+ */
+export function isBabelPluginTransformRuntime(path: string): boolean {
+	return path.includes("@babel/plugin-transform-runtime") || path.includes("babel-plugin-transform-runtime");
 }
 
 /**
