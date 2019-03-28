@@ -1,3 +1,9 @@
+## [1.1.42](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.41...v1.1.42) (2019-03-28)
+
+### Bug Fixes
+
+- **babel:** fixes various issues with applying babel configs with glob/RegExp matching patterns as well as deduping and merging of config options. [#13](https://github.com/wessberg/rollup-plugin-ts/issues/13) ([1b8f2ee](https://github.com/wessberg/rollup-plugin-ts/commit/1b8f2ee))
+
 ## [1.1.41](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.40...v1.1.41) (2019-03-27)
 
 ### Bug Fixes
