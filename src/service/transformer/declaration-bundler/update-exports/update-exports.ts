@@ -64,7 +64,7 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 			const visitorOptions = {
 				usedExports,
 				sourceFile,
-				isEntry: sourceFile.fileName === rest.entryFileName,
+				isEntry: rest.entryFileNames.includes(sourceFile.fileName),
 				...rest,
 				continuation: <U extends Node>(node: U) => {
 					return visitEachChild(node, visitor, context);

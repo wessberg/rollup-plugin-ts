@@ -8,7 +8,7 @@ export interface IDeclarationBundlerOptions {
 	moduleNames: string[];
 	relativeOutFileName: string;
 	absoluteOutFileName: string;
-	entryFileName: string;
+	entryFileNames: string[];
 	chunkToOriginalFileMap: Map<string, string[]>;
 	identifiersForDefaultExportsForModules: Map<string, string>;
 }

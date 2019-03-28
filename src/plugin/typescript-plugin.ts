@@ -9,7 +9,7 @@ import {EmitCache} from "../service/cache/emit-cache/emit-cache";
 import {emitDeclarations} from "../util/emit-declarations/emit-declarations";
 import {emitDiagnosticsThroughRollup} from "../util/diagnostic/emit-diagnostics-through-rollup";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
-import {ensureRelative, getExtension, isNonTransformableBabelHelper} from "../util/path/path-util";
+import {ensureRelative, getExtension, isNonTransformableBabelHelper, isRollupPluginMultiEntry} from "../util/path/path-util";
 import {join} from "path";
 import {ModuleResolutionHost} from "../service/module-resolution-host/module-resolution-host";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
@@ -21,7 +21,7 @@ import {getForcedBabelOptions} from "../util/get-forced-babel-options/get-forced
 import {getBrowserslist} from "../util/get-browserslist/get-browserslist";
 import {IResolveCache} from "../service/cache/resolve-cache/i-resolve-cache";
 import {ResolveCache} from "../service/cache/resolve-cache/resolve-cache";
-import {PRESERVING_PROPERTY_ACCESS_EXPRESSION, REGENERATOR_RUNTIME_NAME_1, REGENERATOR_RUNTIME_NAME_2} from "../constant/constant";
+import {PRESERVING_PROPERTY_ACCESS_EXPRESSION, REGENERATOR_RUNTIME_NAME_1, REGENERATOR_RUNTIME_NAME_2, ROLLUP_PLUGIN_MULTI_ENTRY} from "../constant/constant";
 import {REGENERATOR_SOURCE} from "../lib/regenerator/regenerator";
 import {getDefaultBabelOptions} from "../util/get-default-babel-options/get-default-babel-options";
 // @ts-ignore
@@ -38,6 +38,7 @@ import {getMagicStringContainer} from "../service/magic-string-container/get-mag
 import {getOutDir} from "../util/get-out-dir/get-out-dir";
 import {GetParsedCommandLineResult} from "../util/get-parsed-command-line/get-parsed-command-line-result";
 import {takeBrowserslistOrComputeBasedOnCompilerOptions} from "../util/take-browserslist-or-compute-based-on-compiler-options/take-browserslist-or-compute-based-on-compiler-options";
+import {matchAll} from "@wessberg/stringutil";
 
 /**
  * The name of the Rollup plugin
@@ -128,6 +129,12 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	let rollupInputOptions: InputOptions;
 
 	/**
+	 * A Set of the entry filenames for when using rollup-plugin-multi-entry (we need to track this for generating valid declarations)
+	 * @type {Set<string>?}
+	 */
+	let MULTI_ENTRY_FILE_NAMES: Set<string> | undefined;
+
+	/**
 	 * Returns true if Typescript can emit something for the given file
 	 * @param {string} id
 	 * @param {string[]} supportedExtensions
@@ -210,7 +217,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			const updatedCode = getMagicStringContainer(code, chunk.fileName);
 
 			if (includesPropertyAccessExpression) {
-				updatedCode.replaceAll(PRESERVING_PROPERTY_ACCESS_EXPRESSION, "");
+				updatedCode.replaceAll(`${languageServiceHost.getNewLine()}${PRESERVING_PROPERTY_ACCESS_EXPRESSION}${languageServiceHost.getNewLine()}`, "");
 			}
 
 			if (!hasBabelMinifyOptions || babelMinifyConfig == null) {
@@ -245,6 +252,13 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * @returns {Promise<TransformSourceDescription?>}
 		 */
 		async transform(this: PluginContext, code: string, file: string): Promise<TransformSourceDescription | undefined> {
+			// If this file represents ROLLUP_PLUGIN_MULTI_ENTRY, we need to parse its' contents to understand which files it aliases.
+			// Following that, there's nothing more to do
+			if (isRollupPluginMultiEntry(file)) {
+				MULTI_ENTRY_FILE_NAMES = new Set(matchAll(code, /(import|export)\s*(\*\s*from\s*)?["'`]([^"'`]*)["'`]/).map(([, , , path]) => path));
+				return undefined;
+			}
+
 			// Skip the file if it doesn't match the filter or if the helper cannot be transformed
 			if (!filter(file) || isNonTransformableBabelHelper(file)) {
 				return undefined;
@@ -351,10 +365,21 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				const moduleNames = [...new Set(([] as string[]).concat.apply([], chunks.map(chunk => Object.keys(chunk.modules).filter(canEmitForFile))))];
 
 				chunks.forEach((chunk: OutputChunk) => {
-					const localModuleNames = Object.keys(chunk.modules).filter(canEmitForFile);
-					const entryFileName = localModuleNames.slice(-1)[0];
+					const rawLocalModuleNames = Object.keys(chunk.modules);
+					const localModuleNames = rawLocalModuleNames.filter(canEmitForFile);
+					const rawEntryFileName = rawLocalModuleNames.slice(-1)[0];
+					let entryFileNames = [localModuleNames.slice(-1)[0]];
+
+					// If the entry filename is equal to the ROLLUP_PLUGIN_MULTI_ENTRY constant,
+					// the entry is a combination of one or more of the local module names.
+					// Luckily we should know this by now after having parsed the contents in the transform hook
+					if (rawEntryFileName === ROLLUP_PLUGIN_MULTI_ENTRY && MULTI_ENTRY_FILE_NAMES != null) {
+						// Reassign the entry file names accordingly
+						entryFileNames = [...MULTI_ENTRY_FILE_NAMES];
+					}
+
 					// Don't emit declarations when there is no compatible entry file
-					if (entryFileName == null) return;
+					if (entryFileNames.length < 1 || entryFileNames.some(entryFileName => entryFileName == null)) return;
 
 					emitDeclarations({
 						chunk,
@@ -370,7 +395,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 						chunkToOriginalFileMap,
 						moduleNames,
 						localModuleNames,
-						entryFileName,
+						entryFileNames,
 						supportedExtensions: SUPPORTED_EXTENSIONS
 					});
 				});

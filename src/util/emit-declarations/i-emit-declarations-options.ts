@@ -12,7 +12,7 @@ export interface IEmitDeclarationsOptions {
 	chunk: OutputChunk;
 	moduleNames: string[];
 	localModuleNames: string[];
-	entryFileName: string;
+	entryFileNames: string[];
 	outputOptions: OutputOptions;
 	languageService: LanguageService;
 	languageServiceHost: IncrementalLanguageService;

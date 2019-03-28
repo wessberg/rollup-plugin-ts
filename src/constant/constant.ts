@@ -76,6 +76,8 @@ export const MAIN_FIELDS = ["module", "es2015", "esm2015", "jsnext:main", "main"
 
 export const MAIN_FIELDS_BROWSER = ["browser", "module", "es2015", "esm2015", "jsnext:main", "main"];
 
+export const ROLLUP_PLUGIN_MULTI_ENTRY = "\0rollup-plugin-multi-entry:entry-point";
+
 export const DEFAULT_LIB_NAMES: Set<string> = new Set([
 	"lib.d.ts",
 	"lib.dom.d.ts",

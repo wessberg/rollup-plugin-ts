@@ -20,7 +20,7 @@ export function flattenDeclarationsFromRollupChunk({
 	outDir,
 	languageServiceHost,
 	supportedExtensions,
-	entryFileName,
+	entryFileNames,
 	moduleNames,
 	generateMap,
 	localModuleNames,
@@ -40,12 +40,18 @@ export function flattenDeclarationsFromRollupChunk({
 	});
 
 	const typeChecker = program.getTypeChecker();
-	const entrySourceFile = program.getSourceFile(entryFileName);
-	const entrySourceFileSymbol = typeChecker.getSymbolAtLocation(entrySourceFile!);
+	const entrySourceFiles = entryFileNames.map(entryFileName => program.getSourceFile(entryFileName));
+	const entrySourceFileSymbols = entrySourceFiles.map(entrySourceFile => typeChecker.getSymbolAtLocation(entrySourceFile!));
 
-	const usedExports: Set<string> = new Set(
-		entrySourceFile == null || entrySourceFileSymbol == null ? [] : typeChecker.getExportsOfModule(entrySourceFileSymbol).map(exportSymbol => exportSymbol.getName())
-	);
+	const usedExports: Set<string> = new Set();
+
+	for (const entrySourceFileSymbol of entrySourceFileSymbols) {
+		if (entrySourceFileSymbol == null) continue;
+		const exports = typeChecker.getExportsOfModule(entrySourceFileSymbol).map(exportSymbol => exportSymbol.getName());
+		for (const exportedSymbol of exports) {
+			usedExports.add(exportedSymbol);
+		}
+	}
 
 	const generatedOutDir = languageServiceHost.getCompilationSettings().outDir!;
 
@@ -102,7 +108,7 @@ export function flattenDeclarationsFromRollupChunk({
 			supportedExtensions,
 			localModuleNames,
 			moduleNames,
-			entryFileName,
+			entryFileNames,
 			relativeOutFileName: ensureHasLeadingDot(declarationFilename),
 			absoluteOutFileName: absoluteDeclarationFilename,
 			chunkToOriginalFileMap,

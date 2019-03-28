@@ -16,7 +16,8 @@ import {
 	BABEL_RUNTIME_PREFIX_1,
 	BABEL_RUNTIME_PREFIX_2,
 	TYPEOF_BABEL_HELPER_NAME_6,
-	TYPEOF_BABEL_HELPER_NAME_5
+	TYPEOF_BABEL_HELPER_NAME_5,
+	ROLLUP_PLUGIN_MULTI_ENTRY
 } from "../../constant/constant";
 
 /**
@@ -89,6 +90,15 @@ export function isBabelHelper(path: string): boolean {
  */
 export function isBabelPresetEnv(path: string): boolean {
 	return path.includes("@babel/preset-env") || path.includes("babel-preset-env");
+}
+
+/**
+ * Returns true if the given path represents the entry point for rollup-plugin-multi-entry
+ * @param {string} path
+ * @return {boolean}
+ */
+export function isRollupPluginMultiEntry(path: string): boolean {
+	return path === ROLLUP_PLUGIN_MULTI_ENTRY;
 }
 
 /**
