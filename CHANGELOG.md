@@ -1,3 +1,9 @@
+## [1.1.43](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.42...v1.1.43) (2019-03-28)
+
+### Bug Fixes
+
+- **multi-entry:** fixes an interoperability issue with rollup-plugin-multi-entry where declarations wouldn't be able to detect the entry modules for multi entry chunks ([5c9c244](https://github.com/wessberg/rollup-plugin-ts/commit/5c9c244))
+
 ## [1.1.42](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.41...v1.1.42) (2019-03-28)
 
 ### Bug Fixes
