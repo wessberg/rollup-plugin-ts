@@ -1,3 +1,14 @@
+## [1.1.44](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.43...v1.1.44) (2019-03-30)
+
+### Bug Fixes
+
+- **bug:** fixes an issue with an injected identifier not being found at all times ([1381c5e](https://github.com/wessberg/rollup-plugin-ts/commit/1381c5e))
+
+### Features
+
+- **EcmaVersion:** adds support for generating browserslists for browsers with support for ES2019 ([2c8ea0c](https://github.com/wessberg/rollup-plugin-ts/commit/2c8ea0c))
+- **typescript:** makes it possible to detect and Ecma version for the ScriptTarget ES2019 ([b336547](https://github.com/wessberg/rollup-plugin-ts/commit/b336547))
+
 ## [1.1.43](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.42...v1.1.43) (2019-03-28)
 
 ### Bug Fixes
