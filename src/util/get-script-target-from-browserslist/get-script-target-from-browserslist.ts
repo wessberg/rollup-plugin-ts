@@ -20,6 +20,8 @@ export function getScriptTargetFromBrowserslist(browserslist: string[]): ScriptT
 			return ScriptTarget.ES2017;
 		case "es2018":
 			return ScriptTarget.ES2018;
+		case "es2019":
+			return ScriptTarget.ES2019;
 	}
 }
 

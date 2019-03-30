@@ -73,7 +73,7 @@
 		"@types/mkdirp": "^0.5.2",
 		"@types/node": "^11.12.2",
 		"@types/resolve": "0.0.8",
-		"@wessberg/browserslist-generator": "1.0.13",
+		"@wessberg/browserslist-generator": "1.0.14",
 		"@wessberg/stringutil": "^1.0.18",
 		"browserslist": "^4.5.3",
 		"find-up": "^3.0.0",
