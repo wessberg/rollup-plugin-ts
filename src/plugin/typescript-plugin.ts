@@ -218,6 +218,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 			if (includesPropertyAccessExpression) {
 				updatedCode.replaceAll(`${languageServiceHost.getNewLine()}${PRESERVING_PROPERTY_ACCESS_EXPRESSION}${languageServiceHost.getNewLine()}`, "");
+				updatedCode.replaceAll(PRESERVING_PROPERTY_ACCESS_EXPRESSION, "");
 			}
 
 			if (!hasBabelMinifyOptions || babelMinifyConfig == null) {
