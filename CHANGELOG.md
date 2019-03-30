@@ -1,3 +1,5 @@
+## [1.1.45](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.44...v1.1.45) (2019-03-30)
+
 ## [1.1.44](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.43...v1.1.44) (2019-03-30)
 
 ### Bug Fixes
