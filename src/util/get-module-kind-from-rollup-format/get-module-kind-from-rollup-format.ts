@@ -11,11 +11,13 @@ export function getModuleKindFromRollupFormat(format: ModuleFormat): ModuleKind 
 		case "amd":
 			return ModuleKind.AMD;
 		case "cjs":
+		case "commonjs":
 			return ModuleKind.CommonJS;
 		case "system":
 			return ModuleKind.System;
 		case "es":
 		case "esm":
+		case "module":
 			return ModuleKind.ESNext;
 		case "umd":
 			return ModuleKind.UMD;
