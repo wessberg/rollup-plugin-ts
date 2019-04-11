@@ -85,7 +85,7 @@ export const FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS = (rollupInputOptions
 	return {
 		helpers: true,
 		regenerator: true,
-		...(forceESModules ? {forceESModules: true} : {})
+		...(forceESModules ? {useESModules: true} : {})
 	};
 };
 
