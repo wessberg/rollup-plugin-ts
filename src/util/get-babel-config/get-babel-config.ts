@@ -87,7 +87,7 @@ function configItemIsAllowedDuringNoMinification({file: {resolved}}: IBabelConfi
  * @param {IGetBabelConfigOptions} options
  * @returns {IGetBabelConfigResult}
  */
-export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOptions = {}, browserslist}: IGetBabelConfigOptions): IGetBabelConfigResult {
+export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOptions = {}, browserslist, rollupInputOptions}: IGetBabelConfigOptions): IGetBabelConfigResult {
 	// Load a partial Babel config based on the input options
 	const partialConfig = loadPartialConfig(
 		isBabelInputOptions(babelConfig)
@@ -156,7 +156,7 @@ export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOpt
 						plugin.file.request,
 						{
 							...(plugin.options == null ? {} : plugin.options),
-							...FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS
+							...FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS(rollupInputOptions)
 						}
 					],
 					{type: "plugin", dirname: cwd}

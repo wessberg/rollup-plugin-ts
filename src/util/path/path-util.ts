@@ -1,23 +1,17 @@
-import {isAbsolute, join, parse, relative, extname} from "path";
+import {extname, isAbsolute, join, parse, relative} from "path";
 import {
+	BABEL_RUNTIME_PREFIX_1,
+	BABEL_RUNTIME_PREFIX_2,
 	DECLARATION_EXTENSION,
 	DECLARATION_MAP_EXTENSION,
+	DEFAULT_LIB_NAMES,
 	JS_EXTENSION,
 	JSX_EXTENSION,
 	MJS_EXTENSION,
-	TSX_EXTENSION,
+	ROLLUP_PLUGIN_MULTI_ENTRY,
 	TS_EXTENSION,
-	DEFAULT_LIB_NAMES,
 	TSLIB_NAME,
-	TYPEOF_BABEL_HELPER_NAME_1,
-	TYPEOF_BABEL_HELPER_NAME_2,
-	TYPEOF_BABEL_HELPER_NAME_3,
-	TYPEOF_BABEL_HELPER_NAME_4,
-	BABEL_RUNTIME_PREFIX_1,
-	BABEL_RUNTIME_PREFIX_2,
-	TYPEOF_BABEL_HELPER_NAME_6,
-	TYPEOF_BABEL_HELPER_NAME_5,
-	ROLLUP_PLUGIN_MULTI_ENTRY
+	TSX_EXTENSION
 } from "../../constant/constant";
 
 /**
@@ -59,28 +53,30 @@ export function isTslib(path: string): boolean {
 }
 
 /**
- * Returns true if the given path represents a Babel helper that shouldn't be transformed
- * @param {string} path
- * @returns {boolean}
- */
-export function isNonTransformableBabelHelper(path: string): boolean {
-	return (
-		path.endsWith(TYPEOF_BABEL_HELPER_NAME_1) ||
-		path.endsWith(TYPEOF_BABEL_HELPER_NAME_2) ||
-		path.endsWith(TYPEOF_BABEL_HELPER_NAME_3) ||
-		path.endsWith(TYPEOF_BABEL_HELPER_NAME_4) ||
-		path.endsWith(TYPEOF_BABEL_HELPER_NAME_5) ||
-		path.endsWith(TYPEOF_BABEL_HELPER_NAME_6)
-	);
-}
-
-/**
  * Returns true if the given path represents a Babel helper
  * @param {string} path
  * @returns {boolean}
  */
 export function isBabelHelper(path: string): boolean {
-	return path.startsWith(BABEL_RUNTIME_PREFIX_1) || path.startsWith(BABEL_RUNTIME_PREFIX_2);
+	return isBabelEsmHelper(path) || isBabelCjsHelper(path);
+}
+
+/**
+ * Returns true if the given path represents a Babel ESM helper
+ * @param {string} path
+ * @returns {boolean}
+ */
+export function isBabelEsmHelper(path: string): boolean {
+	return path.startsWith(`${BABEL_RUNTIME_PREFIX_1}helpers/esm`) || path.startsWith(`${BABEL_RUNTIME_PREFIX_2}helpers/esm`);
+}
+
+/**
+ * Returns true if the given path represents a Babel CJS helper
+ * @param {string} path
+ * @returns {boolean}
+ */
+export function isBabelCjsHelper(path: string): boolean {
+	return !isBabelEsmHelper(path) && (path.startsWith(`${BABEL_RUNTIME_PREFIX_1}helpers`) || path.startsWith(`${BABEL_RUNTIME_PREFIX_2}helpers`));
 }
 
 /**

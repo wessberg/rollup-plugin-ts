@@ -8,7 +8,7 @@ import {FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS, FORCED_BABEL_PRESET_ENV_O
  * @param {IGetDefaultBabelOptionsOptions} _options
  * @returns {IGetDefaultBabelOptionsResult}
  */
-export function getDefaultBabelOptions({browserslist}: IGetDefaultBabelOptionsOptions): IGetDefaultBabelOptionsResult {
+export function getDefaultBabelOptions({browserslist, rollupInputOptions}: IGetDefaultBabelOptionsOptions): IGetDefaultBabelOptionsResult {
 	const includePresetEnv = browserslist != null;
 
 	return {
@@ -49,7 +49,7 @@ export function getDefaultBabelOptions({browserslist}: IGetDefaultBabelOptionsOp
 			[
 				"@babel/plugin-transform-runtime",
 				{
-					...FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS,
+					...FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS(rollupInputOptions),
 					corejs: false
 				}
 			]

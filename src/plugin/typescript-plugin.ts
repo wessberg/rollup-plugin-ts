@@ -9,7 +9,7 @@ import {EmitCache} from "../service/cache/emit-cache/emit-cache";
 import {emitDeclarations} from "../util/emit-declarations/emit-declarations";
 import {emitDiagnosticsThroughRollup} from "../util/diagnostic/emit-diagnostics-through-rollup";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
-import {ensureRelative, getExtension, isNonTransformableBabelHelper, isRollupPluginMultiEntry} from "../util/path/path-util";
+import {ensureRelative, getExtension, isBabelHelper, isRollupPluginMultiEntry} from "../util/path/path-util";
 import {join} from "path";
 import {ModuleResolutionHost} from "../service/module-resolution-host/module-resolution-host";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
@@ -172,7 +172,8 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 					babelConfig: pluginOptions.babelConfig,
 					forcedOptions: getForcedBabelOptions({cwd, pluginOptions, rollupInputOptions, browserslist: computedBrowserslist}),
 					defaultOptions: getDefaultBabelOptions({pluginOptions, rollupInputOptions, browserslist: computedBrowserslist}),
-					browserslist: computedBrowserslist
+					browserslist: computedBrowserslist,
+					rollupInputOptions
 				});
 				babelConfig = babelConfigResult.config;
 				babelMinifyConfig = babelConfigResult.minifyConfig;
@@ -261,7 +262,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			}
 
 			// Skip the file if it doesn't match the filter or if the helper cannot be transformed
-			if (!filter(file) || isNonTransformableBabelHelper(file)) {
+			if (!filter(file) || isBabelHelper(file)) {
 				return undefined;
 			}
 

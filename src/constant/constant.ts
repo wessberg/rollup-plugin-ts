@@ -1,3 +1,5 @@
+import {InputOptions} from "rollup";
+
 export const SOURCE_MAP_EXTENSION = ".map";
 export const TS_EXTENSION = ".ts";
 export const TSX_EXTENSION = ".tsx";
@@ -14,14 +16,10 @@ export const SOURCE_MAP_COMMENT_REGEXP = /\n\/\/# sourceMappingURL=.*/g;
 export const TSLIB_NAME = `tslib${DECLARATION_EXTENSION}`;
 export const BABEL_RUNTIME_PREFIX_1 = "@babel/runtime/";
 export const BABEL_RUNTIME_PREFIX_2 = "babel-runtime/";
+
 export const REGENERATOR_RUNTIME_NAME_1 = `${BABEL_RUNTIME_PREFIX_1}regenerator/index.js`;
 export const REGENERATOR_RUNTIME_NAME_2 = `${BABEL_RUNTIME_PREFIX_2}regenerator/index.js`;
-export const TYPEOF_BABEL_HELPER_NAME_1 = `${BABEL_RUNTIME_PREFIX_1}helpers/esm/typeof.js`;
-export const TYPEOF_BABEL_HELPER_NAME_2 = `${BABEL_RUNTIME_PREFIX_2}helpers/typeof.js`;
-export const TYPEOF_BABEL_HELPER_NAME_3 = `${BABEL_RUNTIME_PREFIX_1}helpers/esm/typeof.js`;
-export const TYPEOF_BABEL_HELPER_NAME_4 = `${BABEL_RUNTIME_PREFIX_2}helpers/typeof.js`;
-export const TYPEOF_BABEL_HELPER_NAME_5 = `${BABEL_RUNTIME_PREFIX_1}helpers/esm/instanceof.js`;
-export const TYPEOF_BABEL_HELPER_NAME_6 = `${BABEL_RUNTIME_PREFIX_2}helpers/instanceof.js`;
+export const BABEL_EXAMPLE_HELPERS = [`${BABEL_RUNTIME_PREFIX_1}helpers/esm/typeof.js`, `${BABEL_RUNTIME_PREFIX_2}helpers/esm/typeof.js`];
 
 export const BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES = [];
 
@@ -66,10 +64,29 @@ export const FORCED_BABEL_YEARLY_PRESET_OPTIONS = {
 	...FORCED_BABEL_PRESET_ENV_OPTIONS
 };
 
-export const FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS = {
-	helpers: true,
-	useESModules: true,
-	regenerator: true
+export const FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS = (rollupInputOptions: InputOptions) => {
+	let forceESModules: boolean = true;
+
+	// Only apply the forceESModules option if @babel helpers aren't treated as external.
+	if (
+		BABEL_EXAMPLE_HELPERS.some(helper => {
+			if (typeof rollupInputOptions.external === "function") {
+				return rollupInputOptions.external(helper, "", true) === true;
+			} else if (Array.isArray(rollupInputOptions.external)) {
+				return rollupInputOptions.external.includes(helper);
+			} else {
+				return false;
+			}
+		})
+	) {
+		forceESModules = false;
+	}
+
+	return {
+		helpers: true,
+		regenerator: true,
+		...(forceESModules ? {forceESModules: true} : {})
+	};
 };
 
 export const MAIN_FIELDS = ["module", "es2015", "esm2015", "jsnext:main", "main"];
