@@ -1,3 +1,13 @@
+## [1.1.46](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.45...v1.1.46) (2019-04-11)
+
+### Bug Fixes
+
+- **bug:** fixes issue where babel helpers would force ESM variants even though they were marked as external. Fixes [#15](https://github.com/wessberg/rollup-plugin-ts/issues/15) ([f981b17](https://github.com/wessberg/rollup-plugin-ts/commit/f981b17))
+
+### Features
+
+- **format:** adds support for 'commonjs' and 'module' aliases for 'cjs' and 'esm' respectively ([16153b9](https://github.com/wessberg/rollup-plugin-ts/commit/16153b9))
+
 ## [1.1.45](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.44...v1.1.45) (2019-03-30)
 
 ## [1.1.44](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.43...v1.1.44) (2019-03-30)
