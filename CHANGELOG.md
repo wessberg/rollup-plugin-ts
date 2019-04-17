@@ -1,3 +1,15 @@
+## [1.1.47](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.46...v1.1.47) (2019-04-17)
+
+### Bug Fixes
+
+- **bug:** fixes bug when producing declaration with namespace imports ([808e59e](https://github.com/wessberg/rollup-plugin-ts/commit/808e59e))
+- **bug:** fixes issue with default exports of varying types ([d9bdd2a](https://github.com/wessberg/rollup-plugin-ts/commit/d9bdd2a))
+- **bug:** fixes issue with default exports of varying types ([b01f4be](https://github.com/wessberg/rollup-plugin-ts/commit/b01f4be))
+- **bug:** fixes issues where aliased imports could cause conflicts with merged symbols with name clashes ([c5c97cb](https://github.com/wessberg/rollup-plugin-ts/commit/c5c97cb))
+- **bug:** fixes issues with aliased types with type parameters ([702e108](https://github.com/wessberg/rollup-plugin-ts/commit/702e108))
+- **bug:** refined handling of default exports of unnamed classes ([0782f57](https://github.com/wessberg/rollup-plugin-ts/commit/0782f57))
+- **bug:** refined handling of default exports of unnamed functions ([8efdaf7](https://github.com/wessberg/rollup-plugin-ts/commit/8efdaf7))
+
 ## [1.1.46](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.45...v1.1.46) (2019-04-11)
 
 ### Bug Fixes
