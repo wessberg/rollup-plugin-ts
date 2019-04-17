@@ -49,9 +49,12 @@ export function visitExportDeclaration({
 			if (node.exportClause != null) {
 				for (const element of node.exportClause.elements) {
 					const ref = element.propertyName != null ? element.propertyName : element.name;
+
 					const declaration = getAliasedDeclaration(ref, typeChecker);
 					if (declaration != null) {
-						parsedExportedSymbols.set(ref.text, (declaration as unknown) as DeclarationStatement);
+						element.name.text === "default"
+							? identifiersForDefaultExportsForModules.set(sourceFile.fileName, [ref.text, declaration])
+							: parsedExportedSymbols.set(ref.text, (declaration as unknown) as DeclarationStatement);
 					}
 				}
 			}

@@ -14,11 +14,7 @@ export function traceIdentifiersForImportDeclaration({
 }: TraceIdentifiersVisitorOptions<ImportDeclaration>): void {
 	if (node.importClause != null) {
 		if (node.importClause.name != null) {
-			if (!isIdentifierFree(node.importClause.name.text)) {
-				updateIdentifierName(node.importClause.name.text, generateUniqueVariableName(node.importClause.name.text));
-			} else {
-				addIdentifier(node.importClause.name.text);
-			}
+			addIdentifier(node.importClause.name.text);
 		}
 
 		if (node.importClause.namedBindings != null) {
