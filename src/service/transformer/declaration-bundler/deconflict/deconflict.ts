@@ -7,6 +7,7 @@ import {
 	isEnumDeclaration,
 	isFunctionDeclaration,
 	isIdentifier,
+	isImportDeclaration,
 	isInterfaceDeclaration,
 	isObjectBindingPattern,
 	isOmittedExpression,
@@ -38,6 +39,7 @@ import {traceIdentifiersForVariableDeclarationList} from "./visitor/trace-identi
 import {TraceIdentifiersVisitorOptions} from "./trace-identifiers-visitor-options";
 import {DeconflictVisitorOptions} from "./deconflict-visitor-options";
 import {deconflictIdentifier} from "./visitor/deconflict/deconflict-identifier";
+import {traceIdentifiersForImportDeclaration} from "./visitor/trace-identifiers/trace-identifiers-for-import-declaration";
 
 /**
  * Traces identifiers for the given Node, potentially generating new unique variable names for them
@@ -51,6 +53,7 @@ function traceIdentifiers({node, ...rest}: TraceIdentifiersVisitorOptions): void
 	else if (isClassDeclaration(node)) return traceIdentifiersForClassDeclaration({...rest, node});
 	else if (isEnumDeclaration(node)) return traceIdentifiersForEnumDeclaration({...rest, node});
 	else if (isFunctionDeclaration(node)) return traceIdentifiersForFunctionDeclaration({...rest, node});
+	else if (isImportDeclaration(node)) return traceIdentifiersForImportDeclaration({...rest, node});
 	else if (isIdentifier(node)) return traceIdentifiersForIdentifier({...rest, node});
 	else if (isInterfaceDeclaration(node)) return traceIdentifiersForInterfaceDeclaration({...rest, node});
 	else if (isOmittedExpression(node)) return traceIdentifiersForOmittedExpression({...rest, node});
@@ -124,7 +127,9 @@ export function deconflict(options: IDeclarationBundlerOptions): TransformerFact
 						if (module === sourceFile.fileName) continue;
 
 						const identifiersForModule = rootLevelIdentifiersForModuleMap.get(module);
-						if (identifiersForModule != null && identifiersForModule.has(identifier)) return false;
+						if (identifiersForModule != null && identifiersForModule.has(identifier)) {
+							return false;
+						}
 					}
 					return true;
 				},
