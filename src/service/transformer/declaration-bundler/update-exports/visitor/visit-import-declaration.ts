@@ -2,6 +2,9 @@ import {
 	createIdentifier,
 	createModifier,
 	createStringLiteral,
+	createTypeAliasDeclaration,
+	createTypeQueryNode,
+	createTypeReferenceNode,
 	createVariableDeclaration,
 	createVariableDeclarationList,
 	createVariableStatement,
@@ -9,6 +12,7 @@ import {
 	isStringLiteralLike,
 	NodeFlags,
 	SyntaxKind,
+	TypeAliasDeclaration,
 	updateImportDeclaration,
 	VariableStatement
 } from "typescript";
@@ -20,7 +24,7 @@ import {setExtension} from "../../../../../util/path/path-util";
 /**
  * Visits the given ImportDeclaration.
  * @param {UpdateExportsVisitorOptions<ImportDeclaration>} options
- * @returns {VariableStatement | undefined}
+ * @returns {ImportDeclaration | VariableStatement | TypeAliasDeclaration | undefined}
  */
 export function visitImportDeclaration({
 	node,
@@ -30,7 +34,7 @@ export function visitImportDeclaration({
 	relativeOutFileName,
 	chunkToOriginalFileMap,
 	identifiersForDefaultExportsForModules
-}: UpdateExportsVisitorOptions<ImportDeclaration>): ImportDeclaration | VariableStatement | undefined {
+}: UpdateExportsVisitorOptions<ImportDeclaration>): ImportDeclaration | VariableStatement | TypeAliasDeclaration | undefined {
 	const specifier = node.moduleSpecifier;
 	if (specifier == null || !isStringLiteralLike(specifier)) return node;
 
@@ -51,10 +55,36 @@ export function visitImportDeclaration({
 			for (const extension of ["", ...supportedExtensions]) {
 				const path = extension === "" ? join(dirname(sourceFile.fileName), specifier.text) : setExtension(join(dirname(sourceFile.fileName), specifier.text), extension);
 				if (identifiersForDefaultExportsForModules.has(path)) {
-					return createVariableStatement(
-						[createModifier(SyntaxKind.DeclareKeyword)],
-						createVariableDeclarationList([createVariableDeclaration(node.importClause.name.text, undefined, createIdentifier(identifiersForDefaultExportsForModules.get(path)!))], NodeFlags.Const)
-					);
+					const [identifier, kind] = identifiersForDefaultExportsForModules.get(path)!;
+
+					// If the name of the identifier is identical to that of the import, it is already in the scope with the correct name. Leave it be
+					if (identifier === node.importClause.name.text) continue;
+
+					switch (kind) {
+						case SyntaxKind.ClassDeclaration:
+						case SyntaxKind.ClassExpression: {
+							return createVariableStatement(
+								[createModifier(SyntaxKind.DeclareKeyword)],
+								createVariableDeclarationList([createVariableDeclaration(node.importClause.name.text, createTypeQueryNode(createIdentifier(identifier)))], NodeFlags.Const)
+							);
+						}
+
+						case SyntaxKind.TypeAliasDeclaration:
+						case SyntaxKind.InterfaceDeclaration:
+						case SyntaxKind.EnumDeclaration: {
+							return createTypeAliasDeclaration(undefined, [createModifier(SyntaxKind.DeclareKeyword)], node.importClause.name.text, undefined, createTypeReferenceNode(identifier, undefined));
+						}
+
+						case SyntaxKind.FunctionDeclaration:
+						case SyntaxKind.FunctionExpression:
+						case SyntaxKind.VariableDeclaration:
+						default: {
+							return createVariableStatement(
+								[createModifier(SyntaxKind.DeclareKeyword)],
+								createVariableDeclarationList([createVariableDeclaration(node.importClause.name.text, undefined, createIdentifier(identifier))], NodeFlags.Const)
+							);
+						}
+					}
 				}
 			}
 		}

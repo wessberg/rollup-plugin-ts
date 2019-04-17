@@ -112,6 +112,7 @@ export function flattenDeclarationsFromRollupChunk({
 			relativeOutFileName: ensureHasLeadingDot(declarationFilename),
 			absoluteOutFileName: absoluteDeclarationFilename,
 			chunkToOriginalFileMap,
+			typeChecker,
 			identifiersForDefaultExportsForModules: new Map()
 		})
 	);

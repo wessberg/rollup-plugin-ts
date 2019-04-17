@@ -1,15 +1,26 @@
-import {ExportAssignment, VariableStatement} from "typescript";
+import {ExportAssignment, isIdentifier, VariableStatement} from "typescript";
 import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
+import {getAliasedDeclaration} from "../../util/symbol/get-aliased-declaration";
 
 /**
  * Visits the given ExportAssignment.
  * @param {UpdateExportsVisitorOptions<ExportAssignment>} options
  * @returns {ExportAssignment | VariableStatement | undefined}
  */
-export function visitExportAssignment({node, isEntry}: UpdateExportsVisitorOptions<ExportAssignment>): ExportAssignment | VariableStatement | undefined {
+export function visitExportAssignment({
+	node,
+	sourceFile,
+	isEntry,
+	typeChecker,
+	identifiersForDefaultExportsForModules
+}: UpdateExportsVisitorOptions<ExportAssignment>): ExportAssignment | VariableStatement | undefined {
 	// Only preserve the node if it is part of the entry file for the chunk
 	if (isEntry) {
 		return node;
+	} else if (isIdentifier(node.expression)) {
+		const declaration = getAliasedDeclaration(node.expression, typeChecker);
+		const kind = declaration == null ? node.expression.kind : declaration.kind;
+		identifiersForDefaultExportsForModules.set(sourceFile.fileName, [node.expression.text, kind]);
 	}
 
 	return undefined;

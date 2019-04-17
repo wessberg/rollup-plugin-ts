@@ -37,6 +37,7 @@ export function visitExportDeclaration({
 	const specifier = node.moduleSpecifier;
 	const symbol = (node as {symbol?: Symbol}).symbol;
 	const isExportStar = symbol != null && (symbol.flags & SymbolFlags.ExportStar) !== 0;
+
 	if (specifier == null || !isStringLiteralLike(specifier)) {
 		// Remove the export if it exports no bindings at all
 		if (node.moduleSpecifier == null && node.exportClause != null && node.exportClause.elements.length < 1) return undefined;
@@ -85,9 +86,9 @@ export function visitExportDeclaration({
 							if (identifiersForDefaultExportsForModules.has(path)) {
 								// We have a match!
 								if (element.propertyName != null) {
-									exportSpecifiersWithReplacements.set(element, createExportSpecifier(identifiersForDefaultExportsForModules.get(path)!, element.name));
+									exportSpecifiersWithReplacements.set(element, createExportSpecifier(identifiersForDefaultExportsForModules.get(path)![0], element.name));
 								} else {
-									exportSpecifiersWithReplacements.set(element, createExportSpecifier(identifiersForDefaultExportsForModules.get(path)!, "default"));
+									exportSpecifiersWithReplacements.set(element, createExportSpecifier(identifiersForDefaultExportsForModules.get(path)![0], "default"));
 								}
 								break;
 							}
