@@ -1,6 +1,9 @@
-import {FunctionDeclaration, updateFunctionDeclaration} from "typescript";
+import {createIdentifier, FunctionDeclaration, Identifier, updateFunctionDeclaration} from "typescript";
 import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
 import {hasDefaultExportModifier, hasExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
+import {pascalCase} from "@wessberg/stringutil";
+import {stripExtension} from "../../../../../util/path/path-util";
+import {basename} from "path";
 
 /**
  * Visits the given FunctionDeclaration.
@@ -19,24 +22,28 @@ export function visitFunctionDeclaration({
 	// If the node has no export modifier, leave it as it is
 	if (!hasExportModifier(node)) return continuation(node);
 
+	let name: Identifier | undefined = node.name;
+
 	// If the function is located in the entry file, leave it as it is - completely
 	if (isEntry) {
-		if (!hasDefaultExportModifier(node.modifiers) && node.name != null) {
-			exportedSpecifiersFromModule.add(node.name.text);
+		if (!hasDefaultExportModifier(node.modifiers) && name != null) {
+			exportedSpecifiersFromModule.add(name.text);
 		}
 		return continuation(node);
 	}
 
 	// If the Function has a default export, mark it as the identifier for the default export of that module
 	if (hasDefaultExportModifier(node.modifiers)) {
-		identifiersForDefaultExportsForModules.set(sourceFile.fileName, [node.name!.text, node]);
-	} else {
+		if (name == null) {
+			name = createIdentifier(`default${pascalCase(stripExtension(basename(sourceFile.fileName)))}Export`);
+		}
+
+		identifiersForDefaultExportsForModules.set(sourceFile.fileName, [name.text, node]);
+	} else if (name != null) {
 		// Add the function name to the exported symbols
-		parsedExportedSymbols.set(node.name!.text, node);
+		parsedExportedSymbols.set(name.text, node);
 	}
 
 	// Update the function and remove the export modifiers from it
-	return continuation(
-		updateFunctionDeclaration(node, node.decorators, removeExportModifier(node.modifiers), node.asteriskToken, node.name, node.typeParameters, node.parameters, node.type, node.body)
-	);
+	return continuation(updateFunctionDeclaration(node, node.decorators, removeExportModifier(node.modifiers), node.asteriskToken, name, node.typeParameters, node.parameters, node.type, node.body));
 }
