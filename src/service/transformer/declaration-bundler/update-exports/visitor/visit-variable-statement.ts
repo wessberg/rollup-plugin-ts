@@ -58,7 +58,7 @@ export function visitVariableStatement({
 	for (const declaration of node.declarationList.declarations) {
 		// Add all of the named bindings to the exported symbols
 		for (const identifier of getIdentifiersForBindingName(declaration.name)) {
-			parsedExportedSymbols.add(identifier);
+			parsedExportedSymbols.set(identifier, node);
 		}
 	}
 

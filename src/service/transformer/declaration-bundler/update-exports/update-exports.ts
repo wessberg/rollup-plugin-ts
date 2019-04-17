@@ -37,7 +37,7 @@ import {setExtension} from "../../../../util/path/path-util";
 import {extname} from "path";
 
 export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions): TransformerFactory<SourceFile> {
-	const parsedExportedSymbolsMap: Map<string, Set<string>> = new Map();
+	const parsedExportedSymbolsMap: Map<string, Map<string, Statement>> = new Map();
 	const exportedSpecifiersFromModuleMap: Map<string, Set<string>> = new Map();
 
 	return context => {
@@ -51,7 +51,7 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 			let exportedSpecifiersFromModule = exportedSpecifiersFromModuleMap.get(sourceFile.fileName);
 
 			if (parsedExportedSymbols == null) {
-				parsedExportedSymbols = new Set();
+				parsedExportedSymbols = new Map();
 				parsedExportedSymbolsMap.set(sourceFile.fileName, parsedExportedSymbols);
 			}
 
@@ -64,14 +64,15 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 			const visitorOptions = {
 				usedExports,
 				sourceFile,
+				parsedExportedSymbolsMap,
 				isEntry: rest.entryFileNames.includes(sourceFile.fileName),
 				...rest,
 				continuation: <U extends Node>(node: U) => {
 					return visitEachChild(node, visitor, context);
 				},
 
-				getParsedExportedSymbolsForModule(moduleName: string): Set<string> {
-					let matched: Set<string> | undefined;
+				getParsedExportedSymbolsForModule(moduleName: string): Map<string, Statement> {
+					let matched: Map<string, Statement> | undefined;
 					let matchedModuleName: string = moduleName;
 
 					const extensions = extname(moduleName) !== "" ? [extname(moduleName)] : rest.supportedExtensions;
@@ -85,7 +86,7 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 					}
 
 					if (matched == null) {
-						matched = new Set();
+						matched = new Map();
 						parsedExportedSymbolsMap.set(matchedModuleName, matched);
 					}
 					return matched;
@@ -147,11 +148,13 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 
 					if (modules != null) {
 						for (const module of modules) {
-							missingExportSpecifiers.push(...[...visitorOptions.getParsedExportedSymbolsForModule(module)].filter(symbol => !visitorOptions.getExportedSpecifiersFromModule(module).has(symbol)));
+							missingExportSpecifiers.push(
+								...[...visitorOptions.getParsedExportedSymbolsForModule(module).keys()].filter(symbol => !visitorOptions.getExportedSpecifiersFromModule(module).has(symbol))
+							);
 						}
 					}
 				} else {
-					missingExportSpecifiers = [...visitorOptions.parsedExportedSymbols].filter(symbol => !visitorOptions.exportedSpecifiersFromModule.has(symbol));
+					missingExportSpecifiers = [...visitorOptions.parsedExportedSymbols.keys()].filter(symbol => !visitorOptions.exportedSpecifiersFromModule.has(symbol));
 				}
 
 				if (missingExportSpecifiers.length > 0) {

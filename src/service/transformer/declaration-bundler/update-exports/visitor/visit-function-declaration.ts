@@ -32,7 +32,7 @@ export function visitFunctionDeclaration({
 		identifiersForDefaultExportsForModules.set(sourceFile.fileName, [node.name!.text, node.kind]);
 	} else {
 		// Add the function name to the exported symbols
-		parsedExportedSymbols.add(node.name!.text);
+		parsedExportedSymbols.set(node.name!.text, node);
 	}
 
 	// Update the function and remove the export modifiers from it

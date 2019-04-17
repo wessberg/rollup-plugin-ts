@@ -32,7 +32,7 @@ export function visitEnumDeclaration({
 		identifiersForDefaultExportsForModules.set(sourceFile.fileName, [node.name.text, node.kind]);
 	} else {
 		// Add the node name to the exported symbols
-		parsedExportedSymbols.add(node.name.text);
+		parsedExportedSymbols.set(node.name.text, node);
 	}
 
 	// Update the node and remove the export modifiers from it

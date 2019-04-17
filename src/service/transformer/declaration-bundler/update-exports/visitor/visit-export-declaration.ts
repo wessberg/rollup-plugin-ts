@@ -64,7 +64,7 @@ export function visitExportDeclaration({
 		// Default exports are not included in 'export *' declarations
 		if (isExportStar) {
 			const absoluteModuleSpecifierText = join(dirname(sourceFile.fileName), specifier.text);
-			const missingExportSpecifiers = [...getParsedExportedSymbolsForModule(absoluteModuleSpecifierText)].filter(
+			const missingExportSpecifiers = [...getParsedExportedSymbolsForModule(absoluteModuleSpecifierText).keys()].filter(
 				parsedExportedSymbol => !getExportedSpecifiersFromModule(absoluteModuleSpecifierText).has(parsedExportedSymbol)
 			);
 
