@@ -20,7 +20,7 @@ export function visitExportAssignment({
 	} else if (isIdentifier(node.expression)) {
 		const declaration = getAliasedDeclaration(node.expression, typeChecker);
 		if (declaration != null) {
-			identifiersForDefaultExportsForModules.set(sourceFile.fileName, [node.expression.text, declaration.kind]);
+			identifiersForDefaultExportsForModules.set(sourceFile.fileName, [node.expression.text, declaration]);
 		}
 	}
 

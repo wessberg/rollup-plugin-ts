@@ -24,7 +24,7 @@ export function traceIdentifiersForImportDeclaration({
 		if (node.importClause.namedBindings != null) {
 			if (isNamedImports(node.importClause.namedBindings)) {
 				for (const element of node.importClause.namedBindings.elements) {
-					if (!isIdentifierFree(element.name.text)) {
+					if (element.propertyName != null && !isIdentifierFree(element.name.text)) {
 						updateIdentifierName(element.name.text, generateUniqueVariableName(element.name.text));
 					} else {
 						addIdentifier(element.name.text);

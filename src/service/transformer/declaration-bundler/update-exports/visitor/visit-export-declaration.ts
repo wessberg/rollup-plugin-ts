@@ -3,6 +3,7 @@ import {
 	createExportSpecifier,
 	createNamedExports,
 	createStringLiteral,
+	DeclarationStatement,
 	ExportDeclaration,
 	ExportSpecifier,
 	isStringLiteralLike,
@@ -15,6 +16,7 @@ import {normalizeModuleSpecifier} from "../../util/module-specifier/normalize-mo
 import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
 import {setExtension} from "../../../../../util/path/path-util";
 import {dirname, join} from "path";
+import {getAliasedDeclaration} from "../../util/symbol/get-aliased-declaration";
 
 /**
  * Visits the given ExportDeclaration.
@@ -32,6 +34,8 @@ export function visitExportDeclaration({
 	exportedSpecifiersFromModule,
 	getExportedSpecifiersFromModule,
 	getParsedExportedSymbolsForModule,
+	parsedExportedSymbols,
+	typeChecker,
 	identifiersForDefaultExportsForModules
 }: UpdateExportsVisitorOptions<ExportDeclaration>): ExportDeclaration | undefined {
 	const specifier = node.moduleSpecifier;
@@ -41,7 +45,18 @@ export function visitExportDeclaration({
 	if (specifier == null || !isStringLiteralLike(specifier)) {
 		// Remove the export if it exports no bindings at all
 		if (node.moduleSpecifier == null && node.exportClause != null && node.exportClause.elements.length < 1) return undefined;
-		else return node;
+		else {
+			if (node.exportClause != null) {
+				for (const element of node.exportClause.elements) {
+					const ref = element.propertyName != null ? element.propertyName : element.name;
+					const declaration = getAliasedDeclaration(ref, typeChecker);
+					if (declaration != null) {
+						parsedExportedSymbols.set(ref.text, (declaration as unknown) as DeclarationStatement);
+					}
+				}
+			}
+			return node;
+		}
 	}
 
 	// Potentially rewrite the ModuleSpecifier text to refer to one of the generated chunk filenames (which may not be the same or named the same)

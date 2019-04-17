@@ -1,4 +1,10 @@
 import {
+	ClassDeclaration,
+	ClassExpression,
+	createClassDeclaration,
+	createClassExpression,
+	createExpressionWithTypeArguments,
+	createHeritageClause,
 	createIdentifier,
 	createModifier,
 	createModuleBlock,
@@ -6,16 +12,17 @@ import {
 	createNodeArray,
 	createStringLiteral,
 	createTypeAliasDeclaration,
-	createTypeQueryNode,
 	createTypeReferenceNode,
 	createVariableDeclaration,
 	createVariableDeclarationList,
 	createVariableStatement,
 	ImportDeclaration,
+	InterfaceDeclaration,
 	isNamedImports,
 	isNamespaceImport,
 	isStringLiteralLike,
 	ModuleDeclaration,
+	Node,
 	NodeFlags,
 	SyntaxKind,
 	TypeAliasDeclaration,
@@ -28,18 +35,57 @@ import {dirname, join} from "path";
 import {setExtension} from "../../../../../util/path/path-util";
 import {removeExportModifier} from "../../util/modifier/modifier-util";
 
-function createTypeAliasOrVariableStatementForIdentifier(identifier: string, kind: SyntaxKind, name: string): VariableStatement | TypeAliasDeclaration {
-	switch (kind) {
-		case SyntaxKind.ClassDeclaration:
-		case SyntaxKind.ClassExpression: {
-			return createVariableStatement(
+function createTypeAliasOrVariableStatementForIdentifier(identifier: string, identifierNode: Node, name: string): VariableStatement | TypeAliasDeclaration | ClassDeclaration | ClassExpression {
+	switch (identifierNode.kind) {
+		case SyntaxKind.ClassDeclaration: {
+			const classDeclaration = identifierNode as ClassDeclaration;
+			return createClassDeclaration(
+				undefined,
 				[createModifier(SyntaxKind.DeclareKeyword)],
-				createVariableDeclarationList([createVariableDeclaration(name, createTypeQueryNode(createIdentifier(identifier)))], NodeFlags.Const)
+				name,
+				classDeclaration.typeParameters == null ? undefined : [...classDeclaration.typeParameters],
+				[
+					createHeritageClause(SyntaxKind.ExtendsKeyword, [
+						createExpressionWithTypeArguments(
+							classDeclaration.typeParameters == null ? undefined : classDeclaration.typeParameters.map(param => createTypeReferenceNode(param.name, undefined)),
+							createIdentifier(identifier)
+						)
+					])
+				],
+				[]
+			);
+		}
+
+		case SyntaxKind.ClassExpression: {
+			const classExpression = identifierNode as ClassExpression;
+			return createClassExpression(
+				[createModifier(SyntaxKind.DeclareKeyword)],
+				name,
+				classExpression.typeParameters == null ? undefined : [...classExpression.typeParameters],
+				[
+					createHeritageClause(SyntaxKind.ExtendsKeyword, [
+						createExpressionWithTypeArguments(
+							classExpression.typeParameters == null ? undefined : classExpression.typeParameters.map(param => createTypeReferenceNode(param.name, undefined)),
+							createIdentifier(identifier)
+						)
+					])
+				],
+				[]
 			);
 		}
 
 		case SyntaxKind.TypeAliasDeclaration:
-		case SyntaxKind.InterfaceDeclaration:
+		case SyntaxKind.InterfaceDeclaration: {
+			const declaration = identifierNode as TypeAliasDeclaration | InterfaceDeclaration;
+			return createTypeAliasDeclaration(
+				undefined,
+				[createModifier(SyntaxKind.DeclareKeyword)],
+				name,
+				declaration.typeParameters == null ? undefined : [...declaration.typeParameters],
+				createTypeReferenceNode(identifier, declaration.typeParameters == null ? undefined : declaration.typeParameters.map(param => createTypeReferenceNode(param.name, undefined)))
+			);
+		}
+
 		case SyntaxKind.EnumDeclaration: {
 			return createTypeAliasDeclaration(undefined, [createModifier(SyntaxKind.DeclareKeyword)], name, undefined, createTypeReferenceNode(identifier, undefined));
 		}
@@ -71,7 +117,12 @@ export function visitImportDeclaration({
 	identifiersForDefaultExportsForModules,
 	parsedExportedSymbolsMap,
 	getParsedExportedSymbolsForModule
-}: UpdateExportsVisitorOptions<ImportDeclaration>): ImportDeclaration | VariableStatement | TypeAliasDeclaration | (TypeAliasDeclaration | VariableStatement | ModuleDeclaration)[] | undefined {
+}: UpdateExportsVisitorOptions<ImportDeclaration>):
+	| ImportDeclaration
+	| VariableStatement
+	| TypeAliasDeclaration
+	| (TypeAliasDeclaration | VariableStatement | ModuleDeclaration | ClassDeclaration | ClassExpression)[]
+	| undefined {
 	const specifier = node.moduleSpecifier;
 	if (specifier == null || !isStringLiteralLike(specifier)) return node;
 
@@ -88,7 +139,7 @@ export function visitImportDeclaration({
 	// If it imports from the same chunk, don't include the import unless it includes a default export from another module in which case it should be written to a VariableStatement.
 	if (isSameChunk) {
 		if (node.importClause != null) {
-			const newNodes: (TypeAliasDeclaration | VariableStatement | ModuleDeclaration)[] = [];
+			const newNodes: (TypeAliasDeclaration | VariableStatement | ModuleDeclaration | ClassDeclaration | ClassExpression)[] = [];
 			let parsedExportedSymbolsPath: string | undefined;
 			let identifiersForDefaultExportsForModulesPath: string | undefined;
 
@@ -105,11 +156,11 @@ export function visitImportDeclaration({
 
 			// If it imports a default export from the same chunk, this will have been rewritten to a named export. Create a variable statement instead that aliases it
 			if (node.importClause.name != null && identifiersForDefaultExportsForModulesPath != null) {
-				const [identifier, kind] = identifiersForDefaultExportsForModules.get(identifiersForDefaultExportsForModulesPath)!;
+				const [identifier, identifierNode] = identifiersForDefaultExportsForModules.get(identifiersForDefaultExportsForModulesPath)!;
 
 				// If the name of the identifier is identical to that of the import, it is already in the scope with the correct name. Leave it be
 				if (identifier !== node.importClause.name.text) {
-					newNodes.push(createTypeAliasOrVariableStatementForIdentifier(identifier, kind, node.importClause.name.text));
+					newNodes.push(createTypeAliasOrVariableStatementForIdentifier(identifier, identifierNode, node.importClause.name.text));
 				}
 			}
 
@@ -121,7 +172,7 @@ export function visitImportDeclaration({
 					for (const element of node.importClause.namedBindings.elements) {
 						if (element.propertyName != null && specifiers.has(element.propertyName.text)) {
 							const propertyNode = specifiers.get(element.propertyName.text)!;
-							newNodes.push(createTypeAliasOrVariableStatementForIdentifier(element.propertyName.text, propertyNode.kind, element.name.text));
+							newNodes.push(createTypeAliasOrVariableStatementForIdentifier(element.propertyName.text, propertyNode, element.name.text));
 						}
 					}
 				}

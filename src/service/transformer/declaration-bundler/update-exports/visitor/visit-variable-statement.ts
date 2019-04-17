@@ -42,7 +42,7 @@ export function visitVariableStatement({
 		if (isIdentifier(declaration.name) && declaration.name.text === "_default") {
 			// Give it a unique variable name and bind it to a new variable
 			const name = `default${pascalCase(stripExtension(basename(sourceFile.fileName)))}Export`;
-			identifiersForDefaultExportsForModules.set(sourceFile.fileName, [name, declaration.kind]);
+			identifiersForDefaultExportsForModules.set(sourceFile.fileName, [name, declaration]);
 
 			return continuation(
 				updateVariableStatement(

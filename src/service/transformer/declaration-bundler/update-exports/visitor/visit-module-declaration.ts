@@ -29,7 +29,7 @@ export function visitModuleDeclaration({
 
 	// If the node has a default export, mark it as the identifier for the default export of that module
 	if (hasDefaultExportModifier(node.modifiers)) {
-		identifiersForDefaultExportsForModules.set(sourceFile.fileName, [node.name.text, node.kind]);
+		identifiersForDefaultExportsForModules.set(sourceFile.fileName, [node.name.text, node]);
 	} else {
 		// Add the node name to the exported symbols
 		parsedExportedSymbols.set(node.name.text, node);

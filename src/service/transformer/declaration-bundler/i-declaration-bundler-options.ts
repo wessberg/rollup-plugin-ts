@@ -1,5 +1,5 @@
 import {OutputChunk} from "rollup";
-import {SyntaxKind, TypeChecker} from "typescript";
+import {Node, TypeChecker} from "typescript";
 
 export interface IDeclarationBundlerOptions {
 	chunk: OutputChunk;
@@ -12,5 +12,5 @@ export interface IDeclarationBundlerOptions {
 	absoluteOutFileName: string;
 	entryFileNames: string[];
 	chunkToOriginalFileMap: Map<string, string[]>;
-	identifiersForDefaultExportsForModules: Map<string, [string, SyntaxKind]>;
+	identifiersForDefaultExportsForModules: Map<string, [string, Node]>;
 }
