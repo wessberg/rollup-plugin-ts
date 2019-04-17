@@ -19,8 +19,9 @@ export function visitExportAssignment({
 		return node;
 	} else if (isIdentifier(node.expression)) {
 		const declaration = getAliasedDeclaration(node.expression, typeChecker);
-		const kind = declaration == null ? node.expression.kind : declaration.kind;
-		identifiersForDefaultExportsForModules.set(sourceFile.fileName, [node.expression.text, kind]);
+		if (declaration != null) {
+			identifiersForDefaultExportsForModules.set(sourceFile.fileName, [node.expression.text, declaration.kind]);
+		}
 	}
 
 	return undefined;
