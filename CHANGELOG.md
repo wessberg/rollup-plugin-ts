@@ -1,3 +1,9 @@
+## [1.1.50](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.49...v1.1.50) (2019-04-22)
+
+### Features
+
+- **options:** makes it possible to pass in both proper CompilerOptions as well as raw, JSON-esque compiler options when giving the tsconfig as an option ([0607b6d](https://github.com/wessberg/rollup-plugin-ts/commit/0607b6d))
+
 ## [1.1.49](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.48...v1.1.49) (2019-04-22)
 
 ### Bug Fixes
