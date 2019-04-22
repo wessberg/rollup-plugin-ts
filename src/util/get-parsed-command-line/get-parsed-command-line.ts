@@ -15,12 +15,30 @@ export function isParsedCommandLine(tsconfig?: IGetParsedCommandLineOptions["tsc
 }
 
 /**
+ * Returns true if the given tsconfig are raw, JSON-serializable CompilerOptions
+ * @param {IGetParsedCommandLineOptions["tsconfig"]} tsconfig
+ * @returns {tsconfig is CompilerOptions}
+ */
+export function isRawCompilerOptions(tsconfig?: IGetParsedCommandLineOptions["tsconfig"]): tsconfig is Partial<Record<keyof CompilerOptions, string | number | boolean>> {
+	return tsconfig != null && typeof tsconfig !== "string" && !("options" in tsconfig);
+}
+
+/**
  * Returns true if the given tsconfig are CompilerOptions
  * @param {IGetParsedCommandLineOptions["tsconfig"]} tsconfig
  * @returns {tsconfig is CompilerOptions}
  */
 export function isCompilerOptions(tsconfig?: IGetParsedCommandLineOptions["tsconfig"]): tsconfig is Partial<CompilerOptions> {
-	return tsconfig != null && typeof tsconfig !== "string" && !("options" in tsconfig);
+	return (
+		tsconfig != null &&
+		typeof tsconfig !== "string" &&
+		!("options" in tsconfig) &&
+		(("module" in tsconfig && typeof tsconfig.module === "number") ||
+			("target" in tsconfig && typeof tsconfig.target === "number") ||
+			("jsx" in tsconfig && typeof tsconfig.jsx === "number") ||
+			("moduleResolution" in tsconfig && typeof tsconfig.moduleResolution === "number") ||
+			("newLine" in tsconfig && typeof tsconfig.newLine === "number"))
+	);
 }
 
 /**
@@ -42,6 +60,15 @@ export function getParsedCommandLine({cwd, tsconfig, forcedCompilerOptions = {}}
 
 	// If the user provided CompilerOptions directly, use those to build a ParsedCommandLine
 	else if (isCompilerOptions(tsconfig)) {
+		originalCompilerOptions = parseJsonConfigFileContent({}, sys, cwd, tsconfig).options;
+		parsedCommandLine = parseJsonConfigFileContent({}, sys, cwd, {
+			...tsconfig,
+			...forcedCompilerOptions
+		});
+	}
+
+	// If the user provided JSON-serializable ("raw") CompilerOptions directly, use those to build a ParsedCommandLine
+	else if (isRawCompilerOptions(tsconfig)) {
 		originalCompilerOptions = parseJsonConfigFileContent({compilerOptions: tsconfig}, sys, cwd).options;
 		parsedCommandLine = parseJsonConfigFileContent({compilerOptions: tsconfig}, sys, cwd, forcedCompilerOptions);
 	}

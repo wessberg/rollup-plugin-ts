@@ -16,7 +16,7 @@ export type BrowserslistConfig = IBrowserslistPathConfig | IBrowserslistQueryCon
 
 export interface ITypescriptPluginBaseOptions {
 	transpiler: Transpiler;
-	tsconfig?: string | Partial<CompilerOptions> | ParsedCommandLine;
+	tsconfig?: string | Partial<CompilerOptions> | Partial<Record<keyof CompilerOptions, string | number | boolean>> | ParsedCommandLine;
 	browserslist?: false | string[] | string | BrowserslistConfig;
 	cwd: string;
 	transformers?: (CustomTransformers | CustomTransformersFunction)[] | CustomTransformers | CustomTransformersFunction;
