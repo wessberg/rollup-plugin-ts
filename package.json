@@ -51,12 +51,12 @@
 		"@wessberg/scaffold": "^1.0.17",
 		"@wessberg/ts-config": "^0.0.39",
 		"standard-changelog": "^2.0.7",
-		"@wessberg/rollup-plugin-ts": "^1.1.46",
+		"@wessberg/rollup-plugin-ts": "^1.1.47",
 		"tslint": "^5.16.0",
 		"prettier": "^1.17.0",
 		"pretty-quick": "^1.10.0",
 		"husky": "^1.3.1",
-		"np": "^4.0.2"
+		"np": "^5.0.0"
 	},
 	"dependencies": {
 		"@babel/core": "^7.4.3",
@@ -71,7 +71,7 @@
 		"@babel/runtime": "^7.4.3",
 		"@types/find-up": "^2.1.1",
 		"@types/mkdirp": "^0.5.2",
-		"@types/node": "^11.13.4",
+		"@types/node": "^11.13.6",
 		"@types/resolve": "0.0.8",
 		"@wessberg/browserslist-generator": "1.0.18",
 		"@wessberg/stringutil": "^1.0.18",
@@ -80,10 +80,10 @@
 		"magic-string": "^0.25.2",
 		"mkdirp": "^0.5.1",
 		"resolve": "^1.10.0",
-		"rollup": "^1.10.0",
+		"rollup": "^1.10.1",
 		"rollup-pluginutils": "^2.6.0",
 		"tslib": "^1.9.3",
-		"typescript": "^3.4.3"
+		"typescript": "^3.4.4"
 	},
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/esm/index.js",
