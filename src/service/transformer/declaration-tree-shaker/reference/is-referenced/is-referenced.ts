@@ -56,7 +56,7 @@ export function isReferenced<T extends Node>({seenNodes = new Set(), ...options}
 		seenNodes.add(options.node);
 	}
 
-	// Collect all nods that references the given node
+	// Collect all nodes that references the given node
 	const referencingNodes = collectReferences(options);
 
 	// Compute the result
