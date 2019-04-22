@@ -1,3 +1,9 @@
+## [1.1.49](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.48...v1.1.49) (2019-04-22)
+
+### Bug Fixes
+
+- **bug:** fixes a bug that could lead to missing exports ([b52a245](https://github.com/wessberg/rollup-plugin-ts/commit/b52a245))
+
 ## [1.1.48](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.47...v1.1.48) (2019-04-22)
 
 ### Bug Fixes
