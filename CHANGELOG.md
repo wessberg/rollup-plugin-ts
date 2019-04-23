@@ -1,3 +1,9 @@
+## [1.1.51](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.50...v1.1.51) (2019-04-23)
+
+### Bug Fixes
+
+- **bug:** fixes a bug that could lead to infinite recursion when some runtime babel helpers would transform themselves ([4f2eb9e](https://github.com/wessberg/rollup-plugin-ts/commit/4f2eb9e))
+
 ## [1.1.50](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.49...v1.1.50) (2019-04-22)
 
 ### Features
