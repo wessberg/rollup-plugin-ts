@@ -67,7 +67,7 @@ export function isBabelHelper(path: string): boolean {
  * @returns {boolean}
  */
 export function isBabelEsmHelper(path: string): boolean {
-	return path.startsWith(`${BABEL_RUNTIME_PREFIX_1}helpers/esm`) || path.startsWith(`${BABEL_RUNTIME_PREFIX_2}helpers/esm`);
+	return path.includes(`${BABEL_RUNTIME_PREFIX_1}helpers/esm`) || path.includes(`${BABEL_RUNTIME_PREFIX_2}helpers/esm`);
 }
 
 /**
@@ -76,7 +76,7 @@ export function isBabelEsmHelper(path: string): boolean {
  * @returns {boolean}
  */
 export function isBabelCjsHelper(path: string): boolean {
-	return !isBabelEsmHelper(path) && (path.startsWith(`${BABEL_RUNTIME_PREFIX_1}helpers`) || path.startsWith(`${BABEL_RUNTIME_PREFIX_2}helpers`));
+	return !isBabelEsmHelper(path) && (path.includes(`${BABEL_RUNTIME_PREFIX_1}helpers`) || path.includes(`${BABEL_RUNTIME_PREFIX_2}helpers`));
 }
 
 /**
