@@ -115,7 +115,7 @@ export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOpt
 							...FORCED_BABEL_PRESET_ENV_OPTIONS,
 							// If targets have already been provided by the user options, accept them.
 							// Otherwise, apply the browserslist as the preset-env target
-							...(preset.targets != null
+							...(preset.options != null && preset.options.targets != null
 								? {}
 								: {
 										targets: {
