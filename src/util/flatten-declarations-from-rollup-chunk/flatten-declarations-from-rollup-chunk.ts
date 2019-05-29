@@ -125,7 +125,7 @@ export function flattenDeclarationsFromRollupChunk({
 	);
 
 	// Print the Source code and update the code with it
-	code = createPrinter({newLine: languageServiceHost.getCompilationSettings().newLine}).printFile(result.transformed[0] as SourceFile);
+	code = createPrinter({newLine: languageServiceHost.getCompilationSettings().newLine}).printFile(result.transformed[0]);
 
 	// Add a source mapping URL if a map should be generated
 	if (generateMap) {
