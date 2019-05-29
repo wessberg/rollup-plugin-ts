@@ -70,7 +70,7 @@ export function isReferenced<T extends Node>({seenNodes = new Set(), ...options}
 function collectReferences<T extends Node>(options: IsReferencedOptions<T>): Node[] {
 	const visitorOptions = {
 		...options,
-		referencingNodes: new Set(),
+		referencingNodes: new Set<Node>(),
 		identifiers: getIdentifiersForNode(options.node, options.cache),
 		continuation: (node: Node): boolean => {
 			const result = forEachChild<boolean>(node, nextNode => checkNode(nextNode, visitorOptions));

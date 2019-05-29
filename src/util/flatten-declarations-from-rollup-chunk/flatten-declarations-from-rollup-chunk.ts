@@ -4,7 +4,7 @@ import {IFlattenDeclarationsFromRollupChunkResult} from "./i-flatten-declaration
 import {ensureHasLeadingDot, setExtension} from "../path/path-util";
 import {declarationBundler} from "../../service/transformer/declaration-bundler/declaration-bundler";
 import {dirname, join} from "path";
-import {createPrinter, createProgram, createSourceFile, ScriptKind, ScriptTarget, SourceFile, transform} from "typescript";
+import {createPrinter, createProgram, createSourceFile, ScriptKind, ScriptTarget, SourceFile, transform, TransformerFactory} from "typescript";
 import {getChunkFilename} from "../../service/transformer/declaration-bundler/util/get-chunk-filename/get-chunk-filename";
 import {ExistingRawSourceMap} from "rollup";
 import {declarationTreeShaker} from "../../service/transformer/declaration-tree-shaker/declaration-tree-shaker";
@@ -120,7 +120,7 @@ export function flattenDeclarationsFromRollupChunk({
 	// Run a tree-shaking pass on the code
 	const result = transform(
 		createSourceFile(declarationFilename, code, ScriptTarget.ESNext, true, ScriptKind.TS),
-		declarationTreeShaker({relativeOutFileName: declarationFilename}).afterDeclarations!,
+		declarationTreeShaker({relativeOutFileName: declarationFilename}).afterDeclarations! as TransformerFactory<SourceFile>[],
 		languageServiceHost.getCompilationSettings()
 	);
 
