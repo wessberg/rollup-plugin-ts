@@ -1,3 +1,9 @@
+## [1.1.54](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.53...v1.1.54) (2019-05-29)
+
+### Bug Fixes
+
+- **bug:** fixes regression with find-up ([b2ef2de](https://github.com/wessberg/rollup-plugin-ts/commit/b2ef2de))
+
 ## [1.1.53](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.52...v1.1.53) (2019-05-29)
 
 ### Features
