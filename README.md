@@ -161,6 +161,26 @@ ts({
 });
 ```
 
+You can also pass in a function that receives whatever `CompilerOptions` that could be resolved relative to the current working directory, but then allow you to override the options:
+
+```javascript
+ts({
+	tsconfig: resolvedConfig => ({...resolvedConfig, allowJs: false})
+});
+```
+
+The above example is based on the assumption that a file can be resolved with the name `tsconfig.json`, and if not, the Typescript's default `CompilerOptions` will be used.
+But if you want to provide the name of the `tsconfig` to override, you can also pass in an object following the following form:
+
+```javascript
+ts({
+	tsconfig: {
+		fileName: "my-awesome-tsconfig.json",
+		hook: resolvedConfig => ({...resolvedConfig, allowJs: false})
+	}
+});
+```
+
 If there is a `.browserslistrc` file or the nearest `package.json` contains a Browserslist configuration, a target ECMAScript version will be decided based on that one, rather than respecting the `target` property of the matched `tsconfig`.
 If you do not want this behavior, you can [disable it as described here](#using-the-plugin-with-typescript-but-without-browserslists).
 
