@@ -5,12 +5,13 @@ import {ReferenceCache} from "../reference/cache/reference-cache";
 import {WeakMultiMap} from "../../../../lib/multi-map/weak-multi-map";
 import {mergeImports} from "../util/merge-imports/merge-imports";
 import {mergeExports} from "../util/merge-exports/merge-exports";
+import {normalize} from "path";
 
 export function afterDeclarations({relativeOutFileName}: IDeclarationTreeShakerOptions): TransformerFactory<SourceFile> {
 	return context => {
 		return sourceFile => {
 			// If the SourceFile is not part of the local module names, remove all statements from it and return immediately
-			if (sourceFile.fileName !== relativeOutFileName) return updateSourceFileNode(sourceFile, [], true);
+			if (normalize(sourceFile.fileName) !== normalize(relativeOutFileName)) return updateSourceFileNode(sourceFile, [], true);
 
 			// Prepare a cache
 			const cache: ReferenceCache = {

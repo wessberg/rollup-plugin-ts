@@ -3,7 +3,7 @@ import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
 import {hasDefaultExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
 import {getIdentifiersForBindingName} from "../../util/binding-name/get-identifiers-for-binding-name";
 import {pascalCase} from "@wessberg/stringutil";
-import {basename} from "path";
+import {basename, normalize} from "path";
 import {stripExtension} from "../../../../../util/path/path-util";
 
 /**
@@ -42,7 +42,7 @@ export function visitVariableStatement({
 		if (isIdentifier(declaration.name) && declaration.name.text === "_default") {
 			// Give it a unique variable name and bind it to a new variable
 			const name = `default${pascalCase(stripExtension(basename(sourceFile.fileName)))}Export`;
-			identifiersForDefaultExportsForModules.set(sourceFile.fileName, [name, declaration]);
+			identifiersForDefaultExportsForModules.set(normalize(sourceFile.fileName), [name, declaration]);
 
 			return continuation(
 				updateVariableStatement(

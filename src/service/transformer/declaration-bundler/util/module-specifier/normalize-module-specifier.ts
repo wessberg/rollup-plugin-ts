@@ -1,6 +1,6 @@
 import {NormalizeModuleSpecifierOptions} from "./normalize-module-specifier-options";
-import {ensureHasLeadingDot, isExternalLibrary, stripExtension} from "../../../../../util/path/path-util";
-import {dirname, join, relative} from "path";
+import {ensureHasLeadingDotAndPosix, ensurePosix, isExternalLibrary, stripExtension} from "../../../../../util/path/path-util";
+import {dirname, join, normalize, relative} from "path";
 import {getChunkFilename} from "../get-chunk-filename/get-chunk-filename";
 import {NormalizeModuleSpecifierResult} from "./normalize-module-specifier-result";
 
@@ -28,18 +28,18 @@ export function normalizeModuleSpecifier({
 	}
 
 	// Compute an absolute path based on the text of the specifier and the current SourceFile
-	const absoluteModuleSpecifierText = join(dirname(sourceFile.fileName), specifier);
+	const absoluteModuleSpecifierText = join(dirname(normalize(sourceFile.fileName)), specifier);
 
 	// Potentially rewrite the ModuleSpecifier text to refer to one of the generated chunk filenames (which may not be the same or named the same)
 	const normalizedAbsoluteModuleSpecifierText = getChunkFilename(absoluteModuleSpecifierText, supportedExtensions, chunkToOriginalFileMap);
 
 	// Potentially rewrite the ModuleSpecifier text to refer to one of the generated chunk filenames (which may not be the same or named the same)
-	const normalizedModuleSpecifier = stripExtension(ensureHasLeadingDot(relative(dirname(absoluteOutFileName), normalizedAbsoluteModuleSpecifierText)));
+	const normalizedModuleSpecifier = stripExtension(ensureHasLeadingDotAndPosix(relative(dirname(absoluteOutFileName), normalizedAbsoluteModuleSpecifierText)));
 
 	return {
-		normalizedModuleSpecifier,
-		normalizedAbsoluteModuleSpecifier: normalizedAbsoluteModuleSpecifierText,
-		hasChanged: normalizedModuleSpecifier !== specifier,
-		isSameChunk: normalizedModuleSpecifier === stripExtension(relativeOutFileName)
+		normalizedModuleSpecifier: ensurePosix(normalizedModuleSpecifier),
+		normalizedAbsoluteModuleSpecifier: ensurePosix(normalizedAbsoluteModuleSpecifierText),
+		hasChanged: normalize(ensurePosix(normalizedModuleSpecifier)) !== normalize(ensurePosix(specifier)),
+		isSameChunk: normalize(ensurePosix(normalizedModuleSpecifier)) === normalize(ensurePosix(stripExtension(relativeOutFileName)))
 	};
 }

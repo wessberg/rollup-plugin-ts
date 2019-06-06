@@ -1,6 +1,7 @@
 import {InterfaceDeclaration, updateInterfaceDeclaration} from "typescript";
 import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
 import {hasDefaultExportModifier, hasExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
+import {normalize} from "path";
 
 /**
  * Visits the given InterfaceDeclaration.
@@ -29,7 +30,7 @@ export function visitInterfaceDeclaration({
 
 	// If the node has a default export, mark it as the identifier for the default export of that module
 	if (hasDefaultExportModifier(node.modifiers)) {
-		identifiersForDefaultExportsForModules.set(sourceFile.fileName, [node.name.text, node]);
+		identifiersForDefaultExportsForModules.set(normalize(sourceFile.fileName), [node.name.text, node]);
 	} else {
 		// Add the node name to the exported symbols
 		parsedExportedSymbols.set(node.name.text, node);

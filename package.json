@@ -13,6 +13,7 @@
 		"clean": "npm run clean:dist",
 		"lint": "tsc --noEmit && tslint -c tslint.json --project tsconfig.json",
 		"prettier": "prettier --write '{src,test,documentation}/**/*.{js,ts,json,html,xml,css,md}'",
+		"test": "ava **/*.test.* --fail-fast",
 		"prebuild": "npm run clean:dist",
 		"build": "npm run rollup",
 		"watch": "npm run rollup -- --watch",
@@ -48,15 +49,17 @@
 	],
 	"license": "MIT",
 	"devDependencies": {
-		"@wessberg/scaffold": "^1.0.17",
-		"@wessberg/ts-config": "^0.0.39",
+		"@wessberg/scaffold": "^1.0.18",
+		"@wessberg/ts-config": "^0.0.40",
 		"standard-changelog": "^2.0.11",
-		"@wessberg/rollup-plugin-ts": "^1.1.53",
-		"tslint": "^5.16.0",
+		"@wessberg/rollup-plugin-ts": "^1.1.54",
+		"tslint": "^5.17.0",
 		"prettier": "^1.17.1",
 		"pretty-quick": "^1.11.0",
-		"husky": "^2.3.0",
-		"np": "^5.0.2"
+		"husky": "^2.4.0",
+		"np": "^5.0.3",
+		"ts-node": "8.2.0",
+		"ava": "2.0.0"
 	},
 	"dependencies": {
 		"@babel/core": "^7.4.5",
@@ -70,17 +73,18 @@
 		"@babel/preset-env": "^7.4.5",
 		"@babel/runtime": "^7.4.5",
 		"@types/mkdirp": "^0.5.2",
-		"@types/node": "^12.0.3",
+		"@types/node": "^12.0.6",
 		"@types/resolve": "0.0.8",
-		"@wessberg/browserslist-generator": "1.0.20",
+		"@wessberg/browserslist-generator": "1.0.21",
 		"@wessberg/stringutil": "^1.0.18",
 		"browserslist": "^4.6.1",
 		"find-up": "^4.0.0",
 		"magic-string": "^0.25.2",
 		"mkdirp": "^0.5.1",
-		"resolve": "^1.11.0",
-		"rollup": "^1.12.4",
-		"rollup-pluginutils": "^2.7.1",
+		"resolve": "^1.11.1",
+		"rollup": "^1.14.3",
+		"rollup-pluginutils": "^2.8.1",
+		"slash": "^3.0.0",
 		"tslib": "^1.9.3",
 		"typescript": "^3.5.1"
 	},
@@ -105,5 +109,14 @@
 		"hooks": {
 			"pre-commit": "pretty-quick --staged"
 		}
+	},
+	"ava": {
+		"compileEnhancements": false,
+		"extensions": [
+			"ts"
+		],
+		"require": [
+			"ts-node/register"
+		]
 	}
 }

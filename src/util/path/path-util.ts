@@ -1,4 +1,4 @@
-import {extname, isAbsolute, join, parse, relative} from "path";
+import {extname, isAbsolute, join, normalize, parse, relative} from "path";
 import {
 	BABEL_RUNTIME_PREFIX_1,
 	BABEL_RUNTIME_PREFIX_2,
@@ -13,6 +13,16 @@ import {
 	TSLIB_NAME,
 	TSX_EXTENSION
 } from "../../constant/constant";
+import slash from "slash";
+
+/**
+ * Ensures that the given path follows posix file names
+ * @param {string} path
+ * @returns {string}
+ */
+export function ensurePosix(path: string): string {
+	return slash(path);
+}
 
 /**
  * Gets the extension of the given file
@@ -136,7 +146,7 @@ export function stripExtension(file: string): string {
 	if (name.endsWith(".d")) {
 		name = name.slice(0, -2);
 	}
-	if (dir === ".") return `./${name}`;
+	if (dir === ".") return normalize(`./${name}`);
 	return join(dir, name);
 }
 
@@ -147,7 +157,7 @@ export function stripExtension(file: string): string {
  * @returns {string}
  */
 export function setExtension(file: string, extension: string): string {
-	return `${stripExtension(file)}${extension}`;
+	return normalize(`${stripExtension(file)}${extension}`);
 }
 
 /**
@@ -155,10 +165,13 @@ export function setExtension(file: string, extension: string): string {
  * @param {string} path
  * @return {string}
  */
-export function ensureHasLeadingDot(path: string): string {
-	if (path.startsWith(".")) return path;
-	if (path.startsWith("/")) return `.${path}`;
-	return `./${path}`;
+export function ensureHasLeadingDotAndPosix(path: string): string {
+	if (isExternalLibrary(path)) return path;
+
+	const posixPath = ensurePosix(path);
+	if (posixPath.startsWith(".")) return posixPath;
+	if (posixPath.startsWith("/")) return `.${posixPath}`;
+	return `./${posixPath}`;
 }
 
 /**

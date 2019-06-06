@@ -9,6 +9,7 @@ import {
 	isStringLiteralLike,
 	Statement
 } from "typescript";
+import {ensureHasLeadingDotAndPosix} from "../../../../../util/path/path-util";
 
 const EMPTY_MODULE_SPECIFIER_TOKEN = "_#gen__empty__module__specifier";
 
@@ -67,7 +68,7 @@ export function mergeExports(statements: Statement[]): Statement[] {
 				undefined,
 				undefined,
 				createNamedExports([...exportedBindings].map(exportedBinding => createExportSpecifier(undefined, exportedBinding))),
-				specifier === EMPTY_MODULE_SPECIFIER_TOKEN ? undefined : createStringLiteral(specifier)
+				specifier === EMPTY_MODULE_SPECIFIER_TOKEN ? undefined : createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
 			)
 		);
 	}

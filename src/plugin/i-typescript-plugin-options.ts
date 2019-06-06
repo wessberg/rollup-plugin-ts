@@ -1,6 +1,7 @@
 import {ParsedCommandLine, CustomTransformers, CompilerOptions} from "typescript";
 import {IBabelInputOptions} from "./i-babel-options";
 import {CustomTransformersFunction} from "../util/merge-transformers/i-custom-transformer-options";
+import {FileSystem} from "../util/file-system/file-system";
 
 export type Transpiler = "typescript" | "babel";
 
@@ -30,6 +31,7 @@ export interface ITypescriptPluginBaseOptions {
 	include: string[] | string;
 	exclude: string[] | string;
 	transpileOnly?: boolean;
+	fileSystem: FileSystem;
 }
 
 export interface ITypescriptPluginTypescriptOptions extends ITypescriptPluginBaseOptions {

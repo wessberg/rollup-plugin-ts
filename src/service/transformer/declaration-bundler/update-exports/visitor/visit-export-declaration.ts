@@ -1,4 +1,5 @@
 import {
+	createEmptyStatement,
 	createExportDeclaration,
 	createExportSpecifier,
 	createNamedExports,
@@ -15,7 +16,7 @@ import {
 import {normalizeModuleSpecifier} from "../../util/module-specifier/normalize-module-specifier";
 import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
 import {setExtension} from "../../../../../util/path/path-util";
-import {dirname, join} from "path";
+import {dirname, join, normalize} from "path";
 import {getAliasedDeclaration} from "../../util/symbol/get-aliased-declaration";
 
 /**
@@ -53,7 +54,7 @@ export function visitExportDeclaration({
 					const declaration = getAliasedDeclaration(ref, typeChecker);
 					if (declaration != null) {
 						element.name.text === "default"
-							? identifiersForDefaultExportsForModules.set(sourceFile.fileName, [ref.text, declaration])
+							? identifiersForDefaultExportsForModules.set(normalize(sourceFile.fileName), [ref.text, declaration])
 							: parsedExportedSymbols.set(ref.text, (declaration as unknown) as DeclarationStatement);
 					}
 				}
@@ -74,14 +75,28 @@ export function visitExportDeclaration({
 
 	// If it exports from the same chunk, don't include the module specifier.
 	if (isSameChunk) {
-		// If we're not in the entry file of the chunk, leave the export out!
-		if (!isEntry) return undefined;
+		if (!isEntry) {
+			// If we're not in the entry file, we may be re-exporting symbols from another file.
+			// Add these symbols to the parsed exported symbols for the file
+			if (isExportStar) {
+				const absoluteModuleSpecifierText = join(dirname(normalize(sourceFile.fileName)), specifier.text);
+				const missingExportSpecifiers = [...getParsedExportedSymbolsForModule(absoluteModuleSpecifierText).keys()].filter(
+					parsedExportedSymbol => !getExportedSpecifiersFromModule(absoluteModuleSpecifierText).has(parsedExportedSymbol)
+				);
+				missingExportSpecifiers.forEach(exportedSymbol => {
+					parsedExportedSymbols.set(exportedSymbol, createEmptyStatement());
+				});
+			}
+
+			// If we're not in the entry file of the chunk, leave the export out!
+			return undefined;
+		}
 
 		// If everything should be exported,
 		// instead add an export that explicitly adds named exports for all of the bindings that has had export modifiers but have been removed.
 		// Default exports are not included in 'export *' declarations
 		if (isExportStar) {
-			const absoluteModuleSpecifierText = join(dirname(sourceFile.fileName), specifier.text);
+			const absoluteModuleSpecifierText = join(dirname(normalize(sourceFile.fileName)), specifier.text);
 			const missingExportSpecifiers = [...getParsedExportedSymbolsForModule(absoluteModuleSpecifierText).keys()].filter(
 				parsedExportedSymbol => !getExportedSpecifiersFromModule(absoluteModuleSpecifierText).has(parsedExportedSymbol)
 			);
@@ -100,7 +115,7 @@ export function visitExportDeclaration({
 					const propertyName = element.propertyName != null ? element.propertyName.text : element.name.text;
 					if (propertyName === "default") {
 						for (const extension of ["", ...supportedExtensions]) {
-							const path = extension === "" ? join(dirname(sourceFile.fileName), specifier.text) : setExtension(join(dirname(sourceFile.fileName), specifier.text), extension);
+							const path = extension === "" ? join(dirname(normalize(sourceFile.fileName)), specifier.text) : setExtension(join(dirname(normalize(sourceFile.fileName)), specifier.text), extension);
 							if (identifiersForDefaultExportsForModules.has(path)) {
 								// We have a match!
 								if (element.propertyName != null) {

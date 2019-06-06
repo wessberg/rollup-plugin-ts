@@ -1,9 +1,9 @@
 import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION} from "../../constant/constant";
 import {IFlattenDeclarationsFromRollupChunkOptions} from "./i-flatten-declarations-from-rollup-chunk-options";
 import {IFlattenDeclarationsFromRollupChunkResult} from "./i-flatten-declarations-from-rollup-chunk-result";
-import {ensureHasLeadingDot, setExtension} from "../path/path-util";
+import {setExtension} from "../path/path-util";
 import {declarationBundler} from "../../service/transformer/declaration-bundler/declaration-bundler";
-import {dirname, join} from "path";
+import {dirname, join, normalize} from "path";
 import {createPrinter, createProgram, createSourceFile, ScriptKind, ScriptTarget, SourceFile, transform, TransformerFactory} from "typescript";
 import {getChunkFilename} from "../../service/transformer/declaration-bundler/util/get-chunk-filename/get-chunk-filename";
 import {ExistingRawSourceMap} from "rollup";
@@ -30,7 +30,7 @@ export function flattenDeclarationsFromRollupChunk({
 	const declarationFilename = setExtension(chunk.fileName, DECLARATION_EXTENSION);
 	const absoluteDeclarationFilename = join(declarationOutDir, declarationFilename);
 	const declarationMapFilename = setExtension(chunk.fileName, DECLARATION_MAP_EXTENSION);
-	const declarationMapFilenameDir = ensureHasLeadingDot(dirname(declarationMapFilename));
+	const declarationMapFilenameDir = dirname(declarationMapFilename);
 	const absoluteDeclarationMapFilename = join(declarationOutDir, declarationMapFilename);
 
 	const program = createProgram({
@@ -61,8 +61,8 @@ export function flattenDeclarationsFromRollupChunk({
 	program.emit(
 		undefined,
 		(file, data) => {
-			const replacedFile = ensureHasLeadingDot(file.replace(generatedOutDir, ""));
-			const replacedFileDir = ensureHasLeadingDot(dirname(replacedFile));
+			const replacedFile = normalize(file.replace(generatedOutDir, ""));
+			const replacedFileDir = normalize(dirname(replacedFile));
 
 			if (replacedFile.endsWith(DECLARATION_MAP_EXTENSION)) {
 				const parsedData = JSON.parse(data) as ExistingRawSourceMap;
@@ -109,7 +109,7 @@ export function flattenDeclarationsFromRollupChunk({
 			localModuleNames,
 			moduleNames,
 			entryFileNames,
-			relativeOutFileName: ensureHasLeadingDot(declarationFilename),
+			relativeOutFileName: declarationFilename,
 			absoluteOutFileName: absoluteDeclarationFilename,
 			chunkToOriginalFileMap,
 			typeChecker,

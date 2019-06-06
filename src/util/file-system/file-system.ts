@@ -1,45 +1,31 @@
-import {existsSync, PathLike, readFileSync as _readFileSync, WriteFileOptions, writeFileSync as _writeFileSync, statSync} from "fs";
-import {platform as platformFunction} from "os";
-import {swapCase} from "../string/string-util";
+import {PathLike, statSync, WriteFileOptions, writeFileSync as _writeFileSync} from "fs";
 import {sync} from "mkdirp";
 import {dirname} from "path";
+import {sys} from "typescript";
 
-const platform = platformFunction();
-
-export const readFileSync = _readFileSync;
-export const fileExistsSync = existsSync;
-
-/**
- * Ensures that the given path is a directory
- * @param {string} path
- * @returns {string}
- */
-export function ensureDirectory(path: string): string {
-	return statSync(path).isDirectory() ? path : dirname(path);
+export interface FileSystem {
+	newLine: string;
+	useCaseSensitiveFileNames: boolean;
+	fileExists(path: string): boolean;
+	readFile(path: string, encoding?: string): string | undefined;
+	ensureDirectory(path: string): string;
+	writeFileSync<T>(path: PathLike | number, data: T, options?: WriteFileOptions): void;
+	readDirectory(path: string, extensions?: ReadonlyArray<string>, exclude?: ReadonlyArray<string>, include?: ReadonlyArray<string>, depth?: number): string[];
+	realpath(path: string): string;
+	getDirectories(path: string): string[];
+	directoryExists(path: string): boolean;
 }
 
-/**
- * Writes a file to disk and makes sure to create the directories leading up to the path if need-be
- * @param {PathLike | number} path
- * @param {T} data
- * @param {WriteFileOptions} options
- */
-export function writeFileSync<T>(path: PathLike | number, data: T, options?: WriteFileOptions): void {
-	if (typeof path === "string") sync(dirname(path));
-	return _writeFileSync(path, data, options);
-}
-
-// tslint:disable:no-any
-
-/**
- * Is true if the given file system is case sensitive
- * @returns {boolean}
- */
-export const IS_FILE_SYSTEM_CASE_SENSITIVE: boolean = (() => {
-	// win32\win64 are case insensitive platforms
-	if (platform === "win32" || <any>platform === "win64") {
-		return false;
+export const REAL_FILE_SYSTEM: FileSystem = {
+	...sys,
+	realpath(path: string): string {
+		return sys.realpath == null ? path : sys.realpath(path);
+	},
+	ensureDirectory(path: string): string {
+		return statSync(path).isDirectory() ? path : dirname(path);
+	},
+	writeFileSync<T>(path: PathLike | number, data: T, options?: WriteFileOptions): void {
+		if (typeof path === "string") sync(dirname(path));
+		return _writeFileSync(path, data, options);
 	}
-	// If this file exists under a different case, we must be case-insensitive.
-	return !existsSync(swapCase(__filename));
-})();
+};

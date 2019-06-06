@@ -40,6 +40,7 @@ import {TraceIdentifiersVisitorOptions} from "./trace-identifiers-visitor-option
 import {DeconflictVisitorOptions} from "./deconflict-visitor-options";
 import {deconflictIdentifier} from "./visitor/deconflict/deconflict-identifier";
 import {traceIdentifiersForImportDeclaration} from "./visitor/trace-identifiers/trace-identifiers-for-import-declaration";
+import {normalize} from "path";
 
 /**
  * Traces identifiers for the given Node, potentially generating new unique variable names for them
@@ -87,22 +88,22 @@ export function deconflict(options: IDeclarationBundlerOptions): TransformerFact
 	return context => {
 		return sourceFile => {
 			// If the SourceFile is not part of the local module names, remove all statements from it and return immediately
-			if (!options.localModuleNames.includes(sourceFile.fileName)) return updateSourceFileNode(sourceFile, [], true);
+			if (!options.localModuleNames.includes(normalize(sourceFile.fileName))) return updateSourceFileNode(sourceFile, [], true);
 
-			const chunkFilename = getChunkFilename(sourceFile.fileName, options.supportedExtensions, options.chunkToOriginalFileMap);
+			const chunkFilename = getChunkFilename(normalize(sourceFile.fileName), options.supportedExtensions, options.chunkToOriginalFileMap);
 
-			let rootLevelIdentifiersForModule = rootLevelIdentifiersForModuleMap.get(sourceFile.fileName);
-			let updatedIdentifierNamesForModule = updatedIdentifierNamesForModuleMap.get(sourceFile.fileName);
+			let rootLevelIdentifiersForModule = rootLevelIdentifiersForModuleMap.get(normalize(sourceFile.fileName));
+			let updatedIdentifierNamesForModule = updatedIdentifierNamesForModuleMap.get(normalize(sourceFile.fileName));
 			let generatedVariableNamesForChunk = generatedVariableNamesForChunkMap.get(chunkFilename);
 
 			if (rootLevelIdentifiersForModule == null) {
 				rootLevelIdentifiersForModule = new Set();
-				rootLevelIdentifiersForModuleMap.set(sourceFile.fileName, rootLevelIdentifiersForModule);
+				rootLevelIdentifiersForModuleMap.set(normalize(sourceFile.fileName), rootLevelIdentifiersForModule);
 			}
 
 			if (updatedIdentifierNamesForModule == null) {
 				updatedIdentifierNamesForModule = new Map();
-				updatedIdentifierNamesForModuleMap.set(sourceFile.fileName, updatedIdentifierNamesForModule);
+				updatedIdentifierNamesForModuleMap.set(normalize(sourceFile.fileName), updatedIdentifierNamesForModule);
 			}
 
 			if (generatedVariableNamesForChunk == null) {
@@ -124,7 +125,7 @@ export function deconflict(options: IDeclarationBundlerOptions): TransformerFact
 				isIdentifierFree(identifier: string): boolean {
 					for (const module of options.localModuleNames) {
 						// Skip the current module
-						if (module === sourceFile.fileName) continue;
+						if (module === normalize(sourceFile.fileName)) continue;
 
 						const identifiersForModule = rootLevelIdentifiersForModuleMap.get(module);
 						if (identifiersForModule != null && identifiersForModule.has(identifier)) {

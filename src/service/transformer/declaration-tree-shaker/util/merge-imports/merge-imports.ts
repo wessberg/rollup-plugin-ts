@@ -12,6 +12,7 @@ import {
 	isStringLiteralLike,
 	Statement
 } from "typescript";
+import {ensureHasLeadingDotAndPosix} from "../../../../../util/path/path-util";
 
 /**
  * Merges the exports based on the given Statements
@@ -133,7 +134,7 @@ export function mergeImports(statements: Statement[]): Statement[] {
 							)
 						)
 					),
-					createStringLiteral(module)
+					createStringLiteral(ensureHasLeadingDotAndPosix(module))
 				)
 			);
 		}

@@ -3,6 +3,7 @@ import {IEmitCache} from "../cache/emit-cache/i-emit-cache";
 import {InputOptions} from "rollup";
 import {TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options";
 import {CustomTransformersFunction} from "../../util/merge-transformers/i-custom-transformer-options";
+import {FileSystem} from "../../util/file-system/file-system";
 
 export interface ILanguageServiceOptions {
 	parsedCommandLine: ParsedCommandLine;
@@ -12,4 +13,5 @@ export interface ILanguageServiceOptions {
 	rollupInputOptions: InputOptions;
 	supportedExtensions: string[];
 	languageService(): LanguageService;
+	fileSystem: FileSystem;
 }

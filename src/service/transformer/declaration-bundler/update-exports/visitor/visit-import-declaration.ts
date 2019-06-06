@@ -31,7 +31,7 @@ import {
 } from "typescript";
 import {normalizeModuleSpecifier} from "../../util/module-specifier/normalize-module-specifier";
 import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
-import {dirname, join} from "path";
+import {dirname, join, normalize} from "path";
 import {setExtension} from "../../../../../util/path/path-util";
 import {removeExportModifier} from "../../util/modifier/modifier-util";
 
@@ -144,7 +144,7 @@ export function visitImportDeclaration({
 			let identifiersForDefaultExportsForModulesPath: string | undefined;
 
 			for (const extension of ["", ...supportedExtensions]) {
-				const path = extension === "" ? join(dirname(sourceFile.fileName), specifier.text) : setExtension(join(dirname(sourceFile.fileName), specifier.text), extension);
+				const path = extension === "" ? join(dirname(normalize(sourceFile.fileName)), specifier.text) : setExtension(join(dirname(normalize(sourceFile.fileName)), specifier.text), extension);
 				if (parsedExportedSymbolsMap.has(path)) {
 					parsedExportedSymbolsPath = path;
 				}

@@ -1,7 +1,6 @@
-import {CompilerHost, CompilerOptions, CustomTransformers, getDefaultLibFileName, IScriptSnapshot, LanguageServiceHost, ScriptKind, ScriptSnapshot, SourceFile, sys} from "typescript";
+import {CompilerHost, CompilerOptions, CustomTransformers, getDefaultLibFileName, IScriptSnapshot, LanguageServiceHost, ScriptKind, ScriptSnapshot, SourceFile} from "typescript";
 import {join} from "path";
 import {getNewLineCharacter} from "../../util/get-new-line-character/get-new-line-character";
-import {fileExistsSync, IS_FILE_SYSTEM_CASE_SENSITIVE, readFileSync} from "../../util/file-system/file-system";
 import {ILanguageServiceOptions} from "./i-language-service-options";
 import {IFile, IFileInput} from "./i-file";
 import {getScriptKindFromPath} from "../../util/get-script-kind-from-path/get-script-kind-from-path";
@@ -10,7 +9,6 @@ import {DEFAULT_LIB_NAMES} from "../../constant/constant";
 import {ensureAbsolute, isInternalFile, setExtension} from "../../util/path/path-util";
 import {CustomTransformersFunction} from "../../util/merge-transformers/i-custom-transformer-options";
 import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
-import {existsSync} from "fs";
 
 // tslint:disable:no-any
 
@@ -178,7 +176,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 		if (this.files.has(fileName)) return true;
 
 		// Otherwise, check if it exists on disk
-		return sys.fileExists(fileName) || fileExistsSync(fileName);
+		return this.options.fileSystem.fileExists(fileName);
 	}
 
 	/**
@@ -201,8 +199,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 		if (result != null) return result.code;
 
 		// Otherwise, try to properly resolve the file
-		const sysResult = sys.readFile(fileName, encoding);
-		return sysResult != null ? sysResult : !fileExistsSync(fileName) ? undefined : readFileSync(fileName, encoding).toString();
+		return this.options.fileSystem.readFile(fileName, encoding);
 	}
 
 	/**
@@ -215,7 +212,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @returns {string[]}
 	 */
 	public readDirectory(path: string, extensions?: ReadonlyArray<string>, exclude?: ReadonlyArray<string>, include?: ReadonlyArray<string>, depth?: number): string[] {
-		return sys.readDirectory(path, extensions, exclude, include, depth);
+		return this.options.fileSystem.readDirectory(path, extensions, exclude, include, depth);
 	}
 
 	/**
@@ -224,7 +221,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @returns {string}
 	 */
 	public realpath(path: string): string {
-		return sys.realpath == null ? path : sys.realpath(path);
+		return this.options.fileSystem.realpath(path);
 	}
 
 	/**
@@ -241,7 +238,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @returns {string}
 	 */
 	public getNewLine(): string {
-		return this.options.parsedCommandLine.options.newLine != null ? getNewLineCharacter(this.options.parsedCommandLine.options.newLine) : sys.newLine;
+		return this.options.parsedCommandLine.options.newLine != null ? getNewLineCharacter(this.options.parsedCommandLine.options.newLine) : this.options.fileSystem.newLine;
 	}
 
 	/**
@@ -249,7 +246,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @returns {boolean}
 	 */
 	public useCaseSensitiveFileNames(): boolean {
-		return IS_FILE_SYSTEM_CASE_SENSITIVE;
+		return this.options.fileSystem.useCaseSensitiveFileNames;
 	}
 
 	/**
@@ -342,7 +339,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @returns {string[]}
 	 */
 	public getDirectories(directoryName: string): string[] {
-		return sys.getDirectories(directoryName);
+		return this.options.fileSystem.getDirectories(directoryName);
 	}
 
 	/**
@@ -351,7 +348,7 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @returns {boolean}
 	 */
 	public directoryExists(directoryName: string): boolean {
-		return sys.directoryExists(directoryName);
+		return this.options.fileSystem.directoryExists(directoryName);
 	}
 
 	/**
@@ -362,12 +359,13 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 			if (this.LIB_DIRECTORY == null) return;
 
 			const path = join(this.LIB_DIRECTORY, libName);
-			if (!existsSync(path)) return;
+			const code = this.options.fileSystem.readFile(path);
+			if (code == null) return;
 
 			this.addFile(
 				{
 					file: libName,
-					code: readFileSync(path).toString()
+					code
 				},
 				true
 			);
@@ -379,13 +377,16 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 */
 	private addDefaultFileNames(): void {
 		this.options.parsedCommandLine.fileNames.forEach(file => {
-			this.addFile(
-				{
-					file: file,
-					code: readFileSync(ensureAbsolute(this.options.cwd, file)).toString()
-				},
-				true
-			);
+			const code = this.options.fileSystem.readFile(ensureAbsolute(this.options.cwd, file));
+			if (code != null) {
+				this.addFile(
+					{
+						file: file,
+						code
+					},
+					true
+				);
+			}
 		});
 	}
 
@@ -397,8 +398,9 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	private assertHasFileName(fileName: string): IFile {
 		if (!this.files.has(fileName)) {
 			// If the file exists on disk, add it
-			if (fileExistsSync(fileName)) {
-				this.addFile({file: fileName, code: readFileSync(fileName).toString()}, isInternalFile(fileName));
+			const code = this.options.fileSystem.readFile(fileName);
+			if (code != null) {
+				this.addFile({file: fileName, code}, isInternalFile(fileName));
 			} else {
 				throw new ReferenceError(`The given file: '${fileName}' doesn't exist!`);
 			}

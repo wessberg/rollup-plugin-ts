@@ -3,7 +3,7 @@ import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
 import {hasDefaultExportModifier, hasExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
 import {pascalCase} from "@wessberg/stringutil";
 import {stripExtension} from "../../../../../util/path/path-util";
-import {basename} from "path";
+import {basename, normalize} from "path";
 
 /**
  * Visits the given FunctionDeclaration.
@@ -38,7 +38,7 @@ export function visitFunctionDeclaration({
 			name = createIdentifier(`default${pascalCase(stripExtension(basename(sourceFile.fileName)))}Export`);
 		}
 
-		identifiersForDefaultExportsForModules.set(sourceFile.fileName, [name.text, node]);
+		identifiersForDefaultExportsForModules.set(normalize(sourceFile.fileName), [name.text, node]);
 	} else if (name != null) {
 		// Add the function name to the exported symbols
 		parsedExportedSymbols.set(name.text, node);

@@ -1,3 +1,6 @@
 {
-	"extends": "@wessberg/ts-config"
+	"extends": "@wessberg/ts-config",
+	"compilerOptions": {
+		"module": "commonjs"
+	}
 }

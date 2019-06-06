@@ -1,7 +1,6 @@
 import {IGetBrowserslistOptions} from "./i-get-browserslist-options";
 import {normalizeBrowserslist} from "@wessberg/browserslist-generator";
 import {ensureAbsolute} from "../path/path-util";
-import {fileExistsSync} from "../file-system/file-system";
 // @ts-ignore
 import {findConfig, readConfig} from "browserslist";
 import {IBrowserslistPathConfig, IBrowserslistQueryConfig} from "../../plugin/i-typescript-plugin-options";
@@ -39,7 +38,7 @@ function isBrowserslistPathConfig(browserslist: IGetBrowserslistOptions["browser
  * @param {IGetBrowserslistOptions} options
  * @returns {string[]?}
  */
-export function getBrowserslist({browserslist, cwd}: IGetBrowserslistOptions): string[] | undefined {
+export function getBrowserslist({browserslist, cwd, fileSystem}: IGetBrowserslistOptions): string[] | undefined {
 	// If a Browserslist is provided directly from the options, use that
 	if (browserslist != null) {
 		// If the Browserslist is equal to false, it should never be used. Return undefined
@@ -61,7 +60,7 @@ export function getBrowserslist({browserslist, cwd}: IGetBrowserslistOptions): s
 		else if (isBrowserslistPathConfig(browserslist)) {
 			const browserslistPath = ensureAbsolute(cwd, browserslist.path);
 			const errorMessage = `The given path for a Browserslist: '${browserslistPath}' could not be resolved from '${cwd}'`;
-			if (!fileExistsSync(browserslistPath)) {
+			if (!fileSystem.fileExists(browserslistPath)) {
 				throw new ReferenceError(errorMessage);
 			} else {
 				// Read the config

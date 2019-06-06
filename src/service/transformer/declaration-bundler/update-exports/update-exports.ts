@@ -33,8 +33,8 @@ import {visitClassDeclaration} from "./visitor/visit-class-declaration";
 import {visitEnumDeclaration} from "./visitor/visit-enum-declaration";
 import {visitInterfaceDeclaration} from "./visitor/visit-interface-declaration";
 import {visitModuleDeclaration} from "./visitor/visit-module-declaration";
-import {setExtension} from "../../../../util/path/path-util";
-import {extname} from "path";
+import {ensureHasLeadingDotAndPosix, setExtension} from "../../../../util/path/path-util";
+import {extname, normalize} from "path";
 
 export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions): TransformerFactory<SourceFile> {
 	const parsedExportedSymbolsMap: Map<string, Map<string, Statement>> = new Map();
@@ -43,21 +43,21 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 	return context => {
 		return sourceFile => {
 			// If the SourceFile is not part of the local module names, remove all statements from it and return immediately
-			if (!rest.localModuleNames.includes(sourceFile.fileName)) return updateSourceFileNode(sourceFile, [], true);
+			if (!rest.localModuleNames.includes(normalize(sourceFile.fileName))) return updateSourceFileNode(sourceFile, [], true);
 
-			const chunkFilename = getChunkFilename(sourceFile.fileName, rest.supportedExtensions, rest.chunkToOriginalFileMap);
+			const chunkFilename = getChunkFilename(normalize(sourceFile.fileName), rest.supportedExtensions, rest.chunkToOriginalFileMap);
 
-			let parsedExportedSymbols = parsedExportedSymbolsMap.get(sourceFile.fileName);
-			let exportedSpecifiersFromModule = exportedSpecifiersFromModuleMap.get(sourceFile.fileName);
+			let parsedExportedSymbols = parsedExportedSymbolsMap.get(normalize(sourceFile.fileName));
+			let exportedSpecifiersFromModule = exportedSpecifiersFromModuleMap.get(normalize(sourceFile.fileName));
 
 			if (parsedExportedSymbols == null) {
 				parsedExportedSymbols = new Map();
-				parsedExportedSymbolsMap.set(sourceFile.fileName, parsedExportedSymbols);
+				parsedExportedSymbolsMap.set(normalize(sourceFile.fileName), parsedExportedSymbols);
 			}
 
 			if (exportedSpecifiersFromModule == null) {
 				exportedSpecifiersFromModule = new Set();
-				exportedSpecifiersFromModuleMap.set(sourceFile.fileName, exportedSpecifiersFromModule);
+				exportedSpecifiersFromModuleMap.set(normalize(sourceFile.fileName), exportedSpecifiersFromModule);
 			}
 
 			// Prepare some VisitorOptions
@@ -65,7 +65,7 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 				usedExports,
 				sourceFile,
 				parsedExportedSymbolsMap,
-				isEntry: rest.entryFileNames.includes(sourceFile.fileName),
+				isEntry: rest.entryFileNames.includes(normalize(sourceFile.fileName)),
 				...rest,
 				continuation: <U extends Node>(node: U) => {
 					return visitEachChild(node, visitor, context);
@@ -160,7 +160,13 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 				if (missingExportSpecifiers.length > 0) {
 					// Mark all of them as exported now
 					missingExportSpecifiers.forEach(missingExportSpecifier => visitorOptions.exportedSpecifiersFromModule.add(missingExportSpecifier));
-					extraStatements.push(createExportDeclaration(undefined, undefined, createNamedExports([...missingExportSpecifiers].map(exportSymbol => createExportSpecifier(undefined, exportSymbol)))));
+					extraStatements.push(
+						createExportDeclaration(
+							undefined,
+							undefined,
+							createNamedExports([...missingExportSpecifiers].map(exportSymbol => createExportSpecifier(undefined, ensureHasLeadingDotAndPosix(exportSymbol))))
+						)
+					);
 				}
 			}
 

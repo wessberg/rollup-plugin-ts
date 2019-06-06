@@ -1,6 +1,7 @@
 import {ExportAssignment, isIdentifier, VariableStatement} from "typescript";
 import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
 import {getAliasedDeclaration} from "../../util/symbol/get-aliased-declaration";
+import {normalize} from "path";
 
 /**
  * Visits the given ExportAssignment.
@@ -20,7 +21,7 @@ export function visitExportAssignment({
 	} else if (isIdentifier(node.expression)) {
 		const declaration = getAliasedDeclaration(node.expression, typeChecker);
 		if (declaration != null) {
-			identifiersForDefaultExportsForModules.set(sourceFile.fileName, [node.expression.text, declaration]);
+			identifiersForDefaultExportsForModules.set(normalize(sourceFile.fileName), [node.expression.text, declaration]);
 		}
 	}
 

@@ -10,7 +10,6 @@ import {emitDeclarations} from "../util/emit-declarations/emit-declarations";
 import {emitDiagnosticsThroughRollup} from "../util/diagnostic/emit-diagnostics-through-rollup";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
 import {ensureRelative, getExtension, isBabelHelper, isRollupPluginMultiEntry} from "../util/path/path-util";
-import {join} from "path";
 import {ModuleResolutionHost} from "../service/module-resolution-host/module-resolution-host";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
 import {TypescriptPluginOptions} from "./i-typescript-plugin-options";
@@ -39,6 +38,7 @@ import {getOutDir} from "../util/get-out-dir/get-out-dir";
 import {GetParsedCommandLineResult} from "../util/get-parsed-command-line/get-parsed-command-line-result";
 import {takeBrowserslistOrComputeBasedOnCompilerOptions} from "../util/take-browserslist-or-compute-based-on-compiler-options/take-browserslist-or-compute-based-on-compiler-options";
 import {matchAll} from "@wessberg/stringutil";
+import {join, normalize} from "path";
 
 /**
  * The name of the Rollup plugin
@@ -55,7 +55,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	const {include, exclude, tsconfig, cwd, browserslist} = pluginOptions;
 	const transformers = pluginOptions.transformers == null ? [] : ensureArray(pluginOptions.transformers);
 	// Make sure to normalize the received Browserslist
-	const normalizedBrowserslist = getBrowserslist({browserslist, cwd});
+	const normalizedBrowserslist = getBrowserslist({browserslist, cwd, fileSystem: pluginOptions.fileSystem});
 
 	/**
 	 * The ParsedCommandLine to use with Typescript
@@ -109,7 +109,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	 * The ResolveCache to use
 	 * @type {ResolveCache}
 	 */
-	const resolveCache: IResolveCache = new ResolveCache();
+	const resolveCache: IResolveCache = new ResolveCache({fileSystem: pluginOptions.fileSystem});
 
 	/**
 	 * The filter function to use
@@ -158,8 +158,9 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// Make sure we have a proper ParsedCommandLine to work with
 			parsedCommandLineResult = getParsedCommandLine({
 				tsconfig,
+				cwd,
 				forcedCompilerOptions: getForcedCompilerOptions({pluginOptions, rollupInputOptions, browserslist: normalizedBrowserslist}),
-				cwd
+				fileSystem: pluginOptions.fileSystem
 			});
 
 			// Prepare a Babel config if Babel should be the transpiler
@@ -186,12 +187,13 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 			// Hook up a LanguageServiceHost and a LanguageService
 			languageServiceHost = new IncrementalLanguageService({
-				parsedCommandLine: parsedCommandLineResult.parsedCommandLine,
-				transformers: mergeTransformers(...transformers, getTypeOnlyImportTransformers()),
 				cwd,
 				emitCache,
 				rollupInputOptions,
 				supportedExtensions: SUPPORTED_EXTENSIONS,
+				fileSystem: pluginOptions.fileSystem,
+				parsedCommandLine: parsedCommandLineResult.parsedCommandLine,
+				transformers: mergeTransformers(...transformers, getTypeOnlyImportTransformers()),
 				languageService: () => languageService
 			});
 
@@ -363,11 +365,24 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				const outDir = join(cwd, getOutDir(cwd, outputOptions));
 				const generateMap = Boolean(parsedCommandLineResult.parsedCommandLine.options.declarationMap);
 
-				const chunkToOriginalFileMap: Map<string, string[]> = new Map(chunks.map<[string, string[]]>(chunk => [join(declarationOutDir, chunk.fileName), Object.keys(chunk.modules)]));
-				const moduleNames = [...new Set(([] as string[]).concat.apply([], chunks.map(chunk => Object.keys(chunk.modules).filter(canEmitForFile))))];
+				const chunkToOriginalFileMap: Map<string, string[]> = new Map(
+					chunks.map<[string, string[]]>(chunk => [join(declarationOutDir, normalize(chunk.fileName)), Object.keys(chunk.modules).map(normalize)])
+				);
+				const moduleNames = [
+					...new Set(
+						([] as string[]).concat.apply(
+							[],
+							chunks.map(chunk =>
+								Object.keys(chunk.modules)
+									.filter(canEmitForFile)
+									.map(normalize)
+							)
+						)
+					)
+				];
 
 				chunks.forEach((chunk: OutputChunk) => {
-					const rawLocalModuleNames = Object.keys(chunk.modules);
+					const rawLocalModuleNames = Object.keys(chunk.modules).map(normalize);
 					const localModuleNames = rawLocalModuleNames.filter(canEmitForFile);
 					const rawEntryFileName = rawLocalModuleNames.slice(-1)[0];
 					let entryFileNames = [localModuleNames.slice(-1)[0]];
@@ -385,7 +400,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 					emitDeclarations({
 						chunk,
-						pluginContext: this,
 						generateMap,
 						declarationOutDir,
 						outDir,
@@ -398,7 +412,9 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 						moduleNames,
 						localModuleNames,
 						entryFileNames,
-						supportedExtensions: SUPPORTED_EXTENSIONS
+						pluginContext: this,
+						supportedExtensions: SUPPORTED_EXTENSIONS,
+						fileSystem: pluginOptions.fileSystem
 					});
 				});
 			}

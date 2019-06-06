@@ -1,4 +1,5 @@
 import {TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options";
+import {REAL_FILE_SYSTEM} from "../file-system/file-system";
 
 /**
  * Gets normalized PluginOptions based on the given ones
@@ -7,7 +8,7 @@ import {TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options"
  */
 export function getPluginOptions(options: Partial<TypescriptPluginOptions>): TypescriptPluginOptions {
 	// Destructure the options and provide defaults
-	const {browserslist, transpiler = "typescript", cwd = process.cwd(), tsconfig, transformers, include = [], exclude = [], transpileOnly = false} = options;
+	const {browserslist, transpiler = "typescript", cwd = process.cwd(), tsconfig, transformers, include = [], exclude = [], transpileOnly = false, fileSystem = REAL_FILE_SYSTEM} = options;
 
 	// These options will be used no matter what
 	const baseOptions = {
@@ -17,7 +18,8 @@ export function getPluginOptions(options: Partial<TypescriptPluginOptions>): Typ
 		include,
 		transformers,
 		tsconfig,
-		transpileOnly
+		transpileOnly,
+		fileSystem
 	};
 
 	// If we're to use Typescript, return the Typescript-options
