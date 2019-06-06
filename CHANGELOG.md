@@ -1,3 +1,9 @@
+## [1.1.55](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.54...v1.1.55) (2019-06-06)
+
+### Bug Fixes
+
+- **windows:** fixes issues with building and generating declarations on Windows. Fixes [#19](https://github.com/wessberg/rollup-plugin-ts/issues/19), [#21](https://github.com/wessberg/rollup-plugin-ts/issues/21). Fixes issue with transitive barrel exports. Fixes [#10](https://github.com/wessberg/rollup-plugin-ts/issues/10) ([d41f915](https://github.com/wessberg/rollup-plugin-ts/commit/d41f915))
+
 ## [1.1.54](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.53...v1.1.54) (2019-05-29)
 
 ### Bug Fixes
