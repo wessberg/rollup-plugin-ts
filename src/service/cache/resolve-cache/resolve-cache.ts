@@ -22,7 +22,7 @@ export class ResolveCache implements IResolveCache {
 	 */
 	private readonly RESOLVE_CACHE: Map<string, Map<string, string | null>> = new Map();
 
-	constructor(private options: ResolveCacheOptions) {}
+	constructor(private readonly options: ResolveCacheOptions) {}
 
 	/**
 	 * Gets the resolved path for an id from a parent
