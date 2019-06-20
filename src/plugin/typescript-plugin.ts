@@ -1,4 +1,14 @@
-import {InputOptions, OutputBundle, OutputChunk, OutputOptions, Plugin, PluginContext, RawSourceMap, RenderedChunk, TransformSourceDescription} from "rollup";
+import {
+	InputOptions,
+	OutputBundle,
+	OutputChunk,
+	OutputOptions,
+	Plugin,
+	PluginContext,
+	RawSourceMap,
+	RenderedChunk,
+	TransformSourceDescription
+} from "rollup";
 import {createDocumentRegistry, createLanguageService, LanguageService} from "typescript";
 import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line";
 import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options";
@@ -20,7 +30,12 @@ import {getForcedBabelOptions} from "../util/get-forced-babel-options/get-forced
 import {getBrowserslist} from "../util/get-browserslist/get-browserslist";
 import {IResolveCache} from "../service/cache/resolve-cache/i-resolve-cache";
 import {ResolveCache} from "../service/cache/resolve-cache/resolve-cache";
-import {PRESERVING_PROPERTY_ACCESS_EXPRESSION, REGENERATOR_RUNTIME_NAME_1, REGENERATOR_RUNTIME_NAME_2, ROLLUP_PLUGIN_MULTI_ENTRY} from "../constant/constant";
+import {
+	PRESERVING_PROPERTY_ACCESS_EXPRESSION,
+	REGENERATOR_RUNTIME_NAME_1,
+	REGENERATOR_RUNTIME_NAME_2,
+	ROLLUP_PLUGIN_MULTI_ENTRY
+} from "../constant/constant";
 import {REGENERATOR_SOURCE} from "../lib/regenerator/regenerator";
 import {getDefaultBabelOptions} from "../util/get-default-babel-options/get-default-babel-options";
 // @ts-ignore
@@ -149,7 +164,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * Invoked when Input options has been received by Rollup
 		 * @param {InputOptions} options
 		 */
-		options(options: InputOptions): void {
+		options(options: InputOptions): undefined {
 			// Break if we've already received options
 			if (rollupInputOptions != null) return;
 
@@ -166,7 +181,10 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// Prepare a Babel config if Babel should be the transpiler
 			if (pluginOptions.transpiler === "babel") {
 				// A browserslist may already be provided, but if that is not the case, one can be computed based on the "target" from the tsconfig
-				const computedBrowserslist = takeBrowserslistOrComputeBasedOnCompilerOptions(normalizedBrowserslist, parsedCommandLineResult.originalCompilerOptions);
+				const computedBrowserslist = takeBrowserslistOrComputeBasedOnCompilerOptions(
+					normalizedBrowserslist,
+					parsedCommandLineResult.originalCompilerOptions
+				);
 
 				const babelConfigResult = getBabelConfig({
 					cwd,
@@ -181,7 +199,10 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				hasBabelMinifyOptions = babelConfigResult.hasMinifyOptions;
 			}
 
-			SUPPORTED_EXTENSIONS = getSupportedExtensions(Boolean(parsedCommandLineResult.parsedCommandLine.options.allowJs), Boolean(parsedCommandLineResult.parsedCommandLine.options.resolveJsonModule));
+			SUPPORTED_EXTENSIONS = getSupportedExtensions(
+				Boolean(parsedCommandLineResult.parsedCommandLine.options.allowJs),
+				Boolean(parsedCommandLineResult.parsedCommandLine.options.resolveJsonModule)
+			);
 
 			canEmitForFile = (id: string) => filter(id) && SUPPORTED_EXTENSIONS.includes(getExtension(id));
 
@@ -197,10 +218,15 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				languageService: () => languageService
 			});
 
-			languageService = createLanguageService(languageServiceHost, createDocumentRegistry(languageServiceHost.useCaseSensitiveFileNames(), languageServiceHost.getCurrentDirectory()));
+			languageService = createLanguageService(
+				languageServiceHost,
+				createDocumentRegistry(languageServiceHost.useCaseSensitiveFileNames(), languageServiceHost.getCurrentDirectory())
+			);
 
 			// Hook up a new ModuleResolutionHost
 			moduleResolutionHost = new ModuleResolutionHost({languageServiceHost, extensions: SUPPORTED_EXTENSIONS});
+
+			return undefined;
 		},
 
 		/**
@@ -321,9 +347,9 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * @param {string} parent
 		 * @returns {string | void}
 		 */
-		resolveId(this: PluginContext, id: string, parent: string | undefined): string | void {
+		resolveId(this: PluginContext, id: string, parent: string | undefined): string | undefined {
 			// Don't proceed if there is no parent (in which case this is an entry module)
-			if (parent == null) return;
+			if (parent == null) return undefined;
 
 			return resolveId({id, parent, cwd, options: parsedCommandLineResult.parsedCommandLine.options, moduleResolutionHost, resolveCache});
 		},
