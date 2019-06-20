@@ -1,3 +1,9 @@
+## [1.1.56](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.55...v1.1.56) (2019-06-20)
+
+### Bug Fixes
+
+- **bug:** updates dependencies ([15ed99c](https://github.com/wessberg/rollup-plugin-ts/commit/15ed99c))
+
 ## [1.1.55](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.54...v1.1.55) (2019-06-06)
 
 ### Bug Fixes
