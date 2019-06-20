@@ -1,3 +1,10 @@
+## [1.1.57](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.56...v1.1.57) (2019-06-20)
+
+### Bug Fixes
+
+- **bug:** rollback on Caniuse version to 4.6.2 which doesn't include a dependency on the bad version of caniuse-lite ([78cbca4](https://github.com/wessberg/rollup-plugin-ts/commit/78cbca4))
+- **bug:** rollback on Caniuse version to 4.6.2 which doesn't include a dependency on the bad version of caniuse-lite ([0160ea9](https://github.com/wessberg/rollup-plugin-ts/commit/0160ea9))
+
 ## [1.1.56](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.55...v1.1.56) (2019-06-20)
 
 ### Bug Fixes
