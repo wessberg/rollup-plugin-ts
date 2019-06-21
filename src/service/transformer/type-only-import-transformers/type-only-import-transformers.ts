@@ -84,8 +84,9 @@ export function getTypeOnlyImportTransformers(): CustomTransformers {
 			exportDeclaration.moduleSpecifier == null ||
 			!isStringLiteralLike(exportDeclaration.moduleSpecifier) ||
 			exportDeclaration.getSourceFile() == null
-		)
+		) {
 			return exportDeclaration;
+		}
 
 		addPreTranspileImportedOrExportedModuleSpecifier(
 			normalize(exportDeclaration.getSourceFile().fileName),

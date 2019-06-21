@@ -47,8 +47,9 @@ export function isReferenced<T extends Node>({seenNodes = new Set(), ...options}
 		isExportAssignment(options.node) ||
 		hasExportModifier(options.node) ||
 		isModuleDeclaration(options.node)
-	)
+	) {
 		return true;
+	}
 
 	// If it has been computed previously, use the cached result
 	if (options.cache.hasReferencesCache.has(options.node)) {
