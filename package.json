@@ -52,8 +52,8 @@
 		"@wessberg/scaffold": "^1.0.18",
 		"@wessberg/ts-config": "^0.0.41",
 		"standard-changelog": "^2.0.11",
-		"@wessberg/rollup-plugin-ts": "^1.1.57",
-		"tslint": "^5.17.0",
+		"@wessberg/rollup-plugin-ts": "^1.1.58",
+		"tslint": "^5.18.0",
 		"prettier": "^1.18.2",
 		"pretty-quick": "^1.11.1",
 		"husky": "^2.4.1",
@@ -82,13 +82,14 @@
 		"magic-string": "^0.25.2",
 		"mkdirp": "^0.5.1",
 		"resolve": "^1.11.1",
-		"rollup": "^1.15.6",
 		"rollup-pluginutils": "^2.8.1",
 		"slash": "^3.0.0",
-		"tslib": "^1.10.0",
-		"typescript": "^3.5.2"
+		"tslib": "^1.10.0"
 	},
-	"peerDependencies": {},
+	"peerDependencies": {
+		"typescript": "^3.x",
+		"rollup": "^1.x"
+	},
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/esm/index.js",
 	"browser": "./dist/esm/index.js",
