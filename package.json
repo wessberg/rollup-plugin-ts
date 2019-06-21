@@ -52,7 +52,7 @@
 		"@wessberg/scaffold": "^1.0.18",
 		"@wessberg/ts-config": "^0.0.41",
 		"standard-changelog": "^2.0.11",
-		"@wessberg/rollup-plugin-ts": "^1.1.56",
+		"@wessberg/rollup-plugin-ts": "^1.1.57",
 		"tslint": "^5.17.0",
 		"prettier": "^1.18.2",
 		"pretty-quick": "^1.11.1",

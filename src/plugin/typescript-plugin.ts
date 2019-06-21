@@ -345,11 +345,11 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * Attempts to resolve the given id via the LanguageServiceHost
 		 * @param {string} id
 		 * @param {string} parent
-		 * @returns {string | void}
+		 * @returns {string | null}
 		 */
-		resolveId(this: PluginContext, id: string, parent: string | undefined): string | undefined {
+		resolveId(this: PluginContext, id: string, parent: string | undefined): string | null {
 			// Don't proceed if there is no parent (in which case this is an entry module)
-			if (parent == null) return undefined;
+			if (parent == null) return null;
 
 			return resolveId({id, parent, cwd, options: parsedCommandLineResult.parsedCommandLine.options, moduleResolutionHost, resolveCache});
 		},
