@@ -15,7 +15,7 @@ export function getOutDir(cwd: string, options?: Partial<OutputOptions>): string
 		// Generate a random output directory. The idea is that this will never match any existing files on disk.
 		// The reason being that Typescript may erroneously think that input files may be overwritten if 'allowJs' is true
 		// and 'outDir' is '.'
-		outDir = join(cwd, "generated", generateRandomHash());
+		outDir = join(cwd, generateRandomHash());
 	} else if (options.dir != null) {
 		outDir = options.dir;
 	} else if (options.file != null) {

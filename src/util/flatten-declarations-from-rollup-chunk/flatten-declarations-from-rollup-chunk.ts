@@ -1,9 +1,9 @@
 import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION} from "../../constant/constant";
 import {IFlattenDeclarationsFromRollupChunkOptions} from "./i-flatten-declarations-from-rollup-chunk-options";
 import {IFlattenDeclarationsFromRollupChunkResult} from "./i-flatten-declarations-from-rollup-chunk-result";
-import {setExtension} from "../path/path-util";
+import {ensurePosix, setExtension} from "../path/path-util";
 import {declarationBundler} from "../../service/transformer/declaration-bundler/declaration-bundler";
-import {dirname, join, normalize} from "path";
+import {dirname, join, normalize, relative} from "path";
 import {createPrinter, createProgram, createSourceFile, ScriptKind, ScriptTarget, SourceFile, transform, TransformerFactory} from "typescript";
 import {getChunkFilename} from "../../service/transformer/declaration-bundler/util/get-chunk-filename/get-chunk-filename";
 import {ExistingRawSourceMap} from "rollup";
@@ -18,6 +18,7 @@ export function flattenDeclarationsFromRollupChunk({
 	chunk,
 	declarationOutDir,
 	outDir,
+	cwd,
 	languageServiceHost,
 	supportedExtensions,
 	entryFileNames,
@@ -30,7 +31,7 @@ export function flattenDeclarationsFromRollupChunk({
 	const declarationFilename = setExtension(chunk.fileName, DECLARATION_EXTENSION);
 	const absoluteDeclarationFilename = join(declarationOutDir, declarationFilename);
 	const declarationMapFilename = setExtension(chunk.fileName, DECLARATION_MAP_EXTENSION);
-	const declarationMapFilenameDir = dirname(declarationMapFilename);
+	const declarationMapDirname = join(declarationOutDir, dirname(declarationMapFilename));
 	const absoluteDeclarationMapFilename = join(declarationOutDir, declarationMapFilename);
 
 	const program = createProgram({
@@ -69,15 +70,20 @@ export function flattenDeclarationsFromRollupChunk({
 				parsedData.file = declarationFilename;
 				parsedData.sources = parsedData.sources
 					.map(source => {
-						if (replacedFileDir !== declarationMapFilenameDir) {
-							return join(replacedFileDir, source);
-						} else {
-							return source;
-						}
+						const correctedSource = join(replacedFileDir, source);
+						const posixSource = ensurePosix(correctedSource);
+
+						// Generated files will follow the structure: '<generated-sub-dir>/<path>', and as such,
+						// all sources will be relative to the source content as if they were emitted to a subfolder of
+						// cwd. Because, of that, we first need to correct the source path so it is instead relative
+						// to cwd
+						const sourceFromCwd = posixSource.startsWith("../") ? posixSource.slice("../".length) : posixSource;
+						const absoluteSourceFromCwd = join(cwd, sourceFromCwd);
+						return relative(declarationMapDirname, absoluteSourceFromCwd);
 					})
 					// Include only those sources that are actually part of the chunk
 					.filter(source => {
-						const absoluteSource = join(declarationOutDir, source);
+						const absoluteSource = join(declarationMapDirname, source);
 						const chunkFileName = getChunkFilename(absoluteSource, supportedExtensions, chunkToOriginalFileMap);
 						return chunkFileName === absoluteChunkFileName;
 					});
