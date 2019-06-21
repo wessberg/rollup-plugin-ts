@@ -24,7 +24,13 @@ export type TsConfigResolver = TsConfigResolverWithFileName["hook"];
 
 export interface ITypescriptPluginBaseOptions {
 	transpiler: Transpiler;
-	tsconfig?: string | Partial<CompilerOptions> | Partial<Record<keyof CompilerOptions, string | number | boolean>> | ParsedCommandLine | TsConfigResolver | TsConfigResolverWithFileName;
+	tsconfig?:
+		| string
+		| Partial<CompilerOptions>
+		| Partial<Record<keyof CompilerOptions, string | number | boolean>>
+		| ParsedCommandLine
+		| TsConfigResolver
+		| TsConfigResolverWithFileName;
 	browserslist?: false | string[] | string | BrowserslistConfig;
 	cwd: string;
 	transformers?: (CustomTransformers | CustomTransformersFunction)[] | CustomTransformers | CustomTransformersFunction;

@@ -33,7 +33,10 @@ export interface GenerateRollupBundleResult {
  * @param {Partial<RollupOptions>} [rollupOptions]
  * @returns {Promise<GenerateRollupBundleResult>}
  */
-export async function generateRollupBundle(inputFiles: TestFile[] | TestFile, rollupOptions: Partial<RollupOptions> = {}): Promise<GenerateRollupBundleResult> {
+export async function generateRollupBundle(
+	inputFiles: TestFile[] | TestFile,
+	rollupOptions: Partial<RollupOptions> = {}
+): Promise<GenerateRollupBundleResult> {
 	const cwd = process.cwd();
 
 	const files: ITestFile[] = (Array.isArray(inputFiles) ? inputFiles : [inputFiles])

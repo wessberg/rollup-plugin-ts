@@ -13,7 +13,8 @@ export function emitDiagnosticsThroughRollup({languageService, languageServiceHo
 
 	[...getPreEmitDiagnostics(program), ...languageServiceHost.getTransformerDiagnostics()].forEach((diagnostic: IExtendedDiagnostic) => {
 		const message = flattenDiagnosticMessageText(diagnostic.messageText, "\n");
-		const position = diagnostic.start == null || diagnostic.file == null ? undefined : diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+		const position =
+			diagnostic.start == null || diagnostic.file == null ? undefined : diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
 
 		// Color-format the diagnostics
 		const colorFormatted = formatDiagnosticsWithColorAndContext([diagnostic], languageServiceHost);

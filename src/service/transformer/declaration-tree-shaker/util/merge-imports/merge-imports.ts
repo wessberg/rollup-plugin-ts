@@ -46,7 +46,9 @@ export function mergeImports(statements: Statement[]): Statement[] {
 		}
 
 		const addAliasForNamedImport = (propertyName: string, alias: string) => {
-			let collectionWithProperty = namedImportsFromModules!.find(records => records.some(record => propertyName === record.propertyName && alias === record.alias));
+			let collectionWithProperty = namedImportsFromModules!.find(records =>
+				records.some(record => propertyName === record.propertyName && alias === record.alias)
+			);
 			if (collectionWithProperty != null) return;
 
 			if (propertyName === alias) {
@@ -103,14 +105,23 @@ export function mergeImports(statements: Statement[]): Statement[] {
 	// Add all default imports from the module (They may have different local names)
 	for (const [module, names] of defaultImportsFromModulesMap) {
 		for (const name of names) {
-			importDeclarations.add(createImportDeclaration(undefined, undefined, createImportClause(createIdentifier(name), undefined), createStringLiteral(module)));
+			importDeclarations.add(
+				createImportDeclaration(undefined, undefined, createImportClause(createIdentifier(name), undefined), createStringLiteral(module))
+			);
 		}
 	}
 
 	// Add all namespace imports from the module (They may have different local names)
 	for (const [module, names] of namespaceImportsFromModulesMap) {
 		for (const name of names) {
-			importDeclarations.add(createImportDeclaration(undefined, undefined, createImportClause(undefined, createNamespaceImport(createIdentifier(name))), createStringLiteral(module)));
+			importDeclarations.add(
+				createImportDeclaration(
+					undefined,
+					undefined,
+					createImportClause(undefined, createNamespaceImport(createIdentifier(name))),
+					createStringLiteral(module)
+				)
+			);
 		}
 	}
 

@@ -66,7 +66,11 @@ export function getTypeOnlyImportTransformers(): CustomTransformers {
 	function visitImportDeclarationBefore(importDeclaration: ImportDeclaration): ImportDeclaration {
 		if (!isStringLiteralLike(importDeclaration.moduleSpecifier) || importDeclaration.getSourceFile() == null) return importDeclaration;
 
-		addPreTranspileImportedOrExportedModuleSpecifier(normalize(importDeclaration.getSourceFile().fileName), importDeclaration.moduleSpecifier.text, preTranspileImportedModuleSpecifiers);
+		addPreTranspileImportedOrExportedModuleSpecifier(
+			normalize(importDeclaration.getSourceFile().fileName),
+			importDeclaration.moduleSpecifier.text,
+			preTranspileImportedModuleSpecifiers
+		);
 		return importDeclaration;
 	}
 
@@ -76,9 +80,18 @@ export function getTypeOnlyImportTransformers(): CustomTransformers {
 	 * @returns {ExportDeclaration | undefined}
 	 */
 	function visitExportDeclarationBefore(exportDeclaration: ExportDeclaration): ExportDeclaration {
-		if (exportDeclaration.moduleSpecifier == null || !isStringLiteralLike(exportDeclaration.moduleSpecifier) || exportDeclaration.getSourceFile() == null) return exportDeclaration;
+		if (
+			exportDeclaration.moduleSpecifier == null ||
+			!isStringLiteralLike(exportDeclaration.moduleSpecifier) ||
+			exportDeclaration.getSourceFile() == null
+		)
+			return exportDeclaration;
 
-		addPreTranspileImportedOrExportedModuleSpecifier(normalize(exportDeclaration.getSourceFile().fileName), exportDeclaration.moduleSpecifier.text, preTranspileImportedModuleSpecifiers);
+		addPreTranspileImportedOrExportedModuleSpecifier(
+			normalize(exportDeclaration.getSourceFile().fileName),
+			exportDeclaration.moduleSpecifier.text,
+			preTranspileImportedModuleSpecifiers
+		);
 		return exportDeclaration;
 	}
 
@@ -129,7 +142,8 @@ export function getTypeOnlyImportTransformers(): CustomTransformers {
 				const newSourceFile = visitEachChild(sourceFile, visitNodeAfter, context);
 				const preTranspileSet = preTranspileImportedModuleSpecifiers.get(normalize(sourceFile.fileName));
 				const typeOnlyImports = [...(preTranspileSet == null ? [] : preTranspileSet)].filter(
-					preTranspileFileName => !postTranspileImportedOrExportedModuleSpecifiers.has(preTranspileFileName) && !isExternalLibrary(preTranspileFileName)
+					preTranspileFileName =>
+						!postTranspileImportedOrExportedModuleSpecifiers.has(preTranspileFileName) && !isExternalLibrary(preTranspileFileName)
 				);
 
 				const extraStatements: Statement[] = [];
@@ -144,7 +158,12 @@ export function getTypeOnlyImportTransformers(): CustomTransformers {
 				const shouldAddPreservingStatement = preTranspileStatementCount != null && preTranspileStatementCount >= 1 && postTranspileStatementCount < 1;
 				if (shouldAddPreservingStatement) {
 					extraStatements.push(
-						createExpressionStatement(createPropertyAccess(createIdentifier(PRESERVING_PROPERTY_ACCESS_EXPRESSION_EXPRESSION), createIdentifier(PRESERVING_PROPERTY_ACCESS_EXPRESSION_NAME)))
+						createExpressionStatement(
+							createPropertyAccess(
+								createIdentifier(PRESERVING_PROPERTY_ACCESS_EXPRESSION_EXPRESSION),
+								createIdentifier(PRESERVING_PROPERTY_ACCESS_EXPRESSION_NAME)
+							)
+						)
 					);
 				}
 

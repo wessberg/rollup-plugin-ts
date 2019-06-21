@@ -5,7 +5,13 @@ import {TraceIdentifiersVisitorOptions} from "../../trace-identifiers-visitor-op
  * Deconflicts the given Identifier.
  * @param {TraceIdentifiersVisitorOptions} options
  */
-export function traceIdentifiersForIdentifier({node, isIdentifierFree, generateUniqueVariableName, addIdentifier, updateIdentifierName}: TraceIdentifiersVisitorOptions<Identifier>): void {
+export function traceIdentifiersForIdentifier({
+	node,
+	isIdentifierFree,
+	generateUniqueVariableName,
+	addIdentifier,
+	updateIdentifierName
+}: TraceIdentifiersVisitorOptions<Identifier>): void {
 	const newName = !isIdentifierFree(node.text) ? generateUniqueVariableName(node.text) : node.text;
 
 	addIdentifier(newName);

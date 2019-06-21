@@ -104,7 +104,11 @@ export function visitExportDeclaration({
 			// If there are no exported symbols at all, leave the ExportDeclaration out entirely
 			if (missingExportSpecifiers.length < 1) return undefined;
 			missingExportSpecifiers.forEach(exportedSymbol => getExportedSpecifiersFromModule(absoluteModuleSpecifierText).add(exportedSymbol));
-			return createExportDeclaration(undefined, undefined, createNamedExports([...missingExportSpecifiers].map(exportSymbol => createExportSpecifier(undefined, exportSymbol))));
+			return createExportDeclaration(
+				undefined,
+				undefined,
+				createNamedExports([...missingExportSpecifiers].map(exportSymbol => createExportSpecifier(undefined, exportSymbol)))
+			);
 		} else {
 			// Walk through all of the named exports.
 			const exportSpecifiersWithReplacements: Map<ExportSpecifier, ExportSpecifier> = new Map();
@@ -115,13 +119,22 @@ export function visitExportDeclaration({
 					const propertyName = element.propertyName != null ? element.propertyName.text : element.name.text;
 					if (propertyName === "default") {
 						for (const extension of ["", ...supportedExtensions]) {
-							const path = extension === "" ? join(dirname(normalize(sourceFile.fileName)), specifier.text) : setExtension(join(dirname(normalize(sourceFile.fileName)), specifier.text), extension);
+							const path =
+								extension === ""
+									? join(dirname(normalize(sourceFile.fileName)), specifier.text)
+									: setExtension(join(dirname(normalize(sourceFile.fileName)), specifier.text), extension);
 							if (identifiersForDefaultExportsForModules.has(path)) {
 								// We have a match!
 								if (element.propertyName != null) {
-									exportSpecifiersWithReplacements.set(element, createExportSpecifier(identifiersForDefaultExportsForModules.get(path)![0], element.name));
+									exportSpecifiersWithReplacements.set(
+										element,
+										createExportSpecifier(identifiersForDefaultExportsForModules.get(path)![0], element.name)
+									);
 								} else {
-									exportSpecifiersWithReplacements.set(element, createExportSpecifier(identifiersForDefaultExportsForModules.get(path)![0], "default"));
+									exportSpecifiersWithReplacements.set(
+										element,
+										createExportSpecifier(identifiersForDefaultExportsForModules.get(path)![0], "default")
+									);
 								}
 								break;
 							}
@@ -136,13 +149,17 @@ export function visitExportDeclaration({
 				...exportSpecifiersWithReplacements.values()
 			];
 
-			updatedSpecifiers.forEach(updatedSpecifier => exportedSpecifiersFromModule.add(updatedSpecifier.propertyName != null ? updatedSpecifier.propertyName.text : updatedSpecifier.name.text));
+			updatedSpecifiers.forEach(updatedSpecifier =>
+				exportedSpecifiersFromModule.add(updatedSpecifier.propertyName != null ? updatedSpecifier.propertyName.text : updatedSpecifier.name.text)
+			);
 
 			return updateExportDeclaration(
 				node,
 				node.decorators,
 				node.modifiers,
-				exportSpecifiersWithReplacements.size > 0 && node.exportClause != null ? updateNamedExports(node.exportClause, updatedSpecifiers) : node.exportClause,
+				exportSpecifiersWithReplacements.size > 0 && node.exportClause != null
+					? updateNamedExports(node.exportClause, updatedSpecifiers)
+					: node.exportClause,
 				undefined
 			);
 		}

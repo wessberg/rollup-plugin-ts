@@ -37,5 +37,15 @@ export function visitInterfaceDeclaration({
 	}
 
 	// Update the node and remove the export modifiers from it
-	return continuation(updateInterfaceDeclaration(node, node.decorators, removeExportModifier(node.modifiers), node.name, node.typeParameters, node.heritageClauses, node.members));
+	return continuation(
+		updateInterfaceDeclaration(
+			node,
+			node.decorators,
+			removeExportModifier(node.modifiers),
+			node.name,
+			node.typeParameters,
+			node.heritageClauses,
+			node.members
+		)
+	);
 }

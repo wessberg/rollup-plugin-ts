@@ -149,12 +149,16 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 					if (modules != null) {
 						for (const module of modules) {
 							missingExportSpecifiers.push(
-								...[...visitorOptions.getParsedExportedSymbolsForModule(module).keys()].filter(symbol => !visitorOptions.getExportedSpecifiersFromModule(module).has(symbol))
+								...[...visitorOptions.getParsedExportedSymbolsForModule(module).keys()].filter(
+									symbol => !visitorOptions.getExportedSpecifiersFromModule(module).has(symbol)
+								)
 							);
 						}
 					}
 				} else {
-					missingExportSpecifiers = [...visitorOptions.parsedExportedSymbols.keys()].filter(symbol => !visitorOptions.exportedSpecifiersFromModule.has(symbol));
+					missingExportSpecifiers = [...visitorOptions.parsedExportedSymbols.keys()].filter(
+						symbol => !visitorOptions.exportedSpecifiersFromModule.has(symbol)
+					);
 				}
 
 				if (missingExportSpecifiers.length > 0) {
@@ -164,7 +168,9 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 						createExportDeclaration(
 							undefined,
 							undefined,
-							createNamedExports([...missingExportSpecifiers].map(exportSymbol => createExportSpecifier(undefined, ensureHasLeadingDotAndPosix(exportSymbol))))
+							createNamedExports(
+								[...missingExportSpecifiers].map(exportSymbol => createExportSpecifier(undefined, ensureHasLeadingDotAndPosix(exportSymbol)))
+							)
 						)
 					);
 				}

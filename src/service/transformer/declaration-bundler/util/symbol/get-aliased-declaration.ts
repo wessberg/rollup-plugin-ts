@@ -18,8 +18,16 @@ export function getAliasedDeclaration(node: Expression | Symbol | undefined, typ
 	let valueDeclaration = symbol.valueDeclaration != null ? symbol.valueDeclaration : symbol.declarations != null ? symbol.declarations[0] : undefined;
 	try {
 		const aliasedDeclaration = typeChecker.getAliasedSymbol(symbol);
-		if (aliasedDeclaration != null && (aliasedDeclaration.valueDeclaration != null || (aliasedDeclaration.declarations != null && aliasedDeclaration.declarations.length > 0))) {
-			valueDeclaration = aliasedDeclaration.valueDeclaration != null ? aliasedDeclaration.valueDeclaration : symbol.declarations != null ? aliasedDeclaration.declarations[0] : undefined;
+		if (
+			aliasedDeclaration != null &&
+			(aliasedDeclaration.valueDeclaration != null || (aliasedDeclaration.declarations != null && aliasedDeclaration.declarations.length > 0))
+		) {
+			valueDeclaration =
+				aliasedDeclaration.valueDeclaration != null
+					? aliasedDeclaration.valueDeclaration
+					: symbol.declarations != null
+					? aliasedDeclaration.declarations[0]
+					: undefined;
 		}
 	} catch {}
 

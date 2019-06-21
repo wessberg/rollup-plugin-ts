@@ -1,4 +1,12 @@
-import {CompilerOptions, Extension, ModuleResolutionCache, ModuleResolutionHost, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, resolveModuleName} from "typescript";
+import {
+	CompilerOptions,
+	Extension,
+	ModuleResolutionCache,
+	ModuleResolutionHost,
+	ResolvedModuleWithFailedLookupLocations,
+	ResolvedProjectReference,
+	resolveModuleName
+} from "typescript";
 import {IGetResolvedIdWithCachingOptions} from "./i-get-resolved-id-with-caching-options";
 import {IResolveCache} from "./i-resolve-cache";
 import {ensureAbsolute, isBabelHelper, isTslib, setExtension} from "../../../util/path/path-util";

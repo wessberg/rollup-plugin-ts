@@ -21,7 +21,9 @@ function isBrowserslistInput(browserslist: IGetBrowserslistOptions["browserslist
  * @returns {boolean}
  */
 function isBrowserslistQueryConfig(browserslist: IGetBrowserslistOptions["browserslist"]): browserslist is IBrowserslistQueryConfig {
-	return browserslist != null && !isBrowserslistInput(browserslist) && browserslist !== false && "query" in browserslist && browserslist.query != null;
+	return (
+		browserslist != null && !isBrowserslistInput(browserslist) && browserslist !== false && "query" in browserslist && browserslist.query != null
+	);
 }
 
 /**

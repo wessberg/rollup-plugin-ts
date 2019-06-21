@@ -22,5 +22,10 @@ export default {
 			tsconfig: process.env.NODE_ENV === "production" ? "tsconfig.dist.json" : "tsconfig.json"
 		})
 	],
-	external: [...builtinModules, ...Object.keys(packageJson.dependencies), ...Object.keys(packageJson.devDependencies)]
+	external: [
+		...builtinModules,
+		...Object.keys(packageJson.dependencies),
+		...Object.keys(packageJson.devDependencies),
+		...Object.keys(packageJson.peerDependencies)
+	]
 };

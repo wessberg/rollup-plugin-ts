@@ -8,7 +8,17 @@ import {REAL_FILE_SYSTEM} from "../file-system/file-system";
  */
 export function getPluginOptions(options: Partial<TypescriptPluginOptions>): TypescriptPluginOptions {
 	// Destructure the options and provide defaults
-	const {browserslist, transpiler = "typescript", cwd = process.cwd(), tsconfig, transformers, include = [], exclude = [], transpileOnly = false, fileSystem = REAL_FILE_SYSTEM} = options;
+	const {
+		browserslist,
+		transpiler = "typescript",
+		cwd = process.cwd(),
+		tsconfig,
+		transformers,
+		include = [],
+		exclude = [],
+		transpileOnly = false,
+		fileSystem = REAL_FILE_SYSTEM
+	} = options;
 
 	// These options will be used no matter what
 	const baseOptions = {

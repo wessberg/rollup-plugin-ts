@@ -162,7 +162,8 @@ export function deconflict(options: IDeclarationBundlerOptions): TransformerFact
 			// Prepare some VisitorOptions
 			const deconflictVisitorOptions = {
 				...sharedVisitorOptions,
-				continuation: <U extends Node>(node: U): U => visitEachChild(node, nextNode => deconflictNode({...deconflictVisitorOptions, node: nextNode}), context),
+				continuation: <U extends Node>(node: U): U =>
+					visitEachChild(node, nextNode => deconflictNode({...deconflictVisitorOptions, node: nextNode}), context),
 
 				updateIdentifierIfNeeded<T extends Identifier | undefined>(identifier: T): T extends undefined ? undefined : Identifier {
 					// tslint:disable:no-any

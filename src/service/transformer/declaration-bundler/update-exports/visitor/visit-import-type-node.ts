@@ -1,4 +1,13 @@
-import {createLiteralTypeNode, createStringLiteral, createTypeReferenceNode, ImportTypeNode, isLiteralTypeNode, isStringLiteralLike, TypeReferenceNode, updateImportTypeNode} from "typescript";
+import {
+	createLiteralTypeNode,
+	createStringLiteral,
+	createTypeReferenceNode,
+	ImportTypeNode,
+	isLiteralTypeNode,
+	isStringLiteralLike,
+	TypeReferenceNode,
+	updateImportTypeNode
+} from "typescript";
 import {normalizeModuleSpecifier} from "../../util/module-specifier/normalize-module-specifier";
 import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
 
@@ -39,7 +48,13 @@ export function visitImportTypeNode({
 
 	// Update the ModuleSpecifier to point to the updated chunk filename, unless it didn't change at all
 	else if (hasChanged) {
-		return updateImportTypeNode(node, createLiteralTypeNode(createStringLiteral(normalizedModuleSpecifier)), node.qualifier, node.typeArguments, node.isTypeOf);
+		return updateImportTypeNode(
+			node,
+			createLiteralTypeNode(createStringLiteral(normalizedModuleSpecifier)),
+			node.qualifier,
+			node.typeArguments,
+			node.isTypeOf
+		);
 	}
 
 	// Otherwise, return the node as it was

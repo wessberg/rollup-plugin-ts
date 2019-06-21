@@ -8,7 +8,11 @@ import {getExtension, setExtension} from "../path/path-util";
  * @param {string[]} fileNames
  * @return {boolean}
  */
-export function matchModuleSpecifier(moduleSpecifier: string | Expression | undefined, supportedExtensions: string[], fileNames: string[]): string | undefined {
+export function matchModuleSpecifier(
+	moduleSpecifier: string | Expression | undefined,
+	supportedExtensions: string[],
+	fileNames: string[]
+): string | undefined {
 	if (moduleSpecifier == null || (typeof moduleSpecifier !== "string" && !isStringLiteralLike(moduleSpecifier))) return undefined;
 
 	const text = typeof moduleSpecifier === "string" ? moduleSpecifier : moduleSpecifier.text;

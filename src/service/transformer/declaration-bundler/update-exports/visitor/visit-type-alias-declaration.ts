@@ -37,5 +37,7 @@ export function visitTypeAliasDeclaration({
 	}
 
 	// Update the node and remove the export modifiers from it
-	return continuation(updateTypeAliasDeclaration(node, node.decorators, removeExportModifier(node.modifiers), node.name, node.typeParameters, node.type));
+	return continuation(
+		updateTypeAliasDeclaration(node, node.decorators, removeExportModifier(node.modifiers), node.name, node.typeParameters, node.type)
+	);
 }

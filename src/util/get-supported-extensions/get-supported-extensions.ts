@@ -7,5 +7,10 @@ import {JS_EXTENSION, JSON_EXTENSION, JSX_EXTENSION, MJS_EXTENSION, MJSX_EXTENSI
  * @returns {string[]}
  */
 export function getSupportedExtensions(allowJs: boolean, allowJson: boolean): string[] {
-	return [TS_EXTENSION, TSX_EXTENSION, ...(allowJs ? [JS_EXTENSION, JSX_EXTENSION, MJS_EXTENSION, MJSX_EXTENSION] : []), ...(allowJson ? [JSON_EXTENSION] : [])];
+	return [
+		TS_EXTENSION,
+		TSX_EXTENSION,
+		...(allowJs ? [JS_EXTENSION, JSX_EXTENSION, MJS_EXTENSION, MJSX_EXTENSION] : []),
+		...(allowJson ? [JSON_EXTENSION] : [])
+	];
 }

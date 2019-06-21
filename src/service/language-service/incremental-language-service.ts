@@ -1,4 +1,14 @@
-import {CompilerHost, CompilerOptions, CustomTransformers, getDefaultLibFileName, IScriptSnapshot, LanguageServiceHost, ScriptKind, ScriptSnapshot, SourceFile} from "typescript";
+import {
+	CompilerHost,
+	CompilerOptions,
+	CustomTransformers,
+	getDefaultLibFileName,
+	IScriptSnapshot,
+	LanguageServiceHost,
+	ScriptKind,
+	ScriptSnapshot,
+	SourceFile
+} from "typescript";
 import {join} from "path";
 import {getNewLineCharacter} from "../../util/get-new-line-character/get-new-line-character";
 import {ILanguageServiceOptions} from "./i-language-service-options";
@@ -211,7 +221,13 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @param {number} depth
 	 * @returns {string[]}
 	 */
-	public readDirectory(path: string, extensions?: ReadonlyArray<string>, exclude?: ReadonlyArray<string>, include?: ReadonlyArray<string>, depth?: number): string[] {
+	public readDirectory(
+		path: string,
+		extensions?: ReadonlyArray<string>,
+		exclude?: ReadonlyArray<string>,
+		include?: ReadonlyArray<string>,
+		depth?: number
+	): string[] {
 		return this.options.fileSystem.readDirectory(path, extensions, exclude, include, depth);
 	}
 
@@ -238,7 +254,9 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 * @returns {string}
 	 */
 	public getNewLine(): string {
-		return this.options.parsedCommandLine.options.newLine != null ? getNewLineCharacter(this.options.parsedCommandLine.options.newLine) : this.options.fileSystem.newLine;
+		return this.options.parsedCommandLine.options.newLine != null
+			? getNewLineCharacter(this.options.parsedCommandLine.options.newLine)
+			: this.options.fileSystem.newLine;
 	}
 
 	/**

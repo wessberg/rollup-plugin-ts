@@ -41,7 +41,14 @@ function visitNode(currentNode: Node, options: ReferenceVisitorOptions): void {
  */
 export function isReferenced<T extends Node>({seenNodes = new Set(), ...options}: IsReferencedOptions<T>): boolean {
 	// Exports are always referenced and should never be removed
-	if (isExportDeclaration(options.node) || isExportSpecifier(options.node) || isExportAssignment(options.node) || hasExportModifier(options.node) || isModuleDeclaration(options.node)) return true;
+	if (
+		isExportDeclaration(options.node) ||
+		isExportSpecifier(options.node) ||
+		isExportAssignment(options.node) ||
+		hasExportModifier(options.node) ||
+		isModuleDeclaration(options.node)
+	)
+		return true;
 
 	// If it has been computed previously, use the cached result
 	if (options.cache.hasReferencesCache.has(options.node)) {
@@ -60,7 +67,8 @@ export function isReferenced<T extends Node>({seenNodes = new Set(), ...options}
 	const referencingNodes = collectReferences(options);
 
 	// Compute the result
-	const result = referencingNodes.length > 0 && referencingNodes.some(referencingNode => isReferenced({...options, seenNodes, node: referencingNode}));
+	const result =
+		referencingNodes.length > 0 && referencingNodes.some(referencingNode => isReferenced({...options, seenNodes, node: referencingNode}));
 
 	// Cache the result
 	options.cache.hasReferencesCache.set(options.node, result);

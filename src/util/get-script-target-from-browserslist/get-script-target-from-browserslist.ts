@@ -32,7 +32,9 @@ export function getScriptTargetFromBrowserslist(browserslist: string[]): ScriptT
  * @param {ScriptTarget} scriptTarget
  * @returns {string}
  */
-export function getEcmaVersionForScriptTarget(scriptTarget: ScriptTarget): "es3" | "es5" | "es2015" | "es2016" | "es2017" | "es2018" | "es2019" | "es2020" {
+export function getEcmaVersionForScriptTarget(
+	scriptTarget: ScriptTarget
+): "es3" | "es5" | "es2015" | "es2016" | "es2017" | "es2018" | "es2019" | "es2020" {
 	switch (scriptTarget) {
 		case ScriptTarget.ES3:
 			return "es3";

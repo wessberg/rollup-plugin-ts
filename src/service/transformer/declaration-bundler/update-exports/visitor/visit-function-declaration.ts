@@ -45,5 +45,17 @@ export function visitFunctionDeclaration({
 	}
 
 	// Update the function and remove the export modifiers from it
-	return continuation(updateFunctionDeclaration(node, node.decorators, removeExportModifier(node.modifiers), node.asteriskToken, name, node.typeParameters, node.parameters, node.type, node.body));
+	return continuation(
+		updateFunctionDeclaration(
+			node,
+			node.decorators,
+			removeExportModifier(node.modifiers),
+			node.asteriskToken,
+			name,
+			node.typeParameters,
+			node.parameters,
+			node.type,
+			node.body
+		)
+	);
 }

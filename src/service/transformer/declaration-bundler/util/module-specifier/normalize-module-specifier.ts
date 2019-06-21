@@ -34,7 +34,9 @@ export function normalizeModuleSpecifier({
 	const normalizedAbsoluteModuleSpecifierText = getChunkFilename(absoluteModuleSpecifierText, supportedExtensions, chunkToOriginalFileMap);
 
 	// Potentially rewrite the ModuleSpecifier text to refer to one of the generated chunk filenames (which may not be the same or named the same)
-	const normalizedModuleSpecifier = stripExtension(ensureHasLeadingDotAndPosix(relative(dirname(absoluteOutFileName), normalizedAbsoluteModuleSpecifierText)));
+	const normalizedModuleSpecifier = stripExtension(
+		ensureHasLeadingDotAndPosix(relative(dirname(absoluteOutFileName), normalizedAbsoluteModuleSpecifierText))
+	);
 
 	return {
 		normalizedModuleSpecifier: ensurePosix(normalizedModuleSpecifier),

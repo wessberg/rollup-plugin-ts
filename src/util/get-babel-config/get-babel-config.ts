@@ -33,7 +33,12 @@ export function isBabelInputOptions(babelConfig?: IGetBabelConfigOptions["babelC
  * @param {boolean} [useMinifyOptions]
  * @returns {{}[]}
  */
-function combineConfigItems(userItems: IBabelConfigItem[], defaultItems: IBabelConfigItem[] = [], forcedItems: IBabelConfigItem[] = [], useMinifyOptions: boolean = false): {}[] {
+function combineConfigItems(
+	userItems: IBabelConfigItem[],
+	defaultItems: IBabelConfigItem[] = [],
+	forcedItems: IBabelConfigItem[] = [],
+	useMinifyOptions: boolean = false
+): {}[] {
 	const namesInUserItems = new Set(userItems.map(item => item.file.resolved));
 	const namesInForcedItems = new Set(forcedItems.map(item => item.file.resolved));
 	const userItemsHasYearlyPreset = [...namesInUserItems].some(isYearlyBabelPreset);
@@ -42,7 +47,12 @@ function combineConfigItems(userItems: IBabelConfigItem[], defaultItems: IBabelC
 		[
 			// Only use those default items that doesn't appear within the forced items or the user-provided items.
 			// If the options contains a yearly preset such as "preset-es2015", filter out preset-env from the default items if it is given
-			...defaultItems.filter(item => !namesInUserItems.has(item.file.resolved) && !namesInForcedItems.has(item.file.resolved) && (!userItemsHasYearlyPreset || !isBabelPresetEnv(item.file.resolved))),
+			...defaultItems.filter(
+				item =>
+					!namesInUserItems.has(item.file.resolved) &&
+					!namesInForcedItems.has(item.file.resolved) &&
+					(!userItemsHasYearlyPreset || !isBabelPresetEnv(item.file.resolved))
+			),
 
 			// Only use those user items that doesn't appear within the forced items
 			...userItems.filter(item => !namesInForcedItems.has(item.file.resolved)),
@@ -51,7 +61,9 @@ function combineConfigItems(userItems: IBabelConfigItem[], defaultItems: IBabelC
 			...forcedItems
 		]
 			// Filter out those options that do not apply depending on whether or not to apply minification
-			.filter(configItem => (useMinifyOptions ? configItemIsAllowedDuringMinification(configItem) : configItemIsAllowedDuringNoMinification(configItem)))
+			.filter(configItem =>
+				useMinifyOptions ? configItemIsAllowedDuringMinification(configItem) : configItemIsAllowedDuringNoMinification(configItem)
+			)
 	);
 }
 
@@ -70,7 +82,10 @@ function configItemIsMinificationRelated({file: {resolved}}: IBabelConfigItem): 
  * @returns {boolean}
  */
 function configItemIsAllowedDuringMinification({file: {resolved}}: IBabelConfigItem): boolean {
-	return BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES.every(preset => !resolved.includes(preset)) && BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES.every(plugin => !resolved.includes(plugin));
+	return (
+		BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES.every(preset => !resolved.includes(preset)) &&
+		BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES.every(plugin => !resolved.includes(plugin))
+	);
 }
 
 /**
@@ -79,7 +94,9 @@ function configItemIsAllowedDuringMinification({file: {resolved}}: IBabelConfigI
  * @returns {boolean}
  */
 function configItemIsAllowedDuringNoMinification({file: {resolved}}: IBabelConfigItem): boolean {
-	return BABEL_MINIFY_PRESET_NAMES.every(preset => !resolved.includes(preset)) && BABEL_MINIFY_PLUGIN_NAMES.every(plugin => !resolved.includes(plugin));
+	return (
+		BABEL_MINIFY_PRESET_NAMES.every(preset => !resolved.includes(preset)) && BABEL_MINIFY_PLUGIN_NAMES.every(plugin => !resolved.includes(plugin))
+	);
 }
 
 /**
@@ -87,7 +104,14 @@ function configItemIsAllowedDuringNoMinification({file: {resolved}}: IBabelConfi
  * @param {IGetBabelConfigOptions} options
  * @returns {IGetBabelConfigResult}
  */
-export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOptions = {}, browserslist, rollupInputOptions}: IGetBabelConfigOptions): IGetBabelConfigResult {
+export function getBabelConfig({
+	babelConfig,
+	cwd,
+	forcedOptions = {},
+	defaultOptions = {},
+	browserslist,
+	rollupInputOptions
+}: IGetBabelConfigOptions): IGetBabelConfigResult {
 	// Load a partial Babel config based on the input options
 	const partialConfig = loadPartialConfig(
 		isBabelInputOptions(babelConfig)
@@ -215,7 +239,12 @@ export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOpt
 	return {
 		config: filename => loadOptions({...combined, filename, ...finalConfigFileOption}),
 		// Only return the minify config if it includes at least one plugin or preset
-		minifyConfig: minifyCombined.plugins.length < 1 && minifyCombined.presets.length < 1 ? undefined : filename => loadOptions({...minifyCombined, filename, ...finalMinifyConfigFileOption}),
-		hasMinifyOptions: [...minifyCombined.plugins.filter(configItemIsMinificationRelated), ...minifyCombined.presets.filter(configItemIsMinificationRelated)].length > 0
+		minifyConfig:
+			minifyCombined.plugins.length < 1 && minifyCombined.presets.length < 1
+				? undefined
+				: filename => loadOptions({...minifyCombined, filename, ...finalMinifyConfigFileOption}),
+		hasMinifyOptions:
+			[...minifyCombined.plugins.filter(configItemIsMinificationRelated), ...minifyCombined.presets.filter(configItemIsMinificationRelated)].length >
+			0
 	};
 }

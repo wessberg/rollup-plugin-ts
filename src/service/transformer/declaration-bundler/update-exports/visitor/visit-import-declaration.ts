@@ -35,7 +35,11 @@ import {dirname, join, normalize} from "path";
 import {setExtension} from "../../../../../util/path/path-util";
 import {removeExportModifier} from "../../util/modifier/modifier-util";
 
-function createTypeAliasOrVariableStatementForIdentifier(identifier: string, identifierNode: Node, name: string): VariableStatement | TypeAliasDeclaration | ClassDeclaration | ClassExpression {
+function createTypeAliasOrVariableStatementForIdentifier(
+	identifier: string,
+	identifierNode: Node,
+	name: string
+): VariableStatement | TypeAliasDeclaration | ClassDeclaration | ClassExpression {
 	switch (identifierNode.kind) {
 		case SyntaxKind.ClassDeclaration: {
 			const classDeclaration = identifierNode as ClassDeclaration;
@@ -47,7 +51,9 @@ function createTypeAliasOrVariableStatementForIdentifier(identifier: string, ide
 				[
 					createHeritageClause(SyntaxKind.ExtendsKeyword, [
 						createExpressionWithTypeArguments(
-							classDeclaration.typeParameters == null ? undefined : classDeclaration.typeParameters.map(param => createTypeReferenceNode(param.name, undefined)),
+							classDeclaration.typeParameters == null
+								? undefined
+								: classDeclaration.typeParameters.map(param => createTypeReferenceNode(param.name, undefined)),
 							createIdentifier(identifier)
 						)
 					])
@@ -65,7 +71,9 @@ function createTypeAliasOrVariableStatementForIdentifier(identifier: string, ide
 				[
 					createHeritageClause(SyntaxKind.ExtendsKeyword, [
 						createExpressionWithTypeArguments(
-							classExpression.typeParameters == null ? undefined : classExpression.typeParameters.map(param => createTypeReferenceNode(param.name, undefined)),
+							classExpression.typeParameters == null
+								? undefined
+								: classExpression.typeParameters.map(param => createTypeReferenceNode(param.name, undefined)),
 							createIdentifier(identifier)
 						)
 					])
@@ -82,12 +90,21 @@ function createTypeAliasOrVariableStatementForIdentifier(identifier: string, ide
 				[createModifier(SyntaxKind.DeclareKeyword)],
 				name,
 				declaration.typeParameters == null ? undefined : [...declaration.typeParameters],
-				createTypeReferenceNode(identifier, declaration.typeParameters == null ? undefined : declaration.typeParameters.map(param => createTypeReferenceNode(param.name, undefined)))
+				createTypeReferenceNode(
+					identifier,
+					declaration.typeParameters == null ? undefined : declaration.typeParameters.map(param => createTypeReferenceNode(param.name, undefined))
+				)
 			);
 		}
 
 		case SyntaxKind.EnumDeclaration: {
-			return createTypeAliasDeclaration(undefined, [createModifier(SyntaxKind.DeclareKeyword)], name, undefined, createTypeReferenceNode(identifier, undefined));
+			return createTypeAliasDeclaration(
+				undefined,
+				[createModifier(SyntaxKind.DeclareKeyword)],
+				name,
+				undefined,
+				createTypeReferenceNode(identifier, undefined)
+			);
 		}
 
 		case SyntaxKind.FunctionDeclaration:
@@ -144,7 +161,10 @@ export function visitImportDeclaration({
 			let identifiersForDefaultExportsForModulesPath: string | undefined;
 
 			for (const extension of ["", ...supportedExtensions]) {
-				const path = extension === "" ? join(dirname(normalize(sourceFile.fileName)), specifier.text) : setExtension(join(dirname(normalize(sourceFile.fileName)), specifier.text), extension);
+				const path =
+					extension === ""
+						? join(dirname(normalize(sourceFile.fileName)), specifier.text)
+						: setExtension(join(dirname(normalize(sourceFile.fileName)), specifier.text), extension);
 				if (parsedExportedSymbolsMap.has(path)) {
 					parsedExportedSymbolsPath = path;
 				}

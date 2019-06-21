@@ -10,7 +10,13 @@ export interface FileSystem {
 	readFile(path: string, encoding?: string): string | undefined;
 	ensureDirectory(path: string): string;
 	writeFileSync<T>(path: PathLike | number, data: T, options?: WriteFileOptions): void;
-	readDirectory(path: string, extensions?: ReadonlyArray<string>, exclude?: ReadonlyArray<string>, include?: ReadonlyArray<string>, depth?: number): string[];
+	readDirectory(
+		path: string,
+		extensions?: ReadonlyArray<string>,
+		exclude?: ReadonlyArray<string>,
+		include?: ReadonlyArray<string>,
+		depth?: number
+	): string[];
 	realpath(path: string): string;
 	getDirectories(path: string): string[];
 	directoryExists(path: string): boolean;

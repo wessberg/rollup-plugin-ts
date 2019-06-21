@@ -9,7 +9,10 @@ import {getEcmaVersionForScriptTarget} from "../get-script-target-from-browsersl
  * @param {CompilerOptions} compilerOptions
  * @return {string[] | undefined}
  */
-export function takeBrowserslistOrComputeBasedOnCompilerOptions(browserslist: string[] | undefined, compilerOptions: CompilerOptions): string[] | undefined {
+export function takeBrowserslistOrComputeBasedOnCompilerOptions(
+	browserslist: string[] | undefined,
+	compilerOptions: CompilerOptions
+): string[] | undefined {
 	return browserslist != null
 		? // If a browserslist is given, use that one
 		  browserslist

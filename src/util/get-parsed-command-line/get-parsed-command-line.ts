@@ -19,7 +19,9 @@ export function isParsedCommandLine(tsconfig?: IGetParsedCommandLineOptions["tsc
  * @param {IGetParsedCommandLineOptions["tsconfig"]} tsconfig
  * @returns {tsconfig is Partial<Record<keyof CompilerOptions, string | number | boolean>>}
  */
-export function isRawCompilerOptions(tsconfig?: IGetParsedCommandLineOptions["tsconfig"]): tsconfig is Partial<Record<keyof CompilerOptions, string | number | boolean>> {
+export function isRawCompilerOptions(
+	tsconfig?: IGetParsedCommandLineOptions["tsconfig"]
+): tsconfig is Partial<Record<keyof CompilerOptions, string | number | boolean>> {
 	return tsconfig != null && typeof tsconfig !== "string" && typeof tsconfig !== "function" && !("options" in tsconfig) && !("hook" in tsconfig);
 }
 
@@ -67,7 +69,12 @@ export function isCompilerOptions(tsconfig?: IGetParsedCommandLineOptions["tscon
  * @param {IGetParsedCommandLineOptions} options
  * @returns {GetParsedCommandLineResult}
  */
-export function getParsedCommandLine({cwd, tsconfig, fileSystem, forcedCompilerOptions = {}}: IGetParsedCommandLineOptions): GetParsedCommandLineResult {
+export function getParsedCommandLine({
+	cwd,
+	tsconfig,
+	fileSystem,
+	forcedCompilerOptions = {}
+}: IGetParsedCommandLineOptions): GetParsedCommandLineResult {
 	const hasProvidedTsconfig = tsconfig != null;
 	let originalCompilerOptions: CompilerOptions | undefined;
 	let parsedCommandLine: ParsedCommandLine;
@@ -96,7 +103,10 @@ export function getParsedCommandLine({cwd, tsconfig, fileSystem, forcedCompilerO
 
 	// Otherwise, attempt to resolve it and parse it
 	else {
-		const tsconfigPath = ensureAbsolute(cwd, isTsConfigResolverWithFileName(tsconfig) ? tsconfig.fileName : tsconfig != null && !isTsConfigResolver(tsconfig) ? tsconfig : "tsconfig.json");
+		const tsconfigPath = ensureAbsolute(
+			cwd,
+			isTsConfigResolverWithFileName(tsconfig) ? tsconfig.fileName : tsconfig != null && !isTsConfigResolver(tsconfig) ? tsconfig : "tsconfig.json"
+		);
 
 		// If the file exists, read the tsconfig on that location
 		let tsconfigContent = fileSystem.readFile(tsconfigPath);
@@ -111,8 +121,20 @@ export function getParsedCommandLine({cwd, tsconfig, fileSystem, forcedCompilerO
 			throw new ReferenceError(`The given tsconfig: '${tsconfigPath}' doesn't exist!`);
 		}
 
-		originalCompilerOptions = parseJsonConfigFileContent(parseConfigFileTextToJson(tsconfigPath, tsconfigContent).config, fileSystem, cwd, {}, tsconfigPath).options;
-		parsedCommandLine = parseJsonConfigFileContent(parseConfigFileTextToJson(tsconfigPath, tsconfigContent).config, fileSystem, cwd, forcedCompilerOptions, tsconfigPath);
+		originalCompilerOptions = parseJsonConfigFileContent(
+			parseConfigFileTextToJson(tsconfigPath, tsconfigContent).config,
+			fileSystem,
+			cwd,
+			{},
+			tsconfigPath
+		).options;
+		parsedCommandLine = parseJsonConfigFileContent(
+			parseConfigFileTextToJson(tsconfigPath, tsconfigContent).config,
+			fileSystem,
+			cwd,
+			forcedCompilerOptions,
+			tsconfigPath
+		);
 
 		// If an extension hook has been provided. Make sure to still apply the forced CompilerOptions
 		if (isTsConfigResolver(tsconfig)) {

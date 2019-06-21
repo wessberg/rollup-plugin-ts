@@ -45,5 +45,7 @@ export function visitClassDeclaration({
 	}
 
 	// Update the node and remove the export modifiers from it
-	return continuation(updateClassDeclaration(node, node.decorators, removeExportModifier(node.modifiers), name, node.typeParameters, node.heritageClauses, node.members));
+	return continuation(
+		updateClassDeclaration(node, node.decorators, removeExportModifier(node.modifiers), name, node.typeParameters, node.heritageClauses, node.members)
+	);
 }

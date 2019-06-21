@@ -53,7 +53,9 @@ export function mergeExports(statements: Statement[]): Statement[] {
 
 			// If at least 1 is aliased, generate an export containing only those
 			if (aliasedExportSpecifiers.size > 0) {
-				exportDeclarations.add(createExportDeclaration(undefined, undefined, createNamedExports([...aliasedExportSpecifiers]), exportDeclaration.moduleSpecifier));
+				exportDeclarations.add(
+					createExportDeclaration(undefined, undefined, createNamedExports([...aliasedExportSpecifiers]), exportDeclaration.moduleSpecifier)
+				);
 			}
 		} else {
 			exportDeclarations.add(exportDeclaration);

@@ -10,7 +10,9 @@ export function mergeTransformers(...transformers: (CustomTransformers | CustomT
 	return options => {
 		const instantiatedTransformers = transformers
 			.filter(transformer => transformer != null)
-			.map((transformer: CustomTransformers | CustomTransformersFunction) => (typeof transformer === "function" ? transformer(options) : transformer));
+			.map((transformer: CustomTransformers | CustomTransformersFunction) =>
+				typeof transformer === "function" ? transformer(options) : transformer
+			);
 
 		const beforeTransformers = ([] as (TransformerFactory<SourceFile> | CustomTransformerFactory)[]).concat.apply(
 			[],
@@ -24,7 +26,9 @@ export function mergeTransformers(...transformers: (CustomTransformers | CustomT
 
 		const afterDeclarationsTransformers = ([] as (TransformerFactory<Bundle | SourceFile> | CustomTransformerFactory)[]).concat.apply(
 			[],
-			instantiatedTransformers.map(transformer => transformer.afterDeclarations!).filter(afterDeclarationTransformer => afterDeclarationTransformer != null)
+			instantiatedTransformers
+				.map(transformer => transformer.afterDeclarations!)
+				.filter(afterDeclarationTransformer => afterDeclarationTransformer != null)
 		);
 
 		return {

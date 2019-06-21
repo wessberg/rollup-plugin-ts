@@ -6,7 +6,13 @@ import {TraceIdentifiersVisitorOptions} from "../../trace-identifiers-visitor-op
  * @param {TraceIdentifiersVisitorOptions} options
  * @returns {void}
  */
-export function traceIdentifiersForEnumDeclaration({node, isIdentifierFree, addIdentifier, updateIdentifierName, generateUniqueVariableName}: TraceIdentifiersVisitorOptions<EnumDeclaration>): void {
+export function traceIdentifiersForEnumDeclaration({
+	node,
+	isIdentifierFree,
+	addIdentifier,
+	updateIdentifierName,
+	generateUniqueVariableName
+}: TraceIdentifiersVisitorOptions<EnumDeclaration>): void {
 	const newName = !isIdentifierFree(node.name.text) ? generateUniqueVariableName(node.name.text) : node.name.text;
 
 	addIdentifier(newName);
