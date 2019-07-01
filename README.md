@@ -268,7 +268,7 @@ If you would like this behavior, simply add either `@babel/plugin-transform-runt
 
 ### Using `CustomTransformers`
 
-This plugin enables you to pass in [`CustomTranformers`](https://github.com/Microsoft/TypeScript/pull/13940) which allows you to transform the Typescript AST during code transpilation.
+This plugin enables you to pass in [`CustomTransformers`](https://github.com/Microsoft/TypeScript/pull/13940) which allows you to transform the Typescript AST during code transpilation.
 This enables you to very efficiently transform Typescript before code generation and additionally enables you to use this plugin with tools that leverage this, such as some modern web frameworks and libraries do.
 
 ## Declaration files
