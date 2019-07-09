@@ -5,7 +5,7 @@ import {
 	OutputOptions,
 	Plugin,
 	PluginContext,
-	RawSourceMap,
+	SourceMap,
 	RenderedChunk,
 	TransformSourceDescription
 } from "rollup";
@@ -235,9 +235,9 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * and if Babel is the chosen transpiler. Otherwise, it will simply do nothing
 		 * @param {string} code
 		 * @param {RenderedChunk} chunk
-		 * @returns {Promise<{ code: string, map: RawSourceMap } | null>}
+		 * @returns {Promise<{ code: string, map: SourceMap } | null>}
 		 */
-		async renderChunk(this: PluginContext, code: string, chunk: RenderedChunk): Promise<{code: string; map: RawSourceMap} | null> {
+		async renderChunk(this: PluginContext, code: string, chunk: RenderedChunk): Promise<{code: string; map: SourceMap} | null> {
 			const includesPropertyAccessExpression = code.includes(PRESERVING_PROPERTY_ACCESS_EXPRESSION);
 
 			// If the code doesn't include a PropertyAccessExpression that needs replacement, and if no additional minification should be applied, return immediately.

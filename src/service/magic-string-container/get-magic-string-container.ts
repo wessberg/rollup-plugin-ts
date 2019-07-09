@@ -1,6 +1,5 @@
 import MagicString from "magic-string";
 import {MagicStringContainer} from "./magic-string-container";
-import {RawSourceMap} from "rollup";
 
 /**
  * Gets a MagicStringContainer from the given arguments
@@ -14,7 +13,7 @@ export function getMagicStringContainer(code: string, file: string): MagicString
 
 	return {
 		get map() {
-			return magicString.generateMap({hires: true, includeContent: true, source: code, file}) as RawSourceMap;
+			return magicString.generateMap({hires: true, includeContent: true, source: code, file});
 		},
 		get code() {
 			return magicString.toString();
