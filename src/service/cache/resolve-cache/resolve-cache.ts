@@ -12,7 +12,7 @@ import {IResolveCache} from "./i-resolve-cache";
 import {ensureAbsolute, isBabelHelper, isTslib, setExtension} from "../../../util/path/path-util";
 import {sync} from "find-up";
 import {takeBestSubModuleFromPackage} from "../../../util/take-best-sub-module-from-package/take-best-sub-module-from-package";
-import {join} from "path";
+import {join, normalize} from "path";
 import {JS_EXTENSION, PACKAGE_JSON_FILENAME} from "../../../constant/constant";
 import {FileSystem} from "../../../util/file-system/file-system";
 
@@ -152,7 +152,7 @@ export class ResolveCache implements IResolveCache {
 		// Otherwise, proceed
 		else {
 			// Make sure that the path is absolute from the cwd
-			resolvedModule.resolvedFileName = ensureAbsolute(cwd, resolvedModule.resolvedFileName);
+			resolvedModule.resolvedFileName = normalize(ensureAbsolute(cwd, resolvedModule.resolvedFileName));
 
 			// If it is an external library, re-resolve since we may want to use a different package.json key than "main",
 			// for example in order get the ES-module variant of the library
@@ -161,7 +161,7 @@ export class ResolveCache implements IResolveCache {
 				const packageJsonPath = sync(PACKAGE_JSON_FILENAME, {cwd: resolvedModule.resolvedFileName});
 				if (packageJsonPath != null) {
 					// Resolve the package.json file
-					const packageJsonText = this.options.fileSystem.readFile(packageJsonPath);
+					const packageJsonText = this.options.fileSystem.readFile(normalize(packageJsonPath));
 					if (packageJsonText != null) {
 						const pkg = JSON.parse(packageJsonText.toString());
 						// Compute the absolute path to the path pointed to by the 'main' property
