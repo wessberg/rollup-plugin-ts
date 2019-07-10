@@ -13,7 +13,7 @@
 		"clean": "npm run clean:dist",
 		"lint": "tsc --noEmit && tslint -c tslint.json --project tsconfig.json",
 		"prettier": "prettier --write '{src,test,documentation}/**/*.{js,ts,json,html,xml,css,md}'",
-		"test": "ava **/*.test.* --fail-fast",
+		"test": "ava --fail-fast",
 		"prebuild": "npm run clean:dist",
 		"build": "npm run rollup",
 		"watch": "npm run rollup -- --watch",
@@ -114,6 +114,9 @@
 		}
 	},
 	"ava": {
+		"files": [
+			"test/*.test.ts"
+		],
 		"compileEnhancements": false,
 		"extensions": [
 			"ts"
