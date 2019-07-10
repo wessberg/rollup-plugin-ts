@@ -1,3 +1,9 @@
+## [1.1.61](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.60...v1.1.61) (2019-07-10)
+
+### Bug Fixes
+
+- **bug:** fixes an issue on Windows that could lead to duplicate symbols. Closes [#23](https://github.com/wessberg/rollup-plugin-ts/issues/23) ([2183af2](https://github.com/wessberg/rollup-plugin-ts/commit/2183af2))
+
 ## [1.1.60](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.59...v1.1.60) (2019-07-09)
 
 ## [1.1.59](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.58...v1.1.59) (2019-06-21)
