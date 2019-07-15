@@ -1,3 +1,9 @@
+## [1.1.62](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.61...v1.1.62) (2019-07-15)
+
+### Bug Fixes
+
+- **bug:** fixes an issue with resolving .babelrc files when no explicit path has been given. Closes [#25](https://github.com/wessberg/rollup-plugin-ts/issues/25) ([be1c80b](https://github.com/wessberg/rollup-plugin-ts/commit/be1c80b))
+
 ## [1.1.61](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.60...v1.1.61) (2019-07-10)
 
 ### Bug Fixes
