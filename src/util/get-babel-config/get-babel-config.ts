@@ -1,7 +1,5 @@
-import {IBabelConfigItem, IBabelInputOptions} from "../../plugin/i-babel-options";
-import {IGetBabelConfigOptions} from "./i-get-babel-config-options";
-import {ensureAbsolute, isBabelPluginTransformRuntime, isBabelPresetEnv, isYearlyBabelPreset} from "../path/path-util";
-import {IGetBabelConfigResult} from "./i-get-babel-config-result";
+import {IBabelConfigItem} from "../../plugin/i-babel-options";
+import {isBabelPluginTransformRuntime, isBabelPresetEnv, isYearlyBabelPreset} from "../path/path-util";
 import {
 	BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES,
 	BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES,
@@ -13,17 +11,11 @@ import {
 } from "../../constant/constant";
 // @ts-ignore
 import {createConfigItem, loadOptions, loadPartialConfig} from "@babel/core";
+import {GetBabelConfigOptions} from "./get-babel-config-options";
+import {GetBabelConfigResult} from "./get-babel-config-result";
+import {findBabelConfig} from "./find-babel-config";
 
 // tslint:disable:no-any
-
-/**
- * Returns true if the given babelConfig is IBabelInputOptions
- * @param {IGetBabelConfigOptions["babelConfig"]} babelConfig
- * @returns {babelConfig is IBabelInputOptions}
- */
-export function isBabelInputOptions(babelConfig?: IGetBabelConfigOptions["babelConfig"]): babelConfig is Partial<IBabelInputOptions> {
-	return babelConfig != null && typeof babelConfig !== "string";
-}
 
 /**
  * Combines the given two sets of presets
@@ -101,8 +93,8 @@ function configItemIsAllowedDuringNoMinification({file: {resolved}}: IBabelConfi
 
 /**
  * Gets a Babel Config based on the given options
- * @param {IGetBabelConfigOptions} options
- * @returns {IGetBabelConfigResult}
+ * @param {GetBabelConfigOptions} options
+ * @returns {GetBabelConfigResult}
  */
 export function getBabelConfig({
 	babelConfig,
@@ -111,14 +103,20 @@ export function getBabelConfig({
 	defaultOptions = {},
 	browserslist,
 	rollupInputOptions
-}: IGetBabelConfigOptions): IGetBabelConfigResult {
+}: GetBabelConfigOptions): GetBabelConfigResult {
+	const resolvedConfig = findBabelConfig({cwd, babelConfig});
+
 	// Load a partial Babel config based on the input options
 	const partialConfig = loadPartialConfig(
-		isBabelInputOptions(babelConfig)
+		resolvedConfig != null && resolvedConfig.kind === "dict"
 			? // If the given babelConfig is an object of input options, use that as the basis for the full config
-			  {...babelConfig, cwd, root: cwd, configFile: false, babelrc: false}
+			  {...resolvedConfig.options, cwd, root: cwd, configFile: false, babelrc: false}
 			: // Load the path to a babel config provided to the plugin if any, otherwise try to resolve it
-			  {cwd, root: cwd, ...(babelConfig != null ? {configFile: ensureAbsolute(cwd, babelConfig)} : {})}
+			  {
+					cwd,
+					root: cwd,
+					...(resolvedConfig != null ? {configFile: resolvedConfig.path} : {babelrc: true})
+			  }
 	);
 
 	const {options, config} = partialConfig;
