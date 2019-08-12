@@ -1,3 +1,9 @@
+## [1.1.63](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.62...v1.1.63) (2019-08-12)
+
+### Features
+
+- **declarations:** mark export-less declaration files as modules ([26ffe4b](https://github.com/wessberg/rollup-plugin-ts/commit/26ffe4b))
+
 ## [1.1.62](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.61...v1.1.62) (2019-07-15)
 
 ### Bug Fixes
