@@ -38,7 +38,7 @@ export function afterDeclarations({relativeOutFileName}: IDeclarationTreeShakerO
 				updatedSourceFile,
 				mergedStatements.length < 1
 					? // Create an 'export {}' declaration to mark the declaration file as module-based
-					  [createExportDeclaration(undefined, undefined, createNamedExports([]), undefined)]
+					  [createExportDeclaration(undefined, undefined, createNamedExports([]))]
 					: mergedStatements,
 				updatedSourceFile.isDeclarationFile,
 				updatedSourceFile.referencedFiles,
