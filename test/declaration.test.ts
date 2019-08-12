@@ -228,3 +228,24 @@ test("Flattens declarations. #6", async t => {
 		`)
 	);
 });
+
+test("A file with no exports generates a .d.ts file with an 'export {}' declaration to mark it as a module. #1", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+					console.log(true);
+					`
+		}
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		export {};
+		`)
+	);
+});

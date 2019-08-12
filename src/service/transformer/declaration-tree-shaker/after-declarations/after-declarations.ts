@@ -1,4 +1,4 @@
-import {Node, SourceFile, TransformerFactory, updateSourceFileNode, visitEachChild} from "typescript";
+import {createExportDeclaration, createNamedExports, Node, SourceFile, TransformerFactory, updateSourceFileNode, visitEachChild} from "typescript";
 import {IDeclarationTreeShakerOptions} from "../i-declaration-tree-shaker-options";
 import {isReferenced} from "../reference/is-referenced/is-referenced";
 import {ReferenceCache} from "../reference/cache/reference-cache";
@@ -32,10 +32,14 @@ export function afterDeclarations({relativeOutFileName}: IDeclarationTreeShakerO
 			}
 
 			const updatedSourceFile = visitEachChild(sourceFile, visitor, context);
+			const mergedStatements = mergeExports(mergeImports([...updatedSourceFile.statements]));
 
 			return updateSourceFileNode(
 				updatedSourceFile,
-				mergeExports(mergeImports([...updatedSourceFile.statements])),
+				mergedStatements.length < 1
+					? // Create an 'export {}' declaration to mark the declaration file as module-based
+					  [createExportDeclaration(undefined, undefined, createNamedExports([]), undefined)]
+					: mergedStatements,
 				updatedSourceFile.isDeclarationFile,
 				updatedSourceFile.referencedFiles,
 				updatedSourceFile.typeReferenceDirectives,
