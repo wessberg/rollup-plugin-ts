@@ -128,6 +128,7 @@ export const DEFAULT_LIB_NAMES: Set<string> = new Set([
 	"lib.es2018.promise.d.ts",
 	"lib.es2018.regexp.d.ts",
 	"lib.es2018.asynciterable.d.ts",
+	"lib.es2018.asyncgenerator.d.ts",
 	"lib.es2019.array.d.ts",
 	"lib.es2019.d.ts",
 	"lib.es2019.full.d.ts",
