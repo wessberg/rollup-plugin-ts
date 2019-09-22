@@ -13,6 +13,7 @@ export function getDefaultBabelOptions({browserslist, rollupInputOptions}: IGetD
 
 	return {
 		presets: [
+			"proposal-typescript",
 			// Use @babel/preset-env when a Browserslist has been given
 			...(!includePresetEnv
 				? []
@@ -35,16 +36,6 @@ export function getDefaultBabelOptions({browserslist, rollupInputOptions}: IGetD
 				  ])
 		],
 		plugins: [
-			// If preset-env will be included, shipped proposals will be included already. If not, apply them here
-			...(includePresetEnv
-				? []
-				: [
-						"@babel/plugin-proposal-object-rest-spread",
-						"@babel/plugin-proposal-async-generator-functions",
-						"@babel/plugin-proposal-optional-catch-binding",
-						"@babel/plugin-proposal-unicode-property-regex",
-						"@babel/plugin-proposal-json-strings"
-				  ]),
 			// Force the use of helpers (e.g. the runtime). But *don't* apply polyfills.
 			[
 				"@babel/plugin-transform-runtime",
