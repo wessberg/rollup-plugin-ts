@@ -163,10 +163,11 @@ export function setExtension(file: string, extension: string): string {
 /**
  * Ensure that the given path has a leading "."
  * @param {string} path
+ * @param {boolean} [externalGuard=true]
  * @return {string}
  */
-export function ensureHasLeadingDotAndPosix(path: string): string {
-	if (isExternalLibrary(path)) return path;
+export function ensureHasLeadingDotAndPosix(path: string, externalGuard: boolean = true): string {
+	if (externalGuard && isExternalLibrary(path)) return path;
 
 	const posixPath = ensurePosix(path);
 	if (posixPath.startsWith(".")) return posixPath;

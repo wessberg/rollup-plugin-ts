@@ -7,11 +7,11 @@ import {mergeImports} from "../util/merge-imports/merge-imports";
 import {mergeExports} from "../util/merge-exports/merge-exports";
 import {normalize} from "path";
 
-export function afterDeclarations({relativeOutFileName}: IDeclarationTreeShakerOptions): TransformerFactory<SourceFile> {
+export function afterDeclarations({declarationFilename}: IDeclarationTreeShakerOptions): TransformerFactory<SourceFile> {
 	return context => {
 		return sourceFile => {
 			// If the SourceFile is not part of the local module names, remove all statements from it and return immediately
-			if (normalize(sourceFile.fileName) !== normalize(relativeOutFileName)) return updateSourceFileNode(sourceFile, [], true);
+			if (normalize(sourceFile.fileName) !== normalize(declarationFilename)) return updateSourceFileNode(sourceFile, [], true);
 
 			// Prepare a cache
 			const cache: ReferenceCache = {

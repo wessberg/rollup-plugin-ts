@@ -26,6 +26,8 @@ export default {
 		...builtinModules,
 		...Object.keys(packageJson.dependencies),
 		...Object.keys(packageJson.devDependencies),
-		...Object.keys(packageJson.peerDependencies)
+		...Object.keys(packageJson.peerDependencies),
+		"@babel/core/lib/config/files/configuration",
+		"@babel/core/lib/config/files/package"
 	]
 };

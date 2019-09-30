@@ -392,7 +392,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				const generateMap = Boolean(parsedCommandLineResult.parsedCommandLine.options.declarationMap);
 
 				const chunkToOriginalFileMap: Map<string, string[]> = new Map(
-					chunks.map<[string, string[]]>(chunk => [join(declarationOutDir, normalize(chunk.fileName)), Object.keys(chunk.modules).map(normalize)])
+					chunks.map<[string, string[]]>(chunk => [join(outDir, normalize(chunk.fileName)), Object.keys(chunk.modules).map(normalize)])
 				);
 				const moduleNames = [
 					...new Set(
@@ -431,6 +431,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 						outDir,
 						cwd,
 						outputOptions,
+						pluginOptions,
 						languageService,
 						languageServiceHost,
 						emitCache,

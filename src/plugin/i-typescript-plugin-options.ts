@@ -22,6 +22,13 @@ export interface TsConfigResolverWithFileName {
 
 export type TsConfigResolver = TsConfigResolverWithFileName["hook"];
 
+export type OutputPathKind = "declaration" | "declarationMap";
+export type OutputPathHook = (path: string, kind: OutputPathKind) => string | undefined;
+
+export interface HookRecord {
+	outputPath: OutputPathHook;
+}
+
 export interface ITypescriptPluginBaseOptions {
 	transpiler: Transpiler;
 	tsconfig?:
@@ -38,6 +45,7 @@ export interface ITypescriptPluginBaseOptions {
 	exclude: string[] | string;
 	transpileOnly?: boolean;
 	fileSystem: FileSystem;
+	hook: Partial<HookRecord>;
 }
 
 export interface ITypescriptPluginTypescriptOptions extends ITypescriptPluginBaseOptions {

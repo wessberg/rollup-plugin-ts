@@ -2,9 +2,10 @@ import {dirname, isAbsolute, join} from "path";
 import {rollup, RollupOptions, RollupOutput} from "rollup";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
 import {PathLike} from "fs";
-import {sys} from "typescript";
+import {CompilerOptions, sys} from "typescript";
 import {REAL_FILE_SYSTEM} from "../../src/util/file-system/file-system";
 import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION} from "../../src/constant/constant";
+import {HookRecord} from "../../src/plugin/i-typescript-plugin-options";
 
 // tslint:disable:no-any
 
@@ -27,15 +28,21 @@ export interface GenerateRollupBundleResult {
 	declarationMaps: FileResult[];
 }
 
+export interface GenerateRollupBundleOptions {
+	rollupOptions: Partial<RollupOptions>;
+	tsconfig: Partial<Record<keyof CompilerOptions, string | number | boolean>>;
+	hook?: HookRecord;
+}
+
 /**
  * Prepares a test
  * @param {ITestFile[]|TestFile} inputFiles
- * @param {Partial<RollupOptions>} [rollupOptions]
+ * @param {GenerateRollupBundleOptions} options
  * @returns {Promise<GenerateRollupBundleResult>}
  */
 export async function generateRollupBundle(
 	inputFiles: TestFile[] | TestFile,
-	rollupOptions: Partial<RollupOptions> = {}
+	{rollupOptions = {}, tsconfig = {}, hook = {outputPath: path => path}}: Partial<GenerateRollupBundleOptions> = {}
 ): Promise<GenerateRollupBundleResult> {
 	const cwd = process.cwd();
 
@@ -86,8 +93,10 @@ export async function generateRollupBundle(
 			typescriptRollupPlugin({
 				tsconfig: {
 					target: "esnext",
-					declaration: true
+					declaration: true,
+					...tsconfig
 				},
+				hook,
 				fileSystem: {
 					...REAL_FILE_SYSTEM,
 					useCaseSensitiveFileNames: true,

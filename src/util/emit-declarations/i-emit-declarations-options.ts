@@ -3,6 +3,7 @@ import {LanguageService} from "typescript";
 import {IncrementalLanguageService} from "../../service/language-service/incremental-language-service";
 import {IEmitCache} from "../../service/cache/emit-cache/i-emit-cache";
 import {FileSystem} from "../file-system/file-system";
+import {TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options";
 
 export interface IEmitDeclarationsOptions {
 	pluginContext: PluginContext;
@@ -15,6 +16,7 @@ export interface IEmitDeclarationsOptions {
 	moduleNames: string[];
 	localModuleNames: string[];
 	entryFileNames: string[];
+	pluginOptions: TypescriptPluginOptions;
 	outputOptions: OutputOptions;
 	languageService: LanguageService;
 	languageServiceHost: IncrementalLanguageService;

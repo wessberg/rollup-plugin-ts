@@ -77,6 +77,20 @@ In comparison with the [official plugin](https://github.com/rollup/rollup-plugin
   - [Typescript, Babel, and Browserslist example](#typescript-babel-and-browserslist-example)
   - [Pure Typescript with CustomTransformers](#pure-typescript-with-customtransformers)
   - [Advanced example of using Typescript, Babel, and Browserslists together](#advanced-example-of-using-typescript-babel-and-browserslists-together)
+- [Hooks](#hooks)
+  - [The `outputPath` hook](#the-outputpath-hook)
+- [Full list of plugin options](#full-list-of-plugin-options)
+  - [`transpiler`](#transpiler)
+  - [`babelConfig`](#babelconfig)
+  - [`tsconfig`](#tsconfig)
+  - [`browserslist`](#browserslist)
+  - [`cwd`](#cwd)
+  - [`transformers`](#transformers)
+  - [`include`](#include)
+  - [`exclude`](#exclude)
+  - [`transpileOnly`](#transpileonly)
+  - [`fileSystem`](#filesystem)
+  - [`hook`](#hook)
 - [Ignored/overridden options](#ignoredoverridden-options)
   - [Ignored/overridden Typescript options](#ignoredoverridden-typescript-options)
   - [Ignored/overridden Babel options](#ignoredoverridden-babel-options)
@@ -349,9 +363,7 @@ This example shows how you can use this plugin to accomplish quite advanced thin
 
 ```javascript
 const IS_PRODUCTION = (process.env.NODE_ENV = "production");
-const BUNDLE_TARGET = process.env.NODE_ENV;
-const BROWSERSLIST_MODERN = ["since 2015", "not dead", "> 5%"];
-const BROWSERSLIST_LEGACY = ["defaults"];
+const BUNDLE_TARGET = process.env.BUNDLE_TARGET;
 const APP_ROOT = "/some/project/root/folder";
 const awesomeFrameworkTransformers = getAwesomeFrameworkCustomTransformers();
 
@@ -376,6 +388,113 @@ ts({
 	transformers: awesomeFrameworkTransformers
 });
 ```
+
+## Hooks
+
+`rollup-plugin-ts` provides a few hooks that allow you to hook into and augment the internal behavior of the plugin.
+
+These can be provided in the plugin options for the `hook` property:
+
+```typescript
+ts({
+	hook: {
+		// Add hooks here
+	}
+});
+```
+
+The next few subsections describe the different hooks that can be provided
+
+### The `outputPath` hook
+
+Type: `(path: string, kind: "declaration" | "declarationMap") => string | undefined`
+
+The `outputPath` hook can be used to rewrite the location on the filesystem that assets produced by `rollup-plugin-ts` are written to.
+It is invoked immediately before assets such as _declarations_ or _declaration maps_ are emitted.
+
+The hook is invoked with the output path as well as the kind of asset the path represents as arguments.
+If you return a `string` from the hook, the alternative location will be used instead. If you return undefined, the current path will be used.
+
+```typescript
+ts({
+	hook: {
+		outputPath: (path, kind) => rewritePathSomehow(path, kind)
+	}
+});
+```
+
+For example, the `path` may be `/some/path/index.d.ts`, and `kind` be `declaration`, and you might want to rewrite this to `/some/path/my-typings.d.ts`.
+
+## Full list of plugin options
+
+The plugin options are documented in more detail across this README, but the full list of options is:
+
+#### `transpiler`
+
+Type: `"typescript" | "babel"`
+
+Can be any of `"babel"` or `"typescript"` (default: `"typescript"`).
+See [this section](#combining-typescript-with-babel) and [this section](#when-combined-with-babel-what-does-typescript-do-and-what-does-babel-do) for details on how `rollup-plugin-ts` works when `"babel"` is being used as a transpiler.
+
+#### `babelConfig`
+
+Type: `string | Partial<IBabelInputOptions>`
+
+This option will only be respected when `"babel"` is being used as the `transpiler` and can be used to provide a [Babel config](https://babeljs.io/docs/en/options) or a path to one.
+
+#### `tsconfig`
+
+Type: `string | Partial<CompilerOptions> | Partial<Record<keyof CompilerOptions, string | number | boolean>> | ParsedCommandLine | TsConfigResolver | TsConfigResolverWithFileName`
+
+Provide the Typescript [CompilerOptions](https://www.typescriptlang.org/docs/handbook/compiler-options.html) to use, or a path to a `tsconfig` with this property.
+See [this section](#using-it-with-just-typescript) for details on the many ways this property can be configured.
+
+#### `browserslist`
+
+Type: `false | string[] | string | BrowserslistConfig`
+
+Provide the [Browserslist](https://github.com/browserslist/browserslist) to use, or a path to a `.browserslistrc` with this property.
+See [this section](#combining-typescript-with-a-browserslist) for details on the many ways this property can be configured.
+
+#### `cwd`
+
+Type: `string`
+
+Use this property to overwrite whatever is considered the root directory. The default value is `process.cwd()`.
+
+#### `transformers`
+
+Type: `(CustomTransformers | CustomTransformersFunction)[] | CustomTransformers | CustomTransformersFunction`
+
+Use this property to provide Typescript [`CustomTransformers`](https://github.com/Microsoft/TypeScript/pull/13940).
+See [this section](#using-customtransformers) for more details on how to configure this property.
+
+#### `include`
+
+Type: `string[]|string`
+
+This option takes a minimatch pattern or an array of minimatch patterns and only transforms files with filenames that the pattern matches.
+
+#### `exclude`
+
+Type: `string[]|string`
+
+This option takes a minimatch pattern or an array of minimatch patterns and only transforms files with filenames that the pattern doesn't match.
+
+#### `transpileOnly`
+
+Type: `boolean`
+
+If this option is `true`, diagnostics won't be generated. This will improve performance since Typescript but ignores all syntactical and semantic errors or warnings that may arise.
+
+#### `fileSystem`
+
+Optionally the [FileSystem](https://github.com/wessberg/rollup-plugin-ts/blob/master/src/util/file-system/file-system.ts) to use. This is useful for example when you want to provide a virtual FileSystem to read from or write to.
+
+#### `hook`
+
+Use this property to get hooks into the internals of `rollup-plugin-ts`.
+See [this section](#hooks) for more details.
 
 ## Ignored/overridden options
 
