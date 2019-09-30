@@ -2,6 +2,8 @@ import test from "ava";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
+// tslint:disable:no-duplicate-string
+
 test("Flattens declarations. #1", async t => {
 	const bundle = await generateRollupBundle([
 		{
@@ -304,6 +306,7 @@ test("Declaration maps correctly maps input sources. #2", async t => {
 					`
 			}
 		],
+
 		{tsconfig: {declarationMap: true, declarationDir: "./foobarbaz"}}
 	);
 	const {
