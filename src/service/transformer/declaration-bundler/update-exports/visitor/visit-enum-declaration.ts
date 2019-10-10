@@ -1,6 +1,6 @@
 import {EnumDeclaration, updateEnumDeclaration} from "typescript";
 import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
-import {hasDefaultExportModifier, hasExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
+import {ensureHasDeclareModifier, hasDefaultExportModifier, hasExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
 import {normalize} from "path";
 
 /**
@@ -37,5 +37,7 @@ export function visitEnumDeclaration({
 	}
 
 	// Update the node and remove the export modifiers from it
-	return continuation(updateEnumDeclaration(node, node.decorators, removeExportModifier(node.modifiers), node.name, node.members));
+	return continuation(
+		updateEnumDeclaration(node, node.decorators, ensureHasDeclareModifier(removeExportModifier(node.modifiers)), node.name, node.members)
+	);
 }

@@ -231,6 +231,39 @@ test("Flattens declarations. #6", async t => {
 	);
 });
 
+test("Flattens declarations. #7", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+					import * as m from './bar';
+					export { m };
+					`
+		},
+		{
+			entry: false,
+			fileName: "bar.ts",
+			text: `\
+					export const ten = 10;
+					`
+		}
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare const ten = 10;
+		declare module m {
+				const ten = 10;
+		}
+		export { m };
+		`)
+	);
+});
+
 test("A file with no exports generates a .d.ts file with an 'export {}' declaration to mark it as a module. #1", async t => {
 	const bundle = await generateRollupBundle([
 		{

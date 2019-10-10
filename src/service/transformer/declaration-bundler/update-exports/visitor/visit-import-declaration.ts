@@ -33,7 +33,7 @@ import {normalizeModuleSpecifier} from "../../util/module-specifier/normalize-mo
 import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
 import {dirname, join, normalize} from "path";
 import {setExtension} from "../../../../../util/path/path-util";
-import {removeExportModifier} from "../../util/modifier/modifier-util";
+import {removeDeclareModifier, removeExportModifier} from "../../util/modifier/modifier-util";
 
 function createTypeAliasOrVariableStatementForIdentifier(
 	identifier: string,
@@ -197,18 +197,18 @@ export function visitImportDeclaration({
 					}
 				}
 
-				// If it is a namespace import, then create an inlined namespace containing clones of all the imported nods
+				// If it is a namespace import, then create an inlined namespace containing clones of all the imported nodes
 				else if (isNamespaceImport(node.importClause.namedBindings)) {
 					newNodes.push(
 						createModuleDeclaration(
 							undefined,
 							[createModifier(SyntaxKind.DeclareKeyword)],
 							createIdentifier(node.importClause.namedBindings.name.text),
-							// Ensure that none of them have export modifiers
+							// Ensure that none of them have export- or declare modifiers
 							createModuleBlock(
 								[...specifiers.values()].map(specifierNode => {
 									const clone = {...specifierNode};
-									clone.modifiers = createNodeArray(removeExportModifier(clone.modifiers));
+									clone.modifiers = createNodeArray(removeDeclareModifier(removeExportModifier(clone.modifiers)));
 									return clone;
 								})
 							)

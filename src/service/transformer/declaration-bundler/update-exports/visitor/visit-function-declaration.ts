@@ -1,6 +1,6 @@
 import {createIdentifier, FunctionDeclaration, Identifier, updateFunctionDeclaration} from "typescript";
 import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
-import {hasDefaultExportModifier, hasExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
+import {ensureHasDeclareModifier, hasDefaultExportModifier, hasExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
 import {pascalCase} from "@wessberg/stringutil";
 import {stripExtension} from "../../../../../util/path/path-util";
 import {basename, normalize} from "path";
@@ -49,7 +49,7 @@ export function visitFunctionDeclaration({
 		updateFunctionDeclaration(
 			node,
 			node.decorators,
-			removeExportModifier(node.modifiers),
+			ensureHasDeclareModifier(removeExportModifier(node.modifiers)),
 			node.asteriskToken,
 			name,
 			node.typeParameters,

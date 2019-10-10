@@ -1,6 +1,6 @@
 import {createVariableDeclaration, isIdentifier, updateVariableDeclarationList, updateVariableStatement, VariableStatement} from "typescript";
 import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
-import {hasDefaultExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
+import {ensureHasDeclareModifier, hasDefaultExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
 import {getIdentifiersForBindingName} from "../../util/binding-name/get-identifiers-for-binding-name";
 import {pascalCase} from "@wessberg/stringutil";
 import {basename, normalize} from "path";
@@ -47,7 +47,7 @@ export function visitVariableStatement({
 			return continuation(
 				updateVariableStatement(
 					node,
-					removeExportModifier(node.modifiers),
+					ensureHasDeclareModifier(removeExportModifier(node.modifiers)),
 					updateVariableDeclarationList(node.declarationList, [createVariableDeclaration(name, declaration.type, declaration.initializer)])
 				)
 			);
@@ -63,5 +63,5 @@ export function visitVariableStatement({
 	}
 
 	// Remove the export modifier
-	return continuation(updateVariableStatement(node, removeExportModifier(node.modifiers), node.declarationList));
+	return continuation(updateVariableStatement(node, ensureHasDeclareModifier(removeExportModifier(node.modifiers)), node.declarationList));
 }
