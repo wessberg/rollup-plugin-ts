@@ -1,5 +1,7 @@
 import {createModifier, Modifier, ModifiersArray, Node, SyntaxKind} from "typescript";
 
+export type Modifiers = ModifiersArray | Modifier[];
+
 /**
  * Returns true if the given node has an Export keyword in front of it
  * @param {Node} node
@@ -38,20 +40,20 @@ export function isDeclareModifier(node: Modifier): boolean {
 
 /**
  * Removes an export modifier from the given ModifiersArray
- * @param {ModifiersArray} modifiers
+ * @param {Modifiers?} modifiers
  * @returns {Modifier[]}
  */
-export function removeExportModifier(modifiers: ModifiersArray | Modifier[] | undefined): Modifier[] | undefined {
+export function removeExportModifier(modifiers: Modifiers | undefined): Modifier[] | undefined {
 	if (modifiers == null) return modifiers;
 	return modifiers.filter(modifier => !isExportModifier(modifier) && !isDefaultModifier(modifier));
 }
 
 /**
  * Removes an export modifier from the given ModifiersArray
- * @param {ModifiersArray} modifiers
+ * @param {Modifiers?} modifiers
  * @returns {Modifier[]}
  */
-export function removeDeclareModifier(modifiers: ModifiersArray | Modifier[] | undefined): Modifier[] | undefined {
+export function removeDeclareModifier(modifiers: Modifiers | undefined): Modifier[] | undefined {
 	if (modifiers == null) return modifiers;
 	return modifiers.filter(modifier => !isDeclareModifier(modifier));
 }
@@ -61,7 +63,7 @@ export function removeDeclareModifier(modifiers: ModifiersArray | Modifier[] | u
  * @param {ModifiersArray} modifiers
  * @returns {Modifier[]}
  */
-export function ensureHasDeclareModifier(modifiers: ModifiersArray | Modifier[] | undefined): Modifier[] | ModifiersArray | undefined {
+export function ensureHasDeclareModifier(modifiers: Modifiers | undefined): Modifier[] | ModifiersArray | undefined {
 	if (modifiers == null) return [createModifier(SyntaxKind.DeclareKeyword)];
 	if (modifiers.some(m => m.kind === SyntaxKind.DeclareKeyword)) return modifiers;
 	return [createModifier(SyntaxKind.DeclareKeyword), ...modifiers];
