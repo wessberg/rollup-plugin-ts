@@ -362,7 +362,7 @@ ts({
 This example shows how you can use this plugin to accomplish quite advanced things:
 
 ```javascript
-const IS_PRODUCTION = (process.env.NODE_ENV = "production");
+const IS_PRODUCTION = (process.env.NODE_ENV === "production");
 const BUNDLE_TARGET = process.env.BUNDLE_TARGET;
 const APP_ROOT = "/some/project/root/folder";
 const awesomeFrameworkTransformers = getAwesomeFrameworkCustomTransformers();
