@@ -1,3 +1,9 @@
+## [1.1.71](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.70...v1.1.71) (2019-10-15)
+
+### Bug Fixes
+
+- **bug:** fix issue where exporting bindings from external libraries could lead to issues. Fixes [#33](https://github.com/wessberg/rollup-plugin-ts/issues/33) ([7520fcf](https://github.com/wessberg/rollup-plugin-ts/commit/7520fcfd8e8952d6a31863d70172c9426af91c06))
+
 ## [1.1.70](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.69...v1.1.70) (2019-10-15)
 
 ## [1.1.69](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.68...v1.1.69) (2019-10-15)
