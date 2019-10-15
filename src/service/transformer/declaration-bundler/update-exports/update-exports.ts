@@ -2,6 +2,7 @@ import {
 	createExportDeclaration,
 	createExportSpecifier,
 	createNamedExports,
+	ExportDeclaration,
 	isClassDeclaration,
 	isEnumDeclaration,
 	isExportAssignment,
@@ -39,6 +40,7 @@ import {extname, normalize} from "path";
 export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions): TransformerFactory<SourceFile> {
 	const parsedExportedSymbolsMap: Map<string, Map<string, Statement>> = new Map();
 	const exportedSpecifiersFromModuleMap: Map<string, Set<string>> = new Map();
+	const exportsFromExternalModulesMap: Map<string, Map<string, ExportDeclaration>> = new Map();
 
 	return context => {
 		return sourceFile => {
@@ -49,6 +51,7 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 
 			let parsedExportedSymbols = parsedExportedSymbolsMap.get(normalize(sourceFile.fileName));
 			let exportedSpecifiersFromModule = exportedSpecifiersFromModuleMap.get(normalize(sourceFile.fileName));
+			let exportsFromExternalModules = exportsFromExternalModulesMap.get(normalize(sourceFile.fileName));
 
 			if (parsedExportedSymbols == null) {
 				parsedExportedSymbols = new Map();
@@ -60,11 +63,17 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 				exportedSpecifiersFromModuleMap.set(normalize(sourceFile.fileName), exportedSpecifiersFromModule);
 			}
 
+			if (exportsFromExternalModules == null) {
+				exportsFromExternalModules = new Map();
+				exportsFromExternalModulesMap.set(normalize(sourceFile.fileName), exportsFromExternalModules);
+			}
+
 			// Prepare some VisitorOptions
 			const visitorOptions = {
 				usedExports,
 				sourceFile,
 				parsedExportedSymbolsMap,
+				exportsFromExternalModules,
 				isEntry: rest.entryFileNames.includes(normalize(sourceFile.fileName)),
 				...rest,
 				continuation: <U extends Node>(node: U) => {
@@ -91,6 +100,27 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 					}
 					return matched;
 				},
+				getExportsFromExternalModulesForModule(moduleName: string): Map<string, ExportDeclaration> {
+					let matched: Map<string, ExportDeclaration> | undefined;
+					let matchedModuleName: string = moduleName;
+
+					const extensions = extname(moduleName) !== "" ? [extname(moduleName)] : rest.supportedExtensions;
+					for (const extension of extensions) {
+						const tryPath = setExtension(moduleName, extension);
+						matched = exportsFromExternalModulesMap.get(tryPath);
+						if (matched != null) {
+							matchedModuleName = tryPath;
+							break;
+						}
+					}
+
+					if (matched == null) {
+						matched = new Map();
+						exportsFromExternalModulesMap.set(matchedModuleName, matched);
+					}
+					return matched;
+				},
+
 				getExportedSpecifiersFromModule(moduleName: string): Set<string> {
 					let matched: Set<string> | undefined;
 					let matchedModuleName: string = moduleName;

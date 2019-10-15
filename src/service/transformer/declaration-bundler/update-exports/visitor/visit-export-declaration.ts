@@ -7,6 +7,7 @@ import {
 	DeclarationStatement,
 	ExportDeclaration,
 	ExportSpecifier,
+	ImportDeclaration,
 	isStringLiteralLike,
 	Symbol,
 	SymbolFlags,
@@ -37,8 +38,9 @@ export function visitExportDeclaration({
 	getParsedExportedSymbolsForModule,
 	parsedExportedSymbols,
 	typeChecker,
-	identifiersForDefaultExportsForModules
-}: UpdateExportsVisitorOptions<ExportDeclaration>): ExportDeclaration | undefined {
+	identifiersForDefaultExportsForModules,
+	exportsFromExternalModules
+}: UpdateExportsVisitorOptions<ExportDeclaration>): ExportDeclaration | ImportDeclaration | undefined {
 	const specifier = node.moduleSpecifier;
 	const symbol = (node as {symbol?: Symbol}).symbol;
 	const isExportStar = symbol != null && (symbol.flags & SymbolFlags.ExportStar) !== 0;
@@ -64,7 +66,7 @@ export function visitExportDeclaration({
 	}
 
 	// Potentially rewrite the ModuleSpecifier text to refer to one of the generated chunk filenames (which may not be the same or named the same)
-	const {isSameChunk, hasChanged, normalizedModuleSpecifier} = normalizeModuleSpecifier({
+	const {isSameChunk, hasChanged, normalizedModuleSpecifier, isExternal} = normalizeModuleSpecifier({
 		supportedExtensions,
 		specifier: specifier.text,
 		sourceFile,
@@ -72,6 +74,11 @@ export function visitExportDeclaration({
 		absoluteOutFileName,
 		relativeOutFileName
 	});
+
+	if (isExternal && !isEntry) {
+		exportsFromExternalModules.set(specifier.text, node);
+		return undefined;
+	}
 
 	// If it exports from the same chunk, don't include the module specifier.
 	if (isSameChunk) {

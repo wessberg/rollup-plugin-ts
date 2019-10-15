@@ -22,7 +22,9 @@ export function normalizeModuleSpecifier({
 		return {
 			hasChanged: false,
 			isSameChunk: false,
+			isExternal: true,
 			normalizedModuleSpecifier: specifier,
+			absoluteModuleSpecifier: specifier,
 			normalizedAbsoluteModuleSpecifier: specifier
 		};
 	}
@@ -40,9 +42,11 @@ export function normalizeModuleSpecifier({
 	);
 
 	return {
+		absoluteModuleSpecifier: ensurePosix(absoluteModuleSpecifierText),
 		normalizedModuleSpecifier: ensurePosix(normalizedModuleSpecifier),
 		normalizedAbsoluteModuleSpecifier: ensurePosix(normalizedAbsoluteModuleSpecifierText),
 		hasChanged: normalize(ensurePosix(normalizedModuleSpecifier)) !== normalize(ensurePosix(specifier)),
-		isSameChunk: normalize(ensurePosix(normalizedModuleSpecifier)) === normalize(ensurePosix(stripExtension(relativeOutFileName)))
+		isSameChunk: normalize(ensurePosix(normalizedModuleSpecifier)) === normalize(ensurePosix(stripExtension(relativeOutFileName))),
+		isExternal: false
 	};
 }

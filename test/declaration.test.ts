@@ -1,7 +1,6 @@
 import test from "ava";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
-
 // tslint:disable:no-duplicate-string
 
 test("Flattens declarations. #1", async t => {
@@ -260,6 +259,137 @@ test("Flattens declarations. #7", async t => {
 				const ten = 10;
 		}
 		export { m };
+		`)
+	);
+});
+
+test("Flattens declarations. #8", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+          import {BuiltInParser} from './bar';
+					import {Bar} from "./bar";
+          export interface Foo extends Bar {
+            x: BuiltInParser;
+          }
+					`
+		},
+		{
+			entry: false,
+			fileName: "bar.ts",
+			text: `\
+          export {BuiltInParser} from 'prettier';
+					export interface Bar {
+						a: string;
+					}
+					`
+		}
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		import { BuiltInParser } from "prettier";
+		interface Bar {
+  		a: string;
+  	}
+  	export interface Foo extends Bar {
+  		x: BuiltInParser;
+  	}
+		`)
+	);
+});
+
+test("Flattens declarations. #9", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+          import magicString from './bar';
+					export const Foo = magicString;
+					`
+		},
+		{
+			entry: false,
+			fileName: "bar.ts",
+			text: `\
+          export {default} from 'magic-string';
+					`
+		}
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		import { default as magicString } from "magic-string";
+		export declare const Foo: typeof magicString;
+		`)
+	);
+});
+
+test("Flattens declarations. #10", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+          import magicString from './bar';
+					export const Foo = magicString;
+					`
+		},
+		{
+			entry: false,
+			fileName: "bar.ts",
+			text: `\
+          export {default as default} from 'magic-string';
+					`
+		}
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		import { default as magicString } from "magic-string";
+		export declare const Foo: typeof magicString;
+		`)
+	);
+});
+
+test("Flattens declarations. #11", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+          import {Bar} from './bar';
+					export const Foo = Bar;
+					`
+		},
+		{
+			entry: false,
+			fileName: "bar.ts",
+			text: `\
+          export {default as Bar} from 'magic-string';
+					`
+		}
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		import { default as Bar } from "magic-string";
+		export declare const Foo: typeof Bar;
 		`)
 	);
 });

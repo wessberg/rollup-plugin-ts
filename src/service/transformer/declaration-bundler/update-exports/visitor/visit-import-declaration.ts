@@ -6,9 +6,13 @@ import {
 	createExpressionWithTypeArguments,
 	createHeritageClause,
 	createIdentifier,
+	createImportClause,
+	createImportDeclaration,
+	createImportSpecifier,
 	createModifier,
 	createModuleBlock,
 	createModuleDeclaration,
+	createNamedImports,
 	createNodeArray,
 	createStringLiteral,
 	createTypeAliasDeclaration,
@@ -17,6 +21,7 @@ import {
 	createVariableDeclarationList,
 	createVariableStatement,
 	ImportDeclaration,
+	ImportSpecifier,
 	InterfaceDeclaration,
 	isNamedImports,
 	isNamespaceImport,
@@ -133,18 +138,19 @@ export function visitImportDeclaration({
 	chunkToOriginalFileMap,
 	identifiersForDefaultExportsForModules,
 	parsedExportedSymbolsMap,
-	getParsedExportedSymbolsForModule
+	getParsedExportedSymbolsForModule,
+	getExportsFromExternalModulesForModule
 }: UpdateExportsVisitorOptions<ImportDeclaration>):
 	| ImportDeclaration
 	| VariableStatement
 	| TypeAliasDeclaration
-	| (TypeAliasDeclaration | VariableStatement | ModuleDeclaration | ClassDeclaration | ClassExpression)[]
+	| (TypeAliasDeclaration | ImportDeclaration | VariableStatement | ModuleDeclaration | ClassDeclaration | ClassExpression)[]
 	| undefined {
 	const specifier = node.moduleSpecifier;
 	if (specifier == null || !isStringLiteralLike(specifier)) return node;
 
 	// Potentially rewrite the ModuleSpecifier text to refer to one of the generated chunk filenames (which may not be the same or named the same)
-	const {isSameChunk, hasChanged, normalizedModuleSpecifier} = normalizeModuleSpecifier({
+	const {isSameChunk, hasChanged, normalizedModuleSpecifier, absoluteModuleSpecifier} = normalizeModuleSpecifier({
 		supportedExtensions,
 		specifier: specifier.text,
 		sourceFile,
@@ -153,9 +159,74 @@ export function visitImportDeclaration({
 		relativeOutFileName
 	});
 
-	// If it imports from the same chunk, don't include the import unless it includes a default export from another module in which case it should be written to a VariableStatement.
+	// If it imports from the same chunk, don't include the import unless it includes a default
+	// export from another module in which case it should be written to a VariableStatement.
 	if (isSameChunk) {
 		if (node.importClause != null) {
+			const externalModuleExports = getExportsFromExternalModulesForModule(absoluteModuleSpecifier);
+			let updatedNameImport: ImportDeclaration | undefined;
+			let updatedNamedImportsImport: ImportDeclaration | undefined;
+
+			for (const [moduleName, exportDeclaration] of externalModuleExports.entries()) {
+				// If default import AND the referenced file exports *anything* from an external library as default, then import directly from that one
+				if (node.importClause.name != null) {
+					if (exportDeclaration.exportClause == null) continue;
+
+					// This may be something like 'export {Foo as default}' or even 'export {default'}
+					const defaultNamedExport = exportDeclaration.exportClause.elements.find(element => element.name.text === "default");
+					if (defaultNamedExport == null) continue;
+
+					const name = createIdentifier(node.importClause.name.text);
+
+					const propertyName =
+						defaultNamedExport.propertyName == null ? createIdentifier("default") : createIdentifier(defaultNamedExport.propertyName.text);
+
+					updatedNameImport = createImportDeclaration(
+						undefined,
+						undefined,
+						createImportClause(
+							undefined,
+							createNamedImports([createImportSpecifier(name.text === propertyName.text ? undefined : propertyName, name)])
+						),
+						createStringLiteral(moduleName)
+					);
+				}
+
+				if (node.importClause.namedBindings != null) {
+					if (!isNamespaceImport(node.importClause.namedBindings)) {
+						if (exportDeclaration.exportClause == null) continue;
+						const newImportSpecifiers: ImportSpecifier[] = [];
+
+						for (const namedImport of node.importClause.namedBindings.elements) {
+							// This may be something like 'export {Foo}' or even 'export {default as Foo}'}
+							const matchingNamedExport = exportDeclaration.exportClause.elements.find(element => element.name.text === namedImport.name.text);
+							if (matchingNamedExport == null) continue;
+
+							const name = createIdentifier(namedImport.name.text);
+
+							const propertyName =
+								matchingNamedExport.propertyName == null
+									? createIdentifier(namedImport.name.text)
+									: createIdentifier(matchingNamedExport.propertyName.text);
+
+							newImportSpecifiers.push(createImportSpecifier(name.text === propertyName.text ? undefined : propertyName, name));
+						}
+
+						if (newImportSpecifiers.length < 1) continue;
+
+						updatedNamedImportsImport = createImportDeclaration(
+							undefined,
+							undefined,
+							createImportClause(undefined, createNamedImports(newImportSpecifiers)),
+							createStringLiteral(moduleName)
+						);
+					} else {
+						// We do not yet support Namespaces since this will require merging the namespace of the local declarations of the other file
+						// with whatever it is re-exporting from an external library
+					}
+				}
+			}
+
 			const newNodes: (TypeAliasDeclaration | VariableStatement | ModuleDeclaration | ClassDeclaration | ClassExpression)[] = [];
 			let parsedExportedSymbolsPath: string | undefined;
 			let identifiersForDefaultExportsForModulesPath: string | undefined;
@@ -218,7 +289,13 @@ export function visitImportDeclaration({
 			}
 
 			// If nodes have been added, return them
-			if (newNodes.length > 0) return newNodes;
+			if (newNodes.length > 0 || updatedNamedImportsImport != null || updatedNameImport != null) {
+				return [
+					...newNodes,
+					...(updatedNameImport != null ? [updatedNameImport] : []),
+					...(updatedNamedImportsImport != null ? [updatedNamedImportsImport] : [])
+				];
+			}
 		}
 		return undefined;
 	}
