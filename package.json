@@ -43,13 +43,14 @@
 			"email": "frederikwessberg@hotmail.com",
 			"url": "https://github.com/wessberg",
 			"imageUrl": "https://avatars2.githubusercontent.com/u/20454213?s=460&v=4",
+			"github": "wessberg",
 			"role": "Lead Developer",
 			"twitter": "FredWessberg"
 		}
 	],
 	"license": "MIT",
 	"devDependencies": {
-		"@wessberg/rollup-plugin-ts": "^1.1.67",
+		"@wessberg/rollup-plugin-ts": "^1.1.68",
 		"@wessberg/scaffold": "^1.0.19",
 		"@wessberg/ts-config": "^0.0.41",
 		"ava": "2.4.0",
@@ -77,7 +78,7 @@
 		"@types/mkdirp": "^0.5.2",
 		"@types/node": "^12.7.12",
 		"@types/resolve": "0.0.8",
-		"@wessberg/browserslist-generator": "1.0.28",
+		"@wessberg/browserslist-generator": "1.0.29",
 		"@wessberg/stringutil": "^1.0.18",
 		"browserslist": "4.7.0",
 		"find-up": "^4.1.0",
