@@ -1,6 +1,7 @@
 {
 	"extends": "@wessberg/ts-config",
 	"compilerOptions": {
-		"module": "commonjs"
+		"module": "commonjs",
+		"target": "es2016"
 	}
 }
