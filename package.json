@@ -50,7 +50,7 @@
 	],
 	"license": "MIT",
 	"devDependencies": {
-		"@wessberg/rollup-plugin-ts": "^1.1.68",
+		"@wessberg/rollup-plugin-ts": "^1.1.69",
 		"@wessberg/scaffold": "^1.0.19",
 		"@wessberg/ts-config": "^0.0.41",
 		"ava": "2.4.0",
@@ -79,7 +79,7 @@
 		"@types/node": "^12.7.12",
 		"@types/resolve": "0.0.8",
 		"@wessberg/browserslist-generator": "1.0.29",
-		"@wessberg/stringutil": "^1.0.18",
+		"@wessberg/stringutil": "^1.0.19",
 		"browserslist": "4.7.0",
 		"find-up": "^4.1.0",
 		"magic-string": "^0.25.4",
