@@ -10,7 +10,7 @@ export function getAliasedDeclaration(node: Expression | Symbol | undefined, typ
 	let symbol: Symbol | undefined;
 	try {
 		symbol = node == null ? undefined : "valueDeclaration" in node || "declarations" in node ? node : typeChecker.getSymbolAtLocation(node);
-	} catch {
+	} catch (_e) {
 		// Typescript couldn't produce a symbol for the Node
 	}
 
@@ -29,7 +29,7 @@ export function getAliasedDeclaration(node: Expression | Symbol | undefined, typ
 					? aliasedDeclaration.declarations[0]
 					: undefined;
 		}
-	} catch {}
+	} catch (_e) {}
 
 	return valueDeclaration;
 }
