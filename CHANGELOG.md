@@ -1,3 +1,9 @@
+## [1.1.72](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.71...v1.1.72) (2019-10-16)
+
+### Bug Fixes
+
+- **bug:** add missing TypeQueryNode wrapper when reassigning imported bindings to VariableDeclarations when bundling declarations. Fixes [#36](https://github.com/wessberg/rollup-plugin-ts/issues/36) ([dcd2be4](https://github.com/wessberg/rollup-plugin-ts/commit/dcd2be4b3ec0aac9725faa446345a63fc3cf467c))
+
 ## [1.1.71](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.70...v1.1.71) (2019-10-15)
 
 ### Bug Fixes
