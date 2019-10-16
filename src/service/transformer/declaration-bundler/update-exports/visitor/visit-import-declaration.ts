@@ -16,6 +16,7 @@ import {
 	createNodeArray,
 	createStringLiteral,
 	createTypeAliasDeclaration,
+	createTypeQueryNode,
 	createTypeReferenceNode,
 	createVariableDeclaration,
 	createVariableDeclarationList,
@@ -118,7 +119,7 @@ function createTypeAliasOrVariableStatementForIdentifier(
 		default: {
 			return createVariableStatement(
 				[createModifier(SyntaxKind.DeclareKeyword)],
-				createVariableDeclarationList([createVariableDeclaration(name, undefined, createIdentifier(identifier))], NodeFlags.Const)
+				createVariableDeclarationList([createVariableDeclaration(name, createTypeQueryNode(createIdentifier(identifier)))], NodeFlags.Const)
 			);
 		}
 	}

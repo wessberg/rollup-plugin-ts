@@ -394,6 +394,109 @@ test("Flattens declarations. #11", async t => {
 	);
 });
 
+test("Flattens declarations. #12", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+          		import X from './bar';
+          		export { X }
+        	`
+		},
+		{
+			entry: false,
+			fileName: "bar.ts",
+			text: `\
+				interface Foo { n: number; }
+				export const fn = (x: Foo): Foo => x;
+				export default fn({ n: 0 });
+            `
+		}
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		interface Foo {
+    	n: number;
+		}
+		declare const defaultBarExport: Foo;
+		declare const X: typeof defaultBarExport;
+		export { X };
+		`)
+	);
+});
+
+test("Flattens declarations. #13", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+          		import X from './bar';
+          		export { X }
+        	`
+		},
+		{
+			entry: false,
+			fileName: "bar.ts",
+			text: `\
+				export default function foo (): string {return "";} `
+		}
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare function foo(): string;
+		declare const X: typeof foo;
+		export { X };
+		`)
+	);
+});
+
+test("Flattens declarations. #14", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+          		import X from './bar';
+          		export { X }
+        	`
+		},
+		{
+			entry: false,
+			fileName: "bar.ts",
+			text: `\
+				enum FooKind {A, B}
+				export default FooKind;
+				`
+		}
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare enum FooKind {
+			A = 0,
+			B = 1
+		}
+		declare type X = FooKind;
+		export { X };
+		`)
+	);
+});
+
 test("A file with no exports generates a .d.ts file with an 'export {}' declaration to mark it as a module. #1", async t => {
 	const bundle = await generateRollupBundle([
 		{
