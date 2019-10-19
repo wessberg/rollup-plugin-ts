@@ -1,3 +1,10 @@
+## [1.1.73](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.72...v1.1.73) (2019-10-19)
+
+### Bug Fixes
+
+- **bug:** fix issue with generating declarations for files containing '.' in their file names ([f1be238](https://github.com/wessberg/rollup-plugin-ts/commit/f1be23886b249ca2b83b1af6b799c76e056689aa))
+- **bug:** fix issues with directory imports (implicit /index files) ([5d329cd](https://github.com/wessberg/rollup-plugin-ts/commit/5d329cdf3920ea99dabcf86bda43ccd42eca6dbb))
+
 ## [1.1.72](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.71...v1.1.72) (2019-10-16)
 
 ### Bug Fixes
