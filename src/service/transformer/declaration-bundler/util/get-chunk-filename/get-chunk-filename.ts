@@ -1,5 +1,5 @@
 import {setExtension} from "../../../../../util/path/path-util";
-import {join, normalize} from "path";
+import {extname, join, normalize} from "path";
 
 /**
  * Gets the chunk filename that matches the given filename. It may be the same.
@@ -17,7 +17,7 @@ export function getChunkFilename(filename: string, supportedExtensions: string[]
 					return chunkFilename;
 				}
 
-				for (const extension of supportedExtensions) {
+				for (const extension of [extname(file), ...supportedExtensions]) {
 					if (originalSourceFilename === setExtension(file, extension)) {
 						return chunkFilename;
 					}

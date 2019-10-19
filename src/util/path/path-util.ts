@@ -1,17 +1,13 @@
-import {extname, isAbsolute, join, normalize, parse, relative} from "path";
+import {extname, isAbsolute, join, normalize, relative} from "path";
 import {
 	BABEL_RUNTIME_PREFIX_1,
 	BABEL_RUNTIME_PREFIX_2,
 	DECLARATION_EXTENSION,
 	DECLARATION_MAP_EXTENSION,
 	DEFAULT_LIB_NAMES,
-	JS_EXTENSION,
-	JSX_EXTENSION,
-	MJS_EXTENSION,
+	KNOWN_EXTENSIONS,
 	ROLLUP_PLUGIN_MULTI_ENTRY,
-	TS_EXTENSION,
-	TSLIB_NAME,
-	TSX_EXTENSION
+	TSLIB_NAME
 } from "../../constant/constant";
 import slash from "slash";
 
@@ -108,15 +104,6 @@ export function isRollupPluginMultiEntry(path: string): boolean {
 }
 
 /**
- * Returns true if the given path represents @babel/preset-es2015
- * @param {string} path
- * @return {boolean}
- */
-export function isBabelPresetEs2015(path: string): boolean {
-	return path.includes("@babel/preset-es2015") || path.includes("babel-preset-es2015");
-}
-
-/**
  * Returns true if the given path represents @babel/preset-es[2015|2016|2017]
  * @param {string} path
  * @return {boolean}
@@ -139,15 +126,19 @@ export function isBabelPluginTransformRuntime(path: string): boolean {
  * @param {string} file
  * @returns {string}
  */
-export function stripExtension(file: string): string {
-	if (extname(file) === "") return file;
-	let {dir, name} = parse(file);
+export function stripKnownExtension(file: string): string {
+	let currentExtname: string | undefined;
 
-	if (name.endsWith(".d")) {
-		name = name.slice(0, -2);
+	for (const extName of KNOWN_EXTENSIONS) {
+		if (file.endsWith(extName)) {
+			currentExtname = extName;
+			break;
+		}
 	}
-	if (dir === ".") return normalize(`./${name}`);
-	return join(dir, name);
+
+	if (currentExtname == null) return file;
+
+	return file.slice(0, file.lastIndexOf(currentExtname));
 }
 
 /**
@@ -157,7 +148,7 @@ export function stripExtension(file: string): string {
  * @returns {string}
  */
 export function setExtension(file: string, extension: string): string {
-	return normalize(`${stripExtension(file)}${extension}`);
+	return normalize(`${stripKnownExtension(file)}${extension}`);
 }
 
 /**
@@ -205,69 +196,4 @@ export function ensureAbsolute(root: string, path: string): string {
 
 	// Otherwise, construct an absolute path from the root
 	return join(root, path);
-}
-
-/**
- * Returns true if the given file is a Javascript file
- * @param {string} file
- * @returns {boolean}
- */
-export function isJSFile(file: string): boolean {
-	return file.endsWith(JS_EXTENSION) || file.endsWith(JSX_EXTENSION) || file.endsWith(MJS_EXTENSION);
-}
-
-/**
- * Returns true if the given file is a Typescript file
- * @param {string} file
- * @returns {boolean}
- */
-export function isTSFile(file: string): boolean {
-	return file.endsWith(TS_EXTENSION) || file.endsWith(TSX_EXTENSION);
-}
-
-/**
- * Returns true if the given file is a Typescript declaration (.d.ts) file
- * @param {string} file
- * @returns {boolean}
- */
-export function isDTSFile(file: string): boolean {
-	return file.endsWith(DECLARATION_EXTENSION);
-}
-
-/**
- * Returns true if the given file is a Typescript declaration map (.d.ts.map) file
- * @param {string} file
- * @returns {boolean}
- */
-export function isDTSMapFile(file: string): boolean {
-	return file.endsWith(DECLARATION_MAP_EXTENSION);
-}
-
-/**
- * Ensures that the given file ends with '.ts', no matter what it actually ends with
- * This is to support Typescript's language service with files that doesn't necessarily end with it.
- * @param {string} file
- * @returns {string}
- */
-export function ensureTs(file: string): string {
-	return setExtension(file, TS_EXTENSION);
-}
-
-/**
- * Ensures that the given file ends with '.js', no matter what it actually ends with
- * This is to support Typescript's language service with files that doesn't necessarily end with it.
- * @param {string} file
- * @returns {string}
- */
-export function ensureJs(file: string): string {
-	return setExtension(file, JS_EXTENSION);
-}
-
-/**
- * Replaces the extension of the given path with the extension of a declaration file
- * @param {string} file
- * @returns {string}
- */
-export function ensureDTS(file: string): string {
-	return setExtension(file, DECLARATION_EXTENSION);
 }

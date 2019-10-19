@@ -4,12 +4,27 @@ export const SOURCE_MAP_EXTENSION = ".map";
 export const TS_EXTENSION = ".ts";
 export const TSX_EXTENSION = ".tsx";
 export const JS_EXTENSION = ".js";
+export const JS_MAP_EXTENSION = `${JS_EXTENSION}${SOURCE_MAP_EXTENSION}`;
 export const JSX_EXTENSION = ".jsx";
 export const JSON_EXTENSION = ".json";
 export const MJS_EXTENSION = ".mjs";
 export const MJSX_EXTENSION = ".mjsx";
 export const DECLARATION_EXTENSION = `.d${TS_EXTENSION}`;
 export const DECLARATION_MAP_EXTENSION = `.d${TS_EXTENSION}${SOURCE_MAP_EXTENSION}`;
+
+export const KNOWN_EXTENSIONS = new Set([
+	DECLARATION_EXTENSION,
+	DECLARATION_MAP_EXTENSION,
+	JS_MAP_EXTENSION,
+	TS_EXTENSION,
+	TSX_EXTENSION,
+	JS_EXTENSION,
+	JSX_EXTENSION,
+	JSON_EXTENSION,
+	MJS_EXTENSION,
+	MJSX_EXTENSION
+] as const);
+
 export const PACKAGE_JSON_FILENAME = "package.json";
 export const SOURCE_MAP_COMMENT = "\n//# sourceMappingURL";
 export const SOURCE_MAP_COMMENT_REGEXP = /\n\/\/# sourceMappingURL=.*/g;

@@ -35,7 +35,7 @@ import {visitEnumDeclaration} from "./visitor/visit-enum-declaration";
 import {visitInterfaceDeclaration} from "./visitor/visit-interface-declaration";
 import {visitModuleDeclaration} from "./visitor/visit-module-declaration";
 import {ensureHasLeadingDotAndPosix, setExtension} from "../../../../util/path/path-util";
-import {join, normalize} from "path";
+import {extname, join, normalize} from "path";
 
 export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions): TransformerFactory<SourceFile> {
 	const parsedExportedSymbolsMap: Map<string, Map<string, Statement>> = new Map();
@@ -86,7 +86,7 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 
 					const moduleNames = [normalize(moduleName), join(moduleName, "/index")];
 					for (const currentModuleName of moduleNames) {
-						for (const extension of rest.supportedExtensions) {
+						for (const extension of [extname(moduleName), ...rest.supportedExtensions]) {
 							const tryPath = setExtension(currentModuleName, extension);
 							matched = parsedExportedSymbolsMap.get(tryPath);
 							if (matched != null) {
@@ -110,7 +110,7 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 
 					const moduleNames = [normalize(moduleName), join(moduleName, "/index")];
 					for (const currentModuleName of moduleNames) {
-						for (const extension of rest.supportedExtensions) {
+						for (const extension of [extname(moduleName), ...rest.supportedExtensions]) {
 							const tryPath = setExtension(currentModuleName, extension);
 							matched = exportsFromExternalModulesMap.get(tryPath);
 							if (matched != null) {
@@ -134,7 +134,7 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 
 					const moduleNames = [normalize(moduleName), join(moduleName, "/index")];
 					for (const currentModuleName of moduleNames) {
-						for (const extension of rest.supportedExtensions) {
+						for (const extension of [extname(moduleName), ...rest.supportedExtensions]) {
 							const tryPath = setExtension(currentModuleName, extension);
 							matched = exportedSpecifiersFromModuleMap.get(tryPath);
 							if (matched != null) {

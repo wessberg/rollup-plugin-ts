@@ -1,5 +1,5 @@
 import {NormalizeModuleSpecifierOptions} from "./normalize-module-specifier-options";
-import {ensureHasLeadingDotAndPosix, ensurePosix, isExternalLibrary, stripExtension} from "../../../../../util/path/path-util";
+import {ensureHasLeadingDotAndPosix, ensurePosix, isExternalLibrary, stripKnownExtension} from "../../../../../util/path/path-util";
 import {dirname, join, normalize, relative} from "path";
 import {getChunkFilename} from "../get-chunk-filename/get-chunk-filename";
 import {NormalizeModuleSpecifierResult} from "./normalize-module-specifier-result";
@@ -37,7 +37,7 @@ export function normalizeModuleSpecifier({
 
 	// Potentially rewrite the ModuleSpecifier text to refer to one of the generated chunk filenames (which may not be the same or named the same)
 	const normalizedModuleSpecifier = ensureHasLeadingDotAndPosix(
-		stripExtension(relative(dirname(absoluteOutFileName), normalizedAbsoluteModuleSpecifierText)),
+		stripKnownExtension(relative(dirname(absoluteOutFileName), normalizedAbsoluteModuleSpecifierText)),
 		false
 	);
 
@@ -46,7 +46,7 @@ export function normalizeModuleSpecifier({
 		normalizedModuleSpecifier: ensurePosix(normalizedModuleSpecifier),
 		normalizedAbsoluteModuleSpecifier: ensurePosix(normalizedAbsoluteModuleSpecifierText),
 		hasChanged: normalize(ensurePosix(normalizedModuleSpecifier)) !== normalize(ensurePosix(specifier)),
-		isSameChunk: normalize(ensurePosix(normalizedModuleSpecifier)) === normalize(ensurePosix(stripExtension(relativeOutFileName))),
+		isSameChunk: normalize(ensurePosix(normalizedModuleSpecifier)) === normalize(ensurePosix(stripKnownExtension(relativeOutFileName))),
 		isExternal: false
 	};
 }

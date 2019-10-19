@@ -2,7 +2,7 @@ import {createIdentifier, FunctionDeclaration, Identifier, updateFunctionDeclara
 import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
 import {ensureHasDeclareModifier, hasDefaultExportModifier, hasExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
 import {pascalCase} from "@wessberg/stringutil";
-import {stripExtension} from "../../../../../util/path/path-util";
+import {stripKnownExtension} from "../../../../../util/path/path-util";
 import {basename, normalize} from "path";
 
 /**
@@ -35,7 +35,7 @@ export function visitFunctionDeclaration({
 	// If the Function has a default export, mark it as the identifier for the default export of that module
 	if (hasDefaultExportModifier(node.modifiers)) {
 		if (name == null) {
-			name = createIdentifier(`default${pascalCase(stripExtension(basename(sourceFile.fileName)))}Export`);
+			name = createIdentifier(`default${pascalCase(stripKnownExtension(basename(sourceFile.fileName)))}Export`);
 		}
 
 		identifiersForDefaultExportsForModules.set(normalize(sourceFile.fileName), [name.text, node]);

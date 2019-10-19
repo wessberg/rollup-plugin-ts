@@ -526,7 +526,7 @@ test("Flattens declarations. #15", async t => {
 	);
 });
 
-test.skip("Flattens declarations. #16", async t => {
+test("Flattens declarations. #16", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -554,7 +554,7 @@ test.skip("Flattens declarations. #16", async t => {
 	const {
 		declarations: [file]
 	} = bundle;
-	console.log(file.code);
+
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\

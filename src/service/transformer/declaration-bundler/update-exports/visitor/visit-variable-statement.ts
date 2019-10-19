@@ -4,7 +4,7 @@ import {ensureHasDeclareModifier, hasDefaultExportModifier, removeExportModifier
 import {getIdentifiersForBindingName} from "../../util/binding-name/get-identifiers-for-binding-name";
 import {pascalCase} from "@wessberg/stringutil";
 import {basename, normalize} from "path";
-import {stripExtension} from "../../../../../util/path/path-util";
+import {stripKnownExtension} from "../../../../../util/path/path-util";
 
 /**
  * Visits the given VariableStatement.
@@ -41,7 +41,7 @@ export function visitVariableStatement({
 		// If the name of the declaration is '_default', it is an assignment to a const before exporting it as default
 		if (isIdentifier(declaration.name) && declaration.name.text === "_default") {
 			// Give it a unique variable name and bind it to a new variable
-			const name = `default${pascalCase(stripExtension(basename(sourceFile.fileName)))}Export`;
+			const name = `default${pascalCase(stripKnownExtension(basename(sourceFile.fileName)))}Export`;
 			identifiersForDefaultExportsForModules.set(normalize(sourceFile.fileName), [name, declaration]);
 
 			return continuation(
