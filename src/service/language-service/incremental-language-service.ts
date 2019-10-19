@@ -16,7 +16,7 @@ import {IFile, IFileInput} from "./i-file";
 import {getScriptKindFromPath} from "../../util/get-script-kind-from-path/get-script-kind-from-path";
 import {sync} from "find-up";
 import {DEFAULT_LIB_NAMES} from "../../constant/constant";
-import {ensureAbsolute, isInternalFile, setExtension} from "../../util/path/path-util";
+import {ensureAbsolute, isInternalFile} from "../../util/path/path-util";
 import {CustomTransformersFunction} from "../../util/merge-transformers/i-custom-transformer-options";
 import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
 
@@ -85,36 +85,6 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 		const program = this.options.languageService().getProgram();
 		if (program == null) return undefined;
 		return program.getSourceFile(fileName);
-	}
-
-	/**
-	 * Returns true if the LanguageServiceHost has the given file
-	 * @param {string} fileName
-	 * @returns {boolean}
-	 */
-	public hasFile(fileName: string): boolean {
-		return this.files.has(fileName);
-	}
-
-	/**
-	 * Gets the fileName, if any, that is has been added to the LanguageServiceHost and looks like the given one.
-	 * For example, if a file without any file extension is provided as input, any file that has an extension but the
-	 * same base name will be returned
-	 * @param {string} fileName
-	 * @returns {string | undefined}
-	 */
-	public getClosestFileName(fileName: string): string | undefined {
-		const absolute = ensureAbsolute(this.options.cwd, fileName);
-
-		if (this.hasFile(fileName)) return fileName;
-		if (this.hasFile(absolute)) return absolute;
-		for (const extension of this.options.supportedExtensions) {
-			const withExtension = setExtension(fileName, extension);
-			const absoluteWithExtension = ensureAbsolute(this.options.cwd, withExtension);
-			if (this.hasFile(withExtension)) return withExtension;
-			if (this.hasFile(absoluteWithExtension)) return absoluteWithExtension;
-		}
-		return undefined;
 	}
 
 	/**

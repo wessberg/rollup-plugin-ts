@@ -497,6 +497,74 @@ test("Flattens declarations. #14", async t => {
 	);
 });
 
+test("Flattens declarations. #15", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+          		export * from "./foo";
+        	`
+		},
+		{
+			entry: false,
+			fileName: "foo/index.ts",
+			text: `\
+				export const Foo = "foo";
+				`
+		}
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare const Foo = "foo";
+			export {Foo};
+		`)
+	);
+});
+
+test.skip("Flattens declarations. #16", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+          		export * from "./foo.baz";
+          		export * from "./bar.baz";
+        	`
+		},
+		{
+			entry: false,
+			fileName: "foo.baz.ts",
+			text: `\
+				export const Foo = "foo";
+				`
+		},
+		{
+			entry: false,
+			fileName: "bar.baz.ts",
+			text: `\
+				export const Bar = "bar";
+				`
+		}
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+	console.log(file.code);
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare const Foo = "foo";
+			declare const Bar = "bar";
+			export {Foo, Bar};
+		`)
+	);
+});
+
 test("A file with no exports generates a .d.ts file with an 'export {}' declaration to mark it as a module. #1", async t => {
 	const bundle = await generateRollupBundle([
 		{

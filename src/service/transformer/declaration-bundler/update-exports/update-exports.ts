@@ -35,7 +35,7 @@ import {visitEnumDeclaration} from "./visitor/visit-enum-declaration";
 import {visitInterfaceDeclaration} from "./visitor/visit-interface-declaration";
 import {visitModuleDeclaration} from "./visitor/visit-module-declaration";
 import {ensureHasLeadingDotAndPosix, setExtension} from "../../../../util/path/path-util";
-import {extname, normalize} from "path";
+import {join, normalize} from "path";
 
 export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions): TransformerFactory<SourceFile> {
 	const parsedExportedSymbolsMap: Map<string, Map<string, Statement>> = new Map();
@@ -84,14 +84,17 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 					let matched: Map<string, Statement> | undefined;
 					let matchedModuleName: string = moduleName;
 
-					const extensions = extname(moduleName) !== "" ? [extname(moduleName)] : rest.supportedExtensions;
-					for (const extension of extensions) {
-						const tryPath = setExtension(moduleName, extension);
-						matched = parsedExportedSymbolsMap.get(tryPath);
-						if (matched != null) {
-							matchedModuleName = tryPath;
-							break;
+					const moduleNames = [normalize(moduleName), join(moduleName, "/index")];
+					for (const currentModuleName of moduleNames) {
+						for (const extension of rest.supportedExtensions) {
+							const tryPath = setExtension(currentModuleName, extension);
+							matched = parsedExportedSymbolsMap.get(tryPath);
+							if (matched != null) {
+								matchedModuleName = tryPath;
+								break;
+							}
 						}
+						if (matched != null) break;
 					}
 
 					if (matched == null) {
@@ -100,18 +103,22 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 					}
 					return matched;
 				},
+
 				getExportsFromExternalModulesForModule(moduleName: string): Map<string, ExportDeclaration> {
 					let matched: Map<string, ExportDeclaration> | undefined;
 					let matchedModuleName: string = moduleName;
 
-					const extensions = extname(moduleName) !== "" ? [extname(moduleName)] : rest.supportedExtensions;
-					for (const extension of extensions) {
-						const tryPath = setExtension(moduleName, extension);
-						matched = exportsFromExternalModulesMap.get(tryPath);
-						if (matched != null) {
-							matchedModuleName = tryPath;
-							break;
+					const moduleNames = [normalize(moduleName), join(moduleName, "/index")];
+					for (const currentModuleName of moduleNames) {
+						for (const extension of rest.supportedExtensions) {
+							const tryPath = setExtension(currentModuleName, extension);
+							matched = exportsFromExternalModulesMap.get(tryPath);
+							if (matched != null) {
+								matchedModuleName = tryPath;
+								break;
+							}
 						}
+						if (matched != null) break;
 					}
 
 					if (matched == null) {
@@ -125,14 +132,17 @@ export function updateExports({usedExports, ...rest}: IDeclarationBundlerOptions
 					let matched: Set<string> | undefined;
 					let matchedModuleName: string = moduleName;
 
-					const extensions = extname(moduleName) !== "" ? [extname(moduleName)] : rest.supportedExtensions;
-					for (const extension of extensions) {
-						const tryPath = setExtension(moduleName, extension);
-						matched = exportedSpecifiersFromModuleMap.get(tryPath);
-						if (matched != null) {
-							matchedModuleName = tryPath;
-							break;
+					const moduleNames = [normalize(moduleName), join(moduleName, "/index")];
+					for (const currentModuleName of moduleNames) {
+						for (const extension of rest.supportedExtensions) {
+							const tryPath = setExtension(currentModuleName, extension);
+							matched = exportedSpecifiersFromModuleMap.get(tryPath);
+							if (matched != null) {
+								matchedModuleName = tryPath;
+								break;
+							}
 						}
+						if (matched != null) break;
 					}
 
 					if (matched == null) {

@@ -1,4 +1,4 @@
-import {dirname, isAbsolute, join} from "path";
+import {dirname, isAbsolute, join, normalize} from "path";
 import {rollup, RollupOptions, RollupOutput} from "rollup";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
 import {PathLike} from "fs";
@@ -21,6 +21,8 @@ interface FileResult {
 	fileName: string;
 	code: string;
 }
+
+const EXTENSIONS = ["", ".ts", ".js", ".mjs"];
 
 export interface GenerateRollupBundleResult {
 	bundle: RollupOutput;
@@ -58,6 +60,8 @@ export async function generateRollupBundle(
 		)
 		.map(file => ({...file, fileName: join(cwd, file.fileName)}));
 
+	const directories = new Set(files.map(file => dirname(file.fileName)));
+
 	const entryFile = files.find(file => file.entry);
 	if (entryFile == null) {
 		throw new ReferenceError(`No entry could be found`);
@@ -65,10 +69,15 @@ export async function generateRollupBundle(
 
 	const resolveId = (fileName: string, parent: string | undefined): string | undefined => {
 		const absolute = isAbsolute(fileName) ? fileName : join(parent == null ? "" : dirname(parent), fileName);
-		for (const ext of ["", ".ts", ".js", ".mjs"]) {
-			const withExtension = `${absolute}${ext}`;
-			const matchedFile = files.find(file => file.fileName === withExtension);
-			if (matchedFile != null) return withExtension;
+		const filenames = [normalize(absolute), join(absolute, "/index")];
+		for (const filename of filenames) {
+			for (const ext of EXTENSIONS) {
+				const withExtension = `${filename}${ext}`;
+				const matchedFile = files.find(file => file.fileName === withExtension);
+				if (matchedFile != null) {
+					return withExtension;
+				}
+			}
 		}
 		return undefined;
 	};
@@ -94,6 +103,8 @@ export async function generateRollupBundle(
 				tsconfig: {
 					target: "esnext",
 					declaration: true,
+					moduleResolution: "node",
+					baseUrl: ".",
 					...tsconfig
 				},
 				hook,
@@ -108,6 +119,10 @@ export async function generateRollupBundle(
 					fileExists: fileName => {
 						if (files.some(file => file.fileName === fileName)) return true;
 						return sys.fileExists(fileName);
+					},
+					directoryExists: dirName => {
+						if (directories.has(dirName)) return true;
+						return sys.directoryExists(dirName);
 					},
 					writeFileSync<T>(path: PathLike, data: T): void {
 						if (typeof path !== "string" || typeof data !== "string") return;

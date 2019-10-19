@@ -13,10 +13,14 @@ export function getChunkFilename(filename: string, supportedExtensions: string[]
 		const filenames = [normalize(filename), join(filename, "/index")];
 		for (const file of filenames) {
 			for (const originalSourceFilename of originalSourceFilenames) {
-				if (originalSourceFilename === file) return chunkFilename;
+				if (originalSourceFilename === file) {
+					return chunkFilename;
+				}
 
 				for (const extension of supportedExtensions) {
-					if (originalSourceFilename === setExtension(file, extension)) return chunkFilename;
+					if (originalSourceFilename === setExtension(file, extension)) {
+						return chunkFilename;
+					}
 				}
 			}
 		}
