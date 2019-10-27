@@ -1,10 +1,6 @@
 import {
 	ClassDeclaration,
 	ClassExpression,
-	createClassDeclaration,
-	createClassExpression,
-	createExpressionWithTypeArguments,
-	createHeritageClause,
 	createIdentifier,
 	createImportClause,
 	createImportDeclaration,
@@ -47,44 +43,15 @@ function createTypeAliasOrVariableStatementForIdentifier(
 	name: string
 ): VariableStatement | TypeAliasDeclaration | ClassDeclaration | ClassExpression {
 	switch (identifierNode.kind) {
-		case SyntaxKind.ClassDeclaration: {
-			const classDeclaration = identifierNode as ClassDeclaration;
-			return createClassDeclaration(
+		case SyntaxKind.ClassDeclaration:
+		case SyntaxKind.ClassExpression: {
+			const declaration = identifierNode as ClassExpression | ClassDeclaration;
+			return createTypeAliasDeclaration(
 				undefined,
 				[createModifier(SyntaxKind.DeclareKeyword)],
 				name,
-				classDeclaration.typeParameters == null ? undefined : [...classDeclaration.typeParameters],
-				[
-					createHeritageClause(SyntaxKind.ExtendsKeyword, [
-						createExpressionWithTypeArguments(
-							classDeclaration.typeParameters == null
-								? undefined
-								: classDeclaration.typeParameters.map(param => createTypeReferenceNode(param.name, undefined)),
-							createIdentifier(identifier)
-						)
-					])
-				],
-				[]
-			);
-		}
-
-		case SyntaxKind.ClassExpression: {
-			const classExpression = identifierNode as ClassExpression;
-			return createClassExpression(
-				[createModifier(SyntaxKind.DeclareKeyword)],
-				name,
-				classExpression.typeParameters == null ? undefined : [...classExpression.typeParameters],
-				[
-					createHeritageClause(SyntaxKind.ExtendsKeyword, [
-						createExpressionWithTypeArguments(
-							classExpression.typeParameters == null
-								? undefined
-								: classExpression.typeParameters.map(param => createTypeReferenceNode(param.name, undefined)),
-							createIdentifier(identifier)
-						)
-					])
-				],
-				[]
+				declaration.typeParameters == null ? undefined : [...declaration.typeParameters],
+				createTypeQueryNode(createIdentifier(identifier))
 			);
 		}
 
@@ -263,7 +230,7 @@ export function visitImportDeclaration({
 				if (isNamedImports(node.importClause.namedBindings)) {
 					for (const element of node.importClause.namedBindings.elements) {
 						if (element.propertyName != null && specifiers.has(element.propertyName.text)) {
-							const propertyNode = specifiers.get(element.propertyName.text)!;
+							const [, propertyNode] = specifiers.get(element.propertyName.text)!;
 							newNodes.push(createTypeAliasOrVariableStatementForIdentifier(element.propertyName.text, propertyNode, element.name.text));
 						}
 					}
@@ -278,7 +245,7 @@ export function visitImportDeclaration({
 							createIdentifier(node.importClause.namedBindings.name.text),
 							// Ensure that none of them have export- or declare modifiers
 							createModuleBlock(
-								[...specifiers.values()].map(specifierNode => {
+								[...specifiers.values()].map(([, specifierNode]) => {
 									const clone = {...specifierNode};
 									clone.modifiers = createNodeArray(removeDeclareModifier(removeExportModifier(clone.modifiers)));
 									return clone;

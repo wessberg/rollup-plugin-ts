@@ -1,10 +1,12 @@
 import {
 	createLiteralTypeNode,
 	createStringLiteral,
+	createTypeQueryNode,
 	createTypeReferenceNode,
 	ImportTypeNode,
 	isLiteralTypeNode,
 	isStringLiteralLike,
+	TypeQueryNode,
 	TypeReferenceNode,
 	updateImportTypeNode
 } from "typescript";
@@ -14,7 +16,7 @@ import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
 /**
  * Visits the given ImportTypeNode.
  * @param {UpdateExportsVisitorOptions<ImportTypeNode>} options
- * @returns {ImportTypeNode | TypeReferenceNode | undefined}
+ * @returns {ImportTypeNode | TypeReferenceNode | TypeQueryNode | undefined}
  */
 export function visitImportTypeNode({
 	node,
@@ -23,7 +25,7 @@ export function visitImportTypeNode({
 	absoluteOutFileName,
 	relativeOutFileName,
 	chunkToOriginalFileMap
-}: UpdateExportsVisitorOptions<ImportTypeNode>): ImportTypeNode | TypeReferenceNode | undefined {
+}: UpdateExportsVisitorOptions<ImportTypeNode>): ImportTypeNode | TypeReferenceNode | TypeQueryNode | undefined {
 	if (!isLiteralTypeNode(node.argument) || !isStringLiteralLike(node.argument.literal)) return node;
 	const specifier = node.argument.literal;
 
@@ -43,7 +45,7 @@ export function visitImportTypeNode({
 		if (node.qualifier == null) return undefined;
 
 		// Otherwise, create a new TypeReferenceNode that points to the qualifier itself
-		return createTypeReferenceNode(node.qualifier, node.typeArguments);
+		return node.isTypeOf ? createTypeQueryNode(node.qualifier) : createTypeReferenceNode(node.qualifier, node.typeArguments);
 	}
 
 	// Update the ModuleSpecifier to point to the updated chunk filename, unless it didn't change at all

@@ -17,6 +17,7 @@ export function getPluginOptions(options: Partial<TypescriptPluginOptions>): Typ
 		include = [],
 		exclude = [],
 		transpileOnly = false,
+		debug = false,
 		fileSystem = REAL_FILE_SYSTEM,
 		hook = {}
 	} = options;
@@ -30,6 +31,7 @@ export function getPluginOptions(options: Partial<TypescriptPluginOptions>): Typ
 		transformers,
 		tsconfig,
 		transpileOnly,
+		debug,
 		fileSystem,
 		hook
 	};

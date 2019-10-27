@@ -1,12 +1,6 @@
-import {CompilerOptions} from "typescript";
-import {ModuleResolutionHost} from "../../service/module-resolution-host/module-resolution-host";
+import {IGetResolvedIdWithCachingOptions} from "../../service/cache/resolve-cache/i-get-resolved-id-with-caching-options";
 import {IResolveCache} from "../../service/cache/resolve-cache/i-resolve-cache";
 
-export interface IResolveModuleOptions {
-	id: string;
-	parent: string;
-	options: CompilerOptions;
-	moduleResolutionHost: ModuleResolutionHost;
+export interface IResolveModuleOptions extends IGetResolvedIdWithCachingOptions {
 	resolveCache: IResolveCache;
-	cwd: string;
 }

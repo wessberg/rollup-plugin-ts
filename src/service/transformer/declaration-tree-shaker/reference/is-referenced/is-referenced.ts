@@ -1,23 +1,72 @@
-import {forEachChild, isExportAssignment, isExportDeclaration, isExportSpecifier, isIdentifier, isModuleDeclaration, Node} from "typescript";
+import {
+	forEachChild,
+	isClassDeclaration,
+	isClassExpression,
+	isEnumDeclaration,
+	isExportAssignment,
+	isExportDeclaration,
+	isExportSpecifier,
+	isFunctionDeclaration,
+	isFunctionExpression,
+	isIdentifier,
+	isImportSpecifier,
+	isInterfaceDeclaration,
+	isModuleDeclaration,
+	isTypeAliasDeclaration,
+	isVariableDeclaration,
+	Node
+} from "typescript";
 import {IsReferencedOptions} from "./is-referenced-options";
 import {nodeContainsChild} from "../../util/node-contains-child";
-import {getIdentifiersForNode} from "../../util/get-identifiers-for-node";
+import {getIdentifierForNode} from "../../util/get-identifiers-for-node";
 import {hasExportModifier} from "../../../declaration-bundler/util/modifier/modifier-util";
 import {ReferenceVisitorOptions} from "./reference-visitor-options";
-import {checkIdentifier} from "./visitor/check-identifier";
 import {isAmbientModuleRootLevelNode} from "../../util/is-ambient-module-root-level-node";
+import {checkClassDeclaration} from "./visitor/check-class-declaration";
+import {checkIdentifier} from "./visitor/check-identifier";
+import {checkClassExpression} from "./visitor/check-class-expression";
+import {checkInterfaceDeclaration} from "./visitor/check-interface-declaration";
+import {checkEnumDeclaration} from "./visitor/check-enum-declaration";
+import {checkTypeAliasDeclaration} from "./visitor/check-type-alias-declaration";
+import {checkFunctionDeclaration} from "./visitor/check-function-declaration";
+import {checkFunctionExpression} from "./visitor/check-function-expression";
+import {checkVariableDeclaration} from "./visitor/check-variable-declaration";
+import {checkImportSpecifier} from "./visitor/check-import-specifier";
+import {checkExportSpecifier} from "./visitor/check-export-specifier";
 
 /**
  * Visits the given node. Returns true if it references the node to check for references, and false otherwise
  * @param {Node} currentNode
- * @param {ReferenceVisitorOptions} options
  * @return {boolean}
  */
-function checkNode(currentNode: Node, options: ReferenceVisitorOptions): boolean {
-	if (options.node === currentNode || nodeContainsChild(options.node, currentNode)) return false;
+function checkNode({node, originalNode, ...rest}: ReferenceVisitorOptions): boolean {
+	if (node === originalNode || nodeContainsChild(originalNode, node)) return false;
 
-	if (isIdentifier(currentNode)) return checkIdentifier(currentNode, options);
-	else return options.continuation(currentNode);
+	if (isClassDeclaration(node)) {
+		return checkClassDeclaration({node, originalNode, ...rest});
+	} else if (isClassExpression(node)) {
+		return checkClassExpression({node, originalNode, ...rest});
+	} else if (isFunctionDeclaration(node)) {
+		return checkFunctionDeclaration({node, originalNode, ...rest});
+	} else if (isFunctionExpression(node)) {
+		return checkFunctionExpression({node, originalNode, ...rest});
+	} else if (isInterfaceDeclaration(node)) {
+		return checkInterfaceDeclaration({node, originalNode, ...rest});
+	} else if (isEnumDeclaration(node)) {
+		return checkEnumDeclaration({node, originalNode, ...rest});
+	} else if (isTypeAliasDeclaration(node)) {
+		return checkTypeAliasDeclaration({node, originalNode, ...rest});
+	} else if (isVariableDeclaration(node)) {
+		return checkVariableDeclaration({node, originalNode, ...rest});
+	} else if (isImportSpecifier(node)) {
+		return checkImportSpecifier({node, originalNode, ...rest});
+	} else if (isExportSpecifier(node)) {
+		return checkExportSpecifier({node, originalNode, ...rest});
+	} else if (isIdentifier(node)) {
+		return checkIdentifier({node, originalNode, ...rest});
+	} else {
+		return rest.childContinuation(node);
+	}
 }
 
 /**
@@ -29,7 +78,7 @@ function checkNode(currentNode: Node, options: ReferenceVisitorOptions): boolean
 function visitNode(currentNode: Node, options: ReferenceVisitorOptions): void {
 	if (options.node === currentNode || nodeContainsChild(options.node, currentNode)) return;
 
-	if (isAmbientModuleRootLevelNode(currentNode) && options.continuation(currentNode)) {
+	if (isAmbientModuleRootLevelNode(currentNode) && options.childContinuation(currentNode)) {
 		options.referencingNodes.add(currentNode);
 	}
 }
@@ -64,8 +113,16 @@ export function isReferenced<T extends Node>({seenNodes = new Set(), ...options}
 		seenNodes.add(options.node);
 	}
 
+	// Collect the identifier for the node
+	const identifier = getIdentifierForNode(options.node, options.cache);
+
+	// If there is no identifier for the node, include it since it cannot be referenced.
+	if (identifier == null) {
+		return true;
+	}
+
 	// Collect all nodes that references the given node
-	const referencingNodes = collectReferences(options);
+	const referencingNodes = collectReferences(options, identifier);
 
 	// Compute the result
 	const result =
@@ -76,15 +133,17 @@ export function isReferenced<T extends Node>({seenNodes = new Set(), ...options}
 	return result;
 }
 
-function collectReferences<T extends Node>(options: IsReferencedOptions<T>): Node[] {
+function collectReferences<T extends Node>(options: IsReferencedOptions<T>, identifier: string): Node[] {
 	const visitorOptions = {
 		...options,
 		referencingNodes: new Set<Node>(),
-		identifiers: getIdentifiersForNode(options.node, options.cache),
-		continuation: (node: Node): boolean => {
-			const result = forEachChild<boolean>(node, nextNode => checkNode(nextNode, visitorOptions));
+		identifier,
+		originalNode: options.node,
+		childContinuation: (node: Node): boolean => {
+			const result = forEachChild<boolean>(node, nextNode => checkNode({...visitorOptions, node: nextNode}));
 			return result === true;
-		}
+		},
+		continuation: (node: Node): boolean => checkNode({...visitorOptions, node})
 	};
 
 	const sourceFile = options.node.getSourceFile();

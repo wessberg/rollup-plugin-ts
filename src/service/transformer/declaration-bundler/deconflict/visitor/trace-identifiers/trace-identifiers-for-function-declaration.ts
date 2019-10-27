@@ -5,19 +5,9 @@ import {TraceIdentifiersVisitorOptions} from "../../trace-identifiers-visitor-op
  * Traces identifiers for the given FunctionDeclaration.
  * @param {TraceIdentifiersVisitorOptions} options
  */
-export function traceIdentifiersForFunctionDeclaration({
-	node,
-	isIdentifierFree,
-	updateIdentifierName,
-	addIdentifier,
-	generateUniqueVariableName
-}: TraceIdentifiersVisitorOptions<FunctionDeclaration>): void {
+export function traceIdentifiersForFunctionDeclaration({node, sourceFile, addIdentifier}: TraceIdentifiersVisitorOptions<FunctionDeclaration>): void {
 	if (node.name == null) return;
-	const newName = !isIdentifierFree(node.name.text) ? generateUniqueVariableName(node.name.text) : node.name.text;
-
-	addIdentifier(newName);
-
-	if (newName !== node.name.text) {
-		updateIdentifierName(node.name.text, newName);
-	}
+	addIdentifier(node.name.text, {
+		originalModule: sourceFile.fileName
+	});
 }

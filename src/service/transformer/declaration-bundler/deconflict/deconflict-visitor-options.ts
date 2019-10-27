@@ -1,8 +1,16 @@
-import {Identifier, Node, VisitResult} from "typescript";
+import {Identifier, Node} from "typescript";
+
+export interface ContinuationOptions {
+	lValues: Set<Identifier>;
+	lexicalIdentifiers: Set<string>;
+}
 
 export interface DeconflictVisitorOptions<T extends Node = Node> {
 	node: T;
+	lValues: Set<Identifier>;
+	lexicalIdentifiers: Set<string>;
 
-	updateIdentifierIfNeeded<U extends Identifier | undefined>(identifier: U): U extends undefined ? undefined : Identifier;
-	continuation<U extends Node>(node: U): VisitResult<U>;
+	updateIdentifierIfNeeded(identifier: Identifier, options: ContinuationOptions): Identifier;
+	childContinuation<U extends Node>(node: U, options: ContinuationOptions): U | undefined;
+	continuation<U extends Node>(node: U, options: ContinuationOptions): U | undefined;
 }

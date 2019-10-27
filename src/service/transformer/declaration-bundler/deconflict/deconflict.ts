@@ -1,46 +1,65 @@
 import {
 	createIdentifier,
+	createPrinter,
+	forEachChild,
 	Identifier,
-	isArrayBindingPattern,
 	isBindingElement,
 	isClassDeclaration,
 	isEnumDeclaration,
+	isExportSpecifier,
 	isFunctionDeclaration,
+	isGetAccessorDeclaration,
 	isIdentifier,
-	isImportDeclaration,
+	isImportClause,
+	isImportSpecifier,
 	isInterfaceDeclaration,
-	isObjectBindingPattern,
-	isOmittedExpression,
+	isMappedTypeNode,
+	isMethodDeclaration,
+	isMethodSignature,
+	isNamespaceImport,
+	isParameter,
+	isPropertyAssignment,
+	isPropertyDeclaration,
+	isPropertySignature,
+	isSetAccessorDeclaration,
 	isTypeAliasDeclaration,
 	isVariableDeclaration,
-	isVariableDeclarationList,
-	isVariableStatement,
 	Node,
 	SourceFile,
 	TransformerFactory,
 	updateSourceFileNode,
-	visitEachChild,
-	VisitResult
+	visitEachChild
 } from "typescript";
-import {IDeclarationBundlerOptions} from "../i-declaration-bundler-options";
+import {IDeclarationBundlerOptions, LocalSymbol, SourceFileToLocalSymbolMap} from "../i-declaration-bundler-options";
 import {getChunkFilename} from "../util/get-chunk-filename/get-chunk-filename";
 import {traceIdentifiersForClassDeclaration} from "./visitor/trace-identifiers/trace-identifiers-for-class-declaration";
 import {traceIdentifiersForEnumDeclaration} from "./visitor/trace-identifiers/trace-identifiers-for-enum-declaration";
 import {traceIdentifiersForFunctionDeclaration} from "./visitor/trace-identifiers/trace-identifiers-for-function-declaration";
 import {traceIdentifiersForInterfaceDeclaration} from "./visitor/trace-identifiers/trace-identifiers-for-interface-declaration";
 import {traceIdentifiersForTypeAliasDeclaration} from "./visitor/trace-identifiers/trace-identifiers-for-type-alias-declaration";
-import {traceIdentifiersForVariableStatement} from "./visitor/trace-identifiers/trace-identifiers-for-variable-statement";
 import {traceIdentifiersForBindingElement} from "./visitor/trace-identifiers/trace-identifiers-for-binding-element";
-import {traceIdentifiersForBindingPattern} from "./visitor/trace-identifiers/trace-identifiers-for-binding-pattern";
 import {traceIdentifiersForIdentifier} from "./visitor/trace-identifiers/trace-identifiers-for-identifier";
-import {traceIdentifiersForOmittedExpression} from "./visitor/trace-identifiers/trace-identifiers-for-omitted-expression";
 import {traceIdentifiersForVariableDeclaration} from "./visitor/trace-identifiers/trace-identifiers-for-variable-declaration";
-import {traceIdentifiersForVariableDeclarationList} from "./visitor/trace-identifiers/trace-identifiers-for-variable-declaration-list";
 import {TraceIdentifiersVisitorOptions} from "./trace-identifiers-visitor-options";
-import {DeconflictVisitorOptions} from "./deconflict-visitor-options";
+import {ContinuationOptions, DeconflictVisitorOptions} from "./deconflict-visitor-options";
 import {deconflictIdentifier} from "./visitor/deconflict/deconflict-identifier";
-import {traceIdentifiersForImportDeclaration} from "./visitor/trace-identifiers/trace-identifiers-for-import-declaration";
 import {normalize} from "path";
+import {traceIdentifiersForImportSpecifier} from "./visitor/trace-identifiers/trace-identifiers-for-import-specifier";
+import {deconflictBindingElement} from "./visitor/deconflict/deconflict-binding-element";
+import {deconflictImportSpecifier} from "./visitor/deconflict/deconflict-import-specifier";
+import {deconflictPropertySignature} from "./visitor/deconflict/deconflict-property-signature";
+import {deconflictMethodSignature} from "./visitor/deconflict/deconflict-method-signature";
+import {deconflictMethodDeclaration} from "./visitor/deconflict/deconflict-method-declaration";
+import {deconflictPropertyDeclaration} from "./visitor/deconflict/deconflict-property-declaration";
+import {deconflictParameterDeclaration} from "./visitor/deconflict/deconflict-parameter-declaration";
+import {traceIdentifiersForExportSpecifier} from "./visitor/trace-identifiers/trace-identifiers-for-export-specifier";
+import {deconflictExportSpecifier} from "./visitor/deconflict/deconflict-export-specifier";
+import {deconflictPropertyAssignment} from "./visitor/deconflict/deconflict-property-assignment";
+import {deconflictGetAccessorDeclaration} from "./visitor/deconflict/deconflict-get-accessor-declaration";
+import {deconflictSetAccessorDeclaration} from "./visitor/deconflict/deconflict-set-accessor-declaration";
+import {deconflictMappedTypeNode} from "./visitor/deconflict/deconflict-mapped-type-node";
+import {traceIdentifiersForImportClause} from "./visitor/trace-identifiers/trace-identifiers-for-import-clause";
+import {traceIdentifiersForNamespaceImport} from "./visitor/trace-identifiers/trace-identifiers-for-namespace-import";
 
 /**
  * Traces identifiers for the given Node, potentially generating new unique variable names for them
@@ -50,28 +69,53 @@ import {normalize} from "path";
  */
 function traceIdentifiers({node, ...rest}: TraceIdentifiersVisitorOptions): void {
 	if (isBindingElement(node)) return traceIdentifiersForBindingElement({...rest, node});
-	else if (isArrayBindingPattern(node) || isObjectBindingPattern(node)) return traceIdentifiersForBindingPattern({...rest, node});
 	else if (isClassDeclaration(node)) return traceIdentifiersForClassDeclaration({...rest, node});
 	else if (isEnumDeclaration(node)) return traceIdentifiersForEnumDeclaration({...rest, node});
 	else if (isFunctionDeclaration(node)) return traceIdentifiersForFunctionDeclaration({...rest, node});
-	else if (isImportDeclaration(node)) return traceIdentifiersForImportDeclaration({...rest, node});
+	else if (isImportClause(node)) return traceIdentifiersForImportClause({...rest, node});
+	else if (isNamespaceImport(node)) return traceIdentifiersForNamespaceImport({...rest, node});
+	else if (isImportSpecifier(node)) return traceIdentifiersForImportSpecifier({...rest, node});
+	else if (isExportSpecifier(node)) return traceIdentifiersForExportSpecifier({...rest, node});
 	else if (isIdentifier(node)) return traceIdentifiersForIdentifier({...rest, node});
 	else if (isInterfaceDeclaration(node)) return traceIdentifiersForInterfaceDeclaration({...rest, node});
-	else if (isOmittedExpression(node)) return traceIdentifiersForOmittedExpression({...rest, node});
 	else if (isTypeAliasDeclaration(node)) return traceIdentifiersForTypeAliasDeclaration({...rest, node});
 	else if (isVariableDeclaration(node)) return traceIdentifiersForVariableDeclaration({...rest, node});
-	else if (isVariableDeclarationList(node)) return traceIdentifiersForVariableDeclarationList({...rest, node});
-	else if (isVariableStatement(node)) return traceIdentifiersForVariableStatement({...rest, node});
+	else return rest.childContinuation(node);
 }
 
 /**
- * Deconflicts the given Node
+ * Deconflicts the given Node. Everything but LValues will be updated here
  * @param {DeconflictVisitorOptions} options
- * @return {boolean}
+ * @return {Node?}
  */
-function deconflictNode({node, continuation, ...rest}: DeconflictVisitorOptions): VisitResult<Node> {
-	if (isIdentifier(node)) return deconflictIdentifier({...rest, continuation, node});
-	else return continuation(node);
+function deconflictNode({node, ...rest}: DeconflictVisitorOptions): Node | undefined {
+	if (isBindingElement(node)) {
+		return deconflictBindingElement({node, ...rest});
+	} else if (isImportSpecifier(node)) {
+		return deconflictImportSpecifier({node, ...rest});
+	} else if (isExportSpecifier(node)) {
+		return deconflictExportSpecifier({node, ...rest});
+	} else if (isPropertySignature(node)) {
+		return deconflictPropertySignature({node, ...rest});
+	} else if (isPropertyDeclaration(node)) {
+		return deconflictPropertyDeclaration({node, ...rest});
+	} else if (isPropertyAssignment(node)) {
+		return deconflictPropertyAssignment({node, ...rest});
+	} else if (isMethodSignature(node)) {
+		return deconflictMethodSignature({node, ...rest});
+	} else if (isMethodDeclaration(node)) {
+		return deconflictMethodDeclaration({node, ...rest});
+	} else if (isGetAccessorDeclaration(node)) {
+		return deconflictGetAccessorDeclaration({node, ...rest});
+	} else if (isSetAccessorDeclaration(node)) {
+		return deconflictSetAccessorDeclaration({node, ...rest});
+	} else if (isParameter(node)) {
+		return deconflictParameterDeclaration({node, ...rest});
+	} else if (isMappedTypeNode(node)) {
+		return deconflictMappedTypeNode({node, ...rest});
+	} else if (isIdentifier(node)) {
+		return deconflictIdentifier({node, ...rest});
+	} else return rest.childContinuation(node, {lValues: rest.lValues, lexicalIdentifiers: rest.lexicalIdentifiers});
 }
 
 /**
@@ -81,29 +125,49 @@ function deconflictNode({node, continuation, ...rest}: DeconflictVisitorOptions)
  * @return {TransformerFactory<SourceFile>}
  */
 export function deconflict(options: IDeclarationBundlerOptions): TransformerFactory<SourceFile> {
-	const updatedIdentifierNamesForModuleMap: Map<string, Map<string, string>> = new Map();
-	const rootLevelIdentifiersForModuleMap: Map<string, Set<string>> = new Map();
+	const sourceFileToLocalSymbolMap: SourceFileToLocalSymbolMap = new Map();
+
+	const rootLevelIdentifiersForModuleMap: Map<string, Map<string, false | string>> = new Map();
 	const generatedVariableNamesForChunkMap: Map<string, Set<string>> = new Map();
 
 	return context => {
 		return sourceFile => {
+			const sourceFileName = normalize(sourceFile.fileName);
 			// If the SourceFile is not part of the local module names, remove all statements from it and return immediately
-			if (!options.localModuleNames.includes(normalize(sourceFile.fileName))) return updateSourceFileNode(sourceFile, [], true);
+			if (!options.localModuleNames.includes(sourceFileName)) return updateSourceFileNode(sourceFile, [], true);
 
-			const chunkFilename = getChunkFilename(normalize(sourceFile.fileName), options.supportedExtensions, options.chunkToOriginalFileMap);
+			if (options.pluginOptions.debug) {
+				console.log(`=== BEFORE DECONFLICTING === (${sourceFileName})`);
+				console.log(createPrinter().printFile(sourceFile));
+			}
 
-			let rootLevelIdentifiersForModule = rootLevelIdentifiersForModuleMap.get(normalize(sourceFile.fileName));
-			let updatedIdentifierNamesForModule = updatedIdentifierNamesForModuleMap.get(normalize(sourceFile.fileName));
+			const chunkFilename = getChunkFilename(sourceFileName, options.supportedExtensions, options.chunkToOriginalFileMap);
+
+			let localSymbolMap = sourceFileToLocalSymbolMap.get(sourceFileName);
+
+			let rootLevelIdentifiersForModule = rootLevelIdentifiersForModuleMap.get(sourceFileName);
+			let updatedIdentifierNamesForModule = options.updatedIdentifierNamesForModuleMap.get(sourceFileName);
+			let updatedIdentifierNamesForModuleReversed = options.updatedIdentifierNamesForModuleMapReversed.get(sourceFileName);
 			let generatedVariableNamesForChunk = generatedVariableNamesForChunkMap.get(chunkFilename);
 
+			if (localSymbolMap == null) {
+				localSymbolMap = new Map();
+				sourceFileToLocalSymbolMap.set(sourceFileName, localSymbolMap);
+			}
+
 			if (rootLevelIdentifiersForModule == null) {
-				rootLevelIdentifiersForModule = new Set();
-				rootLevelIdentifiersForModuleMap.set(normalize(sourceFile.fileName), rootLevelIdentifiersForModule);
+				rootLevelIdentifiersForModule = new Map();
+				rootLevelIdentifiersForModuleMap.set(sourceFileName, rootLevelIdentifiersForModule);
 			}
 
 			if (updatedIdentifierNamesForModule == null) {
 				updatedIdentifierNamesForModule = new Map();
-				updatedIdentifierNamesForModuleMap.set(normalize(sourceFile.fileName), updatedIdentifierNamesForModule);
+				options.updatedIdentifierNamesForModuleMap.set(sourceFileName, updatedIdentifierNamesForModule);
+			}
+
+			if (updatedIdentifierNamesForModuleReversed == null) {
+				updatedIdentifierNamesForModuleReversed = new Map();
+				options.updatedIdentifierNamesForModuleMapReversed.set(sourceFileName, updatedIdentifierNamesForModuleReversed);
 			}
 
 			if (generatedVariableNamesForChunk == null) {
@@ -116,69 +180,123 @@ export function deconflict(options: IDeclarationBundlerOptions): TransformerFact
 				...options
 			};
 
+			const isIdentifierFree = (identifier: string, currentSourceFileName: string = sourceFileName): boolean => {
+				const currentLocalSymbols = sourceFileToLocalSymbolMap.get(currentSourceFileName);
+				for (const module of options.localModuleNames) {
+					// Skip the current module
+					if (module === currentSourceFileName) continue;
+
+					const otherLocalSymbols = sourceFileToLocalSymbolMap.get(module);
+
+					// If this other module (that will be part of the same chunk) also declares the identifier
+					// it probably isn't free. But it may be, though, if it directly references the identifier we're checking
+					// for conflicts, for example if it is part of an import declaration.
+					if (otherLocalSymbols != null && otherLocalSymbols.has(identifier)) {
+						const otherLocalSymbol = otherLocalSymbols.get(identifier)!;
+						const currentLocalSymbol = currentLocalSymbols == null ? undefined : currentLocalSymbols.get(identifier);
+
+						if (currentLocalSymbol == null) return true;
+
+						if (otherLocalSymbol.originalModule === currentLocalSymbol.originalModule) {
+							return true;
+						} else {
+							return false;
+						}
+					}
+				}
+				return true;
+			};
+
+			const generateUniqueVariableName = (candidate: string): string => {
+				const suffix = "_$";
+				let counter = 0;
+
+				while (true) {
+					let currentCandidate = candidate + suffix + counter;
+					if (generatedVariableNamesForChunk!.has(currentCandidate)) {
+						counter++;
+					} else {
+						generatedVariableNamesForChunk!.add(currentCandidate);
+						return currentCandidate;
+					}
+				}
+			};
+
+			const updateIdentifierName = (oldName: string, newName: string): void => {
+				updatedIdentifierNamesForModule!.set(oldName, newName);
+				updatedIdentifierNamesForModuleReversed!.set(newName, oldName);
+			};
+
 			// Prepare some VisitorOptions
 			const traceIdentifiersVisitorOptions = {
 				...sharedVisitorOptions,
 
-				continuation: <U extends Node>(node: U): void => traceIdentifiers({...traceIdentifiersVisitorOptions, node}),
-
-				isIdentifierFree(identifier: string): boolean {
-					for (const module of options.localModuleNames) {
-						// Skip the current module
-						if (module === normalize(sourceFile.fileName)) continue;
-
-						const identifiersForModule = rootLevelIdentifiersForModuleMap.get(module);
-						if (identifiersForModule != null && identifiersForModule.has(identifier)) {
-							return false;
-						}
-					}
-					return true;
+				childContinuation: <U extends Node>(node: U): Node | void => {
+					forEachChild(node, newNode => traceIdentifiers({...traceIdentifiersVisitorOptions, node: newNode, sourceFile}));
 				},
+				continuation: <U extends Node>(node: U): Node | void => traceIdentifiers({...traceIdentifiersVisitorOptions, node, sourceFile}),
 
-				updateIdentifierName(oldName: string, newName: string): void {
-					updatedIdentifierNamesForModule!.set(oldName, newName);
-				},
-
-				addIdentifier(name: string): void {
-					rootLevelIdentifiersForModule!.add(name);
-				},
-
-				generateUniqueVariableName(candidate: string): string {
-					const suffix = "_$";
-					let counter = 0;
-
-					while (true) {
-						let currentCandidate = candidate + suffix + counter;
-						if (generatedVariableNamesForChunk!.has(currentCandidate)) {
-							counter++;
-						} else {
-							generatedVariableNamesForChunk!.add(currentCandidate);
-							return currentCandidate;
-						}
-					}
+				addIdentifier(name: string, localSymbol: LocalSymbol): void {
+					localSymbolMap!.set(name, localSymbol);
 				}
 			};
 
 			// Prepare some VisitorOptions
 			const deconflictVisitorOptions = {
 				...sharedVisitorOptions,
-				continuation: <U extends Node>(node: U): U =>
-					visitEachChild(node, nextNode => deconflictNode({...deconflictVisitorOptions, node: nextNode}), context),
 
-				updateIdentifierIfNeeded<T extends Identifier | undefined>(identifier: T): T extends undefined ? undefined : Identifier {
-					// tslint:disable:no-any
-					if (identifier == null) return undefined as any;
-					const newName = updatedIdentifierNamesForModule!.get(identifier.text);
-					return newName == null ? identifier : (createIdentifier(newName) as any);
-					// tslint:enable:no-any
+				childContinuation: <U extends Node>(node: U, continuationOptions: ContinuationOptions): U =>
+					visitEachChild(
+						node,
+						nextNode =>
+							deconflictNode({
+								...deconflictVisitorOptions,
+								...continuationOptions,
+								node: nextNode
+							}),
+						context
+					),
+
+				continuation: <U extends Node>(node: U, continuationOptions: ContinuationOptions): U | undefined =>
+					deconflictNode({
+						...deconflictVisitorOptions,
+						...continuationOptions,
+						node
+					}) as U | undefined,
+
+				updateIdentifierIfNeeded(identifier: Identifier, {lexicalIdentifiers, lValues}: ContinuationOptions): Identifier {
+					if (lValues.has(identifier) || (lexicalIdentifiers != null && lexicalIdentifiers.has(identifier.text))) return identifier;
+
+					if (isIdentifierFree(identifier.text)) {
+						return identifier;
+					} else {
+						let uniqueIdentifier = updatedIdentifierNamesForModule!.get(identifier.text);
+						if (uniqueIdentifier == null) {
+							uniqueIdentifier = generateUniqueVariableName(identifier.text);
+							updateIdentifierName(identifier.text, uniqueIdentifier);
+						}
+						return createIdentifier(uniqueIdentifier);
+					}
 				}
 			};
 
 			// Walk through all Statements of the SourceFile and trace identifiers for them
-			for (const node of sourceFile.statements) traceIdentifiersVisitorOptions.continuation(node);
+			forEachChild(sourceFile, traceIdentifiersVisitorOptions.continuation);
 
 			// Now, deconflict the SourceFile
-			return deconflictVisitorOptions.continuation(sourceFile);
+			const baseContinuationOptions: ContinuationOptions = {
+				lexicalIdentifiers: new Set(),
+				lValues: new Set()
+			};
+
+			const result = visitEachChild(sourceFile, nextNode => deconflictVisitorOptions.continuation(nextNode, baseContinuationOptions), context);
+
+			if (options.pluginOptions.debug) {
+				console.log(`=== AFTER DECONFLICTING === (${sourceFileName})`);
+				console.log(createPrinter().printFile(result));
+			}
+
+			return result;
 		};
 	};
 }

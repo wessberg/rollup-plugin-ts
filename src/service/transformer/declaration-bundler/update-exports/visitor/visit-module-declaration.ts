@@ -1,6 +1,6 @@
 import {ModuleDeclaration, updateModuleDeclaration} from "typescript";
 import {UpdateExportsVisitorOptions} from "../update-exports-visitor-options";
-import {hasDefaultExportModifier, hasExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
+import {ensureHasDeclareModifier, hasDefaultExportModifier, hasExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
 import {normalize} from "path";
 
 /**
@@ -15,7 +15,8 @@ export function visitModuleDeclaration({
 	isEntry,
 	exportedSpecifiersFromModule,
 	parsedExportedSymbols,
-	identifiersForDefaultExportsForModules
+	identifiersForDefaultExportsForModules,
+	updatedIdentifierNamesForModuleMapReversed
 }: UpdateExportsVisitorOptions<ModuleDeclaration>): ModuleDeclaration | undefined {
 	// If the node has no export modifier, leave it as it is
 	if (!hasExportModifier(node)) return continuation(node);
@@ -23,7 +24,21 @@ export function visitModuleDeclaration({
 	// If the node is located in the entry file, leave it as it is - completely
 	if (isEntry) {
 		if (!hasDefaultExportModifier(node.modifiers)) {
-			exportedSpecifiersFromModule.add(node.name.text);
+			// If the module name has been updated to avoid conflicts with other local symbols,
+			// we'll have to remove the export modifier and add an ExportDeclaration later that exports the aliased identifier under the original name.
+			// For example, if the module is called 'Foo' but has been deconflicted to 'Foo_$0', remove the export modifier and instead
+			// generate and ExportDeclaration like 'export {Foo_$0 as Foo}'.
+			const updatedIdentifierNames = updatedIdentifierNamesForModuleMapReversed.get(normalize(sourceFile.fileName));
+			if (updatedIdentifierNames != null && updatedIdentifierNames.has(node.name.text)) {
+				// Add the node name to the exported symbols
+				parsedExportedSymbols.set(node.name.text, [updatedIdentifierNames.get(node.name.text), node]);
+
+				return continuation(
+					updateModuleDeclaration(node, node.decorators, ensureHasDeclareModifier(removeExportModifier(node.modifiers)), node.name, node.body)
+				);
+			} else {
+				exportedSpecifiersFromModule.add(node.name.text);
+			}
 		}
 		return continuation(node);
 	}
@@ -33,7 +48,7 @@ export function visitModuleDeclaration({
 		identifiersForDefaultExportsForModules.set(normalize(sourceFile.fileName), [node.name.text, node]);
 	} else {
 		// Add the node name to the exported symbols
-		parsedExportedSymbols.set(node.name.text, node);
+		parsedExportedSymbols.set(node.name.text, [undefined, node]);
 	}
 
 	// Update the node and remove the export modifiers from it

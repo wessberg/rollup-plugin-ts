@@ -2,5 +2,5 @@ import {IncrementalLanguageService} from "../language-service/incremental-langua
 
 export interface IModuleResolutionHostOptions {
 	languageServiceHost: IncrementalLanguageService;
-	extensions: string[];
+	extensions: Set<string>;
 }

@@ -2,6 +2,7 @@ import {
 	createEmptyStatement,
 	createExportDeclaration,
 	createExportSpecifier,
+	createIdentifier,
 	createNamedExports,
 	createStringLiteral,
 	DeclarationStatement,
@@ -9,8 +10,6 @@ import {
 	ExportSpecifier,
 	ImportDeclaration,
 	isStringLiteralLike,
-	Symbol,
-	SymbolFlags,
 	updateExportDeclaration,
 	updateNamedExports
 } from "typescript";
@@ -39,11 +38,11 @@ export function visitExportDeclaration({
 	parsedExportedSymbols,
 	typeChecker,
 	identifiersForDefaultExportsForModules,
-	exportsFromExternalModules
+	exportsFromExternalModules,
+	updatedIdentifierNamesForModuleMap
 }: UpdateExportsVisitorOptions<ExportDeclaration>): ExportDeclaration | ImportDeclaration | undefined {
 	const specifier = node.moduleSpecifier;
-	const symbol = (node as {symbol?: Symbol}).symbol;
-	const isExportStar = symbol != null && (symbol.flags & SymbolFlags.ExportStar) !== 0;
+	const isExportStar = node.exportClause == null;
 
 	if (specifier == null || !isStringLiteralLike(specifier)) {
 		// Remove the export if it exports no bindings at all
@@ -57,7 +56,7 @@ export function visitExportDeclaration({
 					if (declaration != null) {
 						element.name.text === "default"
 							? identifiersForDefaultExportsForModules.set(normalize(sourceFile.fileName), [ref.text, declaration])
-							: parsedExportedSymbols.set(ref.text, (declaration as unknown) as DeclarationStatement);
+							: parsedExportedSymbols.set(ref.text, [undefined, (declaration as unknown) as DeclarationStatement]);
 					}
 				}
 			}
@@ -66,7 +65,7 @@ export function visitExportDeclaration({
 	}
 
 	// Potentially rewrite the ModuleSpecifier text to refer to one of the generated chunk filenames (which may not be the same or named the same)
-	const {isSameChunk, hasChanged, normalizedModuleSpecifier, isExternal} = normalizeModuleSpecifier({
+	const {isSameChunk, hasChanged, normalizedModuleSpecifier, absoluteModuleSpecifier, isExternal} = normalizeModuleSpecifier({
 		supportedExtensions,
 		specifier: specifier.text,
 		sourceFile,
@@ -85,15 +84,24 @@ export function visitExportDeclaration({
 		if (!isEntry) {
 			// If we're not in the entry file, we may be re-exporting symbols from another file.
 			// Add these symbols to the parsed exported symbols for the file
+			const absoluteModuleSpecifierText = join(dirname(normalize(sourceFile.fileName)), specifier.text);
+			const otherSymbols = [...getParsedExportedSymbolsForModule(absoluteModuleSpecifierText).keys()];
+			const otherExportedSpecifiers = getExportedSpecifiersFromModule(absoluteModuleSpecifierText);
+			let missingExportSpecifiers: [string, string | undefined][];
+
 			if (isExportStar) {
-				const absoluteModuleSpecifierText = join(dirname(normalize(sourceFile.fileName)), specifier.text);
-				const missingExportSpecifiers = [...getParsedExportedSymbolsForModule(absoluteModuleSpecifierText).keys()].filter(
-					parsedExportedSymbol => !getExportedSpecifiersFromModule(absoluteModuleSpecifierText).has(parsedExportedSymbol)
+				missingExportSpecifiers = otherSymbols
+					.filter(parsedExportedSymbol => !otherExportedSpecifiers.has(parsedExportedSymbol))
+					.map(otherSymbol => [otherSymbol, undefined]);
+			} else {
+				missingExportSpecifiers = node.exportClause!.elements.map(el =>
+					el.propertyName == null ? [el.name.text, undefined] : [el.propertyName.text, el.name.text]
 				);
-				missingExportSpecifiers.forEach(exportedSymbol => {
-					parsedExportedSymbols.set(exportedSymbol, createEmptyStatement());
-				});
 			}
+
+			missingExportSpecifiers.forEach(([exportedSymbol, propertyName]) => {
+				parsedExportedSymbols.set(exportedSymbol, [propertyName, createEmptyStatement()]);
+			});
 
 			// If we're not in the entry file of the chunk, leave the export out!
 			return undefined;
@@ -104,6 +112,7 @@ export function visitExportDeclaration({
 		// Default exports are not included in 'export *' declarations
 		if (isExportStar) {
 			const absoluteModuleSpecifierText = join(dirname(normalize(sourceFile.fileName)), specifier.text);
+
 			const missingExportSpecifiers = [...getParsedExportedSymbolsForModule(absoluteModuleSpecifierText).keys()].filter(
 				parsedExportedSymbol => !getExportedSpecifiersFromModule(absoluteModuleSpecifierText).has(parsedExportedSymbol)
 			);
@@ -135,7 +144,7 @@ export function visitExportDeclaration({
 								if (element.propertyName != null) {
 									exportSpecifiersWithReplacements.set(
 										element,
-										createExportSpecifier(identifiersForDefaultExportsForModules.get(path)![0], element.name)
+										createExportSpecifier(identifiersForDefaultExportsForModules.get(path)![0], element.name.text)
 									);
 								} else {
 									exportSpecifiersWithReplacements.set(
@@ -147,6 +156,27 @@ export function visitExportDeclaration({
 							}
 						}
 						break;
+					} else {
+						// If we're doing something like 'export {Foo} from "./foo"', but '/foo' is going to be part of this chunk, the export will
+						// be changed to 'export {Foo}', but if 'Foo' is in turn deconflicted into something like 'Foo_$0', we'll have to alias the export
+						// like 'export {Foo_$0 as Foo}'
+
+						for (const extension of ["", ...supportedExtensions]) {
+							const path = setExtension(absoluteModuleSpecifier, extension);
+
+							const updatedIdentifiersForReferencedModule = updatedIdentifierNamesForModuleMap.get(path);
+
+							if (updatedIdentifiersForReferencedModule != null && updatedIdentifiersForReferencedModule.has(propertyName)) {
+								exportSpecifiersWithReplacements.set(
+									element,
+									createExportSpecifier(
+										createIdentifier(updatedIdentifiersForReferencedModule.get(propertyName)!),
+										createIdentifier(element.name.text)
+									)
+								);
+								break;
+							}
+						}
 					}
 				}
 			}

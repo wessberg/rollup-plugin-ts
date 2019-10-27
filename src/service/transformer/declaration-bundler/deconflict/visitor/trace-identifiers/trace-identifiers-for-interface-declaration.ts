@@ -7,16 +7,10 @@ import {TraceIdentifiersVisitorOptions} from "../../trace-identifiers-visitor-op
  */
 export function traceIdentifiersForInterfaceDeclaration({
 	node,
-	isIdentifierFree,
-	updateIdentifierName,
-	addIdentifier,
-	generateUniqueVariableName
+	sourceFile,
+	addIdentifier
 }: TraceIdentifiersVisitorOptions<InterfaceDeclaration>): void {
-	const newName = !isIdentifierFree(node.name.text) ? generateUniqueVariableName(node.name.text) : node.name.text;
-
-	addIdentifier(newName);
-
-	if (newName !== node.name.text) {
-		updateIdentifierName(node.name.text, newName);
-	}
+	addIdentifier(node.name.text, {
+		originalModule: sourceFile.fileName
+	});
 }

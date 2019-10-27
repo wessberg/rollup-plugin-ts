@@ -13,5 +13,5 @@ export function takeBestSubModuleFromPackage(pkg: {main?: string}): string | und
 		}
 	}
 
-	return undefined;
+	return "index.js";
 }

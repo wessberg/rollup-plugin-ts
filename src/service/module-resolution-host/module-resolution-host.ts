@@ -14,7 +14,7 @@ export class ModuleResolutionHost implements TSModuleResolutionHost {
 	 * @returns {boolean}
 	 */
 	public fileExists(fileName: string): boolean {
-		return this.options.extensions.includes(getExtension(fileName)) && this.options.languageServiceHost.fileExists(fileName);
+		return this.options.extensions.has(getExtension(fileName)) && this.options.languageServiceHost.fileExists(fileName);
 	}
 
 	/**

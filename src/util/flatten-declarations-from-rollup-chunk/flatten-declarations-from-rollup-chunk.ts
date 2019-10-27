@@ -19,6 +19,7 @@ export function flattenDeclarationsFromRollupChunk({
 	declarationOutDir,
 	outDir,
 	cwd,
+	resolver,
 	pluginOptions,
 	languageServiceHost,
 	supportedExtensions,
@@ -130,7 +131,9 @@ export function flattenDeclarationsFromRollupChunk({
 		true,
 		declarationBundler({
 			usedExports,
+			resolver,
 			chunk,
+			pluginOptions,
 			supportedExtensions,
 			localModuleNames,
 			moduleNames,
@@ -139,21 +142,34 @@ export function flattenDeclarationsFromRollupChunk({
 			absoluteOutFileName: absoluteChunkFileName,
 			chunkToOriginalFileMap,
 			typeChecker,
-			identifiersForDefaultExportsForModules: new Map()
+			identifiersForDefaultExportsForModules: new Map(),
+			updatedIdentifierNamesForModuleMap: new Map(),
+			updatedIdentifierNamesForModuleMapReversed: new Map()
 		})
 	);
+
+	if (pluginOptions.debug) {
+		console.log(`=== BEFORE TREE-SHAKING === (${rewrittenDeclarationFilename})`);
+		console.log(code);
+	}
 
 	// Run a tree-shaking pass on the code
 	const result = transform(
 		createSourceFile(declarationFilename, code, ScriptTarget.ESNext, true, ScriptKind.TS),
-		declarationTreeShaker({relativeOutFileName: normalize(chunk.fileName), declarationFilename}).afterDeclarations! as TransformerFactory<
-			SourceFile
-		>[],
+		declarationTreeShaker({
+			relativeOutFileName: normalize(chunk.fileName),
+			declarationFilename
+		}).afterDeclarations! as TransformerFactory<SourceFile>[],
 		languageServiceHost.getCompilationSettings()
 	);
 
 	// Print the Source code and update the code with it
 	code = createPrinter({newLine: languageServiceHost.getCompilationSettings().newLine}).printFile(result.transformed[0]);
+
+	if (pluginOptions.debug) {
+		console.log(`=== AFTER TREE-SHAKING === (${rewrittenDeclarationFilename})`);
+		console.log(code);
+	}
 
 	// Add a source mapping URL if a map should be generated
 	if (generateMap) {

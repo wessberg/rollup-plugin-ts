@@ -6,19 +6,10 @@ import {TraceIdentifiersVisitorOptions} from "../../trace-identifiers-visitor-op
  * @param {TraceIdentifiersVisitorOptions} options
  * @returns {void}
  */
-export function traceIdentifiersForClassDeclaration({
-	node,
-	isIdentifierFree,
-	updateIdentifierName,
-	addIdentifier,
-	generateUniqueVariableName
-}: TraceIdentifiersVisitorOptions<ClassDeclaration>): void {
+export function traceIdentifiersForClassDeclaration({node, sourceFile, addIdentifier}: TraceIdentifiersVisitorOptions<ClassDeclaration>): void {
 	if (node.name == null) return;
-	const newName = !isIdentifierFree(node.name.text) ? generateUniqueVariableName(node.name.text) : node.name.text;
 
-	addIdentifier(newName);
-
-	if (newName !== node.name.text) {
-		updateIdentifierName(node.name.text, newName);
-	}
+	addIdentifier(node.name.text, {
+		originalModule: sourceFile.fileName
+	});
 }

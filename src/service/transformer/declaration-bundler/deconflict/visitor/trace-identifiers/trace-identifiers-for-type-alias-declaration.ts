@@ -7,16 +7,12 @@ import {TraceIdentifiersVisitorOptions} from "../../trace-identifiers-visitor-op
  */
 export function traceIdentifiersForTypeAliasDeclaration({
 	node,
-	isIdentifierFree,
-	addIdentifier,
-	updateIdentifierName,
-	generateUniqueVariableName
+	sourceFile,
+	addIdentifier
 }: TraceIdentifiersVisitorOptions<TypeAliasDeclaration>): void {
-	const newName = !isIdentifierFree(node.name.text) ? generateUniqueVariableName(node.name.text) : node.name.text;
+	if (node.name == null) return;
 
-	addIdentifier(newName);
-
-	if (newName !== node.name.text) {
-		updateIdentifierName(node.name.text, newName);
-	}
+	addIdentifier(node.name.text, {
+		originalModule: sourceFile.fileName
+	});
 }
