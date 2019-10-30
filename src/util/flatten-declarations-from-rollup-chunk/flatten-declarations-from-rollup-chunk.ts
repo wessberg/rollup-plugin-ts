@@ -5,9 +5,11 @@ import {ensurePosix, setExtension} from "../path/path-util";
 import {declarationBundler} from "../../service/transformer/declaration-bundler/declaration-bundler";
 import {dirname, join, normalize, relative, parse} from "path";
 import {createPrinter, createProgram, createSourceFile, ScriptKind, ScriptTarget, SourceFile, transform, TransformerFactory} from "typescript";
-import {getChunkFilename} from "../../service/transformer/declaration-bundler/util/get-chunk-filename/get-chunk-filename";
 import {ExistingRawSourceMap} from "rollup";
-import {declarationTreeShaker} from "../../service/transformer/declaration-tree-shaker/declaration-tree-shaker";
+import {ReferenceCache} from "../../service/transformer/declaration-bundler/reference/cache/reference-cache";
+import {getChunkFilename} from "../../service/transformer/declaration-pre-bundler/util/get-chunk-filename/get-chunk-filename";
+import {NodeIdentifierCache} from "../../service/transformer/declaration-bundler/util/get-identifiers-for-node";
+import {declarationPreBundler} from "../../service/transformer/declaration-pre-bundler/declaration-pre-bundler";
 
 /**
  * Flattens all the modules that are part of the given chunk and returns a single SourceDescription for a flattened file
@@ -24,11 +26,14 @@ export function flattenDeclarationsFromRollupChunk({
 	languageServiceHost,
 	supportedExtensions,
 	entryFileNames,
-	moduleNames,
 	generateMap,
 	localModuleNames,
 	chunkToOriginalFileMap
 }: IFlattenDeclarationsFromRollupChunkOptions): IFlattenDeclarationsFromRollupChunkResult {
+	// Prepare caches
+	const referenceCache: ReferenceCache = new WeakMap();
+	const nodeIdentifierCache: NodeIdentifierCache = new WeakMap();
+
 	const absoluteChunkFileName = join(outDir, chunk.fileName);
 	const declarationFilename = setExtension(chunk.fileName, DECLARATION_EXTENSION);
 	const declarationMapFilename = setExtension(chunk.fileName, DECLARATION_MAP_EXTENSION);
@@ -61,6 +66,8 @@ export function flattenDeclarationsFromRollupChunk({
 	});
 
 	const typeChecker = program.getTypeChecker();
+	const printer = createPrinter({newLine: languageServiceHost.getCompilationSettings().newLine});
+
 	const entrySourceFiles = entryFileNames.map(entryFileName => program.getSourceFile(entryFileName));
 	const entrySourceFileSymbols = entrySourceFiles.map(entrySourceFile => typeChecker.getSymbolAtLocation(entrySourceFile!));
 
@@ -129,20 +136,19 @@ export function flattenDeclarationsFromRollupChunk({
 		},
 		undefined,
 		true,
-		declarationBundler({
-			usedExports,
+		declarationPreBundler({
+			nodeIdentifierCache,
 			resolver,
-			chunk,
+			printer,
+			usedExports,
 			pluginOptions,
 			supportedExtensions,
 			localModuleNames,
-			moduleNames,
 			entryFileNames,
 			relativeOutFileName: normalize(chunk.fileName),
 			absoluteOutFileName: absoluteChunkFileName,
 			chunkToOriginalFileMap,
 			typeChecker,
-			identifiersForDefaultExportsForModules: new Map(),
 			updatedIdentifierNamesForModuleMap: new Map(),
 			updatedIdentifierNamesForModuleMapReversed: new Map()
 		})
@@ -156,7 +162,11 @@ export function flattenDeclarationsFromRollupChunk({
 	// Run a tree-shaking pass on the code
 	const result = transform(
 		createSourceFile(declarationFilename, code, ScriptTarget.ESNext, true, ScriptKind.TS),
-		declarationTreeShaker({
+		declarationBundler({
+			resolver,
+			printer,
+			referenceCache,
+			nodeIdentifierCache,
 			relativeOutFileName: normalize(chunk.fileName),
 			declarationFilename
 		}).afterDeclarations! as TransformerFactory<SourceFile>[],
@@ -164,7 +174,7 @@ export function flattenDeclarationsFromRollupChunk({
 	);
 
 	// Print the Source code and update the code with it
-	code = createPrinter({newLine: languageServiceHost.getCompilationSettings().newLine}).printFile(result.transformed[0]);
+	code = printer.printFile(result.transformed[0]);
 
 	if (pluginOptions.debug) {
 		console.log(`=== AFTER TREE-SHAKING === (${rewrittenDeclarationFilename})`);

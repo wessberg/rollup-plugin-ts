@@ -1,16 +1,17 @@
 import {CustomTransformers} from "typescript";
-import {IDeclarationBundlerOptions} from "./i-declaration-bundler-options";
-import {updateExports} from "./update-exports/update-exports";
-import {deconflict} from "./deconflict/deconflict";
-import {pathMappingRewriter} from "./path-mapping-rewriter/path-mapping-rewriter";
+import {DeclarationBundlerOptions} from "./declaration-bundler-options";
+import {treeShaker} from "./tree-shaker/tree-shaker";
 
 /**
- * Will bundle declaration files
- * @param {IDeclarationBundlerOptions} options
+ * Bundles declarations
+ * @param {DeclarationBundlerOptions} options
  * @returns {CustomTransformers}
  */
-export function declarationBundler(options: IDeclarationBundlerOptions): CustomTransformers {
+export function declarationBundler(options: DeclarationBundlerOptions): CustomTransformers {
 	return {
-		afterDeclarations: [pathMappingRewriter(options), deconflict(options), updateExports(options)]
+		afterDeclarations: [
+			// Tree-shakes declarations based on reference counting
+			treeShaker(options)
+		]
 	};
 }

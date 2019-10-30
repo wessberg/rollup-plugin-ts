@@ -17,7 +17,6 @@ export interface IEmitDeclarationsOptions {
 	declarationOutDir: string;
 	generateMap: boolean;
 	chunk: MergedChunk;
-	moduleNames: string[];
 	localModuleNames: string[];
 	entryFileNames: string[];
 	pluginOptions: TypescriptPluginOptions;

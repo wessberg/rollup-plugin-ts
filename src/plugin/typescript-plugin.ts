@@ -440,8 +440,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				const mergedChunks = mergeChunksWithAmbientDependencies(chunks, moduleDependencyMap);
 				const chunkToOriginalFileMap = getChunkToOriginalFileMap(outDir, mergedChunks);
 
-				const moduleNames = [...new Set(([] as string[]).concat.apply([], mergedChunks.map(({modules}) => modules.filter(canEmitForFile))))];
-
 				mergedChunks.forEach(chunk => {
 					const rawLocalModuleNames = chunk.modules;
 					const localModuleNames = rawLocalModuleNames.filter(canEmitForFile);
@@ -472,7 +470,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 						languageServiceHost,
 						emitCache,
 						chunkToOriginalFileMap,
-						moduleNames,
 						localModuleNames,
 						entryFileNames,
 						pluginContext: this,
