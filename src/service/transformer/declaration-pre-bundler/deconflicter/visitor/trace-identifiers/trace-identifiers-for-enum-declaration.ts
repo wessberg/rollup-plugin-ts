@@ -8,6 +8,7 @@ import {TraceIdentifiersVisitorOptions} from "../../trace-identifiers-visitor-op
  */
 export function traceIdentifiersForEnumDeclaration({node, sourceFile, addIdentifier}: TraceIdentifiersVisitorOptions<EnumDeclaration>): void {
 	addIdentifier(node.name.text, {
-		originalModule: sourceFile.fileName
+		originalModule: sourceFile.fileName,
+		deconflictedName: undefined
 	});
 }

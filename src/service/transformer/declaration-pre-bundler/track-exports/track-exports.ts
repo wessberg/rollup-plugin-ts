@@ -1,21 +1,5 @@
-import {
-	isClassDeclaration,
-	isEnumDeclaration,
-	isExportAssignment,
-	isExportDeclaration,
-	isExportSpecifier,
-	isFunctionDeclaration,
-	isInterfaceDeclaration,
-	isModuleDeclaration,
-	isTypeAliasDeclaration,
-	isVariableStatement,
-	Node,
-	SourceFile,
-	TransformerFactory,
-	updateSourceFileNode,
-	visitEachChild
-} from "typescript";
-import {DeclarationPreBundlerOptions, ExportedSymbol, SourceFileToExportedSymbolSet} from "../declaration-pre-bundler-options";
+import {isClassDeclaration, isEnumDeclaration, isExportAssignment, isExportDeclaration, isExportSpecifier, isFunctionDeclaration, isInterfaceDeclaration, isModuleDeclaration, isNamedExports, isTypeAliasDeclaration, isVariableStatement, Node, SourceFile, TransformerFactory, updateSourceFileNode, visitEachChild} from "typescript";
+import {DeclarationPreBundlerOptions, ExportedSymbol} from "../declaration-pre-bundler-options";
 import {visitExportDeclaration} from "./visitor/visit-export-declaration";
 import {visitExportAssignment} from "./visitor/visit-export-assignment";
 import {visitVariableStatement} from "./visitor/visit-variable-statement";
@@ -27,13 +11,13 @@ import {visitInterfaceDeclaration} from "./visitor/visit-interface-declaration";
 import {visitModuleDeclaration} from "./visitor/visit-module-declaration";
 import {normalize} from "path";
 import {visitExportSpecifier} from "./visitor/visit-export-specifier";
+import {visitNamedExports} from "./visitor/visit-named-exports";
 
 /**
  * // Tracks exports across files such that they can be added back in if necessary at a later point
  * @param {DeclarationPreBundlerOptions} options
  */
-export function trackExports(options: DeclarationPreBundlerOptions): TransformerFactory<SourceFile> {
-	const sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet = new Map();
+export function trackExports (options: DeclarationPreBundlerOptions): TransformerFactory<SourceFile> {
 
 	return context => {
 		return sourceFile => {
@@ -47,15 +31,11 @@ export function trackExports(options: DeclarationPreBundlerOptions): Transformer
 				console.log(options.printer.printFile(sourceFile));
 			}
 
-			// Find the name of the chunk containing this specific SourceFile
-			// TODO: Remove or comment back in
-			// const chunkFilename = getChunkFilename(sourceFileName, rest.supportedExtensions, rest.chunkToOriginalFileMap);
-
-			let exportedSymbolSet = sourceFileToExportedSymbolSet.get(sourceFileName);
+			let exportedSymbolSet = options.sourceFileToExportedSymbolSet.get(sourceFileName);
 
 			if (exportedSymbolSet == null) {
 				exportedSymbolSet = new Set();
-				sourceFileToExportedSymbolSet.set(sourceFileName, exportedSymbolSet);
+				options.sourceFileToExportedSymbolSet.set(sourceFileName, exportedSymbolSet);
 			}
 
 			// Prepare some VisitorOptions
@@ -63,13 +43,13 @@ export function trackExports(options: DeclarationPreBundlerOptions): Transformer
 				...options,
 				sourceFile,
 				isEntry: options.entryFileNames.includes(sourceFileName),
-				childContinuation: <U extends Node>(node: U): U | undefined => {
+				childContinuation: <U extends Node> (node: U): U|undefined => {
 					return visitEachChild(node, visitor, context);
 				},
-				continuation: <U extends Node>(node: U): U | undefined => {
-					return visitor(node) as U | undefined;
+				continuation: <U extends Node> (node: U): U|undefined => {
+					return visitor(node) as U|undefined;
 				},
-				markAsExported(exportedSymbol: ExportedSymbol): void {
+				markAsExported (exportedSymbol: ExportedSymbol): void {
 					exportedSymbolSet!.add(exportedSymbol);
 				}
 			};
@@ -79,9 +59,10 @@ export function trackExports(options: DeclarationPreBundlerOptions): Transformer
 			 * @param {Node} node
 			 * @returns {Node | undefined}
 			 */
-			function visitor(node: Node): Node | Node[] | undefined {
+			function visitor (node: Node): Node|Node[]|undefined {
 				if (isExportAssignment(node)) return visitExportAssignment({node, ...visitorOptions});
 				else if (isExportDeclaration(node)) return visitExportDeclaration({node, ...visitorOptions});
+				else if (isNamedExports(node)) return visitNamedExports({node, ...visitorOptions});
 				else if (isExportSpecifier(node)) return visitExportSpecifier({node, ...visitorOptions});
 				else if (isVariableStatement(node)) return visitVariableStatement({node, ...visitorOptions});
 				else if (isFunctionDeclaration(node)) return visitFunctionDeclaration({node, ...visitorOptions});
@@ -98,7 +79,6 @@ export function trackExports(options: DeclarationPreBundlerOptions): Transformer
 			if (options.pluginOptions.debug) {
 				console.log(`=== AFTER TRACKING EXPORTS === (${sourceFileName})`);
 				console.log(options.printer.printFile(updatedSourceFile));
-				console.log({exportedSymbolSet});
 			}
 
 			return updatedSourceFile;

@@ -13,11 +13,11 @@ export function visitExportSpecifier({
 	markAsExported
 }: TrackExportsVisitorOptions<ExportSpecifier>): ExportSpecifier | undefined {
 	const moduleSpecifier = node.parent == null || node.parent.parent == null ? undefined : node.parent.parent.moduleSpecifier;
+	const originalModule = moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? sourceFile.fileName : resolver(moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName;
 
 	markAsExported({
 		node,
-		originalModule:
-			moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? sourceFile.fileName : resolver(moduleSpecifier.text, sourceFile.fileName),
+		originalModule,
 		defaultExport: node.name.text === "default",
 		name: node.name.text,
 		propertyName: node.propertyName == null ? undefined : node.propertyName.text

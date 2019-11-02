@@ -13,6 +13,7 @@ export function traceIdentifiersForTypeAliasDeclaration({
 	if (node.name == null) return;
 
 	addIdentifier(node.name.text, {
-		originalModule: sourceFile.fileName
+		originalModule: sourceFile.fileName,
+		deconflictedName: undefined
 	});
 }

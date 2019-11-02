@@ -7,6 +7,7 @@ import {TraceIdentifiersVisitorOptions} from "../../trace-identifiers-visitor-op
  */
 export function traceIdentifiersForIdentifier({node, sourceFile, addIdentifier}: TraceIdentifiersVisitorOptions<Identifier>): void {
 	addIdentifier(node.text, {
-		originalModule: sourceFile.fileName
+		originalModule: sourceFile.fileName,
+		deconflictedName: undefined
 	});
 }

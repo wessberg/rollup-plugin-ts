@@ -11,6 +11,7 @@ export function traceIdentifiersForInterfaceDeclaration({
 	addIdentifier
 }: TraceIdentifiersVisitorOptions<InterfaceDeclaration>): void {
 	addIdentifier(node.name.text, {
-		originalModule: sourceFile.fileName
+		originalModule: sourceFile.fileName,
+		deconflictedName: undefined
 	});
 }

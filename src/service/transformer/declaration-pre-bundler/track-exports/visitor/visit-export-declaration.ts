@@ -24,12 +24,12 @@ export function visitExportDeclaration({
 
 	// Otherwise, this is a 'export * from "..."' export that we need to handle here
 	else {
+		const originalModule = node.moduleSpecifier == null || !isStringLiteralLike(node.moduleSpecifier)
+			? sourceFile.fileName
+			: resolver(node.moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName;
 		markAsExported({
 			node,
-			originalModule:
-				node.moduleSpecifier == null || !isStringLiteralLike(node.moduleSpecifier)
-					? sourceFile.fileName
-					: resolver(node.moduleSpecifier.text, sourceFile.fileName),
+			originalModule,
 			defaultExport: false,
 			name: "*",
 			propertyName: undefined

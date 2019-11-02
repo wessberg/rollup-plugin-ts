@@ -8,7 +8,13 @@ export interface MergedChunk {
 	isEntry: boolean;
 }
 
-export function mergeChunksWithAmbientDependencies(chunks: OutputChunk[], moduleDependencyMap: ModuleDependencyMap): MergedChunk[] {
+export interface MergeChunksWithAmbientDependenciesResult {
+	mergedChunks: MergedChunk[];
+	ambientModules: Set<string>;
+}
+
+export function mergeChunksWithAmbientDependencies(chunks: OutputChunk[], moduleDependencyMap: ModuleDependencyMap): MergeChunksWithAmbientDependenciesResult {
+	const ambientModules = new Set<string>();
 	const chunkLength = chunks.length;
 	const mergedChunks: MergedChunk[] = Array(chunkLength);
 
@@ -21,6 +27,21 @@ export function mergeChunksWithAmbientDependencies(chunks: OutputChunk[], module
 			isEntry: chunk.isEntry,
 			modules
 		};
+	}
+
+	const allRollupChunkModules = new Set<string>();
+	for (const chunk of mergedChunks)  {
+		for (const module of chunk.modules) {
+			allRollupChunkModules.add(module);
+		}
+	}
+
+	for (const modules of moduleDependencyMap.values())  {
+		for (const module of modules) {
+			if (!allRollupChunkModules.has(module)) {
+				ambientModules.add(module);
+			}
+		}
 	}
 
 	for (const [entry, moduleDependencies] of moduleDependencyMap.entries()) {
@@ -55,13 +76,21 @@ export function mergeChunksWithAmbientDependencies(chunks: OutputChunk[], module
 			module => module === replacementElement || (module !== entry && !filteredModuleDependencies.has(module))
 		);
 
+		const extraModules = [
+			...filteredModuleDependencies,
+			...(filteredModuleDependencies.has(entry) ? [] : [entry])
+		];
+
 		replacedModules.splice(
 			replacedModules.indexOf(replacementElement),
 			1,
-			...filteredModuleDependencies,
-			...(filteredModuleDependencies.has(entry) ? [] : [entry])
+			...extraModules
 		);
 		mergedChunks[entryChunkIndex].modules = replacedModules;
 	}
-	return mergedChunks;
+
+	return {
+		mergedChunks,
+		ambientModules
+	};
 }

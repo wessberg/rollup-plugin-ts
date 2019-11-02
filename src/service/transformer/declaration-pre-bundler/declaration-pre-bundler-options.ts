@@ -1,8 +1,5 @@
-import {Node, Printer, TypeChecker} from "typescript";
-import {Resolver} from "../../../util/resolve-id/resolver";
-import {SupportedExtensions} from "../../../util/get-supported-extensions/get-supported-extensions";
-import {TypescriptPluginOptions} from "../../../plugin/i-typescript-plugin-options";
-import {NodeIdentifierCache} from "../declaration-bundler/util/get-identifiers-for-node";
+import {Node, TypeChecker} from "typescript";
+import {DeclarationOptions} from "../declaration/declaration-options";
 
 /**
  * A Set of generated variable names
@@ -21,7 +18,9 @@ export type SourceFileToGeneratedVariableNameSet = Map<string, GeneratedVariable
  */
 export interface LocalSymbol {
 	// The original module hosting the symbol. If it couldn't be resolved, it will be undefined
-	originalModule: string | undefined;
+	originalModule: string|undefined;
+	// Some local symbols may be renamed to avoid conflicts with other symbols inside generated chunks
+	deconflictedName: string|undefined;
 }
 
 /**
@@ -38,7 +37,7 @@ export interface ImportedSymbolBase {
 	name: string;
 
 	// The original module hosting the symbol. If it couldn't be resolved, it will be undefined
-	originalModule: string | undefined;
+	originalModule: string;
 
 	// The original Node, such as the original ImportSpecifier or Identifier
 	node: Node;
@@ -46,14 +45,14 @@ export interface ImportedSymbolBase {
 
 export interface NamedImportedSymbol extends ImportedSymbolBase {
 	defaultImport: boolean;
-	propertyName: string | undefined;
+	propertyName: string|undefined;
 }
 
 export interface NamespaceImportedSymbol extends ImportedSymbolBase {
 	namespaceImport: true;
 }
 
-export type ImportedSymbol = NamedImportedSymbol | NamespaceImportedSymbol;
+export type ImportedSymbol = NamedImportedSymbol|NamespaceImportedSymbol;
 
 /**
  * A Map between imported symbols and data about them
@@ -67,7 +66,7 @@ export type SourceFileToImportedSymbolSet = Map<string, ImportedSymbolSet>;
 
 export interface ExportedSymbolBase {
 	// The original module hosting the symbol. If it couldn't be resolved, it will be undefined
-	originalModule: string | undefined;
+	originalModule: string;
 
 	// The original Node that was exported
 	node: Node;
@@ -76,14 +75,14 @@ export interface ExportedSymbolBase {
 export interface NamedExportedSymbol extends ExportedSymbolBase {
 	name: string;
 	defaultExport: boolean;
-	propertyName: string | undefined;
+	propertyName: string|undefined;
 }
 
 export interface NamespaceExportedSymbol extends ExportedSymbolBase {
 	namespaceExport: true;
 }
 
-export type ExportedSymbol = NamedExportedSymbol | NamespaceExportedSymbol;
+export type ExportedSymbol = NamedExportedSymbol|NamespaceExportedSymbol;
 
 /**
  * A Set of exported symbols and data about them
@@ -95,26 +94,7 @@ export type ExportedSymbolSet = Set<ExportedSymbol>;
  */
 export type SourceFileToExportedSymbolSet = Map<string, ExportedSymbolSet>;
 
-export interface DeclarationPreBundlerOptions {
-	printer: Printer;
-	resolver: Resolver;
-
-	// A cache between nodes and the identifier names for them
-	nodeIdentifierCache: NodeIdentifierCache;
-
-	pluginOptions: TypescriptPluginOptions;
-	usedExports: Set<string>;
+export interface DeclarationPreBundlerOptions extends DeclarationOptions {
 	typeChecker: TypeChecker;
-	supportedExtensions: SupportedExtensions;
-	localModuleNames: string[];
-	relativeOutFileName: string;
-	absoluteOutFileName: string;
-	entryFileNames: string[];
-	chunkToOriginalFileMap: Map<string, string[]>;
-
-	// When deconflicting nodes, their identifiers may change.
-	// From inside another module they might be imported under their original name.
-	// This map keeps track of renamed identifiers such that imports can be rewritten too (as well as all usage from within foreign modules)
-	updatedIdentifierNamesForModuleMap: Map<string, Map<string, string>>;
-	updatedIdentifierNamesForModuleMapReversed: Map<string, Map<string, string>>;
+	generateUniqueVariableName (candidate: string, sourceFileName: string): string;
 }

@@ -1,16 +1,5 @@
-import {
-	isImportClause,
-	isImportDeclaration,
-	isImportSpecifier,
-	isImportTypeNode,
-	isNamespaceImport,
-	Node,
-	SourceFile,
-	TransformerFactory,
-	updateSourceFileNode,
-	visitEachChild
-} from "typescript";
-import {DeclarationPreBundlerOptions, ImportedSymbol, SourceFileToImportedSymbolSet} from "../declaration-pre-bundler-options";
+import {isImportClause, isImportDeclaration, isImportSpecifier, isImportTypeNode, isNamespaceImport, Node, SourceFile, TransformerFactory, updateSourceFileNode, visitEachChild} from "typescript";
+import {DeclarationPreBundlerOptions, ImportedSymbol} from "../declaration-pre-bundler-options";
 import {normalize} from "path";
 import {visitImportTypeNode} from "./visitor/visit-import-type-node";
 import {visitImportClause} from "./visitor/visit-import-clause";
@@ -23,8 +12,7 @@ import {visitImportDeclaration} from "./visitor/visit-import-declaration";
  * least to understand the dependencies across modules
  * @param {DeclarationPreBundlerOptions} options
  */
-export function trackImports(options: DeclarationPreBundlerOptions): TransformerFactory<SourceFile> {
-	const sourceFileToImportedSymbolSet: SourceFileToImportedSymbolSet = new Map();
+export function trackImports (options: DeclarationPreBundlerOptions): TransformerFactory<SourceFile> {
 
 	return context => {
 		return sourceFile => {
@@ -38,11 +26,11 @@ export function trackImports(options: DeclarationPreBundlerOptions): Transformer
 				console.log(options.printer.printFile(sourceFile));
 			}
 
-			let importedSymbolSet = sourceFileToImportedSymbolSet.get(sourceFileName);
+			let importedSymbolSet = options.sourceFileToImportedSymbolSet.get(sourceFileName);
 
 			if (importedSymbolSet == null) {
 				importedSymbolSet = new Set();
-				sourceFileToImportedSymbolSet.set(sourceFileName, importedSymbolSet);
+				options.sourceFileToImportedSymbolSet.set(sourceFileName, importedSymbolSet);
 			}
 
 			// Prepare some VisitorOptions
@@ -50,13 +38,13 @@ export function trackImports(options: DeclarationPreBundlerOptions): Transformer
 				...options,
 				sourceFile,
 				isEntry: options.entryFileNames.includes(sourceFileName),
-				childContinuation: <U extends Node>(node: U): U | undefined => {
+				childContinuation: <U extends Node> (node: U): U|undefined => {
 					return visitEachChild(node, visitor, context);
 				},
-				continuation: <U extends Node>(node: U): U | undefined => {
-					return visitor(node) as U | undefined;
+				continuation: <U extends Node> (node: U): U|undefined => {
+					return visitor(node) as U|undefined;
 				},
-				markAsImported(importedSymbol: ImportedSymbol): void {
+				markAsImported (importedSymbol: ImportedSymbol): void {
 					importedSymbolSet!.add(importedSymbol);
 				}
 			};
@@ -66,7 +54,7 @@ export function trackImports(options: DeclarationPreBundlerOptions): Transformer
 			 * @param {Node} node
 			 * @returns {Node | undefined}
 			 */
-			function visitor(node: Node): Node | Node[] | undefined {
+			function visitor (node: Node): Node|Node[]|undefined {
 				if (isImportTypeNode(node)) return visitImportTypeNode({node, ...visitorOptions});
 				else if (isImportDeclaration(node)) return visitImportDeclaration({node, ...visitorOptions});
 				else if (isImportClause(node)) return visitImportClause({node, ...visitorOptions});
@@ -80,7 +68,6 @@ export function trackImports(options: DeclarationPreBundlerOptions): Transformer
 			if (options.pluginOptions.debug) {
 				console.log(`=== AFTER TRACKING IMPORTS === (${sourceFileName})`);
 				console.log(options.printer.printFile(updatedSourceFile));
-				console.log({importedSymbolSet});
 			}
 
 			return updatedSourceFile;

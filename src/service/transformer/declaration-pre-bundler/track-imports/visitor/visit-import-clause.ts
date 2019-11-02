@@ -15,12 +15,13 @@ export function visitImportClause({
 }: TrackImportsVisitorOptions<ImportClause>): ImportClause | undefined {
 	const moduleSpecifier = node.parent == null ? undefined : node.parent.moduleSpecifier;
 
+	const originalModule = moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? sourceFile.fileName : resolver(moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName;
+
 	// If the ImportClause has a name, that will be the local binding of the default export of the module being imported.
 	if (node.name != null) {
 		markAsImported({
 			node: node.name,
-			originalModule:
-				moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? sourceFile.fileName : resolver(moduleSpecifier.text, sourceFile.fileName),
+			originalModule,
 			defaultImport: true,
 			name: node.name.text,
 			propertyName: undefined

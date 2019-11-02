@@ -1,24 +1,6 @@
-import {
-	createExportDeclaration,
-	createNamedExports,
-	isImportClause,
-	isImportDeclaration,
-	isImportSpecifier,
-	isNamedImports,
-	isNamespaceImport,
-	isVariableDeclaration,
-	isVariableDeclarationList,
-	isVariableStatement,
-	Node,
-	SourceFile,
-	TransformerFactory,
-	updateSourceFileNode,
-	visitEachChild
-} from "typescript";
+import {isImportClause, isImportDeclaration, isImportSpecifier, isNamedImports, isNamespaceImport, isVariableDeclaration, isVariableDeclarationList, isVariableStatement, Node, SourceFile, TransformerFactory, updateSourceFileNode, visitEachChild} from "typescript";
 import {DeclarationBundlerOptions} from "../declaration-bundler-options";
 import {isReferenced} from "../reference/is-referenced/is-referenced";
-import {mergeImports} from "../util/merge-imports/merge-imports";
-import {mergeExports} from "../util/merge-exports/merge-exports";
 import {normalize} from "path";
 import {visitImportDeclaration} from "./visitor/visit-import-declaration";
 import {visitVariableStatement} from "./visitor/visit-variable-statement";
@@ -30,25 +12,32 @@ import {visitNamedImports} from "./visitor/visit-named-imports";
 import {visitNamespaceImport} from "./visitor/visit-namespace-import";
 import {hasExportModifier} from "../../declaration-pre-bundler/util/modifier/modifier-util";
 
-export function treeShaker({declarationFilename, ...options}: DeclarationBundlerOptions): TransformerFactory<SourceFile> {
+export function treeShaker ({declarationFilename, ...options}: DeclarationBundlerOptions): TransformerFactory<SourceFile> {
 	return context => {
 		return sourceFile => {
+			const sourceFileName = normalize(sourceFile.fileName);
+
 			// If the SourceFile is not part of the local module names, remove all statements from it and return immediately
-			if (normalize(sourceFile.fileName) !== normalize(declarationFilename)) return updateSourceFileNode(sourceFile, [], true);
+			if (sourceFileName !== normalize(declarationFilename)) return updateSourceFileNode(sourceFile, [], true);
+
+			if (options.pluginOptions.debug) {
+				console.log(`=== BEFORE TREE-SHAKING === (${sourceFileName})`);
+				console.log(options.printer.printFile(sourceFile));
+			}
 
 			// Prepare some VisitorOptions
 			const visitorOptions = {
 				...options,
 				sourceFile,
-				isReferenced: <U extends Node>(node: U): boolean => {
+				isReferenced: <U extends Node> (node: U): boolean => {
 					return isReferenced({...visitorOptions, node});
 				},
-				continuation: <U extends Node>(node: U): U | undefined => {
+				continuation: <U extends Node> (node: U): U|undefined => {
 					return visitEachChild(node, visitor, context);
 				}
 			};
 
-			function visitor(node: Node): Node | undefined {
+			function visitor (node: Node): Node|undefined {
 				if (hasExportModifier(node)) return node;
 				else if (isVariableStatement(node)) {
 					return visitVariableStatement({node, ...visitorOptions});
@@ -74,20 +63,13 @@ export function treeShaker({declarationFilename, ...options}: DeclarationBundler
 			}
 
 			const updatedSourceFile = visitEachChild(sourceFile, visitor, context);
-			const mergedStatements = mergeExports(mergeImports([...updatedSourceFile.statements]));
 
-			return updateSourceFileNode(
-				updatedSourceFile,
-				mergedStatements.length < 1
-					? // Create an 'export {}' declaration to mark the declaration file as module-based
-					  [createExportDeclaration(undefined, undefined, createNamedExports([]))]
-					: mergedStatements,
-				updatedSourceFile.isDeclarationFile,
-				updatedSourceFile.referencedFiles,
-				updatedSourceFile.typeReferenceDirectives,
-				updatedSourceFile.hasNoDefaultLib,
-				updatedSourceFile.libReferenceDirectives
-			);
+			if (options.pluginOptions.debug) {
+				console.log(`=== AFTER TREE-SHAKING === (${sourceFileName})`);
+				console.log(options.printer.printFile(updatedSourceFile));
+			}
+
+			return updatedSourceFile;
 		};
 	};
 }

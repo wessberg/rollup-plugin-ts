@@ -15,10 +15,11 @@ export function visitImportSpecifier({
 	const moduleSpecifier =
 		node.parent == null || node.parent.parent == null || node.parent.parent.parent == null ? undefined : node.parent.parent.parent.moduleSpecifier;
 
+	const originalModule = moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? sourceFile.fileName : resolver(moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName;
+
 	markAsImported({
 		node,
-		originalModule:
-			moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? sourceFile.fileName : resolver(moduleSpecifier.text, sourceFile.fileName),
+		originalModule,
 		defaultImport: false,
 		name: node.name.text,
 		propertyName: node.propertyName == null ? undefined : node.propertyName.text

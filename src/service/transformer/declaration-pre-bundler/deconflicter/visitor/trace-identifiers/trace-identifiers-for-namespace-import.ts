@@ -15,6 +15,7 @@ export function traceIdentifiersForNamespaceImport({
 
 	if (node.name != null) {
 		addIdentifier(node.name.text, {
+			deconflictedName: undefined,
 			originalModule:
 				moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? sourceFile.fileName : resolver(moduleSpecifier.text, sourceFile.fileName)
 		});

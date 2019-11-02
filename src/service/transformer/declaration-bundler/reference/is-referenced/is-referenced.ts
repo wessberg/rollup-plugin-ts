@@ -1,21 +1,4 @@
-import {
-	forEachChild,
-	isClassDeclaration,
-	isClassExpression,
-	isEnumDeclaration,
-	isExportAssignment,
-	isExportDeclaration,
-	isExportSpecifier,
-	isFunctionDeclaration,
-	isFunctionExpression,
-	isIdentifier,
-	isImportSpecifier,
-	isInterfaceDeclaration,
-	isModuleDeclaration,
-	isTypeAliasDeclaration,
-	isVariableDeclaration,
-	Node
-} from "typescript";
+import {forEachChild, isClassDeclaration, isClassExpression, isEnumDeclaration, isExportAssignment, isExportDeclaration, isExportSpecifier, isFunctionDeclaration, isFunctionExpression, isIdentifier, isImportSpecifier, isInterfaceDeclaration, isModuleDeclaration, isTypeAliasDeclaration, isVariableDeclaration, Node} from "typescript";
 import {IsReferencedOptions} from "./is-referenced-options";
 import {nodeContainsChild} from "../../util/node-contains-child";
 import {getIdentifiersForNode} from "../../util/get-identifiers-for-node";
@@ -40,7 +23,7 @@ import {hasExportModifier} from "../../../declaration-pre-bundler/util/modifier/
  * @param {Node} currentNode
  * @return {boolean}
  */
-function checkNode({node, originalNode, ...rest}: ReferenceVisitorOptions): boolean {
+function checkNode ({node, originalNode, ...rest}: ReferenceVisitorOptions): boolean {
 	if (node === originalNode || nodeContainsChild(originalNode, node)) return false;
 
 	if (isClassDeclaration(node)) {
@@ -72,15 +55,14 @@ function checkNode({node, originalNode, ...rest}: ReferenceVisitorOptions): bool
 
 /**
  * Visits the given node. Returns true if it references the node to check for references, and false otherwise
- * @param {Node} currentNode
- * @param {VisitorOptions} options
+ * @param {ReferenceVisitorOptions} options
  * @return {Node?}
  */
-function visitNode(currentNode: Node, options: ReferenceVisitorOptions): void {
-	if (options.node === currentNode || nodeContainsChild(options.node, currentNode)) return;
+function visitNode ({node, originalNode, ...rest}: ReferenceVisitorOptions): void {
+	if (node === originalNode || nodeContainsChild(originalNode, node)) return;
 
-	if (isAmbientModuleRootLevelNode(currentNode) && options.childContinuation(currentNode)) {
-		options.referencingNodes.add(currentNode);
+	if (isAmbientModuleRootLevelNode(node) && rest.continuation(node)) {
+		rest.referencingNodes.add(node);
 	}
 }
 
@@ -89,7 +71,7 @@ function visitNode(currentNode: Node, options: ReferenceVisitorOptions): void {
  * @param {IsReferencedOptions} opts
  * @return {Node[]}
  */
-export function isReferenced<T extends Node>({seenNodes = new Set(), ...options}: IsReferencedOptions<T>): boolean {
+export function isReferenced<T extends Node> ({seenNodes = new Set(), ...options}: IsReferencedOptions<T>): boolean {
 	// Exports are always referenced and should never be removed
 	if (
 		isExportDeclaration(options.node) ||
@@ -134,7 +116,7 @@ export function isReferenced<T extends Node>({seenNodes = new Set(), ...options}
 	return result;
 }
 
-function collectReferences<T extends Node>(options: IsReferencedOptions<T>, identifiers: LocalSymbolMap): Node[] {
+function collectReferences<T extends Node> (options: IsReferencedOptions<T>, identifiers: LocalSymbolMap): Node[] {
 	const visitorOptions = {
 		...options,
 		referencingNodes: new Set<Node>(),
@@ -147,7 +129,6 @@ function collectReferences<T extends Node>(options: IsReferencedOptions<T>, iden
 		continuation: (node: Node): boolean => checkNode({...visitorOptions, node})
 	};
 
-	const sourceFile = options.node.getSourceFile();
-	forEachChild<void>(sourceFile, node => visitNode(node, visitorOptions));
+	forEachChild<void>(options.sourceFile, node => visitNode({...visitorOptions, node}));
 	return [...visitorOptions.referencingNodes];
 }

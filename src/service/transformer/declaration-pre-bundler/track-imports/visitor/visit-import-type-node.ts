@@ -1,8 +1,9 @@
 import {createIdentifier, createQualifiedName, EntityName, ImportTypeNode, isIdentifier, isLiteralTypeNode, isStringLiteralLike} from "typescript";
 import {TrackImportsVisitorOptions} from "../track-imports-visitor-options";
 import {getIdentifiersForNode} from "../../../declaration-bundler/util/get-identifiers-for-node";
-
-console.warn(`You must implement namespace name in visitImportTypeNode!`);
+import {pascalCase} from "@wessberg/stringutil";
+import {stripKnownExtension} from "../../../../../util/path/path-util";
+import { basename } from 'path';
 
 /**
  * Visits the given ImportTypeNode.
@@ -14,17 +15,19 @@ export function visitImportTypeNode({
 	sourceFile,
 	resolver,
 	markAsImported,
-	nodeIdentifierCache
+	nodeIdentifierCache,
+	generateUniqueVariableName
 }: TrackImportsVisitorOptions<ImportTypeNode>): EntityName | ImportTypeNode | undefined {
 	if (!isLiteralTypeNode(node.argument) || !isStringLiteralLike(node.argument.literal)) return node;
 	const specifier = node.argument.literal;
 	const qualifier = node.qualifier;
 
-	const originalModule = specifier == null || !isStringLiteralLike(specifier) ? sourceFile.fileName : resolver(specifier.text, sourceFile.fileName);
+	const originalModule = specifier == null || !isStringLiteralLike(specifier) ? sourceFile.fileName : resolver(specifier.text, sourceFile.fileName) ?? sourceFile.fileName;
 
 	// If the node has no qualifier, it imports the entire module as a namespace.
 	// Generate a name for it
-	const namespaceName = ""; // TODO: Generate name!
+	const namespaceName = generateUniqueVariableName(`${pascalCase(stripKnownExtension(basename(originalModule)))}NS`, originalModule);
+
 	if (qualifier == null) {
 		markAsImported({
 			node,

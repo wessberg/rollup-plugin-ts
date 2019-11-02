@@ -6,7 +6,6 @@ import {IncrementalLanguageService} from "../service/language-service/incrementa
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
 import {IEmitCache} from "../service/cache/emit-cache/i-emit-cache";
 import {EmitCache} from "../service/cache/emit-cache/emit-cache";
-import {emitDeclarations} from "../util/emit-declarations/emit-declarations";
 import {emitDiagnosticsThroughRollup} from "../util/diagnostic/emit-diagnostics-through-rollup";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
 import {ensureRelative, getExtension, isBabelHelper, isRollupPluginMultiEntry, isTslib} from "../util/path/path-util";
@@ -20,7 +19,7 @@ import {getForcedBabelOptions} from "../util/get-forced-babel-options/get-forced
 import {getBrowserslist} from "../util/get-browserslist/get-browserslist";
 import {IResolveCache} from "../service/cache/resolve-cache/i-resolve-cache";
 import {ResolveCache} from "../service/cache/resolve-cache/resolve-cache";
-import {REGENERATOR_RUNTIME_NAME_1, REGENERATOR_RUNTIME_NAME_2, ROLLUP_PLUGIN_MULTI_ENTRY} from "../constant/constant";
+import {REGENERATOR_RUNTIME_NAME_1, REGENERATOR_RUNTIME_NAME_2} from "../constant/constant";
 import {REGENERATOR_SOURCE} from "../lib/regenerator/regenerator";
 import {getDefaultBabelOptions} from "../util/get-default-babel-options/get-default-babel-options";
 // @ts-ignore
@@ -30,17 +29,12 @@ import {createFilter} from "rollup-pluginutils";
 import {resolveId} from "../util/resolve-id/resolve-id";
 import {mergeTransformers} from "../util/merge-transformers/merge-transformers";
 import {ensureArray} from "../util/ensure-array/ensure-array";
-import {isOutputChunk} from "../util/is-output-chunk/is-output-chunk";
-import {getDeclarationOutDir} from "../util/get-declaration-out-dir/get-declaration-out-dir";
-import {getOutDir} from "../util/get-out-dir/get-out-dir";
 import {GetParsedCommandLineResult} from "../util/get-parsed-command-line/get-parsed-command-line-result";
 import {takeBrowserslistOrComputeBasedOnCompilerOptions} from "../util/take-browserslist-or-compute-based-on-compiler-options/take-browserslist-or-compute-based-on-compiler-options";
 import {matchAll} from "@wessberg/stringutil";
-import {join} from "path";
 import {Resolver} from "../util/resolve-id/resolver";
-import {mergeChunksWithAmbientDependencies} from "../util/chunk/merge-chunks-with-ambient-dependencies";
-import {getChunkToOriginalFileMap} from "../util/chunk/get-chunk-to-original-file-map";
 import {getModuleDependencies, ModuleDependencyMap} from "../util/module/get-module-dependencies";
+import {emitDeclarations} from "../declaration/emit-declarations";
 
 /**
  * The name of the Rollup plugin
@@ -52,7 +46,7 @@ const PLUGIN_NAME = "Typescript";
  * A Rollup plugin that transpiles the given input with Typescript
  * @param {TypescriptPluginOptions} [pluginInputOptions={}]
  */
-export default function typescriptRollupPlugin(pluginInputOptions: Partial<TypescriptPluginOptions> = {}): Plugin {
+export default function typescriptRollupPlugin (pluginInputOptions: Partial<TypescriptPluginOptions> = {}): Plugin {
 	const pluginOptions: TypescriptPluginOptions = getPluginOptions(pluginInputOptions);
 	const {include, exclude, tsconfig, cwd, browserslist} = pluginOptions;
 	const transformers = pluginOptions.transformers == null ? [] : ensureArray(pluginOptions.transformers);
@@ -69,13 +63,13 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	 * The config to use with Babel, if Babel should transpile source code
 	 * @type {IBabelConfig}
 	 */
-	let babelConfig: ((filename: string) => IBabelConfig) | undefined;
+	let babelConfig: ((filename: string) => IBabelConfig)|undefined;
 
 	/**
 	 * If babel is to be used, and if one or more minify presets/plugins has been passed, this config will be used
 	 * @type {boolean}
 	 */
-	let babelMinifyConfig: ((filename: string) => IBabelConfig) | undefined;
+	let babelMinifyConfig: ((filename: string) => IBabelConfig)|undefined;
 
 	/**
 	 * If babel is to be used, and if one or more minify presets/plugins has been passed, this will be true
@@ -162,7 +156,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	 * A Set of the entry filenames for when using rollup-plugin-multi-entry (we need to track this for generating valid declarations)
 	 * @type {Set<string>?}
 	 */
-	let MULTI_ENTRY_FILE_NAMES: Set<string> | undefined;
+	let MULTI_ENTRY_FILE_NAMES: Set<string>|undefined;
 
 	/**
 	 * Returns true if Typescript can emit something for the given file
@@ -179,7 +173,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * Invoked when Input options has been received by Rollup
 		 * @param {InputOptions} options
 		 */
-		options(options: InputOptions): undefined {
+		options (options: InputOptions): undefined {
 			// Break if we've already received options
 			if (rollupInputOptions != null) return;
 
@@ -274,7 +268,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * @param {RenderedChunk} chunk
 		 * @returns {Promise<{ code: string, map: SourceMap } | null>}
 		 */
-		async renderChunk(this: PluginContext, code: string, chunk: RenderedChunk): Promise<{code: string; map: SourceMap} | null> {
+		async renderChunk (this: PluginContext, code: string, chunk: RenderedChunk): Promise<{ code: string; map: SourceMap }|null> {
 			// Don't proceed if there is no minification config
 			if (!hasBabelMinifyOptions || babelMinifyConfig == null) return null;
 
@@ -297,7 +291,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * @param {string} file
 		 * @returns {Promise<TransformSourceDescription?>}
 		 */
-		async transform(this: PluginContext, code: string, file: string): Promise<TransformSourceDescription | undefined> {
+		async transform (this: PluginContext, code: string, file: string): Promise<TransformSourceDescription|undefined> {
 			// If this file represents ROLLUP_PLUGIN_MULTI_ENTRY, we need to parse its' contents to understand which files it aliases.
 			// Following that, there's nothing more to do
 			if (isRollupPluginMultiEntry(file)) {
@@ -317,31 +311,31 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 					? {code, map: undefined}
 					: undefined
 				: (() => {
-						if (transformedFiles.has(file)) {
-							// Remove the file from the resolve cache, now that it has changed.
-							resolveCache.delete(file);
-							moduleDependencyCache.delete(file);
-						}
+					if (transformedFiles.has(file)) {
+						// Remove the file from the resolve cache, now that it has changed.
+						resolveCache.delete(file);
+						moduleDependencyCache.delete(file);
+					}
 
-						// Add the file to the LanguageServiceHost
-						languageServiceHost.addFile({file, code});
-						moduleDependencyMap.set(
+					// Add the file to the LanguageServiceHost
+					languageServiceHost.addFile({file, code});
+					moduleDependencyMap.set(
+						file,
+						getModuleDependencies({
+							resolver: ambientResolver,
+							languageServiceHost,
 							file,
-							getModuleDependencies({
-								resolver: ambientResolver,
-								languageServiceHost,
-								file,
-								supportedExtensions: SUPPORTED_EXTENSIONS,
-								cache: moduleDependencyCache
-							})
-						);
+							supportedExtensions: SUPPORTED_EXTENSIONS,
+							cache: moduleDependencyCache
+						})
+					);
 
-						// Get some EmitOutput, optionally from the cache if the file contents are unchanged
-						const emitOutput = emitCache.get({fileName: file, languageService});
+					// Get some EmitOutput, optionally from the cache if the file contents are unchanged
+					const emitOutput = emitCache.get({fileName: file, languageService});
 
-						// Return the emit output results to Rollup
-						return getSourceDescriptionFromEmitOutput(emitOutput);
-				  })();
+					// Return the emit output results to Rollup
+					return getSourceDescriptionFromEmitOutput(emitOutput);
+				})();
 
 			// If nothing was emitted, simply return undefined
 			if (sourceDescription == null) {
@@ -377,7 +371,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * @param {string} parent
 		 * @returns {string | null}
 		 */
-		resolveId(this: PluginContext, id: string, parent: string | undefined): string | null {
+		resolveId (this: PluginContext, id: string, parent: string|undefined): string|null {
 			// Don't proceed if there is no parent (in which case this is an entry module)
 			if (parent == null) return null;
 
@@ -408,7 +402,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * @param {string} id
 		 * @returns {string | null}
 		 */
-		load(this: PluginContext, id: string): string | null {
+		load (this: PluginContext, id: string): string|null {
 			// Return the alternative source for the regenerator runtime if that file is attempted to be loaded
 			if (id.endsWith(REGENERATOR_RUNTIME_NAME_1) || id.endsWith(REGENERATOR_RUNTIME_NAME_2)) {
 				return REGENERATOR_SOURCE;
@@ -423,7 +417,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * @param {OutputBundle} bundle
 		 * @returns {void | Promise<void>}
 		 */
-		generateBundle(this: PluginContext, outputOptions: OutputOptions, bundle: OutputBundle): void {
+		generateBundle (this: PluginContext, outputOptions: OutputOptions, bundle: OutputBundle): void {
 			// Only emit diagnostics if the plugin options allow it
 			if (!Boolean(pluginOptions.transpileOnly)) {
 				// Emit all reported diagnostics
@@ -432,50 +426,20 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 			// Emit declaration files if required
 			if (Boolean(parsedCommandLineResult.parsedCommandLine.options.declaration)) {
-				const chunks = Object.values(bundle).filter(isOutputChunk);
-
-				const declarationOutDir = join(cwd, getDeclarationOutDir(cwd, parsedCommandLineResult.parsedCommandLine.options, outputOptions));
-				const outDir = join(cwd, getOutDir(cwd, outputOptions));
-				const generateMap = Boolean(parsedCommandLineResult.parsedCommandLine.options.declarationMap);
-				const mergedChunks = mergeChunksWithAmbientDependencies(chunks, moduleDependencyMap);
-				const chunkToOriginalFileMap = getChunkToOriginalFileMap(outDir, mergedChunks);
-
-				mergedChunks.forEach(chunk => {
-					const rawLocalModuleNames = chunk.modules;
-					const localModuleNames = rawLocalModuleNames.filter(canEmitForFile);
-					const rawEntryFileName = rawLocalModuleNames.slice(-1)[0];
-					let entryFileNames = [localModuleNames.slice(-1)[0]];
-
-					// If the entry filename is equal to the ROLLUP_PLUGIN_MULTI_ENTRY constant,
-					// the entry is a combination of one or more of the local module names.
-					// Luckily we should know this by now after having parsed the contents in the transform hook
-					if (rawEntryFileName === ROLLUP_PLUGIN_MULTI_ENTRY && MULTI_ENTRY_FILE_NAMES != null) {
-						// Reassign the entry file names accordingly
-						entryFileNames = [...MULTI_ENTRY_FILE_NAMES];
-					}
-
-					// Don't emit declarations when there is no compatible entry file
-					if (entryFileNames.length < 1 || entryFileNames.some(entryFileName => entryFileName == null)) return;
-
-					emitDeclarations({
-						resolver: ambientResolver,
-						chunk,
-						generateMap,
-						declarationOutDir,
-						outDir,
-						cwd,
-						outputOptions,
-						pluginOptions,
-						languageService,
-						languageServiceHost,
-						emitCache,
-						chunkToOriginalFileMap,
-						localModuleNames,
-						entryFileNames,
-						pluginContext: this,
-						supportedExtensions: SUPPORTED_EXTENSIONS,
-						fileSystem: pluginOptions.fileSystem
-					});
+				emitDeclarations({
+					bundle,
+					pluginContext: this,
+					supportedExtensions: SUPPORTED_EXTENSIONS,
+					fileSystem: pluginOptions.fileSystem,
+					resolver: ambientResolver,
+					cwd,
+					outputOptions,
+					pluginOptions,
+					languageServiceHost,
+					compilerOptions: parsedCommandLineResult.parsedCommandLine.options,
+					multiEntryFileNames: MULTI_ENTRY_FILE_NAMES,
+					canEmitForFile,
+					moduleDependencyMap
 				});
 			}
 

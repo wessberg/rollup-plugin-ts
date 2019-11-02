@@ -15,6 +15,7 @@ export function traceIdentifiersForImportSpecifier({
 		node.parent == null || node.parent.parent == null || node.parent.parent.parent == null ? undefined : node.parent.parent.parent.moduleSpecifier;
 
 	addIdentifier(node.name.text, {
+		deconflictedName: undefined,
 		originalModule:
 			moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? sourceFile.fileName : resolver(moduleSpecifier.text, sourceFile.fileName)
 	});

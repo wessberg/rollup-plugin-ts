@@ -56,7 +56,7 @@ test("Tree-shakes correctly. #2", async t => {
 	);
 });
 
-test("Tree-shakes correctly. #3", async t => {
+test.only("Tree-shakes correctly. #3", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -85,7 +85,7 @@ test("Tree-shakes correctly. #3", async t => {
 					}
 					`
 		}
-	]);
+	], {debug: true});
 	const {
 		declarations: [file]
 	} = bundle;
@@ -104,7 +104,7 @@ test("Tree-shakes correctly. #3", async t => {
 	);
 });
 
-test.only("Tree-shakes correctly. #4", async t => {
+test("Tree-shakes correctly. #4", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -129,7 +129,8 @@ test.only("Tree-shakes correctly. #4", async t => {
 					import {LogLevel} from "./log-level";
 
 					export class Logger {
-						constructor (private level: LogLevel) {}
+						constructor (private level: LogLevel) {
+						}
 					}
 					`
 			},
@@ -140,8 +141,7 @@ test.only("Tree-shakes correctly. #4", async t => {
 					export enum LogLevel {}
 					`
 			}
-		],
-		{debug: true}
+		]
 	);
 	const {declarations} = bundle;
 
@@ -151,4 +151,33 @@ test.only("Tree-shakes correctly. #4", async t => {
 	t.true(aFile != null);
 	t.true(bFile != null);
 	t.true(loggerFile != null);
+
+	t.deepEqual(
+		formatCode(aFile!.code),
+		formatCode(`\
+			declare enum LogLevel {
+			}
+			export { LogLevel };
+			export { Logger } from "./logger-8396bc98";
+		`)
+	);
+
+	t.deepEqual(
+		formatCode(bFile!.code),
+		formatCode(`\
+			export {};
+		`)
+	);
+
+	t.deepEqual(
+		formatCode(loggerFile!.code),
+		formatCode(`\
+			import { LogLevel } from "./a";
+			declare class Logger {
+					private level;
+					constructor(level: LogLevel);
+			}
+			export { Logger };
+		`)
+	);
 });
