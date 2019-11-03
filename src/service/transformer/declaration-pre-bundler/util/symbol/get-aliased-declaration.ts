@@ -1,4 +1,4 @@
-import {Declaration, Expression, Symbol, TypeChecker} from "typescript";
+import {Declaration, Expression, QualifiedName, Symbol, TypeChecker} from "typescript";
 
 /**
  * Gets the Declaration for the given Expression
@@ -6,7 +6,7 @@ import {Declaration, Expression, Symbol, TypeChecker} from "typescript";
  * @param {TypeChecker} typeChecker
  * @return {Declaration | undefined}
  */
-export function getAliasedDeclaration(node: Expression | Symbol | undefined, typeChecker: TypeChecker): Declaration | undefined {
+export function getAliasedDeclaration(node: Expression | Symbol | QualifiedName | undefined, typeChecker: TypeChecker): Declaration | undefined {
 	let symbol: Symbol | undefined;
 	try {
 		symbol = node == null ? undefined : "valueDeclaration" in node || "declarations" in node ? node : typeChecker.getSymbolAtLocation(node);

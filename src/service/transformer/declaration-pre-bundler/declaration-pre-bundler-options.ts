@@ -39,6 +39,11 @@ export interface ImportedSymbolBase {
 	// The original module hosting the symbol. If it couldn't be resolved, it will be undefined
 	originalModule: string;
 
+	// The raw module specifier with no modifications
+	rawModuleSpecifier: string|undefined;
+	// Whether or not the module is external
+	isExternal: boolean;
+
 	// The original Node, such as the original ImportSpecifier or Identifier
 	node: Node;
 }
@@ -67,6 +72,11 @@ export type SourceFileToImportedSymbolSet = Map<string, ImportedSymbolSet>;
 export interface ExportedSymbolBase {
 	// The original module hosting the symbol. If it couldn't be resolved, it will be undefined
 	originalModule: string;
+
+	// The raw module specifier with no modifications
+	rawModuleSpecifier: string|undefined;
+	// Whether or not the module is external
+	isExternal: boolean;
 
 	// The original Node that was exported
 	node: Node;

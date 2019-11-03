@@ -13,6 +13,51 @@ export interface MergeChunksWithAmbientDependenciesResult {
 	ambientModules: Set<string>;
 }
 
+function getChunksWithModule (moduleName: string, chunks: Iterable<MergedChunk>): Set<MergedChunk> {
+	const chunksWithModule = new Set<MergedChunk>();
+	// Test how many chunks include the module
+	for (const chunk of chunks) {
+		if (chunk.modules.includes(moduleName)) {
+			chunksWithModule.add(chunk);
+		}
+	}
+
+	return chunksWithModule;
+}
+
+function splitAmbientModule (moduleName: string, chunks: Iterable<MergedChunk>): void {
+	const chunksWithModule = getChunksWithModule(moduleName, chunks);
+
+	// Not more than 1 chunk can contain the module.
+	// We'll have to move it over to another chunk that is common
+	// between the two, if there is any.
+	if (chunksWithModule.size > 1) {
+		for (const chunk of chunksWithModule) {
+			if (chunk.isEntry) {
+				chunk.modules.splice(chunk.modules.indexOf(moduleName), 1);
+				return splitAmbientModule(moduleName, chunks);
+			}
+		}
+	}
+}
+
+function splitAmbientModules (chunks: MergedChunk[], ambientModules: Set<string>) {
+	for (const chunk of chunks) {
+		for (const module of chunk.modules) {
+			if (ambientModules.has(module)) {
+				splitAmbientModule(module, chunks);
+				const chunksWithModule = getChunksWithModule(module, chunks);
+				if (chunksWithModule.size < 1) {
+					throw new RangeError(`Expected module: '${module}' to exist within a chunk, but was found under none`);
+				}
+				else if (chunksWithModule.size !== 1) {
+					throw new RangeError(`Expected module: '${module}' to exist within only chunk, but was found under chunks: ${[...chunksWithModule].map(c => `'${c.fileName}'`).join(",")}`);
+				}
+			}
+		}
+	}
+}
+
 export function mergeChunksWithAmbientDependencies(chunks: OutputChunk[], moduleDependencyMap: ModuleDependencyMap): MergeChunksWithAmbientDependenciesResult {
 	const ambientModules = new Set<string>();
 	const chunkLength = chunks.length;
@@ -28,6 +73,8 @@ export function mergeChunksWithAmbientDependencies(chunks: OutputChunk[], module
 			modules
 		};
 	}
+
+	// Find ambient chunks that will be placed inside of shared chunks
 
 	const allRollupChunkModules = new Set<string>();
 	for (const chunk of mergedChunks)  {
@@ -45,50 +92,17 @@ export function mergeChunksWithAmbientDependencies(chunks: OutputChunk[], module
 	}
 
 	for (const [entry, moduleDependencies] of moduleDependencyMap.entries()) {
-		// Find the chunk that contains the entry as a module
-		const entryChunkIndex = mergedChunks.findIndex(chunk => chunk.modules.includes(entry));
-		// If none of the chunks contains the entry, skip it
-		if (entryChunkIndex < 0) continue;
-		const entryChunk = mergedChunks[entryChunkIndex];
+		for (let i = 0; i < mergedChunks.length; i++) {
+			const chunk = mergedChunks[i];
+			const entryIndex = chunk.modules.indexOf(entry);
+			if (entryIndex < 0) continue;
 
-		// Otherwise, if any other chunk than the entry chunk contains any of the module dependencies, leave them out of the current chunk
-		const filteredModuleDependencies = new Set(
-			[...moduleDependencies].filter(dependency => !mergedChunks.some(chunk => chunk !== entryChunk && chunk.modules.includes(dependency)))
-		);
-
-		// Merge the modules with the ones that Rollup didn't catch
-		const entryIndex = entryChunk.modules.indexOf(entry);
-		if (entryIndex < 0) continue;
-
-		let smallestIndex = entryIndex;
-
-		// Other dependencies may already exist as part of the module and have lower indexes than the entry.
-		// So, update the candidate if there is one with a smaller index
-		for (const moduleDependency of filteredModuleDependencies) {
-			const currentIndex = entryChunk.modules.indexOf(moduleDependency);
-			if (currentIndex >= 0 && currentIndex < smallestIndex) {
-				smallestIndex = currentIndex;
+			for (const dependency of [...moduleDependencies].filter(moduleDependency => ambientModules.has(moduleDependency))) {
+				chunk.modules.splice(entryIndex, 0, dependency);
 			}
 		}
-
-		const replacementElement = entryChunk.modules[smallestIndex];
-		const replacedModules = entryChunk.modules.filter(
-			module => module === replacementElement || (module !== entry && !filteredModuleDependencies.has(module))
-		);
-
-		const extraModules = [
-			...filteredModuleDependencies,
-			...(filteredModuleDependencies.has(entry) ? [] : [entry])
-		];
-
-		replacedModules.splice(
-			replacedModules.indexOf(replacementElement),
-			1,
-			...extraModules
-		);
-		mergedChunks[entryChunkIndex].modules = replacedModules;
 	}
-
+	splitAmbientModules(mergedChunks, ambientModules);
 	return {
 		mergedChunks,
 		ambientModules

@@ -19,6 +19,8 @@ export function visitModuleDeclaration({
 		node,
 		defaultExport: hasDefaultExportModifier(node.modifiers),
 		originalModule: sourceFile.fileName,
+		rawModuleSpecifier: undefined,
+		isExternal: false,
 		name: node.name.text,
 		propertyName: undefined
 	});

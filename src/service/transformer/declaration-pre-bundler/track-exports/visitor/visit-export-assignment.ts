@@ -19,6 +19,8 @@ export function visitExportAssignment({
 			markAsExported({
 				node: declaration,
 				originalModule: sourceFile.fileName,
+				isExternal: false,
+				rawModuleSpecifier: undefined,
 				defaultExport: true,
 				name: node.expression.text,
 				propertyName: undefined

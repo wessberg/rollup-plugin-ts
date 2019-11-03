@@ -3,7 +3,7 @@ import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 // tslint:disable:no-duplicate-string
 
-test("Deconflicts symbols. #1", async t => {
+test.only("Deconflicts symbols. #1", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -20,7 +20,7 @@ test("Deconflicts symbols. #1", async t => {
 					export class Foo {}
 					`
 		}
-	]);
+	], {debug: true});
 	const {
 		declarations: [file]
 	} = bundle;

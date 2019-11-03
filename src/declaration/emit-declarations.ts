@@ -67,7 +67,7 @@ export function emitDeclarations (options: EmitDeclarationsOptions) {
 		sourceFileToLocalSymbolMap
 	};
 
-	for (const pass of ["first", "second"] as const) {
+	for (const pass of [1, 2] as const) {
 		for (const chunk of mergeChunksResult.mergedChunks) {
 			// Prepare file names
 			const relativeChunkFileName = normalize(chunk.fileName);
@@ -146,13 +146,13 @@ export function emitDeclarations (options: EmitDeclarationsOptions) {
 			};
 
 			switch (pass) {
-				case "first":
+				case 1:
 					chunkToPreBundleResult.set(
 						absoluteChunkFileName,
 						preBundleDeclarationsForChunk(baseOptions)
 					);
 					break;
-				case "second": {
+				case 2: {
 					const bundleResult = bundleDeclarationsForChunk({
 						...baseOptions,
 						preBundleResult: ensureDefined(

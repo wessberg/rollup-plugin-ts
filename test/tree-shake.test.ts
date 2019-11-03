@@ -21,7 +21,8 @@ test("Tree-shakes correctly. #1", async t => {
 		formatCode(file.code),
 		formatCode(`\
 		import {SyntaxKind} from "typescript";
-		export declare type Baz = SyntaxKind;
+		declare type Baz = SyntaxKind;
+		export {Baz};
 		`)
 	);
 });
@@ -56,7 +57,7 @@ test("Tree-shakes correctly. #2", async t => {
 	);
 });
 
-test.only("Tree-shakes correctly. #3", async t => {
+test("Tree-shakes correctly. #3", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -85,7 +86,7 @@ test.only("Tree-shakes correctly. #3", async t => {
 					}
 					`
 		}
-	], {debug: true});
+	]);
 	const {
 		declarations: [file]
 	} = bundle;
@@ -93,11 +94,11 @@ test.only("Tree-shakes correctly. #3", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			declare class Bar {
-				bar: Foo;
-			}
 			interface Foo {
 				bar: Bar;
+			}
+			declare class Bar {
+				bar: Foo;
 			}
 			export { Foo };
 		`)
@@ -155,9 +156,6 @@ test("Tree-shakes correctly. #4", async t => {
 	t.deepEqual(
 		formatCode(aFile!.code),
 		formatCode(`\
-			declare enum LogLevel {
-			}
-			export { LogLevel };
 			export { Logger } from "./logger-8396bc98";
 		`)
 	);
@@ -172,7 +170,8 @@ test("Tree-shakes correctly. #4", async t => {
 	t.deepEqual(
 		formatCode(loggerFile!.code),
 		formatCode(`\
-			import { LogLevel } from "./a";
+			declare enum LogLevel {
+			}
 			declare class Logger {
 					private level;
 					constructor(level: LogLevel);

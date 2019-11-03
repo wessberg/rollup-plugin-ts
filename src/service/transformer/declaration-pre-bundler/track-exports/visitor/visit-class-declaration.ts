@@ -18,6 +18,8 @@ export function visitClassDeclaration({
 	markAsExported({
 		node,
 		originalModule: sourceFile.fileName,
+		isExternal: false,
+		rawModuleSpecifier: undefined,
 		defaultExport: node.name == null || hasDefaultExportModifier(node.modifiers),
 		name: node.name == null ? "default" : node.name.text,
 		propertyName: undefined

@@ -25,6 +25,8 @@ export function visitVariableStatement({
 			node,
 			defaultExport: hasDefaultExportModifier(node.modifiers),
 			originalModule: sourceFile.fileName,
+			rawModuleSpecifier: undefined,
+			isExternal: false,
 			name: identifier,
 			propertyName: undefined
 		});

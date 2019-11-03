@@ -1,9 +1,9 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
 import {EnumDeclaration} from "typescript";
 
-export function checkEnumDeclaration({node, childContinuation}: ReferenceVisitorOptions<EnumDeclaration>): boolean {
+export function checkEnumDeclaration({node, continuation}: ReferenceVisitorOptions<EnumDeclaration>): boolean {
 	for (const member of node.members) {
-		if (childContinuation(member)) return true;
+		if (continuation(member)) return true;
 	}
 
 	return false;

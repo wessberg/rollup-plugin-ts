@@ -1,10 +1,11 @@
-import {createIdentifier, createImportClause, createImportDeclaration, createImportSpecifier, createNamedImports, createNamespaceImport, createStringLiteral, ImportDeclaration} from "typescript";
+import {createIdentifier, createImportClause, createImportDeclaration, createImportSpecifier, createNamedImports, createNamespaceImport, createStringLiteral, createTypeAliasDeclaration, createTypeQueryNode, createTypeReferenceNode, createVariableDeclaration, createVariableDeclarationList, createVariableStatement, ImportDeclaration, NodeFlags, SyntaxKind, TypeAliasDeclaration, VariableStatement} from "typescript";
 import {dirname, relative} from "path";
 import {ensureHasLeadingDotAndPosix, stripKnownExtension} from "../../../../../util/path/path-util";
 import {SupportedExtensions} from "../../../../../util/get-supported-extensions/get-supported-extensions";
 import {ChunkToOriginalFileMap} from "../../../../../util/chunk/get-chunk-to-original-file-map";
-import {ImportedSymbol, SourceFileToLocalSymbolMap} from "../../../declaration-pre-bundler/declaration-pre-bundler-options";
+import {ImportedSymbol, NamedImportedSymbol, SourceFileToLocalSymbolMap} from "../../../declaration-pre-bundler/declaration-pre-bundler-options";
 import {getChunkFilename} from "../../../declaration-pre-bundler/util/get-chunk-filename/get-chunk-filename";
+import {ensureHasDeclareModifier} from "../../../declaration-pre-bundler/util/modifier/modifier-util";
 
 export interface VisitImportedSymbolOptions {
 	sourceFileToLocalSymbolMap: SourceFileToLocalSymbolMap;
@@ -15,16 +16,48 @@ export interface VisitImportedSymbolOptions {
 	absoluteChunkFileName: string;
 }
 
-export function visitImportedSymbol ({importedSymbol, sourceFileToLocalSymbolMap, supportedExtensions, relativeChunkFileName, absoluteChunkFileName, chunkToOriginalFileMap}: VisitImportedSymbolOptions): undefined|ImportDeclaration {
+export function createAliasedBinding (importedSymbol: NamedImportedSymbol & {propertyName: string}): ImportDeclaration|TypeAliasDeclaration|VariableStatement {
+	switch (importedSymbol.node.kind) {
+		case SyntaxKind.ClassDeclaration:
+		case SyntaxKind.ClassExpression:
+		case SyntaxKind.FunctionDeclaration:
+		case SyntaxKind.FunctionExpression:
+		case SyntaxKind.EnumDeclaration:
+		case SyntaxKind.VariableDeclaration:
+		case SyntaxKind.VariableStatement: {
+			return createVariableStatement(
+				ensureHasDeclareModifier(undefined),
+				createVariableDeclarationList([
+					createVariableDeclaration(
+						createIdentifier(importedSymbol.name),
+						createTypeQueryNode(createIdentifier(importedSymbol.propertyName))
+					)
+				], NodeFlags.Const)
+			);
+		}
+
+		default: {
+			return createTypeAliasDeclaration(
+				undefined,
+				undefined,
+				createIdentifier(importedSymbol.name),
+				undefined,
+				createTypeReferenceNode(createIdentifier(importedSymbol.propertyName), undefined)
+			);
+		}
+	}
+}
+
+export function visitImportedSymbol ({importedSymbol, sourceFileToLocalSymbolMap, supportedExtensions, relativeChunkFileName, absoluteChunkFileName, chunkToOriginalFileMap}: VisitImportedSymbolOptions): undefined|ImportDeclaration|TypeAliasDeclaration|VariableStatement {
 	const otherChunkFileName = getChunkFilename(importedSymbol.originalModule, supportedExtensions, chunkToOriginalFileMap);
 
 	// Generate a module specifier that points to the referenced module, relative to the current sourcefile
-	const relativeToSourceFileDirectory = otherChunkFileName == null ? importedSymbol.originalModule : relative(dirname(relativeChunkFileName), otherChunkFileName.fileName);
-	const moduleSpecifier = ensureHasLeadingDotAndPosix(stripKnownExtension(relativeToSourceFileDirectory), false);
+	const relativeToSourceFileDirectory = importedSymbol.isExternal && importedSymbol.rawModuleSpecifier != null ? importedSymbol.rawModuleSpecifier : otherChunkFileName == null ? importedSymbol.originalModule : relative(dirname(relativeChunkFileName), otherChunkFileName.fileName);
+	const moduleSpecifier = importedSymbol.isExternal && importedSymbol.rawModuleSpecifier != null ? importedSymbol.rawModuleSpecifier : ensureHasLeadingDotAndPosix(stripKnownExtension(relativeToSourceFileDirectory), false);
 
 	// If the module originates from a file not part of the compilation (such as an external module),
 	// always include the import
-	if (otherChunkFileName == null) {
+	if (otherChunkFileName == null || importedSymbol.isExternal) {
 		return createImportDeclaration(
 			undefined,
 			undefined,
@@ -45,8 +78,20 @@ export function visitImportedSymbol ({importedSymbol, sourceFileToLocalSymbolMap
 		);
 	}
 
-	// If the import originates from a module within the same chunk, leave out the import as it will be part of the merged local declarations already
-	if (absoluteChunkFileName === otherChunkFileName.fileName) return undefined;
+	// If the import originates from a module within the same chunk, leave out the import as it will be part of the merged local declarations already,
+	// unless it is imported under a different alias in which case a type alias should be provided
+	if (absoluteChunkFileName === otherChunkFileName.fileName) {
+
+		// Create a TypeAlias that aliases the imported property
+		if ("propertyName" in importedSymbol && importedSymbol.propertyName != null) {
+			return createAliasedBinding(importedSymbol as NamedImportedSymbol & {propertyName: string});
+		}
+
+		// The binding will be part of the merged local declarations already and needs no changes
+		else {
+			return undefined;
+		}
+	}
 
 	// Find the local symbols for the referenced module
 	const otherModuleLocalSymbols = sourceFileToLocalSymbolMap.get(importedSymbol.originalModule);

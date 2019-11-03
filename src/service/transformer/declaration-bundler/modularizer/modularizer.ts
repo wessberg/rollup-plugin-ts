@@ -1,4 +1,4 @@
-import {ExportDeclaration, ImportDeclaration, SourceFile, TransformerFactory, updateSourceFileNode} from "typescript";
+import {ExportDeclaration, ImportDeclaration, SourceFile, TransformerFactory, TypeAliasDeclaration, updateSourceFileNode, VariableStatement} from "typescript";
 import {DeclarationBundlerOptions} from "../declaration-bundler-options";
 import {normalize} from "path";
 import {visitImportedSymbol} from "./visitor/visit-imported-symbol";
@@ -17,7 +17,7 @@ export function modularizer ({declarationFilename, ...options}: DeclarationBundl
 				console.log(options.printer.printFile(sourceFile));
 			}
 
-			const importDeclarations: ImportDeclaration[] = [];
+			const importDeclarations: (ImportDeclaration|TypeAliasDeclaration|VariableStatement)[] = [];
 			const exportDeclarations: ExportDeclaration[] = [];
 
 			for (const module of options.localModuleNames) {

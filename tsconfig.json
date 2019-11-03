@@ -3,6 +3,6 @@
 	"compilerOptions": {
 		"module": "commonjs",
 		"target": "es2016",
-		"skipLibCheck": true
+		"skipLibCheck": false
 	}
 }

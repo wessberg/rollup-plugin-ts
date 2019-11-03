@@ -25,8 +25,8 @@ export function visitExportedSymbolFromOtherChunk ({exportedSymbol, supportedExt
 	const otherChunkFileName = getChunkFilename(exportedSymbol.originalModule, supportedExtensions, chunkToOriginalFileMap);
 
 	// Generate a module specifier that points to the referenced module, relative to the current sourcefile
-	const relativeToSourceFileDirectory = otherChunkFileName == null ? exportedSymbol.originalModule : relative(dirname(relativeChunkFileName), otherChunkFileName.fileName);
-	const moduleSpecifier = ensureHasLeadingDotAndPosix(stripKnownExtension(relativeToSourceFileDirectory), false);
+	const relativeToSourceFileDirectory = exportedSymbol.isExternal && exportedSymbol.rawModuleSpecifier != null ? exportedSymbol.rawModuleSpecifier : otherChunkFileName == null ? exportedSymbol.originalModule : relative(dirname(relativeChunkFileName), otherChunkFileName.fileName);
+	const moduleSpecifier = exportedSymbol.isExternal && exportedSymbol.rawModuleSpecifier != null ? exportedSymbol.rawModuleSpecifier : ensureHasLeadingDotAndPosix(stripKnownExtension(relativeToSourceFileDirectory), false);
 
 	if ("namespaceExport" in exportedSymbol) {
 		return [
@@ -115,7 +115,7 @@ export function visitExportedSymbol ({exportedSymbol, ...rest}: VisitExportedSym
 
 	// If the module originates from a file not part of the compilation (such as an external module),
 	// always include the export
-	if (otherChunkFileName == null) {
+	if (otherChunkFileName == null || exportedSymbol.isExternal) {
 		return visitExportedSymbolFromOtherChunk({...rest, exportedSymbol});
 	}
 

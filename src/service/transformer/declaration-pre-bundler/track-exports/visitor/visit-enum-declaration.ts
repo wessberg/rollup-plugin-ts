@@ -20,6 +20,8 @@ export function visitEnumDeclaration({
 		node,
 		defaultExport: hasDefaultExportModifier(node.modifiers),
 		originalModule: sourceFile.fileName,
+		isExternal: false,
+		rawModuleSpecifier: undefined,
 		name: node.name.text,
 		propertyName: undefined
 	});
