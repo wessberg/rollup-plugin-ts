@@ -31,7 +31,7 @@ test("Declaration maps correctly maps input sources. #1", async t => {
 		formatCode(file.code, "json"),
 		formatCode(
 			`\
-		{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["foo.ts","index.ts"],"names":[],"mappings":"AAAK,aAAY,GAAG,GAAG,MAAM,CAACAACK,OAAO,EAAC,GAAG,EAAC,CAAA"}
+		{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["foo.ts","index.ts"],"names":[],"mappings":"AAAK,aAAY,GAAG,GAAG,MAAM,CAAC"}
 		`,
 			"json"
 		)
@@ -67,7 +67,7 @@ test("Declaration maps correctly maps input sources. #2", async t => {
 		formatCode(file.code, "json"),
 		formatCode(
 			`\
-		{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../foo.ts","../index.ts"],"names":[],"mappings":"AAAK,aAAY,GAAG,GAAG,MAAM,CAACAACK,OAAO,EAAC,GAAG,EAAC,CAAA"}
+		{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../foo.ts","../index.ts"],"names":[],"mappings":"AAAK,aAAY,GAAG,GAAG,MAAM,CAAC"}
 		`,
 			"json"
 		)
@@ -110,7 +110,7 @@ test("Declaration maps respect rewritten output paths. #1", async t => {
 		formatCode(file.code, "json"),
 		formatCode(
 			`\
-		{"version":3,"file":"index-rewritten.d.ts","sourceRoot":"","sources":["../foo.ts","../index.ts"],"names":[],"mappings":"AAAK,aAAY,GAAG,GAAG,MAAM,CAACAACK,OAAO,EAAC,GAAG,EAAC,CAAA"}
+		{"version":3,"file":"index-rewritten.d.ts","sourceRoot":"","sources":["../foo.ts","../index.ts"],"names":[],"mappings": "AAAK,aAAY,GAAG,GAAG,MAAM,CAAC"}
 		`,
 			"json"
 		)

@@ -116,9 +116,7 @@
 	},
 	"ava": {
 		"files": [
-			"test/deconflict.test.ts",
-			"test/tree-shake.test.ts",
-			"test/hook.test.ts"
+			"test/declaration_1.test.ts"
 		],
 		"verbose": true,
 		"failFast": true,
