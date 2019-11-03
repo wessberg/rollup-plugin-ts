@@ -1,7 +1,21 @@
-import {createEmptyStatement, EmptyStatement, NamedImports} from "typescript";
+import {createEmptyStatement, EmptyStatement, ImportSpecifier, isEmptyStatement, NamedImports, updateNamedImports} from "typescript";
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
 
 export function visitNamedImports({node, continuation}: TreeShakerVisitorOptions<NamedImports>): NamedImports | EmptyStatement {
-	const result = continuation(node);
-	return result == null || result.elements.length < 1 ? createEmptyStatement() : result;
+	const filteredSpecifiers: ImportSpecifier[] = [];
+	for (const importSpecifier of node.elements) {
+		const importSpecifierContinuationResult = continuation(importSpecifier);
+
+		if (importSpecifierContinuationResult != null && !isEmptyStatement(importSpecifierContinuationResult)) {
+			filteredSpecifiers.push(importSpecifierContinuationResult);
+		}
+	}
+	if (filteredSpecifiers.length < 1) {
+		return createEmptyStatement();
+	}
+
+	return updateNamedImports(
+		node,
+		filteredSpecifiers
+	);
 }

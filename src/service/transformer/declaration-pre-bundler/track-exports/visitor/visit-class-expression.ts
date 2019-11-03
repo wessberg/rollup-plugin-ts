@@ -1,18 +1,18 @@
-import {ClassDeclaration, updateClassDeclaration} from "typescript";
+import {ClassExpression, updateClassExpression} from "typescript";
 import {TrackExportsVisitorOptions} from "../track-exports-visitor-options";
 import {ensureHasDeclareModifier, hasDefaultExportModifier, hasExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
 
 /**
- * Visits the given ClassDeclaration.
- * @param {TrackExportsVisitorOptions<ClassDeclaration>} options
- * @returns {ClassDeclaration | undefined}
+ * Visits the given ClassExpression.
+ * @param {TrackExportsVisitorOptions<ClassExpression>} options
+ * @returns {ClassExpression | undefined}
  */
-export function visitClassDeclaration({
-	node,
-	sourceFile,
-	markAsExported,
-	getDeconflictedNameAndPropertyName
-}: TrackExportsVisitorOptions<ClassDeclaration>): ClassDeclaration | undefined {
+export function visitClassExpression ({
+																				node,
+																				sourceFile,
+																				markAsExported,
+																				getDeconflictedNameAndPropertyName
+																			}: TrackExportsVisitorOptions<ClassExpression>): ClassExpression|undefined {
 	// If the node has no export modifier, leave it as it is
 	if (!hasExportModifier(node)) return node;
 
@@ -29,9 +29,8 @@ export function visitClassDeclaration({
 	});
 
 	// Update the node and remove the export modifiers from it
-	return updateClassDeclaration(
+	return updateClassExpression(
 		node,
-		node.decorators,
 		ensureHasDeclareModifier(removeExportModifier(node.modifiers)),
 		node.name,
 		node.typeParameters,

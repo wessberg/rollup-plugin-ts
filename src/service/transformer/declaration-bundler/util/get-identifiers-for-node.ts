@@ -5,12 +5,6 @@ import {traceIdentifiers} from "../../declaration-pre-bundler/deconflicter/visit
 
 export type NodeIdentifierCache = WeakMap<Node, LocalSymbolMap>;
 
-export interface GetIdentifiersOptions {
-	node: Node;
-	sourceFile: SourceFile;
-	resolver: Resolver;
-}
-
 export interface GetIdentifiersWithCacheOptions {
 	node: Node;
 	sourceFile: SourceFile;
@@ -18,24 +12,25 @@ export interface GetIdentifiersWithCacheOptions {
 	nodeIdentifierCache: NodeIdentifierCache;
 }
 
-export function getIdentifiersForNode({nodeIdentifierCache, node, ...rest}: GetIdentifiersWithCacheOptions): LocalSymbolMap {
-	if (nodeIdentifierCache.has(node)) {
-		return nodeIdentifierCache.get(node)!;
+export function getIdentifiersForNode({node, ...rest}: GetIdentifiersWithCacheOptions, identifiers: LocalSymbolMap = new Map()): LocalSymbolMap {
+	if (rest.nodeIdentifierCache.has(node)) {
+		return rest.nodeIdentifierCache.get(node)!;
 	} else {
-		const localSymbols = getIdentifiers({...rest, node});
-		nodeIdentifierCache.set(node, localSymbols);
+		const localSymbols = getIdentifiers({...rest, node}, identifiers);
+		rest.nodeIdentifierCache.set(node, localSymbols);
 		return localSymbols;
 	}
 }
 
-function getIdentifiers({node, ...rest}: GetIdentifiersOptions): LocalSymbolMap {
-	const identifiers: LocalSymbolMap = new Map();
+function getIdentifiers({node, ...rest}: GetIdentifiersWithCacheOptions, identifiers: LocalSymbolMap): LocalSymbolMap {
 
 	traceIdentifiers({
 		...rest,
 		node,
-		continuation: nextNode => getIdentifiers({...rest, node: nextNode}),
-		childContinuation: nextNode => forEachChild(nextNode, nextNextNode => getIdentifiers({...rest, node: nextNextNode})),
+		continuation: nextNode => getIdentifiersForNode({...rest, node: nextNode}, identifiers),
+		childContinuation: nextNode => forEachChild(nextNode, nextNextNode => {
+			getIdentifiersForNode({...rest, node: nextNextNode}, identifiers);
+		}),
 		addIdentifier(name: string, localSymbol: LocalSymbol): void {
 			identifiers.set(name, localSymbol);
 		}

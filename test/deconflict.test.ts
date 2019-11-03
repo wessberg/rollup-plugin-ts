@@ -20,7 +20,7 @@ test.only("Deconflicts symbols. #1", async t => {
 					export class Foo {}
 					`
 		}
-	], {debug: true});
+	]);
 	const {
 		declarations: [file]
 	} = bundle;
@@ -28,18 +28,17 @@ test.only("Deconflicts symbols. #1", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
+			declare const OtherFoo: typeof Foo;
 			declare class Foo {
 			}
-			declare type OtherFoo = typeof Foo;
 			declare class Foo_$0 extends OtherFoo {
 			}
 			export {Foo_$0 as Foo};
-
 		`)
 	);
 });
 
-test("Deconflicts symbols. #2", async t => {
+test.only("Deconflicts symbols. #2", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -86,7 +85,7 @@ test("Deconflicts symbols. #2", async t => {
 	);
 });
 
-test("Deconflicts symbols. #3", async t => {
+test.only("Deconflicts symbols. #3", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -135,13 +134,13 @@ test("Deconflicts symbols. #3", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
+			declare const OriginalB: typeof B;
 			declare class B {
 				someOriginalProp: number;
 			}
 			interface A {
 					b: B;
 			}
-			declare type OriginalB = typeof B;
 			declare class B_$0 extends OriginalB {
 					someOtherProp: string;
 			}
@@ -151,7 +150,7 @@ test("Deconflicts symbols. #3", async t => {
 	);
 });
 
-test("Deconflicts symbols. #4", async t => {
+test.only("Deconflicts symbols. #4", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -194,9 +193,9 @@ test("Deconflicts symbols. #4", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
+			declare const OriginalB: typeof B;
 			declare const B = 2;
 			declare const A: typeof B;
-			declare const OriginalB: typeof B;
 			declare const B_$0: typeof OriginalB;
 			export { B_$0 as B };
 			export { A };

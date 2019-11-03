@@ -11,9 +11,11 @@ export function visitExportAssignment({
 	node,
 	sourceFile,
 	typeChecker,
-	markAsExported
+	markAsExported,
+	getDeconflictedNameAndPropertyName
 }: TrackExportsVisitorOptions<ExportAssignment>): ExportAssignment | VariableStatement | undefined {
 	if (isIdentifier(node.expression)) {
+		const [propertyName, name] = getDeconflictedNameAndPropertyName(undefined, node.expression.text);
 		const declaration = getAliasedDeclaration(node.expression, typeChecker);
 		if (declaration != null) {
 			markAsExported({
@@ -22,8 +24,8 @@ export function visitExportAssignment({
 				isExternal: false,
 				rawModuleSpecifier: undefined,
 				defaultExport: true,
-				name: node.expression.text,
-				propertyName: undefined
+				name,
+				propertyName
 			});
 		}
 	}

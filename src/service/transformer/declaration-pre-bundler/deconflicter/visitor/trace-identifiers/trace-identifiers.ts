@@ -1,18 +1,5 @@
 import {TraceIdentifiersVisitorOptions} from "../../trace-identifiers-visitor-options";
-import {
-	isBindingElement,
-	isClassDeclaration,
-	isEnumDeclaration,
-	isExportSpecifier,
-	isFunctionDeclaration,
-	isIdentifier,
-	isImportClause,
-	isImportSpecifier,
-	isInterfaceDeclaration,
-	isNamespaceImport,
-	isTypeAliasDeclaration,
-	isVariableDeclaration
-} from "typescript";
+import {isBindingElement, isClassDeclaration, isEnumDeclaration, isExportSpecifier, isFunctionDeclaration, isIdentifier, isImportClause, isImportSpecifier, isInterfaceDeclaration, isNamespaceImport, isTypeAliasDeclaration, isVariableDeclaration} from "typescript";
 import {traceIdentifiersForBindingElement} from "./trace-identifiers-for-binding-element";
 import {traceIdentifiersForClassDeclaration} from "./trace-identifiers-for-class-declaration";
 import {traceIdentifiersForEnumDeclaration} from "./trace-identifiers-for-enum-declaration";
@@ -32,18 +19,18 @@ import {traceIdentifiersForVariableDeclaration} from "./trace-identifiers-for-va
  * @param {TraceIdentifiersVisitorOptions} options
  * @returns {Node | undefined}
  */
-export function traceIdentifiers({node, ...rest}: TraceIdentifiersVisitorOptions): void {
-	if (isBindingElement(node)) return traceIdentifiersForBindingElement({...rest, node});
-	else if (isClassDeclaration(node)) return traceIdentifiersForClassDeclaration({...rest, node});
-	else if (isEnumDeclaration(node)) return traceIdentifiersForEnumDeclaration({...rest, node});
-	else if (isFunctionDeclaration(node)) return traceIdentifiersForFunctionDeclaration({...rest, node});
-	else if (isImportClause(node)) return traceIdentifiersForImportClause({...rest, node});
-	else if (isNamespaceImport(node)) return traceIdentifiersForNamespaceImport({...rest, node});
-	else if (isImportSpecifier(node)) return traceIdentifiersForImportSpecifier({...rest, node});
-	else if (isExportSpecifier(node)) return traceIdentifiersForExportSpecifier({...rest, node});
-	else if (isIdentifier(node)) return traceIdentifiersForIdentifier({...rest, node});
-	else if (isInterfaceDeclaration(node)) return traceIdentifiersForInterfaceDeclaration({...rest, node});
-	else if (isTypeAliasDeclaration(node)) return traceIdentifiersForTypeAliasDeclaration({...rest, node});
-	else if (isVariableDeclaration(node)) return traceIdentifiersForVariableDeclaration({...rest, node});
-	else return rest.childContinuation(node);
+export function traceIdentifiers ({node, ...rest}: TraceIdentifiersVisitorOptions): void {
+	if (isBindingElement(node)) traceIdentifiersForBindingElement({...rest, node});
+	else if (isClassDeclaration(node)) traceIdentifiersForClassDeclaration({...rest, node});
+	else if (isEnumDeclaration(node)) traceIdentifiersForEnumDeclaration({...rest, node});
+	else if (isFunctionDeclaration(node)) traceIdentifiersForFunctionDeclaration({...rest, node});
+	else if (isImportClause(node)) traceIdentifiersForImportClause({...rest, node});
+	else if (isNamespaceImport(node)) traceIdentifiersForNamespaceImport({...rest, node});
+	else if (isImportSpecifier(node)) traceIdentifiersForImportSpecifier({...rest, node});
+	else if (isExportSpecifier(node)) traceIdentifiersForExportSpecifier({...rest, node});
+	else if (isIdentifier(node)) traceIdentifiersForIdentifier({...rest, node});
+	else if (isInterfaceDeclaration(node)) traceIdentifiersForInterfaceDeclaration({...rest, node});
+	else if (isTypeAliasDeclaration(node)) traceIdentifiersForTypeAliasDeclaration({...rest, node});
+	else if (isVariableDeclaration(node)) traceIdentifiersForVariableDeclaration({...rest, node});
+	else rest.childContinuation(node);
 }

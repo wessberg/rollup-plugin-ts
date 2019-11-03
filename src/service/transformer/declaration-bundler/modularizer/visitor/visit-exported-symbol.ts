@@ -38,6 +38,7 @@ export function visitExportedSymbolFromOtherChunk ({exportedSymbol, supportedExt
 			)
 		];
 	} else {
+
 		return [
 			createExportDeclaration(
 				undefined,
@@ -94,15 +95,25 @@ export function visitExportedSymbolFromEntryModule ({exportedSymbol, otherModule
 
 	// Otherwise, add an ExportDeclaration without a module specifier
 	else {
+		let correctedName = exportedSymbol.name;
+		let correctedPropertyName = exportedSymbol.propertyName;
+
+		for (const otherModuleExportedSymbol of otherModuleExportedSymbols) {
+			if (!("name" in otherModuleExportedSymbol)) continue;
+			if ((exportedSymbol.propertyName ?? exportedSymbol.name) === otherModuleExportedSymbol.name) {
+				correctedName = otherModuleExportedSymbol.name;
+				correctedPropertyName = otherModuleExportedSymbol.propertyName;
+			}
+		}
 		exportDeclarations.push(
 			createExportDeclaration(
 				undefined,
 				undefined,
 				createNamedExports([
-					createExportSpecifier(exportedSymbol.propertyName == null ? undefined : createIdentifier(exportedSymbol.propertyName), createIdentifier(exportedSymbol.name))
+					createExportSpecifier(correctedPropertyName == null ? undefined : createIdentifier(correctedPropertyName), createIdentifier(correctedName))
 				])
 			)
-		)
+		);
 	}
 	return exportDeclarations;
 }

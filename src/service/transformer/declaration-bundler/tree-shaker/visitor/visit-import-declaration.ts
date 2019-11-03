@@ -1,7 +1,19 @@
-import {ImportDeclaration, isEmptyStatement} from "typescript";
+import {ImportDeclaration, isEmptyStatement, updateImportDeclaration} from "typescript";
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
 
 export function visitImportDeclaration({node, continuation}: TreeShakerVisitorOptions<ImportDeclaration>): ImportDeclaration | undefined {
-	const result = continuation(node);
-	return result == null || (result.importClause != null && isEmptyStatement(result.importClause)) ? undefined : result;
+	if (node.importClause == null) return undefined;
+	const importClauseContinuationResult = continuation(node.importClause);
+
+	if (importClauseContinuationResult == null || isEmptyStatement(importClauseContinuationResult)) {
+		return undefined;
+	}
+
+	return updateImportDeclaration(
+		node,
+		node.decorators,
+		node.modifiers,
+		importClauseContinuationResult,
+		node.moduleSpecifier
+	);
 }

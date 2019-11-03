@@ -11,20 +11,22 @@ export function visitExportSpecifier({
 	node,
 	sourceFile,
 	resolver,
-	markAsExported
+	markAsExported,
+	getDeconflictedNameAndPropertyName
 }: TrackExportsVisitorOptions<ExportSpecifier>): ExportSpecifier | undefined {
 	const moduleSpecifier = node.parent == null || node.parent.parent == null ? undefined : node.parent.parent.moduleSpecifier;
 	const originalModule = moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? sourceFile.fileName : resolver(moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName;
 	const rawModuleSpecifier = moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? undefined : moduleSpecifier.text;
+	const [propertyName, name] = getDeconflictedNameAndPropertyName(node.propertyName == null ? undefined : node.propertyName.text, node.name.text);
 
 	markAsExported({
+		name,
+		propertyName,
 		node,
 		originalModule,
 		rawModuleSpecifier,
 		isExternal: rawModuleSpecifier != null && isExternalLibrary(rawModuleSpecifier),
-		defaultExport: node.name.text === "default",
-		name: node.name.text,
-		propertyName: node.propertyName == null ? undefined : node.propertyName.text
+		defaultExport: node.name.text === "default"
 	});
 	return undefined;
 }

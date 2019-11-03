@@ -1,4 +1,4 @@
-import {isImportClause, isImportDeclaration, isImportSpecifier, isNamedImports, isNamespaceImport, isVariableDeclaration, isVariableDeclarationList, isVariableStatement, Node, SourceFile, TransformerFactory, updateSourceFileNode, visitEachChild} from "typescript";
+import {isClassDeclaration, isClassExpression, isEnumDeclaration, isExportDeclaration, isFunctionDeclaration, isFunctionExpression, isImportClause, isImportDeclaration, isImportSpecifier, isInterfaceDeclaration, isModuleDeclaration, isNamedImports, isNamespaceImport, isTypeAliasDeclaration, isVariableDeclaration, isVariableDeclarationList, isVariableStatement, Node, SourceFile, TransformerFactory, updateSourceFileNode, visitEachChild} from "typescript";
 import {DeclarationBundlerOptions} from "../declaration-bundler-options";
 import {isReferenced} from "../reference/is-referenced/is-referenced";
 import {normalize} from "path";
@@ -11,6 +11,15 @@ import {visitImportClause} from "./visitor/visit-import-clause";
 import {visitNamedImports} from "./visitor/visit-named-imports";
 import {visitNamespaceImport} from "./visitor/visit-namespace-import";
 import {hasExportModifier} from "../../declaration-pre-bundler/util/modifier/modifier-util";
+import {visitClassDeclaration} from "./visitor/visit-class-declaration";
+import {visitClassExpression} from "./visitor/visit-class-expression";
+import {visitFunctionDeclaration} from "./visitor/visit-function-declaration";
+import {visitFunctionExpression} from "./visitor/visit-function-expression";
+import {visitEnumDeclaration} from "./visitor/visit-enum-declaration";
+import {visitInterfaceDeclaration} from "./visitor/visit-interface-declaration";
+import {visitTypeAliasDeclaration} from "./visitor/visit-type-alias-declaration";
+import {visitModuleDeclaration} from "./visitor/visit-module-declaration";
+import {visitExportDeclaration} from "./visitor/visit-export-declaration";
 
 export function treeShaker ({declarationFilename, ...options}: DeclarationBundlerOptions): TransformerFactory<SourceFile> {
 	return context => {
@@ -33,31 +42,83 @@ export function treeShaker ({declarationFilename, ...options}: DeclarationBundle
 					return isReferenced({...visitorOptions, node});
 				},
 				continuation: <U extends Node> (node: U): U|undefined => {
-					return visitEachChild(node, visitor, context);
+					return visitor(node) as U | undefined;
 				}
 			};
 
 			function visitor (node: Node): Node|undefined {
 				if (hasExportModifier(node)) return node;
+
+				if (isClassDeclaration(node)) {
+					return visitClassDeclaration({...visitorOptions, node});
+				}
+
+				else if (isClassExpression(node)) {
+					return visitClassExpression({...visitorOptions, node});
+				}
+
+				else if (isFunctionDeclaration(node)) {
+					return visitFunctionDeclaration({...visitorOptions, node});
+				}
+
+				else if (isFunctionExpression(node)) {
+					return visitFunctionExpression({...visitorOptions, node});
+				}
+
+				else if (isEnumDeclaration(node)) {
+					return visitEnumDeclaration({...visitorOptions, node});
+				}
+
+				else if (isInterfaceDeclaration(node)) {
+					return visitInterfaceDeclaration({...visitorOptions, node});
+				}
+
+				else if (isTypeAliasDeclaration(node)) {
+					return visitTypeAliasDeclaration({...visitorOptions, node});
+				}
+
+				else if (isModuleDeclaration(node)) {
+					return visitModuleDeclaration({...visitorOptions, node});
+				}
+
+				else if (isExportDeclaration(node)) {
+					return visitExportDeclaration({...visitorOptions, node});
+				}
+
 				else if (isVariableStatement(node)) {
 					return visitVariableStatement({node, ...visitorOptions});
-				} else if (isVariableDeclarationList(node)) {
+				}
+
+				else if (isVariableDeclarationList(node)) {
 					return visitVariableDeclarationList({node, ...visitorOptions});
-				} else if (isVariableDeclaration(node)) {
+				}
+
+				else if (isVariableDeclaration(node)) {
 					return visitVariableDeclaration({node, ...visitorOptions});
-				} else if (isImportDeclaration(node)) {
+				}
+
+				else if (isImportDeclaration(node)) {
 					return visitImportDeclaration({node, ...visitorOptions});
-				} else if (isImportSpecifier(node)) {
+				}
+
+				else if (isImportSpecifier(node)) {
 					return visitImportSpecifier({node, ...visitorOptions});
-				} else if (isImportClause(node)) {
+				}
+
+				else if (isImportClause(node)) {
 					return visitImportClause({node, ...visitorOptions});
-				} else if (isNamedImports(node)) {
+				}
+
+				else if (isNamedImports(node)) {
 					return visitNamedImports({node, ...visitorOptions});
-				} else if (isNamespaceImport(node)) {
+				}
+
+				else if (isNamespaceImport(node)) {
 					return visitNamespaceImport({node, ...visitorOptions});
-				} else if (isReferenced({...visitorOptions, node})) {
-					return node;
-				} else {
+				}
+
+				else {
+					// Fall back to dropping the node
 					return undefined;
 				}
 			}
