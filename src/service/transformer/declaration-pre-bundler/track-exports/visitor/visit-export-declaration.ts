@@ -37,6 +37,7 @@ export function visitExportDeclaration({
 			rawModuleSpecifier,
 			isExternal: rawModuleSpecifier != null && isExternalLibrary(rawModuleSpecifier),
 			defaultExport: false,
+			namespaceExport: true,
 			name: "*",
 			propertyName: undefined
 		});

@@ -49,6 +49,7 @@ export function modularizer ({declarationFilename, ...options}: DeclarationBundl
 						exportDeclarations.push(...visitExportedSymbol({
 								...options,
 								exportedSymbol,
+								module,
 								isEntryModule: options.entryFileNames.includes(module)
 							})
 						);

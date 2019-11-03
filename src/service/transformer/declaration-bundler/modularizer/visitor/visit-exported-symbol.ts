@@ -15,6 +15,7 @@ export interface VisitExportedSymbolOptions {
 	relativeChunkFileName: string;
 	absoluteChunkFileName: string;
 	isEntryModule: boolean;
+	module: string;
 }
 
 export interface VisitExportedSymbolFromEntryModuleOptions extends VisitExportedSymbolOptions {
@@ -63,34 +64,22 @@ export function visitExportedSymbolFromEntryModule ({exportedSymbol, otherModule
 
 		if (otherModuleExportedSymbols != null) {
 			for (const otherModuleExportedSymbol of otherModuleExportedSymbols) {
-				// If the exported symbol from the other module is itself a namespace export,
-				// do a recursive call here
-				if ("namespaceExport" in otherModuleExportedSymbol) {
-					exportDeclarations.push(...visitExportedSymbol({
-						...rest,
-						exportedSymbol: otherModuleExportedSymbol
-					}));
-				}
-
-				// default exports are not part of namespace exports
-				else if (!otherModuleExportedSymbol.defaultExport) {
-					exportSpecifiers.push(
-						createExportSpecifier(
-							otherModuleExportedSymbol.propertyName != null
-								? createIdentifier(otherModuleExportedSymbol.propertyName)
-								: undefined,
-							createIdentifier(otherModuleExportedSymbol.name))
-					);
-				}
+				exportDeclarations.push(...visitExportedSymbol({
+					...rest,
+					exportedSymbol: otherModuleExportedSymbol
+				}));
 			}
 		}
-		exportDeclarations.push(
-			createExportDeclaration(
-				undefined,
-				undefined,
-				createNamedExports(exportSpecifiers)
-			)
-		);
+
+		if (exportSpecifiers.length > 0) {
+			exportDeclarations.push(
+				createExportDeclaration(
+					undefined,
+					undefined,
+					createNamedExports(exportSpecifiers)
+				)
+			);
+		}
 	}
 
 	// Otherwise, add an ExportDeclaration without a module specifier

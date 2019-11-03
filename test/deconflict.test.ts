@@ -3,7 +3,7 @@ import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 // tslint:disable:no-duplicate-string
 
-test.only("Deconflicts symbols. #1", async t => {
+test("Deconflicts symbols. #1", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -38,7 +38,7 @@ test.only("Deconflicts symbols. #1", async t => {
 	);
 });
 
-test.only("Deconflicts symbols. #2", async t => {
+test("Deconflicts symbols. #2", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -85,7 +85,7 @@ test.only("Deconflicts symbols. #2", async t => {
 	);
 });
 
-test.only("Deconflicts symbols. #3", async t => {
+test("Deconflicts symbols. #3", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -150,7 +150,7 @@ test.only("Deconflicts symbols. #3", async t => {
 	);
 });
 
-test.only("Deconflicts symbols. #4", async t => {
+test("Deconflicts symbols. #4", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -339,17 +339,18 @@ test("Deconflicts symbols. #7", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			declare class Foo {
-				Bar: 2;
-			}
-			declare const Foo_$0: {
+			declare const Foo: {
 				readonly Foo: "Foo";
 			};
-			declare type Baz = typeof Foo_$0;
+			declare type Baz = typeof Foo;
 			declare type Bar = {
-				[Foo in "Foo"]: Baz[Foo];
+					[Foo in "Foo"]: Baz[Foo];
 			};
-			export { Foo, Foo_$0, Baz, Bar };
+			declare class Foo_$0 {
+					Bar: 2;
+			}
+			export { Foo_$0 as Foo };
+			export { Baz, Bar };
 		`)
 	);
 });
@@ -399,16 +400,17 @@ test("Handles different bindings from same module inside same chunk. #1", async 
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
+			import { ModuleResolutionHost } from "typescript";
 			import { ModuleResolutionHost as TSModuleResolutionHost } from "typescript";
-			import { ModuleResolutionHost as ModuleResolutionHost_$0 } from "typescript";
-			declare class ModuleResolutionHost implements TSModuleResolutionHost {
+			interface Bar {
+					moduleResolutionHost: ModuleResolutionHost;
+			}
+			declare class ModuleResolutionHost_$0 implements TSModuleResolutionHost {
 					fileExists(_fileName: string): boolean;
 					readFile(_fileName: string, _encoding?: string): string | undefined;
 			}
-			interface Bar {
-					moduleResolutionHost: ModuleResolutionHost_$0;
-			}
-			export { ModuleResolutionHost, Bar };
+			export { ModuleResolutionHost_$0 as ModuleResolutionHost };
+			export { Bar };
 		`)
 	);
 });
@@ -449,10 +451,10 @@ test("Handles different bindings from same module inside same chunk. #2", async 
 			interface Foo {
 					transformers: CustomTransformers;
 			}
-			export interface Bar {
+			interface Bar {
 					transformers: CustomTransformers;
 			}
-			export { Foo };
+			export { Foo, Bar };
 		`)
 	);
 });
@@ -509,16 +511,17 @@ test("Handles different bindings from same module inside same chunk. #3", async 
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
+			import { ModuleResolutionHost } from "typescript";
 			import { ModuleResolutionHost as TSModuleResolutionHost } from "typescript";
-			import { ModuleResolutionHost as ModuleResolutionHost_$0 } from "typescript";
-			declare class ModuleResolutionHost implements TSModuleResolutionHost {
+			interface Bar {
+					moduleResolutionHost: ModuleResolutionHost;
+			}
+			declare class ModuleResolutionHost_$0 implements TSModuleResolutionHost {
 					fileExists(_fileName: string): boolean;
 					readFile(_fileName: string, _encoding?: string): string | undefined;
 			}
-			interface Bar {
-					moduleResolutionHost: ModuleResolutionHost_$0;
-			}
-			export { ModuleResolutionHost, Bar };
+			export { ModuleResolutionHost_$0 as ModuleResolutionHost };
+			export { Bar };
 		`)
 	);
 });
