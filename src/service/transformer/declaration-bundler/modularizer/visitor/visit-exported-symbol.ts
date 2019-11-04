@@ -116,7 +116,13 @@ export function visitExportedSymbol ({exportedSymbol, ...rest}: VisitExportedSym
 	// If the module originates from a file not part of the compilation (such as an external module),
 	// always include the export
 	if (otherChunkFileName == null || exportedSymbol.isExternal) {
-		return visitExportedSymbolFromOtherChunk({...rest, exportedSymbol});
+		if (isEntryModule) {
+			return visitExportedSymbolFromOtherChunk({...rest, exportedSymbol});
+		}
+
+		else {
+			return [];
+		}
 	}
 
 	// Otherwise, assert that exported symbol for the other module has been computed

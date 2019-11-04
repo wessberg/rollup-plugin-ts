@@ -30,13 +30,11 @@ export function modularizer ({declarationFilename, ...options}: DeclarationBundl
 
 				if (importedSymbols != null) {
 					for (const importedSymbol of importedSymbols) {
-						const importDeclaration = visitImportedSymbol({
-							...options,
-							importedSymbol
-						});
-						if (importDeclaration != null) {
-							importDeclarations.push(importDeclaration);
-						}
+						importDeclarations.push(...visitImportedSymbol({
+								...options,
+								importedSymbol
+							})
+						);
 					}
 				}
 

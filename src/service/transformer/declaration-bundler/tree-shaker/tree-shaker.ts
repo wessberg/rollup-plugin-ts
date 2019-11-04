@@ -1,4 +1,4 @@
-import {isClassDeclaration, isClassExpression, isEnumDeclaration, isExportDeclaration, isFunctionDeclaration, isFunctionExpression, isImportClause, isImportDeclaration, isImportSpecifier, isInterfaceDeclaration, isModuleDeclaration, isNamedImports, isNamespaceImport, isTypeAliasDeclaration, isVariableDeclaration, isVariableDeclarationList, isVariableStatement, Node, SourceFile, TransformerFactory, updateSourceFileNode, visitEachChild} from "typescript";
+import {isArrayBindingPattern, isBindingElement, isClassDeclaration, isClassExpression, isEnumDeclaration, isExportDeclaration, isFunctionDeclaration, isFunctionExpression, isIdentifier, isImportClause, isImportDeclaration, isImportSpecifier, isInterfaceDeclaration, isModuleDeclaration, isNamedImports, isNamespaceImport, isObjectBindingPattern, isTypeAliasDeclaration, isVariableDeclaration, isVariableDeclarationList, isVariableStatement, Node, SourceFile, TransformerFactory, updateSourceFileNode, visitEachChild} from "typescript";
 import {DeclarationBundlerOptions} from "../declaration-bundler-options";
 import {isReferenced} from "../reference/is-referenced/is-referenced";
 import {normalize} from "path";
@@ -20,6 +20,10 @@ import {visitInterfaceDeclaration} from "./visitor/visit-interface-declaration";
 import {visitTypeAliasDeclaration} from "./visitor/visit-type-alias-declaration";
 import {visitModuleDeclaration} from "./visitor/visit-module-declaration";
 import {visitExportDeclaration} from "./visitor/visit-export-declaration";
+import {visitArrayBindingPattern} from "./visitor/visit-array-binding-pattern";
+import {visitBindingElement} from "./visitor/visit-binding-element";
+import {visitObjectBindingPattern} from "./visitor/visit-object-binding-pattern";
+import {visitIdentifier} from "./visitor/visit-identifier";
 
 export function treeShaker ({declarationFilename, ...options}: DeclarationBundlerOptions): TransformerFactory<SourceFile> {
 	return context => {
@@ -115,6 +119,22 @@ export function treeShaker ({declarationFilename, ...options}: DeclarationBundle
 
 				else if (isNamespaceImport(node)) {
 					return visitNamespaceImport({node, ...visitorOptions});
+				}
+
+				else if (isArrayBindingPattern(node)) {
+					return visitArrayBindingPattern({node, ...visitorOptions});
+				}
+
+				else if (isObjectBindingPattern(node)) {
+					return visitObjectBindingPattern({node, ...visitorOptions});
+				}
+
+				else if (isBindingElement(node)) {
+					return visitBindingElement({node, ...visitorOptions});
+				}
+
+				else if (isIdentifier(node)) {
+					return visitIdentifier({node, ...visitorOptions});
 				}
 
 				else {

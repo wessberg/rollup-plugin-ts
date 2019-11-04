@@ -1,9 +1,17 @@
-import {ImportSpecifier} from "typescript";
+import {ImportSpecifier, updateImportSpecifier} from "typescript";
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
 
-export function visitImportSpecifier({node, isReferenced}: TreeShakerVisitorOptions<ImportSpecifier>): ImportSpecifier | undefined {
-	if (isReferenced(node.name)) {
-		return node;
+export function visitImportSpecifier ({node, continuation}: TreeShakerVisitorOptions<ImportSpecifier>): ImportSpecifier|undefined {
+	const nameContinuationResult = continuation(node.name);
+	if (nameContinuationResult == null) {
+		return undefined;
 	}
-	return undefined;
+
+	return node.name === nameContinuationResult
+		? node
+		: updateImportSpecifier(
+			node,
+			node.propertyName,
+			nameContinuationResult
+		);
 }

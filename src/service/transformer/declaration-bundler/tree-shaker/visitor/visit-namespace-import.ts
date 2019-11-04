@@ -1,9 +1,15 @@
-import {createEmptyStatement, EmptyStatement, NamespaceImport} from "typescript";
+import {NamespaceImport, updateNamespaceImport} from "typescript";
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
 
-export function visitNamespaceImport({node, isReferenced}: TreeShakerVisitorOptions<NamespaceImport>): NamespaceImport | EmptyStatement {
-	if (isReferenced(node.name)) {
-		return node;
+export function visitNamespaceImport ({node, continuation}: TreeShakerVisitorOptions<NamespaceImport>): NamespaceImport|undefined {
+	const nameContinuationResult = continuation(node.name);
+	if (nameContinuationResult == null) {
+		return undefined;
 	}
-	return createEmptyStatement();
+	return node.name === nameContinuationResult
+		? node
+		: updateNamespaceImport(
+			node,
+			nameContinuationResult
+		);
 }

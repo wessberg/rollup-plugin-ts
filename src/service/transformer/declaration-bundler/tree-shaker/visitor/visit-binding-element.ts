@@ -1,18 +1,19 @@
-import {ModuleDeclaration, updateModuleDeclaration} from "typescript";
+import {BindingElement, updateBindingElement} from "typescript";
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
 
-export function visitModuleDeclaration ({node, continuation}: TreeShakerVisitorOptions<ModuleDeclaration>): ModuleDeclaration|undefined {
+export function visitBindingElement ({node, continuation}: TreeShakerVisitorOptions<BindingElement>): BindingElement|undefined {
 	const nameContinuationResult = continuation(node.name);
 	if (nameContinuationResult == null) {
 		return undefined;
 	}
+
 	return node.name === nameContinuationResult
 		? node
-		: updateModuleDeclaration(
+		: updateBindingElement(
 			node,
-			node.decorators,
-			node.modifiers,
+			node.dotDotDotToken,
+			node.propertyName,
 			nameContinuationResult,
-			node.body
+			node.initializer
 		);
 }

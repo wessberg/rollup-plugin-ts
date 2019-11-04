@@ -235,7 +235,7 @@ test("Flattens declarations. #6", async t => {
 	);
 });
 
-test.only("Flattens declarations. #7", async t => {
+test("Flattens declarations. #7", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -252,7 +252,7 @@ test.only("Flattens declarations. #7", async t => {
 					export const ten = 10;
 					`
 		}
-	], {debug: true});
+	]);
 	const {
 		declarations: [file]
 	} = bundle;
@@ -260,9 +260,10 @@ test.only("Flattens declarations. #7", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		declare module m {
-				const ten = 10;
-		}
+		type m = {
+			ten: typeof ten;
+		};
+		declare const ten = 10;
 		export { m };
 		`)
 	);
@@ -335,7 +336,7 @@ test("Flattens declarations. #9", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		import { default as magicString } from "magic-string";
+		import magicString from "magic-string";
 		declare const Foo: typeof magicString;
 		export {Foo};
 		`)
@@ -366,7 +367,7 @@ test("Flattens declarations. #10", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		import { default as magicString } from "magic-string";
+		import magicString from "magic-string";
 		declare const Foo: typeof magicString;
 		export {Foo};
 		`)
@@ -405,7 +406,7 @@ test("Flattens declarations. #11", async t => {
 	);
 });
 
-test("Flattens declarations. #12", async t => {
+test.only("Flattens declarations. #12", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -424,7 +425,7 @@ test("Flattens declarations. #12", async t => {
 				export default fn({ n: 0 });
             `
 		}
-	]);
+	], {debug: true});
 	const {
 		declarations: [file]
 	} = bundle;
@@ -441,7 +442,7 @@ test("Flattens declarations. #12", async t => {
 	);
 });
 
-test("Flattens declarations. #13", async t => {
+test.skip("Flattens declarations. #13", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -472,7 +473,7 @@ test("Flattens declarations. #13", async t => {
 	);
 });
 
-test("Flattens declarations. #14", async t => {
+test.skip("Flattens declarations. #14", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
