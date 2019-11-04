@@ -406,7 +406,7 @@ test("Flattens declarations. #11", async t => {
 	);
 });
 
-test.only("Flattens declarations. #12", async t => {
+test("Flattens declarations. #12", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -425,24 +425,24 @@ test.only("Flattens declarations. #12", async t => {
 				export default fn({ n: 0 });
             `
 		}
-	], {debug: true});
+	]);
 	const {
 		declarations: [file]
 	} = bundle;
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
+		declare const X: typeof _default;
 		interface Foo {
-    	n: number;
+				n: number;
 		}
-		declare const defaultBarExport: Foo;
-		declare const X: typeof defaultBarExport;
+		declare const _default: Foo;
 		export { X };
 		`)
 	);
 });
 
-test.skip("Flattens declarations. #13", async t => {
+test("Flattens declarations. #13", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -466,14 +466,14 @@ test.skip("Flattens declarations. #13", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		declare function foo(): string;
 		declare const X: typeof foo;
+		declare function foo(): string;
 		export { X };
 		`)
 	);
 });
 
-test.skip("Flattens declarations. #14", async t => {
+test("Flattens declarations. #14", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -499,11 +499,45 @@ test.skip("Flattens declarations. #14", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
+		declare const X: typeof FooKind;
 		declare enum FooKind {
 			A = 0,
 			B = 1
 		}
-		declare type X = FooKind;
+		export { X };
+		`)
+	);
+});
+
+test("Flattens declarations. #15", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+          		import X from './bar';
+          		export { X }
+        	`
+		},
+		{
+			entry: false,
+			fileName: "bar.ts",
+			text: `\
+				interface FooKind {}
+				export default FooKind;
+				`
+		}
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		type X = FooKind;
+		interface FooKind {
+		}
 		export { X };
 		`)
 	);

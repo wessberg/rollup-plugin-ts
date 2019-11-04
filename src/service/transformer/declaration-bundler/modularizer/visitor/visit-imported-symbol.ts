@@ -17,7 +17,7 @@ export interface VisitImportedSymbolOptions {
 	absoluteChunkFileName: string;
 }
 
-export function createAliasedBinding (importedSymbol: NamedImportedSymbol&{ propertyName: string }): ImportDeclaration|TypeAliasDeclaration|VariableStatement {
+export function createAliasedBinding (importedSymbol: NamedImportedSymbol, propertyName: string): ImportDeclaration|TypeAliasDeclaration|VariableStatement {
 	switch (importedSymbol.node.kind) {
 		case SyntaxKind.ClassDeclaration:
 		case SyntaxKind.ClassExpression:
@@ -25,13 +25,14 @@ export function createAliasedBinding (importedSymbol: NamedImportedSymbol&{ prop
 		case SyntaxKind.FunctionExpression:
 		case SyntaxKind.EnumDeclaration:
 		case SyntaxKind.VariableDeclaration:
-		case SyntaxKind.VariableStatement: {
+		case SyntaxKind.VariableStatement:
+		case SyntaxKind.ExportAssignment:{
 			return createVariableStatement(
 				ensureHasDeclareModifier(undefined),
 				createVariableDeclarationList([
 					createVariableDeclaration(
 						createIdentifier(importedSymbol.name),
-						createTypeQueryNode(createIdentifier(importedSymbol.propertyName))
+						createTypeQueryNode(createIdentifier(propertyName))
 					)
 				], NodeFlags.Const)
 			);
@@ -43,7 +44,7 @@ export function createAliasedBinding (importedSymbol: NamedImportedSymbol&{ prop
 				undefined,
 				createIdentifier(importedSymbol.name),
 				undefined,
-				createTypeReferenceNode(createIdentifier(importedSymbol.propertyName), undefined)
+				createTypeReferenceNode(createIdentifier(propertyName), undefined)
 			);
 		}
 	}
@@ -110,23 +111,23 @@ export function visitImportedSymbol ({importedSymbol, sourceFileToExportedSymbol
 		return [
 			...importDeclarations,
 			createImportDeclaration(
-			undefined,
-			undefined,
-			createImportClause(
-				"defaultImport" in importedSymbol && importedSymbol.defaultImport ? createIdentifier(importedSymbol.name) : undefined,
-				"namespaceImport" in importedSymbol
-					? createNamespaceImport(createIdentifier(importedSymbol.name))
-					: createNamedImports([
-						createImportSpecifier(
-							importedSymbol.propertyName != null
-								? createIdentifier(importedSymbol.propertyName)
-								: undefined,
-							createIdentifier(importedSymbol.name)
-						)
-					])
-			),
-			createStringLiteral(moduleSpecifier)
-		)
+				undefined,
+				undefined,
+				createImportClause(
+					"defaultImport" in importedSymbol && importedSymbol.defaultImport ? createIdentifier(importedSymbol.name) : undefined,
+					"namespaceImport" in importedSymbol
+						? createNamespaceImport(createIdentifier(importedSymbol.name))
+						: createNamedImports([
+							createImportSpecifier(
+								importedSymbol.propertyName != null
+									? createIdentifier(importedSymbol.propertyName)
+									: undefined,
+								createIdentifier(importedSymbol.name)
+							)
+						])
+				),
+				createStringLiteral(moduleSpecifier)
+			)
 		];
 	}
 
@@ -134,7 +135,11 @@ export function visitImportedSymbol ({importedSymbol, sourceFileToExportedSymbol
 	if (absoluteChunkFileName === otherChunkFileName.fileName) {
 
 		// Most likely, the import should be left out, given that the symbol
-		// might already be part of the chunk. But, it may also be something like 'export {...} from "..."'
+		// might already be part of the chunk.
+		// But, there can be plenty reasons why that would not be the case.
+		// For example, it may be a default import in which case the name may not be equal to that of
+		// the original binding.
+		// Or, it may be something like 'export {...} from "..."'
 		// in which case *that* might be part of a different chunk (or none at all).
 		if (otherModuleExportedSymbols != null) {
 			const propertyName = "propertyName" in importedSymbol && importedSymbol.propertyName != null ? importedSymbol.propertyName : importedSymbol.name;
@@ -142,7 +147,7 @@ export function visitImportedSymbol ({importedSymbol, sourceFileToExportedSymbol
 				"defaultImport" in importedSymbol && importedSymbol.defaultImport
 					? "defaultExport" in exportedSymbol && exportedSymbol.defaultExport
 					: !("namespaceExport" in exportedSymbol) && exportedSymbol.name === propertyName
-		);
+			);
 
 			if (matchingExportedSymbol != null) {
 				const matchingExportedSymbolChunk = getChunkFilename(matchingExportedSymbol.originalModule, supportedExtensions, chunkToOriginalFileMap);
@@ -174,6 +179,13 @@ export function visitImportedSymbol ({importedSymbol, sourceFileToExportedSymbol
 						)
 					);
 				}
+
+				else if ("defaultImport" in importedSymbol && importedSymbol.defaultImport && "name" in matchingExportedSymbol && matchingExportedSymbol.name !== importedSymbol.name) {
+					return [
+						...importDeclarations,
+						createAliasedBinding(importedSymbol, matchingExportedSymbol.name)
+					];
+				}
 			}
 
 		}
@@ -182,7 +194,7 @@ export function visitImportedSymbol ({importedSymbol, sourceFileToExportedSymbol
 		if ("propertyName" in importedSymbol && importedSymbol.propertyName != null) {
 			return [
 				...importDeclarations,
-				createAliasedBinding(importedSymbol as NamedImportedSymbol&{ propertyName: string })
+				createAliasedBinding(importedSymbol, importedSymbol.propertyName)
 			];
 		}
 

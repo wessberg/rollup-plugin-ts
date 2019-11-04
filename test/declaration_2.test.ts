@@ -3,7 +3,7 @@ import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 // tslint:disable:no-duplicate-string
 
-test("Flattens declarations. #15", async t => {
+test("Flattens declarations. #16", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -32,7 +32,7 @@ test("Flattens declarations. #15", async t => {
 	);
 });
 
-test("Flattens declarations. #16", async t => {
+test("Flattens declarations. #17", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -71,7 +71,7 @@ test("Flattens declarations. #16", async t => {
 	);
 });
 
-test("Flattens declarations. #17", async t => {
+test("Flattens declarations. #18", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -111,7 +111,7 @@ test("Flattens declarations. #17", async t => {
 	);
 });
 
-test("Flattens declarations. #18", async t => {
+test("Flattens declarations. #19", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -153,7 +153,7 @@ test("Flattens declarations. #18", async t => {
 	);
 });
 
-test("Flattens declarations. #19", async t => {
+test("Flattens declarations. #20", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -194,7 +194,7 @@ test("Flattens declarations. #19", async t => {
 	);
 });
 
-test("Flattens declarations. #20", async t => {
+test("Flattens declarations. #21", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -235,7 +235,7 @@ test("Flattens declarations. #20", async t => {
 	);
 });
 
-test("Flattens declarations. #21", async t => {
+test("Flattens declarations. #22", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -275,7 +275,7 @@ test("Flattens declarations. #21", async t => {
 	);
 });
 
-test("Flattens declarations. #22", async t => {
+test("Flattens declarations. #23", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -302,7 +302,7 @@ test("Flattens declarations. #22", async t => {
 		formatCode(`\
 			declare type Foo = number;
 			declare const foo: Foo;
-			export {Foo};
+			export {foo};
 		`)
 	);
 });

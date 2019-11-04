@@ -6,7 +6,7 @@ import {NODE_MODULES} from "../../../../../constant/constant";
 
 /**
  * Visits the given ImportDeclaration.
- * @param {UpdateExportsVisitorOptions<ImportDeclaration>} options
+ * @param {PathMappingRewriterVisitorOptions<ImportDeclaration>} options
  * @returns {ImportDeclaration}
  */
 export function visitImportDeclaration({node, resolver, sourceFile}: PathMappingRewriterVisitorOptions<ImportDeclaration>): ImportDeclaration {

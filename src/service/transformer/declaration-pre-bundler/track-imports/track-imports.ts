@@ -1,4 +1,4 @@
-import {isImportClause, isImportDeclaration, isImportSpecifier, isImportTypeNode, isNamespaceImport, Node, SourceFile, TransformerFactory, updateSourceFileNode, visitEachChild} from "typescript";
+import {Expression, isImportClause, isImportDeclaration, isImportSpecifier, isImportTypeNode, isNamespaceImport, Node, SourceFile, TransformerFactory, updateSourceFileNode, visitEachChild} from "typescript";
 import {DeclarationPreBundlerOptions, ImportedSymbol} from "../declaration-pre-bundler-options";
 import {normalize} from "path";
 import {visitImportTypeNode} from "./visitor/visit-import-type-node";
@@ -33,11 +33,19 @@ export function trackImports (options: DeclarationPreBundlerOptions): Transforme
 				options.sourceFileToImportedSymbolSet.set(sourceFileName, importedSymbolSet);
 			}
 
+			let currentModuleSpecifier: Expression|undefined;
+
 			// Prepare some VisitorOptions
 			const visitorOptions = {
 				...options,
 				sourceFile,
 				isEntry: options.entryFileNames.includes(sourceFileName),
+				setCurrentModuleSpecifier (newModuleSpecifier: Expression|undefined) {
+					currentModuleSpecifier = newModuleSpecifier;
+				},
+				getCurrentModuleSpecifier (): Expression|undefined {
+					return currentModuleSpecifier;
+				},
 				childContinuation: <U extends Node> (node: U): U|undefined => {
 					return visitEachChild(node, visitor, context);
 				},

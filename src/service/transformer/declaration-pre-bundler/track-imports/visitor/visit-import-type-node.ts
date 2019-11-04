@@ -1,4 +1,4 @@
-import {createIdentifier, createQualifiedName, EntityName, ImportTypeNode, isIdentifier, isLiteralTypeNode, isStringLiteralLike} from "typescript";
+import {createIdentifier, createQualifiedName, createTypeQueryNode, EntityName, ImportTypeNode, isIdentifier, isLiteralTypeNode, isStringLiteralLike, TypeQueryNode} from "typescript";
 import {TrackImportsVisitorOptions} from "../track-imports-visitor-options";
 import {getIdentifiersForNode} from "../../../declaration-bundler/util/get-identifiers-for-node";
 import {pascalCase} from "@wessberg/stringutil";
@@ -19,7 +19,7 @@ export function visitImportTypeNode({
 	nodeIdentifierCache,
 	generateUniqueVariableName,
 	typeChecker
-}: TrackImportsVisitorOptions<ImportTypeNode>): EntityName | ImportTypeNode | undefined {
+}: TrackImportsVisitorOptions<ImportTypeNode>): EntityName | ImportTypeNode | TypeQueryNode | undefined {
 	if (!isLiteralTypeNode(node.argument) || !isStringLiteralLike(node.argument.literal)) return node;
 	const specifier = node.argument.literal;
 	const qualifier = node.qualifier;
@@ -41,7 +41,10 @@ export function visitImportTypeNode({
 			name: namespaceName,
 			propertyName: undefined
 		});
-		return createIdentifier(namespaceName);
+		const innerContent = createIdentifier(namespaceName);
+		return node.isTypeOf
+			? createTypeQueryNode(innerContent)
+			: innerContent;
 	}
 
 	// Otherwise, take all identifiers for the EntityName that is the qualifier and mark them as imported
@@ -59,6 +62,8 @@ export function visitImportTypeNode({
 				propertyName: undefined
 			});
 		}
-		return isIdentifier(qualifier) ? createIdentifier(qualifier.text) : createQualifiedName(qualifier.left, qualifier.right);
+
+		const innerContent = isIdentifier(qualifier) ? createIdentifier(qualifier.text) : createQualifiedName(qualifier.left, qualifier.right);
+		return node.isTypeOf ? createTypeQueryNode(innerContent) : innerContent;
 	}
 }

@@ -14,9 +14,10 @@ export function visitImportClause({
 	resolver,
 	markAsImported,
 	continuation,
-	typeChecker
+	typeChecker,
+	getCurrentModuleSpecifier
 }: TrackImportsVisitorOptions<ImportClause>): ImportClause | undefined {
-	const moduleSpecifier = node.parent == null ? undefined : node.parent.moduleSpecifier;
+	const moduleSpecifier = getCurrentModuleSpecifier();
 
 	const originalModule = moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? sourceFile.fileName : resolver(moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName;
 	const rawModuleSpecifier = moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? undefined : moduleSpecifier.text;

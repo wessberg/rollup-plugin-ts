@@ -6,10 +6,10 @@ import {NODE_MODULES} from "../../../../../constant/constant";
 
 /**
  * Visits the given ExportDeclaration.
- * @param {UpdateExportsVisitorOptions<ExportDeclaration>} options
+ * @param {PathMappingRewriterVisitorOptions<ExportDeclaration>} options
  * @returns {ExportDeclaration}
  */
-export function visitExportDeclaration({node, sourceFile, resolver}: PathMappingRewriterVisitorOptions<ExportDeclaration>): ExportDeclaration {
+export function visitExportDeclaration ({node, sourceFile, resolver}: PathMappingRewriterVisitorOptions<ExportDeclaration>): ExportDeclaration {
 	const specifier = node.moduleSpecifier;
 	if (specifier == null || !isStringLiteralLike(specifier)) return node;
 
@@ -24,5 +24,11 @@ export function visitExportDeclaration({node, sourceFile, resolver}: PathMapping
 	if (specifier.text === updatedModuleSpecifierText || updatedModuleSpecifierText.includes(`/${NODE_MODULES}/`)) return node;
 
 	// Otherwise, update the module specifier to reflect the actual file path
-	return updateExportDeclaration(node, node.decorators, node.modifiers, node.exportClause, createStringLiteral(updatedModuleSpecifierText));
+	return updateExportDeclaration(
+		node,
+		node.decorators,
+		node.modifiers,
+		node.exportClause,
+		createStringLiteral(updatedModuleSpecifierText)
+	);
 }

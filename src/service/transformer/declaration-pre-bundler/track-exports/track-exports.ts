@@ -1,4 +1,4 @@
-import {isClassDeclaration, isClassExpression, isEnumDeclaration, isExportAssignment, isExportDeclaration, isExportSpecifier, isFunctionDeclaration, isFunctionExpression, isInterfaceDeclaration, isModuleDeclaration, isNamedExports, isTypeAliasDeclaration, isVariableStatement, Node, SourceFile, TransformerFactory, updateSourceFileNode, visitEachChild} from "typescript";
+import {Expression, isClassDeclaration, isClassExpression, isEnumDeclaration, isExportAssignment, isExportDeclaration, isExportSpecifier, isFunctionDeclaration, isFunctionExpression, isInterfaceDeclaration, isModuleDeclaration, isNamedExports, isTypeAliasDeclaration, isVariableStatement, Node, SourceFile, TransformerFactory, updateSourceFileNode, visitEachChild} from "typescript";
 import {DeclarationPreBundlerOptions, ExportedSymbol} from "../declaration-pre-bundler-options";
 import {visitExportDeclaration} from "./visitor/visit-export-declaration";
 import {visitExportAssignment} from "./visitor/visit-export-assignment";
@@ -40,11 +40,19 @@ export function trackExports (options: DeclarationPreBundlerOptions): Transforme
 				options.sourceFileToExportedSymbolSet.set(sourceFileName, exportedSymbolSet);
 			}
 
+			let currentModuleSpecifier: Expression|undefined;
+
 			// Prepare some VisitorOptions
 			const visitorOptions = {
 				...options,
 				sourceFile,
 				isEntry: options.entryFileNames.includes(sourceFileName),
+				setCurrentModuleSpecifier (newModuleSpecifier: Expression|undefined) {
+					currentModuleSpecifier = newModuleSpecifier;
+				},
+				getCurrentModuleSpecifier (): Expression|undefined {
+					return currentModuleSpecifier;
+				},
 				childContinuation: <U extends Node> (node: U): U|undefined => {
 					return visitEachChild(node, visitor, context);
 				},

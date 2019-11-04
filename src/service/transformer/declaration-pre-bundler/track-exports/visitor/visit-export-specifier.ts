@@ -12,9 +12,10 @@ export function visitExportSpecifier({
 	sourceFile,
 	resolver,
 	markAsExported,
-	getDeconflictedNameAndPropertyName
+	getDeconflictedNameAndPropertyName,
+	getCurrentModuleSpecifier
 }: TrackExportsVisitorOptions<ExportSpecifier>): ExportSpecifier | undefined {
-	const moduleSpecifier = node.parent == null || node.parent.parent == null ? undefined : node.parent.parent.moduleSpecifier;
+	const moduleSpecifier = getCurrentModuleSpecifier();
 	const originalModule = moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? sourceFile.fileName : resolver(moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName;
 	const rawModuleSpecifier = moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? undefined : moduleSpecifier.text;
 	const [propertyName, name] = getDeconflictedNameAndPropertyName(node.propertyName == null ? undefined : node.propertyName.text, node.name.text);

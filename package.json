@@ -116,7 +116,12 @@
 	},
 	"ava": {
 		"files": [
-			"test/declaration_1.test.ts"
+			"test/declaration_2.test.ts",
+			"test/declaration_1.test.ts",
+			"test/declaration-map.test.ts",
+			"test/deconflict.test.ts",
+			"test/tree-shake.test.ts",
+			"test/hook.test.ts"
 		],
 		"verbose": true,
 		"failFast": true,

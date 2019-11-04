@@ -13,9 +13,10 @@ export function visitNamespaceImport({
 	sourceFile,
 	resolver,
 	markAsImported,
-	typeChecker
+	typeChecker,
+	getCurrentModuleSpecifier
 }: TrackImportsVisitorOptions<NamespaceImport>): NamespaceImport | undefined {
-	const moduleSpecifier = node.parent == null || node.parent.parent == null ? undefined : node.parent.parent.moduleSpecifier;
+	const moduleSpecifier = getCurrentModuleSpecifier();
 	const originalModule = moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? sourceFile.fileName : resolver(moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName;
 	const rawModuleSpecifier = moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? undefined : moduleSpecifier.text;
 	const declaration = getAliasedDeclaration(node.name, typeChecker);

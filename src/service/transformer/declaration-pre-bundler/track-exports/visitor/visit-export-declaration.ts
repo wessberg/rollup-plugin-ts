@@ -12,8 +12,10 @@ export function visitExportDeclaration({
 	sourceFile,
 	continuation,
 	resolver,
-	markAsExported
+	markAsExported,
+	setCurrentModuleSpecifier
 }: TrackExportsVisitorOptions<ExportDeclaration>): ExportDeclaration | undefined {
+	setCurrentModuleSpecifier(node.moduleSpecifier);
 	// If there is an export clause, this is something like 'export {...} [from "..."]'.
 	// We'll let other visitors handle such cases.
 	if (node.exportClause != null) {

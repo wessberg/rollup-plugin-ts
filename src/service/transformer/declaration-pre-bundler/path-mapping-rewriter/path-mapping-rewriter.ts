@@ -61,7 +61,7 @@ export function pathMappingRewriter(options: DeclarationPreBundlerOptions): Tran
 
 			if (options.pluginOptions.debug) {
 				console.log(`=== AFTER PATH REWRITING === (${normalize(sourceFile.fileName)})`);
-				console.log(options.printer.printFile(sourceFile));
+				console.log(options.printer.printFile(result));
 			}
 
 			return result;
