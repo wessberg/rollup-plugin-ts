@@ -84,6 +84,7 @@ In comparison with the [official plugin](https://github.com/rollup/rollup-plugin
 - [Full list of plugin options](#full-list-of-plugin-options)
   - [`transpiler`](#transpiler)
   - [`babelConfig`](#babelconfig)
+  - [`noBabelConfigCustomization`](#nobabelconfigcustomization)
   - [`tsconfig`](#tsconfig)
   - [`browserslist`](#browserslist)
   - [`cwd`](#cwd)
@@ -461,6 +462,12 @@ Type: `string | Partial<IBabelInputOptions>`
 
 This option will only be respected when `"babel"` is being used as the `transpiler` and can be used to provide a [Babel config](https://babeljs.io/docs/en/options) or a path to one.
 
+#### `noBabelConfigCustomization`
+
+Type: `boolean`
+
+If this option is `true`, **no** [default presets or plugins](#default-babel-plugins) are applied to the babel config. The [ignored/overridden Babel options](#ignoredoverridden-babel-options) are nevertheless applied.
+
 #### `tsconfig`
 
 Type: `string | Partial<CompilerOptions> | Partial<Record<keyof CompilerOptions, string | number | boolean>> | ParsedCommandLine | TsConfigResolver | TsConfigResolverWithFileName`
@@ -574,6 +581,8 @@ If you decide to use Babel as the transpiler with the `transpiler` plugin option
 By default, the plugin will conditionally apply the `@babel/preset-env` preset if a Browserslist is provided or located, as well as plugins for handling [shipped proposals](https://babeljs.io/docs/en/babel-preset-env#shippedproposals). And, the `@babel/plugin-runtime` plugin will be used for extracting Babel helpers and reusing them across your chunks to avoid code duplication.
 
 If you provide these presets or plugins yourself through the found or provided Babel config, _your_ config options will take precedence.
+
+In case that this is not enough for you setting [`noBabelConfigCustomization`](#nobabelconfigcustomization) disables these defaults.
 
 Here's table with a full overview of the specifics:
 

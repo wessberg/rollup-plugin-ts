@@ -60,6 +60,7 @@ export interface ITypescriptPluginTypescriptOptions extends ITypescriptPluginBas
 
 export interface ITypescriptPluginBabelOptions extends ITypescriptPluginBaseOptions {
 	transpiler: "babel";
+	noBabelConfigCustomization?: boolean;
 	babelConfig?: string | Partial<IBabelInputOptions>;
 }
 

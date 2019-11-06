@@ -17,22 +17,39 @@ import {findBabelConfig} from "./find-babel-config";
 
 // tslint:disable:no-any
 
+interface IBabelPlugin {
+	key: string;
+}
+
+function getBabelItemId(item: IBabelConfigItem | IBabelPlugin): string {
+	if ("file" in item) return item.file.resolved;
+
+	const {key} = item;
+
+	// 1) full file path to plugin entrypoint
+	// 2 & 3) full module name
+	if (key.startsWith("/") || key.startsWith("@") || key.startsWith("babel-plugin-")) return key;
+
+	// add prefix to match keys defined in BABEL_MINIFY_PLUGIN_NAMES
+	return `babel-plugin-${key}`;
+}
+
 /**
  * Combines the given two sets of presets
- * @param {IBabelConfigItem[]} userItems
- * @param {IBabelConfigItem[]} defaultItems
- * @param {object[]} [forcedItems]
+ * @param {(IBabelConfigItem | IBabelPlugin)[]} userItems
+ * @param {(IBabelConfigItem | IBabelPlugin)[]} defaultItems
+ * @param {(IBabelConfigItem | IBabelPlugin)[]} [forcedItems]
  * @param {boolean} [useMinifyOptions]
  * @returns {{}[]}
  */
 function combineConfigItems(
-	userItems: IBabelConfigItem[],
-	defaultItems: IBabelConfigItem[] = [],
-	forcedItems: IBabelConfigItem[] = [],
+	userItems: (IBabelConfigItem | IBabelPlugin)[],
+	defaultItems: (IBabelConfigItem | IBabelPlugin)[] = [],
+	forcedItems: (IBabelConfigItem | IBabelPlugin)[] = [],
 	useMinifyOptions: boolean = false
 ): {}[] {
-	const namesInUserItems = new Set(userItems.map(item => item.file.resolved));
-	const namesInForcedItems = new Set(forcedItems.map(item => item.file.resolved));
+	const namesInUserItems = new Set(userItems.map(getBabelItemId));
+	const namesInForcedItems = new Set(forcedItems.map(getBabelItemId));
 	const userItemsHasYearlyPreset = [...namesInUserItems].some(isYearlyBabelPreset);
 
 	return (
@@ -41,20 +58,22 @@ function combineConfigItems(
 			// If the options contains a yearly preset such as "preset-es2015", filter out preset-env from the default items if it is given
 			...defaultItems.filter(
 				item =>
-					!namesInUserItems.has(item.file.resolved) &&
-					!namesInForcedItems.has(item.file.resolved) &&
-					(!userItemsHasYearlyPreset || !isBabelPresetEnv(item.file.resolved))
+					!namesInUserItems.has(getBabelItemId(item)) &&
+					!namesInForcedItems.has(getBabelItemId(item)) &&
+					(!userItemsHasYearlyPreset || !isBabelPresetEnv(getBabelItemId(item)))
 			),
 
 			// Only use those user items that doesn't appear within the forced items
-			...userItems.filter(item => !namesInForcedItems.has(item.file.resolved)),
+			...userItems.filter(item => !namesInForcedItems.has(getBabelItemId(item))),
 
 			// Apply the forced items at all times
 			...forcedItems
 		]
 			// Filter out those options that do not apply depending on whether or not to apply minification
 			.filter(configItem =>
-				useMinifyOptions ? configItemIsAllowedDuringMinification(configItem) : configItemIsAllowedDuringNoMinification(configItem)
+				useMinifyOptions
+					? configItemIsAllowedDuringMinification(getBabelItemId(configItem))
+					: configItemIsAllowedDuringNoMinification(getBabelItemId(configItem))
 			)
 	);
 }
@@ -64,8 +83,8 @@ function combineConfigItems(
  * @param {string} resolved
  * @returns {boolean}
  */
-function configItemIsMinificationRelated({file: {resolved}}: IBabelConfigItem): boolean {
-	return BABEL_MINIFY_PRESET_NAMES.some(preset => resolved.includes(preset)) || BABEL_MINIFY_PLUGIN_NAMES.some(plugin => resolved.includes(plugin));
+function configItemIsMinificationRelated(id: string): boolean {
+	return BABEL_MINIFY_PRESET_NAMES.some(preset => id.includes(preset)) || BABEL_MINIFY_PLUGIN_NAMES.some(plugin => id.includes(plugin));
 }
 
 /**
@@ -73,10 +92,10 @@ function configItemIsMinificationRelated({file: {resolved}}: IBabelConfigItem): 
  * @param {string} resolved
  * @returns {boolean}
  */
-function configItemIsAllowedDuringMinification({file: {resolved}}: IBabelConfigItem): boolean {
+function configItemIsAllowedDuringMinification(id: string): boolean {
 	return (
-		BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES.every(preset => !resolved.includes(preset)) &&
-		BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES.every(plugin => !resolved.includes(plugin))
+		BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES.every(preset => !id.includes(preset)) &&
+		BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES.every(plugin => !id.includes(plugin))
 	);
 }
 
@@ -85,10 +104,8 @@ function configItemIsAllowedDuringMinification({file: {resolved}}: IBabelConfigI
  * @param {string} resolved
  * @returns {boolean}
  */
-function configItemIsAllowedDuringNoMinification({file: {resolved}}: IBabelConfigItem): boolean {
-	return (
-		BABEL_MINIFY_PRESET_NAMES.every(preset => !resolved.includes(preset)) && BABEL_MINIFY_PLUGIN_NAMES.every(plugin => !resolved.includes(plugin))
-	);
+function configItemIsAllowedDuringNoMinification(id: string): boolean {
+	return BABEL_MINIFY_PRESET_NAMES.every(preset => !id.includes(preset)) && BABEL_MINIFY_PLUGIN_NAMES.every(plugin => !id.includes(plugin));
 }
 
 /**
@@ -99,12 +116,61 @@ function configItemIsAllowedDuringNoMinification({file: {resolved}}: IBabelConfi
 export function getBabelConfig({
 	babelConfig,
 	cwd,
+	noBabelConfigCustomization,
 	forcedOptions = {},
 	defaultOptions = {},
 	browserslist,
 	rollupInputOptions
 }: GetBabelConfigOptions): GetBabelConfigResult {
 	const resolvedConfig = findBabelConfig({cwd, babelConfig});
+
+	if (noBabelConfigCustomization === true) {
+		const loadOptionsForFilename = (filename: string, useMinifyOptions: boolean = false) => {
+			const partialConfig =
+				resolvedConfig != null && resolvedConfig.kind === "dict"
+					? // If the given babelConfig is an object of input options, use that as the basis for the full config
+					  resolvedConfig
+					: // Load the path to a babel config provided to the plugin if any, otherwise try to resolve it
+					  loadPartialConfig({
+							cwd,
+							root: cwd,
+							...(resolvedConfig != null ? {configFile: resolvedConfig.path} : {babelrc: true}),
+							filename
+					  });
+
+			// fully load all options, which results in a flat plugins structure
+			// which can then be used to match minification plugins
+			const options = loadOptions({
+				...partialConfig.options,
+				...forcedOptions,
+				presets: partialConfig.options.presets,
+				plugins: partialConfig.options.plugins,
+				filename,
+				caller: {
+					name: "rollup-plugin-ts",
+					...(partialConfig.options.caller || {}),
+					supportsStaticESM: true,
+					supportsDynamicImport: true
+				}
+			});
+
+			// sourceMap is an alias for 'sourceMaps'. If the user provided it, make sure it is undefined. Otherwise, Babel will fail during validation
+			if ("sourceMap" in options) {
+				delete options.sourceMap;
+			}
+
+			return {
+				...options,
+				plugins: combineConfigItems(options.plugins, [], [], useMinifyOptions)
+			};
+		};
+
+		return {
+			config: filename => loadOptionsForFilename(filename, false),
+			minifyConfig: filename => loadOptionsForFilename(filename, true),
+			hasMinifyOptions: true
+		};
+	}
 
 	// Load a partial Babel config based on the input options
 	const partialConfig = loadPartialConfig(

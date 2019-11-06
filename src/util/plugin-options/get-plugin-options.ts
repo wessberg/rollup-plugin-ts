@@ -48,6 +48,7 @@ export function getPluginOptions(options: Partial<TypescriptPluginOptions>): Typ
 		return {
 			...baseOptions,
 			...("babelConfig" in options ? {babelConfig: options.babelConfig} : {}),
+			...("noBabelConfigCustomization" in options ? {noBabelConfigCustomization: options.noBabelConfigCustomization} : {}),
 			transpiler: "babel"
 		};
 	}

@@ -204,6 +204,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				const babelConfigResult = getBabelConfig({
 					cwd,
 					babelConfig: pluginOptions.babelConfig,
+					noBabelConfigCustomization: pluginOptions.noBabelConfigCustomization,
 					forcedOptions: getForcedBabelOptions({cwd, pluginOptions, rollupInputOptions, browserslist: computedBrowserslist}),
 					defaultOptions: getDefaultBabelOptions({pluginOptions, rollupInputOptions, browserslist: computedBrowserslist}),
 					browserslist: computedBrowserslist,
