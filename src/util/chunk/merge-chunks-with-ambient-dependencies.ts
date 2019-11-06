@@ -38,6 +38,13 @@ function splitAmbientModule (moduleName: string, chunks: Iterable<MergedChunk>):
 				return splitAmbientModule(moduleName, chunks);
 			}
 		}
+
+		// If we came this far, none of the chunks are entry chunks, but still the module is scattered across them.
+		// In these cases, leave the module inside the first chunk
+		const [, ...otherChunks] = chunksWithModule;
+		for (const chunk of otherChunks) {
+			chunk.modules.splice(chunk.modules.indexOf(moduleName), 1);
+		}
 	}
 }
 
@@ -47,6 +54,7 @@ function splitAmbientModules (chunks: MergedChunk[], ambientModules: Set<string>
 			if (ambientModules.has(module)) {
 				splitAmbientModule(module, chunks);
 				const chunksWithModule = getChunksWithModule(module, chunks);
+
 				if (chunksWithModule.size < 1) {
 					throw new RangeError(`Expected module: '${module}' to exist within a chunk, but was found under none`);
 				}

@@ -94,12 +94,12 @@ function getAllNamedExportsForModule (moduleName: string, sourceFileToExportedSy
 }
 
 export function visitImportedSymbol (options: VisitImportedSymbolOptions): (ImportDeclaration|TypeAliasDeclaration|VariableStatement)[] {
-	const {importedSymbol, sourceFileToExportedSymbolSet, sourceFileToLocalSymbolMap, relativeChunkFileName, absoluteChunkFileName} = options;
+	const {importedSymbol, sourceFileToExportedSymbolSet, sourceFileToLocalSymbolMap, absoluteChunkFileName} = options;
 	const otherChunkFileName = getChunkFilename({...options, fileName: importedSymbol.originalModule});
 	const importDeclarations: (ImportDeclaration|TypeAliasDeclaration)[] = [];
 
 	// Generate a module specifier that points to the referenced module, relative to the current sourcefile
-	const relativeToSourceFileDirectory = importedSymbol.isExternal && importedSymbol.rawModuleSpecifier != null ? importedSymbol.rawModuleSpecifier : otherChunkFileName == null ? importedSymbol.originalModule : relative(dirname(relativeChunkFileName), otherChunkFileName.fileName);
+	const relativeToSourceFileDirectory = importedSymbol.isExternal && importedSymbol.rawModuleSpecifier != null ? importedSymbol.rawModuleSpecifier : otherChunkFileName == null ? importedSymbol.originalModule : relative(dirname(absoluteChunkFileName), otherChunkFileName.fileName);
 	const moduleSpecifier = importedSymbol.isExternal && importedSymbol.rawModuleSpecifier != null ? importedSymbol.rawModuleSpecifier : ensureHasLeadingDotAndPosix(stripKnownExtension(relativeToSourceFileDirectory), false);
 
 	// Find the local symbols for the referenced module

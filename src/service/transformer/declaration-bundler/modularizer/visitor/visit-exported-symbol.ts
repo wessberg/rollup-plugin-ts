@@ -25,11 +25,11 @@ export interface VisitExportedSymbolFromEntryModuleOptions extends VisitExported
 }
 
 export function visitExportedSymbolFromOtherChunk (options: VisitExportedSymbolOptions): ExportDeclaration[] {
-	const {exportedSymbol, relativeChunkFileName} = options;
+	const {exportedSymbol, absoluteChunkFileName} = options;
 	const otherChunkFileName = getChunkFilename({...options, fileName: exportedSymbol.originalModule});
 
 	// Generate a module specifier that points to the referenced module, relative to the current sourcefile
-	const relativeToSourceFileDirectory = exportedSymbol.isExternal && exportedSymbol.rawModuleSpecifier != null ? exportedSymbol.rawModuleSpecifier : otherChunkFileName == null ? exportedSymbol.originalModule : relative(dirname(relativeChunkFileName), otherChunkFileName.fileName);
+	const relativeToSourceFileDirectory = exportedSymbol.isExternal && exportedSymbol.rawModuleSpecifier != null ? exportedSymbol.rawModuleSpecifier : otherChunkFileName == null ? exportedSymbol.originalModule : relative(dirname(absoluteChunkFileName), otherChunkFileName.fileName);
 	const moduleSpecifier = exportedSymbol.isExternal && exportedSymbol.rawModuleSpecifier != null ? exportedSymbol.rawModuleSpecifier : ensureHasLeadingDotAndPosix(stripKnownExtension(relativeToSourceFileDirectory), false);
 
 	if ("namespaceExport" in exportedSymbol) {
