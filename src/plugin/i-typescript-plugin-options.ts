@@ -42,6 +42,7 @@ export interface ITypescriptPluginBaseOptions {
 	tsconfig?: string | Partial<CompilerOptions> | Partial<InputCompilerOptions> | ParsedCommandLine | TsConfigResolver | TsConfigResolverWithFileName;
 	browserslist?: false | string[] | string | BrowserslistConfig;
 	cwd: string;
+	resolveTypescriptLibFrom: string;
 	transformers?: (CustomTransformers | CustomTransformersFunction)[] | CustomTransformers | CustomTransformersFunction;
 	include: string[] | string;
 	exclude: string[] | string;

@@ -12,6 +12,7 @@ export function getPluginOptions(options: Partial<TypescriptPluginOptions>): Typ
 		browserslist,
 		transpiler = "typescript",
 		cwd = process.cwd(),
+		resolveTypescriptLibFrom = cwd,
 		tsconfig,
 		transformers,
 		include = [],
@@ -26,6 +27,7 @@ export function getPluginOptions(options: Partial<TypescriptPluginOptions>): Typ
 	const baseOptions = {
 		browserslist,
 		cwd,
+		resolveTypescriptLibFrom,
 		exclude,
 		include,
 		transformers,

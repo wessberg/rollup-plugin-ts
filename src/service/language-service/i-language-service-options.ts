@@ -10,6 +10,7 @@ import {SupportedExtensions} from "../../util/get-supported-extensions/get-suppo
 export interface ILanguageServiceOptions {
 	parsedCommandLine: ParsedCommandLine;
 	cwd: TypescriptPluginOptions["cwd"];
+	resolveTypescriptLibFrom: TypescriptPluginOptions['resolveTypescriptLibFrom']
 	transformers?: CustomTransformersFunction;
 	emitCache: IEmitCache;
 	resolveCache: IResolveCache;

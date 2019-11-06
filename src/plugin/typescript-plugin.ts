@@ -48,7 +48,7 @@ const PLUGIN_NAME = "Typescript";
  */
 export default function typescriptRollupPlugin (pluginInputOptions: Partial<TypescriptPluginOptions> = {}): Plugin {
 	const pluginOptions: TypescriptPluginOptions = getPluginOptions(pluginInputOptions);
-	const {include, exclude, tsconfig, cwd, browserslist} = pluginOptions;
+	const {include, exclude, tsconfig, cwd, resolveTypescriptLibFrom, browserslist} = pluginOptions;
 	const transformers = pluginOptions.transformers == null ? [] : ensureArray(pluginOptions.transformers);
 	// Make sure to normalize the received Browserslist
 	const normalizedBrowserslist = getBrowserslist({browserslist, cwd, fileSystem: pluginOptions.fileSystem});
@@ -239,6 +239,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 			// Hook up a LanguageServiceHost and a LanguageService
 			languageServiceHost = new IncrementalLanguageService({
 				cwd,
+				resolveTypescriptLibFrom,
 				emitCache,
 				resolveCache,
 				rollupInputOptions,
