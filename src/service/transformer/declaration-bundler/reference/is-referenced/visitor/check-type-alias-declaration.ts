@@ -1,14 +1,17 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
 import {TypeAliasDeclaration} from "typescript";
 
-export function checkTypeAliasDeclaration({node, continuation}: ReferenceVisitorOptions<TypeAliasDeclaration>): boolean {
+export function checkTypeAliasDeclaration({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<TypeAliasDeclaration>): string[] {
+	const referencedIdentifiers: string[] = [];
+
 	if (node.typeParameters != null) {
 		for (const typeParameter of node.typeParameters) {
-			if (continuation(typeParameter)) return true;
+			referencedIdentifiers.push(...continuation(typeParameter));
 		}
 	}
 
-	if (continuation(node.type)) return true;
+	referencedIdentifiers.push(...continuation(node.type));
 
-	return false;
+	markIdentifiersAsReferenced(node, ...referencedIdentifiers);
+	return referencedIdentifiers;
 }

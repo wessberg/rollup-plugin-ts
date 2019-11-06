@@ -1,11 +1,18 @@
 import {Resolver} from "../../../util/resolve-id/resolver";
 import {Printer} from "typescript";
 import {TypescriptPluginOptions} from "../../../plugin/i-typescript-plugin-options";
-import {ReferenceCache} from "../declaration-bundler/reference/cache/reference-cache";
+import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "../declaration-bundler/reference/cache/reference-cache";
 import {NodeIdentifierCache} from "../declaration-bundler/util/get-identifiers-for-node";
 import {SupportedExtensions} from "../../../util/get-supported-extensions/get-supported-extensions";
 import {SourceFileToExportedSymbolSet, SourceFileToGeneratedVariableNameSet, SourceFileToImportedSymbolSet, SourceFileToLocalSymbolMap} from "../declaration-pre-bundler/declaration-pre-bundler-options";
 import {ChunkToOriginalFileMap} from "../../../util/chunk/get-chunk-to-original-file-map";
+
+export interface GetChunkFilenameResult {
+	fileName: string;
+	isAmbient: boolean;
+}
+
+export type ChunkForModuleCache = Map<string, GetChunkFilenameResult|undefined>;
 
 export interface DeclarationOptions {
 	localModuleNames: string[];
@@ -15,6 +22,9 @@ export interface DeclarationOptions {
 	nodeIdentifierCache: NodeIdentifierCache;
 	// A cache map between nodes and whether or not they are referenced
 	referenceCache: ReferenceCache;
+
+	// A cache between module names and the chunks that contain them
+	chunkForModuleCache: ChunkForModuleCache;
 
 	// A function that can resolve bare module specifiers
 	resolver: Resolver;
@@ -48,4 +58,5 @@ export interface DeclarationOptions {
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
 	sourceFileToLocalSymbolMap: SourceFileToLocalSymbolMap;
 	sourceFileToGeneratedVariableNameSet: SourceFileToGeneratedVariableNameSet;
+	sourceFileToNodeToReferencedIdentifiersCache: SourceFileToNodeToReferencedIdentifiersCache;
 }

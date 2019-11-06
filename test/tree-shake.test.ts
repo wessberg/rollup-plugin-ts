@@ -94,11 +94,11 @@ test("Tree-shakes correctly. #3", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			interface Foo {
-				bar: Bar;
-			}
 			declare class Bar {
 				bar: Foo;
+			}
+			interface Foo {
+				bar: Bar;
 			}
 			export { Foo };
 		`)

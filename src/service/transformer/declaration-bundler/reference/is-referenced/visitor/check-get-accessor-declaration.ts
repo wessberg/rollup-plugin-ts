@@ -1,8 +1,12 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {FunctionExpression} from "typescript";
+import {GetAccessorDeclaration, isIdentifier} from "typescript";
 
-export function checkFunctionExpression({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<FunctionExpression>): string[] {
+export function checkGetAccessorDeclaration ({node, continuation}: ReferenceVisitorOptions<GetAccessorDeclaration>): string[] {
 	const referencedIdentifiers: string[] = [];
+
+	if (!isIdentifier(node.name)) {
+		referencedIdentifiers.push(...continuation(node.name));
+	}
 	for (const parameter of node.parameters) {
 		referencedIdentifiers.push(...continuation(parameter));
 	}
@@ -13,14 +17,12 @@ export function checkFunctionExpression({node, continuation, markIdentifiersAsRe
 		}
 	}
 
-	if (node.body != null) {
-		referencedIdentifiers.push(...continuation(node.body));
-	}
-
 	if (node.type != null) {
 		referencedIdentifiers.push(...continuation(node.type));
 	}
 
-	markIdentifiersAsReferenced(node, ...referencedIdentifiers);
+	if (node.body != null) {
+		referencedIdentifiers.push(...continuation(node.body));
+	}
 	return referencedIdentifiers;
 }

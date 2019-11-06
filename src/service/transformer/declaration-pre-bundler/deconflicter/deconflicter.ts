@@ -71,7 +71,7 @@ export function deconflicter (options: DeclarationPreBundlerOptions): Transforme
 				console.log(options.printer.printFile(sourceFile));
 			}
 
-			const chunkFileNameResult = getChunkFilename(sourceFileName, options.supportedExtensions, options.chunkToOriginalFileMap);
+			const chunkFileNameResult = getChunkFilename({...options, fileName: sourceFileName});
 
 			// If no chunk file name could be detected, skip this file
 			if (chunkFileNameResult == null) {

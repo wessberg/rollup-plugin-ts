@@ -97,7 +97,7 @@ export function mergeChunksWithAmbientDependencies(chunks: OutputChunk[], module
 			const entryIndex = chunk.modules.indexOf(entry);
 			if (entryIndex < 0) continue;
 
-			for (const dependency of [...moduleDependencies].filter(moduleDependency => ambientModules.has(moduleDependency))) {
+			for (const dependency of [...moduleDependencies].reverse().filter(moduleDependency => ambientModules.has(moduleDependency) && !chunk.modules.includes(moduleDependency))) {
 				chunk.modules.splice(entryIndex, 0, dependency);
 			}
 		}

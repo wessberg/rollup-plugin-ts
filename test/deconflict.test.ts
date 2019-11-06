@@ -138,11 +138,11 @@ test("Deconflicts symbols. #3", async t => {
 			declare class B {
 				someOriginalProp: number;
 			}
-			interface A {
-					b: B;
-			}
 			declare class B_$0 extends OriginalB {
 					someOtherProp: string;
+			}
+			interface A {
+					b: B;
 			}
 			export { B_$0 as B };
 			export { A };
@@ -339,18 +339,17 @@ test("Deconflicts symbols. #7", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			declare const Foo: {
-				readonly Foo: "Foo";
+			declare class Foo {
+					Bar: 2;
+			}
+			declare const Foo_$0: {
+					readonly Foo: "Foo";
 			};
-			declare type Baz = typeof Foo;
+			declare type Baz = typeof Foo_$0;
 			declare type Bar = {
 					[Foo in "Foo"]: Baz[Foo];
 			};
-			declare class Foo_$0 {
-					Bar: 2;
-			}
-			export { Foo_$0 as Foo };
-			export { Baz, Bar };
+			export { Foo, Baz, Bar };
 		`)
 	);
 });
@@ -400,17 +399,16 @@ test("Handles different bindings from same module inside same chunk. #1", async 
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			import { ModuleResolutionHost } from "typescript";
 			import { ModuleResolutionHost as TSModuleResolutionHost } from "typescript";
-			interface Bar {
-					moduleResolutionHost: ModuleResolutionHost;
-			}
-			declare class ModuleResolutionHost_$0 implements TSModuleResolutionHost {
+			import { ModuleResolutionHost as ModuleResolutionHost_$0 } from "typescript";
+			declare class ModuleResolutionHost implements TSModuleResolutionHost {
 					fileExists(_fileName: string): boolean;
 					readFile(_fileName: string, _encoding?: string): string | undefined;
 			}
-			export { ModuleResolutionHost_$0 as ModuleResolutionHost };
-			export { Bar };
+			interface Bar {
+					moduleResolutionHost: ModuleResolutionHost_$0;
+			}
+			export { ModuleResolutionHost, Bar };
 		`)
 	);
 });
@@ -511,17 +509,16 @@ test("Handles different bindings from same module inside same chunk. #3", async 
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			import { ModuleResolutionHost } from "typescript";
 			import { ModuleResolutionHost as TSModuleResolutionHost } from "typescript";
-			interface Bar {
-					moduleResolutionHost: ModuleResolutionHost;
-			}
-			declare class ModuleResolutionHost_$0 implements TSModuleResolutionHost {
+			import { ModuleResolutionHost as ModuleResolutionHost_$0 } from "typescript";
+			declare class ModuleResolutionHost implements TSModuleResolutionHost {
 					fileExists(_fileName: string): boolean;
 					readFile(_fileName: string, _encoding?: string): string | undefined;
 			}
-			export { ModuleResolutionHost_$0 as ModuleResolutionHost };
-			export { Bar };
+			interface Bar {
+					moduleResolutionHost: ModuleResolutionHost_$0;
+			}
+			export { ModuleResolutionHost, Bar };
 		`)
 	);
 });

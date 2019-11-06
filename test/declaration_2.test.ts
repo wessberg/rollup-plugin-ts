@@ -307,7 +307,7 @@ test("Flattens declarations. #23", async t => {
 	);
 });
 
-test("Flattens declarations with code splitting. #1", async t => {
+test("Flattens declarations. #24", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -379,6 +379,36 @@ test("Flattens declarations with code splitting. #1", async t => {
 				shared: string;
 			}
 			export {Shared};
+		`)
+	);
+});
+
+test("Flattens declarations. #25", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+							export {default} from "./foo";
+        	`
+		},
+		{
+			entry: false,
+			fileName: "foo.ts",
+			text: `\
+				export default function foo () {}
+				`
+		}
+	], {debug: true});
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare function foo (): void;
+			export {foo as default};
 		`)
 	);
 });

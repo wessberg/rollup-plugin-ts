@@ -6,9 +6,11 @@ import {getChunkFilename} from "../../../declaration-pre-bundler/util/get-chunk-
 import {assertDefined} from "../../../../../util/assert-defined/assert-defined";
 import {dirname, relative} from "path";
 import {ensureHasLeadingDotAndPosix, stripKnownExtension} from "../../../../../util/path/path-util";
+import {ChunkForModuleCache} from "../../../declaration/declaration-options";
 
 export interface VisitExportedSymbolOptions {
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
+	chunkForModuleCache: ChunkForModuleCache;
 	exportedSymbol: ExportedSymbol;
 	supportedExtensions: SupportedExtensions;
 	chunkToOriginalFileMap: ChunkToOriginalFileMap;
@@ -22,8 +24,9 @@ export interface VisitExportedSymbolFromEntryModuleOptions extends VisitExported
 	otherModuleExportedSymbols: ExportedSymbolSet;
 }
 
-export function visitExportedSymbolFromOtherChunk ({exportedSymbol, supportedExtensions, chunkToOriginalFileMap, relativeChunkFileName}: VisitExportedSymbolOptions): ExportDeclaration[] {
-	const otherChunkFileName = getChunkFilename(exportedSymbol.originalModule, supportedExtensions, chunkToOriginalFileMap);
+export function visitExportedSymbolFromOtherChunk (options: VisitExportedSymbolOptions): ExportDeclaration[] {
+	const {exportedSymbol, relativeChunkFileName} = options;
+	const otherChunkFileName = getChunkFilename({...options, fileName: exportedSymbol.originalModule});
 
 	// Generate a module specifier that points to the referenced module, relative to the current sourcefile
 	const relativeToSourceFileDirectory = exportedSymbol.isExternal && exportedSymbol.rawModuleSpecifier != null ? exportedSymbol.rawModuleSpecifier : otherChunkFileName == null ? exportedSymbol.originalModule : relative(dirname(relativeChunkFileName), otherChunkFileName.fileName);
@@ -86,14 +89,24 @@ export function visitExportedSymbolFromEntryModule ({exportedSymbol, otherModule
 	else {
 		let correctedName = exportedSymbol.name;
 		let correctedPropertyName = exportedSymbol.propertyName;
+		const propertyName = exportedSymbol.propertyName ?? exportedSymbol.name;
 
 		for (const otherModuleExportedSymbol of otherModuleExportedSymbols) {
 			if (!("name" in otherModuleExportedSymbol)) continue;
-			if ((exportedSymbol.propertyName ?? exportedSymbol.name) === otherModuleExportedSymbol.name) {
+
+			// If the expression is something like 'export {default}', we'll need to reference the local binding as the property name like 'export {foo as default}'
+			if (propertyName === "default") {
+				if (otherModuleExportedSymbol.defaultExport) {
+					correctedPropertyName = otherModuleExportedSymbol.name;
+				}
+			}
+
+			else if ((exportedSymbol.propertyName ?? exportedSymbol.name) === otherModuleExportedSymbol.name) {
 				correctedName = otherModuleExportedSymbol.name;
 				correctedPropertyName = otherModuleExportedSymbol.propertyName;
 			}
 		}
+
 		exportDeclarations.push(
 			createExportDeclaration(
 				undefined,
@@ -108,9 +121,9 @@ export function visitExportedSymbolFromEntryModule ({exportedSymbol, otherModule
 }
 
 export function visitExportedSymbol ({exportedSymbol, ...rest}: VisitExportedSymbolOptions): ExportDeclaration[] {
-	const {isEntryModule, sourceFileToExportedSymbolSet, supportedExtensions, absoluteChunkFileName, chunkToOriginalFileMap} = rest;
+	const {isEntryModule, sourceFileToExportedSymbolSet, absoluteChunkFileName} = rest;
 
-	const otherChunkFileName = getChunkFilename(exportedSymbol.originalModule, supportedExtensions, chunkToOriginalFileMap);
+	const otherChunkFileName = getChunkFilename({...rest, fileName: exportedSymbol.originalModule});
 	const otherModuleExportedSymbols = sourceFileToExportedSymbolSet.get(exportedSymbol.originalModule);
 
 	// If the module originates from a file not part of the compilation (such as an external module),

@@ -6,8 +6,10 @@ import {ChunkToOriginalFileMap} from "../../../../../util/chunk/get-chunk-to-ori
 import {ImportedSymbol, NamedExportedSymbol, NamedImportedSymbol, SourceFileToExportedSymbolSet, SourceFileToLocalSymbolMap} from "../../../declaration-pre-bundler/declaration-pre-bundler-options";
 import {getChunkFilename} from "../../../declaration-pre-bundler/util/get-chunk-filename/get-chunk-filename";
 import {ensureHasDeclareModifier} from "../../../declaration-pre-bundler/util/modifier/modifier-util";
+import {ChunkForModuleCache} from "../../../declaration/declaration-options";
 
 export interface VisitImportedSymbolOptions {
+	chunkForModuleCache: ChunkForModuleCache;
 	sourceFileToLocalSymbolMap: SourceFileToLocalSymbolMap;
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
 	importedSymbol: ImportedSymbol;
@@ -91,8 +93,9 @@ function getAllNamedExportsForModule (moduleName: string, sourceFileToExportedSy
 	return namedExportedSymbols;
 }
 
-export function visitImportedSymbol ({importedSymbol, sourceFileToExportedSymbolSet, sourceFileToLocalSymbolMap, supportedExtensions, relativeChunkFileName, absoluteChunkFileName, chunkToOriginalFileMap}: VisitImportedSymbolOptions): (ImportDeclaration|TypeAliasDeclaration|VariableStatement)[] {
-	const otherChunkFileName = getChunkFilename(importedSymbol.originalModule, supportedExtensions, chunkToOriginalFileMap);
+export function visitImportedSymbol (options: VisitImportedSymbolOptions): (ImportDeclaration|TypeAliasDeclaration|VariableStatement)[] {
+	const {importedSymbol, sourceFileToExportedSymbolSet, sourceFileToLocalSymbolMap, relativeChunkFileName, absoluteChunkFileName} = options;
+	const otherChunkFileName = getChunkFilename({...options, fileName: importedSymbol.originalModule});
 	const importDeclarations: (ImportDeclaration|TypeAliasDeclaration)[] = [];
 
 	// Generate a module specifier that points to the referenced module, relative to the current sourcefile
@@ -150,7 +153,7 @@ export function visitImportedSymbol ({importedSymbol, sourceFileToExportedSymbol
 			);
 
 			if (matchingExportedSymbol != null) {
-				const matchingExportedSymbolChunk = getChunkFilename(matchingExportedSymbol.originalModule, supportedExtensions, chunkToOriginalFileMap);
+				const matchingExportedSymbolChunk = getChunkFilename({...options, fileName: matchingExportedSymbol.originalModule});
 
 				// If the chunk in which the exported binding resides isn't part of the same chunk, import the binding into the current module
 				if (matchingExportedSymbolChunk == null || matchingExportedSymbol.isExternal || absoluteChunkFileName !== matchingExportedSymbolChunk.fileName) {

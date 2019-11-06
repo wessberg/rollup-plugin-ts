@@ -6,7 +6,7 @@ import {mergeChunksWithAmbientDependencies} from "../util/chunk/merge-chunks-wit
 import {getChunkToOriginalFileMap} from "../util/chunk/get-chunk-to-original-file-map";
 import {SourceFileToExportedSymbolSet, SourceFileToGeneratedVariableNameSet, SourceFileToImportedSymbolSet, SourceFileToLocalSymbolMap} from "../service/transformer/declaration-pre-bundler/declaration-pre-bundler-options";
 import {NodeIdentifierCache} from "../service/transformer/declaration-bundler/util/get-identifiers-for-node";
-import {ReferenceCache} from "../service/transformer/declaration-bundler/reference/cache/reference-cache";
+import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "../service/transformer/declaration-bundler/reference/cache/reference-cache";
 import {CompilerOptions, createPrinter} from "typescript";
 import {OutputBundle, OutputOptions, PluginContext, SourceDescription} from "rollup";
 import {ModuleDependencyMap} from "../util/module/get-module-dependencies";
@@ -20,6 +20,7 @@ import {IncrementalLanguageService} from "../service/language-service/incrementa
 import {bundleDeclarationsForChunk} from "./bundle-declarations-for-chunk";
 import {ensureDefined} from "../util/assert-defined/assert-defined";
 import {FileSystem} from "../util/file-system/file-system";
+import {ChunkForModuleCache} from "../service/transformer/declaration/declaration-options";
 
 export interface EmitDeclarationsOptions {
 	resolver: Resolver;
@@ -50,7 +51,9 @@ export function emitDeclarations (options: EmitDeclarationsOptions) {
 	const sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet = new Map();
 	const sourceFileToGeneratedVariableNameSet: SourceFileToGeneratedVariableNameSet = new Map();
 	const sourceFileToLocalSymbolMap: SourceFileToLocalSymbolMap = new Map();
+	const sourceFileToNodeToReferencedIdentifiersCache: SourceFileToNodeToReferencedIdentifiersCache = new Map();
 	const nodeIdentifierCache: NodeIdentifierCache = new Map();
+	const chunkForModuleCache: ChunkForModuleCache = new Map();
 	const referenceCache: ReferenceCache = new Map();
 	const printer = createPrinter({newLine: options.compilerOptions.newLine});
 
@@ -59,12 +62,14 @@ export function emitDeclarations (options: EmitDeclarationsOptions) {
 		chunkToOriginalFileMap,
 		generateMap,
 		nodeIdentifierCache,
+		chunkForModuleCache,
 		printer,
 		referenceCache,
 		sourceFileToExportedSymbolSet,
 		sourceFileToImportedSymbolSet,
 		sourceFileToGeneratedVariableNameSet,
-		sourceFileToLocalSymbolMap
+		sourceFileToLocalSymbolMap,
+		sourceFileToNodeToReferencedIdentifiersCache
 	};
 
 	for (const pass of [1, 2] as const) {

@@ -223,13 +223,11 @@ test("Flattens declarations. #6", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		declare type Something =
-			| "foo"
-			| "bar";
 		declare const enum SomethingElse {
 			FOO = 0,
 			BAR = 1
 		}
+		declare type Something = "foo" | "bar";
 		export {Something, SomethingElse};
 		`)
 	);

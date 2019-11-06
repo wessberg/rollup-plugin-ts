@@ -55,7 +55,7 @@ export function preBundleDeclarationsForChunk (options: PreBundleDeclarationsFor
 					// Include only those sources that are actually part of the chunk
 					.filter(source => {
 						const absoluteSource = join(options.declarationMapDirname, source);
-						const chunkFileNameResult = getChunkFilename(absoluteSource, options.supportedExtensions, options.chunkToOriginalFileMap);
+						const chunkFileNameResult = getChunkFilename({...options, fileName: absoluteSource});
 						return chunkFileNameResult != null && chunkFileNameResult.fileName === options.absoluteChunkFileName;
 					});
 

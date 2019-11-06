@@ -1,8 +1,12 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {FunctionExpression} from "typescript";
+import {isIdentifier, MethodSignature} from "typescript";
 
-export function checkFunctionExpression({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<FunctionExpression>): string[] {
+export function checkMethodSignature ({node, continuation}: ReferenceVisitorOptions<MethodSignature>): string[] {
 	const referencedIdentifiers: string[] = [];
+
+	if (!isIdentifier(node.name)) {
+		referencedIdentifiers.push(...continuation(node.name));
+	}
 	for (const parameter of node.parameters) {
 		referencedIdentifiers.push(...continuation(parameter));
 	}
@@ -13,14 +17,9 @@ export function checkFunctionExpression({node, continuation, markIdentifiersAsRe
 		}
 	}
 
-	if (node.body != null) {
-		referencedIdentifiers.push(...continuation(node.body));
-	}
-
 	if (node.type != null) {
 		referencedIdentifiers.push(...continuation(node.type));
 	}
 
-	markIdentifiersAsReferenced(node, ...referencedIdentifiers);
 	return referencedIdentifiers;
 }
