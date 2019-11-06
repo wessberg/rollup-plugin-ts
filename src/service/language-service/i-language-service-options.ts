@@ -8,6 +8,7 @@ import {FileSystem} from "../../util/file-system/file-system";
 export interface ILanguageServiceOptions {
 	parsedCommandLine: ParsedCommandLine;
 	cwd: TypescriptPluginOptions["cwd"];
+	resolveTypescriptLibFrom: TypescriptPluginOptions['resolveTypescriptLibFrom']
 	transformers?: CustomTransformersFunction;
 	emitCache: IEmitCache;
 	rollupInputOptions: InputOptions;
