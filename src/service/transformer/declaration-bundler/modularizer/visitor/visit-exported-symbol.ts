@@ -34,6 +34,9 @@ export function exportedSymbolIsReferencedByOtherChunk ({exportedSymbol, isMulti
 	for (const [currentModule, importedSymbols] of sourceFileToImportedSymbolSet) {
 		if (module === currentModule) continue;
 
+		const currentModuleChunk = getChunkFilename({...rest, fileName: currentModule});
+		if (currentModuleChunk == null || currentModuleChunk.fileName === absoluteChunkFileName) continue;
+
 		for (const importedSymbol of importedSymbols) {
 			if (importedSymbol.isExternal) continue;
 
@@ -51,13 +54,8 @@ export function exportedSymbolIsReferencedByOtherChunk ({exportedSymbol, isMulti
 			// If the names don't match, ignore it
 			if ("name" in exportedSymbol && !exportedSymbol.defaultExport && exportedSymbol.name !== importedPropertyName) continue;
 
-			// Figure out which chunk the imported symbol is importing from
-			const importsFromChunk = getChunkFilename({...rest, fileName: importedSymbol.originalModule});
-
-			// If it imports from *this* chunk, we'll have to preserve the export
-			if (importsFromChunk != null && importsFromChunk.fileName === absoluteChunkFileName) {
-				return true;
-			}
+			console.log("returning true for:", importedSymbol);
+			return true;
 		}
 	}
 	return false;
