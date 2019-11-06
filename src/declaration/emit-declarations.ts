@@ -69,7 +69,8 @@ export function emitDeclarations (options: EmitDeclarationsOptions) {
 		sourceFileToImportedSymbolSet,
 		sourceFileToGeneratedVariableNameSet,
 		sourceFileToLocalSymbolMap,
-		sourceFileToNodeToReferencedIdentifiersCache
+		sourceFileToNodeToReferencedIdentifiersCache,
+		isMultiChunk: mergeChunksResult.mergedChunks.length > 1
 	};
 
 	for (const pass of [1, 2] as const) {
@@ -113,6 +114,7 @@ export function emitDeclarations (options: EmitDeclarationsOptions) {
 
 			const baseOptions: PreBundleDeclarationsForChunkOptions = {
 				...sharedOptions,
+				isEntryChunk: chunk.isEntry,
 				absoluteChunkFileName,
 				absoluteDeclarationFilename,
 				absoluteDeclarationMapFilename,

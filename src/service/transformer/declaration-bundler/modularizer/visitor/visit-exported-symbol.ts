@@ -1,7 +1,7 @@
 import {createExportDeclaration, createExportSpecifier, createIdentifier, createNamedExports, createStringLiteral, ExportDeclaration, ExportSpecifier} from "typescript";
 import {SupportedExtensions} from "../../../../../util/get-supported-extensions/get-supported-extensions";
 import {ChunkToOriginalFileMap} from "../../../../../util/chunk/get-chunk-to-original-file-map";
-import {ExportedSymbol, ExportedSymbolSet, SourceFileToExportedSymbolSet} from "../../../declaration-pre-bundler/declaration-pre-bundler-options";
+import {ExportedSymbol, ExportedSymbolSet, SourceFileToExportedSymbolSet, SourceFileToImportedSymbolSet} from "../../../declaration-pre-bundler/declaration-pre-bundler-options";
 import {getChunkFilename} from "../../../declaration-pre-bundler/util/get-chunk-filename/get-chunk-filename";
 import {assertDefined} from "../../../../../util/assert-defined/assert-defined";
 import {dirname, relative} from "path";
@@ -10,6 +10,7 @@ import {ChunkForModuleCache} from "../../../declaration/declaration-options";
 
 export interface VisitExportedSymbolOptions {
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
+	sourceFileToImportedSymbolSet: SourceFileToImportedSymbolSet;
 	chunkForModuleCache: ChunkForModuleCache;
 	exportedSymbol: ExportedSymbol;
 	supportedExtensions: SupportedExtensions;
@@ -17,11 +18,49 @@ export interface VisitExportedSymbolOptions {
 	relativeChunkFileName: string;
 	absoluteChunkFileName: string;
 	isEntryModule: boolean;
+	isEntryChunk: boolean;
+	isMultiChunk: boolean;
 	module: string;
 }
 
 export interface VisitExportedSymbolFromEntryModuleOptions extends VisitExportedSymbolOptions {
 	otherModuleExportedSymbols: ExportedSymbolSet;
+}
+
+export function exportedSymbolIsReferencedByOtherChunk ({exportedSymbol, isMultiChunk, sourceFileToImportedSymbolSet, module, absoluteChunkFileName, ...rest}: VisitExportedSymbolOptions): boolean {
+	// It can never be the case if there's only 1 chunk in play here
+	if (!isMultiChunk) return false;
+
+	for (const [currentModule, importedSymbols] of sourceFileToImportedSymbolSet) {
+		if (module === currentModule) continue;
+
+		for (const importedSymbol of importedSymbols) {
+			if (importedSymbol.isExternal) continue;
+
+			// If this export is a default export, but the import isn't, ignore it
+			if ("defaultExport" in exportedSymbol && exportedSymbol.defaultExport && (!("defaultImport" in importedSymbol) || !importedSymbol.defaultImport)) continue;
+
+			// And vice-versa, if the export *isn't* a default export, but the import is, ignore it
+			if ((!("defaultExport" in exportedSymbol) || !exportedSymbol.defaultExport) && "defaultImport" in importedSymbol && importedSymbol.defaultImport) continue;
+
+			// If the import is importing the entire namespace of this module, and this is a default export, ignore it (since default exports are not part of Namespace imports)
+			if ("defaultExport" in exportedSymbol && exportedSymbol.defaultExport && "namespaceImport" in importedSymbol) continue;
+
+			const importedPropertyName = "propertyName" in importedSymbol && importedSymbol.propertyName != null ? importedSymbol.propertyName : importedSymbol.name;
+
+			// If the names don't match, ignore it
+			if ("name" in exportedSymbol && !exportedSymbol.defaultExport && exportedSymbol.name !== importedPropertyName) continue;
+
+			// Figure out which chunk the imported symbol is importing from
+			const importsFromChunk = getChunkFilename({...rest, fileName: importedSymbol.originalModule});
+
+			// If it imports from *this* chunk, we'll have to preserve the export
+			if (importsFromChunk != null && importsFromChunk.fileName === absoluteChunkFileName) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 export function visitExportedSymbolFromOtherChunk (options: VisitExportedSymbolOptions): ExportDeclaration[] {
@@ -121,7 +160,7 @@ export function visitExportedSymbolFromEntryModule ({exportedSymbol, otherModule
 }
 
 export function visitExportedSymbol ({exportedSymbol, ...rest}: VisitExportedSymbolOptions): ExportDeclaration[] {
-	const {isEntryModule, sourceFileToExportedSymbolSet, absoluteChunkFileName} = rest;
+	const {isEntryModule, isEntryChunk, sourceFileToExportedSymbolSet, absoluteChunkFileName} = rest;
 
 	const otherChunkFileName = getChunkFilename({...rest, fileName: exportedSymbol.originalModule});
 	const otherModuleExportedSymbols = sourceFileToExportedSymbolSet.get(exportedSymbol.originalModule);
@@ -129,7 +168,7 @@ export function visitExportedSymbol ({exportedSymbol, ...rest}: VisitExportedSym
 	// If the module originates from a file not part of the compilation (such as an external module),
 	// always include the export
 	if (otherChunkFileName == null || exportedSymbol.isExternal) {
-		if (isEntryModule) {
+		if (isEntryModule || !isEntryChunk || exportedSymbolIsReferencedByOtherChunk({...rest, exportedSymbol})) {
 			return visitExportedSymbolFromOtherChunk({...rest, exportedSymbol});
 		}
 
@@ -142,9 +181,9 @@ export function visitExportedSymbol ({exportedSymbol, ...rest}: VisitExportedSym
 	assertDefined(otherModuleExportedSymbols, `Expected exported symbols for other module: '${exportedSymbol.originalModule}' to be present`);
 
 	// If the exported module originates from a module within the same chunk
-	// include the export only if that module happens to be the entry module or if it was ambient-only and manually included to the emitted chunk
+	// include the export only if that module happens to be the entry module or if it was ambient-only and manually included to the emitted chunk, or if any other chunk directly refers to this binding
 	if (absoluteChunkFileName === otherChunkFileName.fileName) {
-		if (isEntryModule) {
+		if (isEntryModule || !isEntryChunk || exportedSymbolIsReferencedByOtherChunk({...rest, exportedSymbol})) {
 			return visitExportedSymbolFromEntryModule({...rest, exportedSymbol, otherModuleExportedSymbols});
 		}
 

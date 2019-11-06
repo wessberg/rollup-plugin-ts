@@ -176,7 +176,7 @@ test("Tree-shakes correctly. #4", async t => {
 					private level;
 					constructor(level: LogLevel);
 			}
-			export { Logger };
+			export { LogLevel, Logger };
 		`)
 	);
 });

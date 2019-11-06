@@ -1,4 +1,4 @@
-import {forEachChild, isArrayBindingPattern, isBindingElement, isClassDeclaration, isClassExpression, isEnumDeclaration, isExportAssignment, isExportDeclaration, isExportSpecifier, isFunctionDeclaration, isFunctionExpression, isGetAccessorDeclaration, isIdentifier, isInterfaceDeclaration, isMethodDeclaration, isMethodSignature, isModuleDeclaration, isObjectBindingPattern, isParameter, isPropertyDeclaration, isPropertySignature, isSetAccessorDeclaration, isSourceFile, isTypeAliasDeclaration, isVariableDeclaration, isVariableDeclarationList, isVariableStatement, Node} from "typescript";
+import {forEachChild, isArrayBindingPattern, isBindingElement, isClassDeclaration, isClassExpression, isEnumDeclaration, isExportAssignment, isExportDeclaration, isExportSpecifier, isFunctionDeclaration, isFunctionExpression, isGetAccessorDeclaration, isIdentifier, isIndexedAccessTypeNode, isInterfaceDeclaration, isMethodDeclaration, isMethodSignature, isModuleDeclaration, isObjectBindingPattern, isParameter, isPropertyDeclaration, isPropertySignature, isSetAccessorDeclaration, isSourceFile, isTypeAliasDeclaration, isVariableDeclaration, isVariableDeclarationList, isVariableStatement, Node} from "typescript";
 import {IsReferencedOptions} from "./is-referenced-options";
 import {nodeContainsChild} from "../../util/node-contains-child";
 import {getIdentifiersForNode} from "../../util/get-identifiers-for-node";
@@ -31,6 +31,7 @@ import {checkVariableStatement} from "./visitor/check-variable-statement";
 import {checkExportDeclaration} from "./visitor/check-export-declaration";
 import {checkExportAssignment} from "./visitor/check-export-assignment";
 import {checkModuleDeclaration} from "./visitor/check-module-declaration";
+import {checkIndexedAccessTypeNode} from "./visitor/check-indexed-access-type-node";
 
 /**
  * Visits the given node. Returns true if it references the node to check for references, and false otherwise
@@ -73,6 +74,8 @@ function checkNode ({node, originalNode, ...rest}: ReferenceVisitorOptions): str
 		return checkEnumDeclaration({node, originalNode, ...rest});
 	} else if (isTypeAliasDeclaration(node)) {
 		return checkTypeAliasDeclaration({node, originalNode, ...rest});
+	} else if (isIndexedAccessTypeNode(node)) {
+		return checkIndexedAccessTypeNode({node, originalNode, ...rest});
 	} else if (isVariableStatement(node)) {
 		return checkVariableStatement({node, originalNode, ...rest});
 	} else if (isVariableDeclarationList(node)) {

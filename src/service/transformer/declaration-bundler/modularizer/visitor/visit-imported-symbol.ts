@@ -120,7 +120,7 @@ export function visitImportedSymbol (options: VisitImportedSymbolOptions): (Impo
 					"defaultImport" in importedSymbol && importedSymbol.defaultImport ? createIdentifier(importedSymbol.name) : undefined,
 					"namespaceImport" in importedSymbol
 						? createNamespaceImport(createIdentifier(importedSymbol.name))
-						: createNamedImports([
+						: importedSymbol.defaultImport ? undefined : createNamedImports([
 							createImportSpecifier(
 								importedSymbol.propertyName != null
 									? createIdentifier(importedSymbol.propertyName)

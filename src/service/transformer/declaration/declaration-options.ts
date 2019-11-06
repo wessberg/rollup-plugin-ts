@@ -15,6 +15,7 @@ export interface GetChunkFilenameResult {
 export type ChunkForModuleCache = Map<string, GetChunkFilenameResult|undefined>;
 
 export interface DeclarationOptions {
+	isEntryChunk: boolean;
 	localModuleNames: string[];
 	entryFileNames: string[];
 
@@ -59,4 +60,7 @@ export interface DeclarationOptions {
 	sourceFileToLocalSymbolMap: SourceFileToLocalSymbolMap;
 	sourceFileToGeneratedVariableNameSet: SourceFileToGeneratedVariableNameSet;
 	sourceFileToNodeToReferencedIdentifiersCache: SourceFileToNodeToReferencedIdentifiersCache;
+
+	// Whether or not multiple chunks will be emitted
+	isMultiChunk: boolean;
 }

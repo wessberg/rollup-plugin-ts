@@ -48,7 +48,8 @@ export function modularizer ({declarationFilename, ...options}: DeclarationBundl
 								...options,
 								exportedSymbol,
 								module,
-								isEntryModule: options.entryFileNames.includes(module)
+								isEntryModule: options.entryFileNames.includes(module),
+								isEntryChunk: options.isEntryChunk
 							})
 						);
 					}
