@@ -66,7 +66,6 @@
 	"dependencies": {
 		"@babel/core": "^7.7.2",
 		"@babel/plugin-transform-runtime": "^7.6.2",
-		"@babel/preset-env": "^7.7.1",
 		"@babel/runtime": "^7.7.2",
 		"@types/mkdirp": "^0.5.2",
 		"@types/node": "^12.12.8",
@@ -84,8 +83,14 @@
 		"tslib": "^1.10.0"
 	},
 	"peerDependencies": {
+		"@babel/preset-env": "^7.7.1",
 		"typescript": "^3.x",
 		"rollup": "^1.27.0"
+	},
+	"peerDependenciesMeta": {
+		"@babel/preset-env": {
+			"optional": true
+		}
 	},
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/esm/index.js",
