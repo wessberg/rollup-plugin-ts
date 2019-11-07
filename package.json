@@ -65,7 +65,7 @@
 		"typescript": "^3.7.2"
 	},
 	"dependencies": {
-		"@babel/core": "^7.7.0",
+		"@babel/core": "^7.7.2",
 		"@babel/plugin-proposal-async-generator-functions": "^7.7.0",
 		"@babel/plugin-proposal-json-strings": "^7.2.0",
 		"@babel/plugin-proposal-object-rest-spread": "^7.6.2",
@@ -74,7 +74,7 @@
 		"@babel/plugin-syntax-dynamic-import": "^7.2.0",
 		"@babel/plugin-transform-runtime": "^7.6.2",
 		"@babel/preset-env": "^7.7.1",
-		"@babel/runtime": "^7.7.1",
+		"@babel/runtime": "^7.7.2",
 		"@types/mkdirp": "^0.5.2",
 		"@types/node": "^12.12.6",
 		"@types/resolve": "0.0.8",
@@ -91,7 +91,7 @@
 	},
 	"peerDependencies": {
 		"typescript": "^3.x",
-		"rollup": "^1.x"
+		"rollup": "^1.26.1"
 	},
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/esm/index.js",

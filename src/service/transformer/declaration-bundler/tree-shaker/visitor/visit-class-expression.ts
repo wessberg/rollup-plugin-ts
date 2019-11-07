@@ -1,5 +1,6 @@
 import {ClassExpression, updateClassExpression} from "typescript";
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
+import {ensureHasDeclareModifier} from "../../../declaration-pre-bundler/util/modifier/modifier-util";
 
 export function visitClassExpression ({node, continuation}: TreeShakerVisitorOptions<ClassExpression>): ClassExpression|undefined {
 	const nameContinuationResult = node.name == null ? undefined : continuation(node.name);
@@ -10,7 +11,7 @@ export function visitClassExpression ({node, continuation}: TreeShakerVisitorOpt
 		? node
 		: updateClassExpression(
 			node,
-			node.modifiers,
+			ensureHasDeclareModifier(node.modifiers),
 			nameContinuationResult,
 			node.typeParameters,
 			node.heritageClauses,

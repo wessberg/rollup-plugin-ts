@@ -47,7 +47,9 @@ export interface DeclarationOptions {
 	absoluteDeclarationMapFilename: string;
 	augmentedAbsoluteDeclarationMapFileName: string|undefined;
 	rewrittenAbsoluteDeclarationMapFilename: string;
-	declarationMapDirname: string;
+
+	relativeDeclarationMapDirname: string;
+	absoluteDeclarationMapDirname: string;
 
 	// The absolute file path to the chunk this declaration file is related to
 	relativeChunkFileName: string;

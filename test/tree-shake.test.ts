@@ -146,9 +146,9 @@ test("Tree-shakes correctly. #4", async t => {
 	);
 	const {declarations} = bundle;
 
-	const aFile = declarations.find(file => file.fileName.includes("/a.d.ts"));
-	const bFile = declarations.find(file => file.fileName.includes("/b.d.ts"));
-	const loggerFile = declarations.find(file => file.fileName.includes("/logger-8396bc98"));
+	const aFile = declarations.find(file => file.fileName.includes("a.d.ts"));
+	const bFile = declarations.find(file => file.fileName.includes("b.d.ts"));
+	const loggerFile = declarations.find(file => file.fileName.includes("logger-8396bc98"));
 	t.true(aFile != null);
 	t.true(bFile != null);
 	t.true(loggerFile != null);

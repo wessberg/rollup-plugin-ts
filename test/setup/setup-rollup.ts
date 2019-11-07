@@ -1,11 +1,10 @@
-import {dirname, parse, isAbsolute, join, normalize} from "path";
+import {dirname, isAbsolute, join, normalize, parse} from "path";
 import {rollup, RollupOptions, RollupOutput} from "rollup";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
-import {PathLike} from "fs";
 import {sys} from "typescript";
 import {REAL_FILE_SYSTEM} from "../../src/util/file-system/file-system";
-import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION} from "../../src/constant/constant";
 import {HookRecord, InputCompilerOptions} from "../../src/plugin/i-typescript-plugin-options";
+import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION} from "../../src/constant/constant";
 
 // tslint:disable:no-any
 
@@ -15,7 +14,7 @@ export interface ITestFile {
 	entry: boolean;
 }
 
-export type TestFile = ITestFile | string;
+export type TestFile = ITestFile|string;
 
 interface FileResult {
 	fileName: string;
@@ -44,8 +43,8 @@ export interface GenerateRollupBundleOptions {
  * @param {GenerateRollupBundleOptions} options
  * @returns {Promise<GenerateRollupBundleResult>}
  */
-export async function generateRollupBundle(
-	inputFiles: TestFile[] | TestFile,
+export async function generateRollupBundle (
+	inputFiles: TestFile[]|TestFile,
 	{
 		rollupOptions = {},
 		tsconfig = {},
@@ -60,10 +59,10 @@ export async function generateRollupBundle(
 		.map(file =>
 			typeof file === "string"
 				? {
-						text: file,
-						fileName: `auto-generated-${Math.floor(Math.random() * 100000)}.ts`,
-						entry: true
-				  }
+					text: file,
+					fileName: `auto-generated-${Math.floor(Math.random() * 100000)}.ts`,
+					entry: true
+				}
 				: file
 		)
 		.map(file => ({...file, fileName: join(cwd, file.fileName)}));
@@ -75,7 +74,7 @@ export async function generateRollupBundle(
 		throw new ReferenceError(`No entry could be found`);
 	}
 
-	const resolveId = (fileName: string, parent: string | undefined): string | undefined => {
+	const resolveId = (fileName: string, parent: string|undefined): string|undefined => {
 		const absolute = isAbsolute(fileName) ? fileName : join(parent == null ? "" : dirname(parent), fileName);
 		const filenames = [normalize(absolute), join(absolute, "/index")];
 		for (const filename of filenames) {
@@ -90,7 +89,7 @@ export async function generateRollupBundle(
 		return undefined;
 	};
 
-	const load = (id: string): string | null => {
+	const load = (id: string): string|null => {
 		const matchedFile = files.find(file => file.fileName === id);
 		return matchedFile == null ? null : matchedFile.text;
 	};
@@ -138,21 +137,7 @@ export async function generateRollupBundle(
 						if (directories.has(dirName)) return true;
 						return sys.directoryExists(dirName);
 					},
-					writeFileSync<T>(path: PathLike, data: T): void {
-						if (typeof path !== "string" || typeof data !== "string") return;
-						if (path.endsWith(DECLARATION_MAP_EXTENSION)) {
-							declarationMaps.push({
-								fileName: path,
-								code: data
-							});
-						} else if (path.endsWith(DECLARATION_EXTENSION)) {
-							declarations.push({
-								fileName: path,
-								code: data
-							});
-						}
-					},
-					realpath(path: string): string {
+					realpath (path: string): string {
 						return path;
 					}
 				}
@@ -160,12 +145,31 @@ export async function generateRollupBundle(
 			...(rollupOptions.plugins == null ? [] : rollupOptions.plugins)
 		]
 	});
+
+	const bundle = await result.generate({
+		format: "esm",
+		sourcemap: true
+	});
+
+	for (const file of bundle.output) {
+		if (file.type === "chunk") continue;
+		if (file.fileName.endsWith(DECLARATION_MAP_EXTENSION)) {
+			declarationMaps.push({
+				code: file.source.toString(),
+				fileName: file.fileName
+			});
+		}
+		else if (file.fileName.endsWith(DECLARATION_EXTENSION)) {
+			declarations.push({
+				code: file.source.toString(),
+				fileName: file.fileName
+			});
+		}
+	}
+
 	return {
 		declarations,
 		declarationMaps,
-		bundle: await result.generate({
-			format: "esm",
-			sourcemap: true
-		})
+		bundle
 	};
 }

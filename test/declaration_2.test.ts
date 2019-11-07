@@ -343,9 +343,9 @@ test("Flattens declarations. #24", async t => {
 	]);
 	const {declarations} = bundle;
 
-	const aFile = declarations.find(file => file.fileName.includes("/a.d.ts"));
-	const bFile = declarations.find(file => file.fileName.includes("/b.d.ts"));
-	const sharedFile = declarations.find(file => file.fileName.includes("/shared-be8cec94.d.ts"));
+	const aFile = declarations.find(file => file.fileName.includes("a.d.ts"));
+	const bFile = declarations.find(file => file.fileName.includes("b.d.ts"));
+	const sharedFile = declarations.find(file => file.fileName.includes("shared-be8cec94.d.ts"));
 	t.true(aFile != null);
 	t.true(bFile != null);
 	t.true(sharedFile != null);
@@ -399,7 +399,7 @@ test("Flattens declarations. #25", async t => {
 				export default function foo () {}
 				`
 		}
-	], {debug: true});
+	]);
 	const {
 		declarations: [file]
 	} = bundle;

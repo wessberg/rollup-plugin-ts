@@ -54,7 +54,6 @@ export function exportedSymbolIsReferencedByOtherChunk ({exportedSymbol, isMulti
 			// If the names don't match, ignore it
 			if ("name" in exportedSymbol && !exportedSymbol.defaultExport && exportedSymbol.name !== importedPropertyName) continue;
 
-			console.log("returning true for:", importedSymbol);
 			return true;
 		}
 	}

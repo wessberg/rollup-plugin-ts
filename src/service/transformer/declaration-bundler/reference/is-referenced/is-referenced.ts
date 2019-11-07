@@ -1,4 +1,4 @@
-import {forEachChild, isArrayBindingPattern, isBindingElement, isClassDeclaration, isClassExpression, isEnumDeclaration, isExportAssignment, isExportDeclaration, isExportSpecifier, isFunctionDeclaration, isFunctionExpression, isGetAccessorDeclaration, isIdentifier, isIndexedAccessTypeNode, isInterfaceDeclaration, isMethodDeclaration, isMethodSignature, isModuleDeclaration, isObjectBindingPattern, isParameter, isPropertyDeclaration, isPropertySignature, isSetAccessorDeclaration, isSourceFile, isTypeAliasDeclaration, isVariableDeclaration, isVariableDeclarationList, isVariableStatement, Node} from "typescript";
+import {forEachChild, isArrayBindingPattern, isBindingElement, isClassDeclaration, isClassExpression, isEnumDeclaration, isExportAssignment, isExportDeclaration, isExportSpecifier, isFunctionDeclaration, isFunctionExpression, isGetAccessorDeclaration, isIdentifier, isIndexedAccessTypeNode, isInterfaceDeclaration, isMethodDeclaration, isMethodSignature, isModuleDeclaration, isObjectBindingPattern, isParameter, isPropertyDeclaration, isPropertySignature, isSetAccessorDeclaration, isTypeAliasDeclaration, isVariableDeclaration, isVariableDeclarationList, isVariableStatement, Node} from "typescript";
 import {IsReferencedOptions} from "./is-referenced-options";
 import {nodeContainsChild} from "../../util/node-contains-child";
 import {getIdentifiersForNode} from "../../util/get-identifiers-for-node";
@@ -115,12 +115,6 @@ function getReferencingNodes (originalNode: Node, identifiers: LocalSymbolMap, c
 	}
 
 	return [...referencingNodes];
-}
-
-export function isTopLevelNode (node: Node): boolean {
-	return node.parent != null && (
-		isSourceFile(node.parent)
-	);
 }
 
 /**

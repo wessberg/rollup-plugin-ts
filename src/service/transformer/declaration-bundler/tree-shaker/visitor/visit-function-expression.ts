@@ -1,5 +1,6 @@
 import {FunctionExpression, updateFunctionExpression} from "typescript";
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
+import {ensureHasDeclareModifier} from "../../../declaration-pre-bundler/util/modifier/modifier-util";
 
 export function visitFunctionExpression ({node, continuation}: TreeShakerVisitorOptions<FunctionExpression>): FunctionExpression|undefined {
 	const nameContinuationResult = node.name == null ? undefined : continuation(node.name);
@@ -10,7 +11,7 @@ export function visitFunctionExpression ({node, continuation}: TreeShakerVisitor
 		? node
 		: updateFunctionExpression(
 			node,
-			node.modifiers,
+			ensureHasDeclareModifier(node.modifiers),
 			node.asteriskToken,
 			nameContinuationResult,
 			node.typeParameters,

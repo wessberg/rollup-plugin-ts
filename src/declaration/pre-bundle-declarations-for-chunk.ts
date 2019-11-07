@@ -50,11 +50,11 @@ export function preBundleDeclarationsForChunk (options: PreBundleDeclarationsFor
 						// to cwd
 						const sourceFromCwd = posixSource.startsWith("../") ? posixSource.slice("../".length) : posixSource;
 						const absoluteSourceFromCwd = join(options.cwd, sourceFromCwd);
-						return relative(options.declarationMapDirname, absoluteSourceFromCwd);
+						return relative(options.absoluteDeclarationMapDirname, absoluteSourceFromCwd);
 					})
 					// Include only those sources that are actually part of the chunk
 					.filter(source => {
-						const absoluteSource = join(options.declarationMapDirname, source);
+						const absoluteSource = join(options.absoluteDeclarationMapDirname, source);
 						const chunkFileNameResult = getChunkFilename({...options, fileName: absoluteSource});
 						return chunkFileNameResult != null && chunkFileNameResult.fileName === options.absoluteChunkFileName;
 					});
