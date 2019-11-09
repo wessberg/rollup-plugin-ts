@@ -53,7 +53,7 @@ export function visitImportTypeNode({
 			propertyName: undefined
 		});
 		const innerContent = createIdentifier(namespaceName);
-		return node.isTypeOf ? createTypeQueryNode(innerContent) : innerContent;
+		return node.isTypeOf != null && node.isTypeOf ? createTypeQueryNode(innerContent) : innerContent;
 	}
 
 	// Otherwise, take all identifiers for the EntityName that is the qualifier and mark them as imported
@@ -73,6 +73,6 @@ export function visitImportTypeNode({
 		}
 
 		const innerContent = isIdentifier(qualifier) ? createIdentifier(qualifier.text) : createQualifiedName(qualifier.left, qualifier.right);
-		return node.isTypeOf ? createTypeQueryNode(innerContent) : innerContent;
+		return node.isTypeOf != null && node.isTypeOf ? createTypeQueryNode(innerContent) : innerContent;
 	}
 }

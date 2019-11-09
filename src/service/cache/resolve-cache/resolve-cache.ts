@@ -149,7 +149,7 @@ export class ResolveCache implements IResolveCache {
 				resolvedModule.extension = DECLARATION_EXTENSION as Extension;
 
 				// Don't go and attempt to resolve sources for external libraries
-				if (!resolvedModule.isExternalLibraryImport) {
+				if (resolvedModule.isExternalLibraryImport == null || !resolvedModule.isExternalLibraryImport) {
 					// Try to determine the resolved file name.
 					for (const extension of supportedExtensions) {
 						const candidate = normalize(setExtension(resolvedModule.resolvedAmbientFileName, extension));

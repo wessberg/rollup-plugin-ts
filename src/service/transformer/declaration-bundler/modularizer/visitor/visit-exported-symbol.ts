@@ -65,16 +65,18 @@ export function exportedSymbolIsReferencedByOtherChunk({
 				"defaultExport" in exportedSymbol &&
 				exportedSymbol.defaultExport &&
 				(!("defaultImport" in importedSymbol) || !importedSymbol.defaultImport)
-			)
+			) {
 				continue;
+			}
 
 			// And vice-versa, if the export *isn't* a default export, but the import is, ignore it
 			if (
 				(!("defaultExport" in exportedSymbol) || !exportedSymbol.defaultExport) &&
 				"defaultImport" in importedSymbol &&
 				importedSymbol.defaultImport
-			)
+			) {
 				continue;
+			}
 
 			// If the import is importing the entire namespace of this module, and this is a default export, ignore it (since default exports are not part of Namespace imports)
 			if ("defaultExport" in exportedSymbol && exportedSymbol.defaultExport && "namespaceImport" in importedSymbol) continue;
