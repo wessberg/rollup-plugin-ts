@@ -1,3 +1,15 @@
+## [1.1.74](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.73...v1.1.74) (2019-11-09)
+
+### Bug Fixes
+
+- ensure no needless identical propertyNames and names in ExportSpecifiers ([eb448ec](https://github.com/wessberg/rollup-plugin-ts/commit/eb448ec0398b386359441bc52008760217f75c23))
+
+### Features
+
+- allow to override the search base of the LIB_DIRECTORY lookup ([26326a4](https://github.com/wessberg/rollup-plugin-ts/commit/26326a4b92babee3b1bb67f935fca0f1ac970f18))
+- **declarations:** declaration generation refactoring ([ee3bfa0](https://github.com/wessberg/rollup-plugin-ts/commit/ee3bfa0c781ab2e39f94c7952640d51003d35ed6))
+- **declarations:** more refactoring work ([25b21cb](https://github.com/wessberg/rollup-plugin-ts/commit/25b21cb3cd7d5a52c92acf08861a9147685f45e8))
+
 ## [1.1.73](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.72...v1.1.73) (2019-10-19)
 
 ### Bug Fixes
