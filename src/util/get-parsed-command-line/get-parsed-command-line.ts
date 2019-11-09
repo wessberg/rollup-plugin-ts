@@ -3,7 +3,7 @@ import {IGetParsedCommandLineOptions} from "./i-get-parsed-command-line-options"
 import {ensureAbsolute} from "../path/path-util";
 import {DECLARATION_EXTENSION} from "../../constant/constant";
 import {GetParsedCommandLineResult} from "./get-parsed-command-line-result";
-import {TsConfigResolver, TsConfigResolverWithFileName} from "../../plugin/i-typescript-plugin-options";
+import {InputCompilerOptions, TsConfigResolver, TsConfigResolverWithFileName} from "../../plugin/i-typescript-plugin-options";
 
 /**
  * Returns true if the given tsconfig is a ParsedCommandLine
@@ -19,9 +19,7 @@ export function isParsedCommandLine(tsconfig?: IGetParsedCommandLineOptions["tsc
  * @param {IGetParsedCommandLineOptions["tsconfig"]} tsconfig
  * @returns {tsconfig is Partial<Record<keyof CompilerOptions, string | number | boolean>>}
  */
-export function isRawCompilerOptions(
-	tsconfig?: IGetParsedCommandLineOptions["tsconfig"]
-): tsconfig is Partial<Record<keyof CompilerOptions, string | number | boolean>> {
+export function isRawCompilerOptions(tsconfig?: IGetParsedCommandLineOptions["tsconfig"]): tsconfig is Partial<InputCompilerOptions> {
 	return tsconfig != null && typeof tsconfig !== "string" && typeof tsconfig !== "function" && !("options" in tsconfig) && !("hook" in tsconfig);
 }
 

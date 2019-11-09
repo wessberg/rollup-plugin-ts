@@ -25,9 +25,8 @@ export const KNOWN_EXTENSIONS = new Set([
 	MJSX_EXTENSION
 ] as const);
 
-export const PACKAGE_JSON_FILENAME = "package.json";
+export const NODE_MODULES = "node_modules";
 export const SOURCE_MAP_COMMENT = "\n//# sourceMappingURL";
-export const SOURCE_MAP_COMMENT_REGEXP = /\n\/\/# sourceMappingURL=.*/g;
 export const TSLIB_NAME = `tslib${DECLARATION_EXTENSION}`;
 export const BABEL_RUNTIME_PREFIX_1 = "@babel/runtime/";
 export const BABEL_RUNTIME_PREFIX_2 = "babel-runtime/";
@@ -67,10 +66,6 @@ export const BABEL_MINIFY_PLUGIN_NAMES = [
 	"babel-plugin-minify-type-constructors",
 	"babel-plugin-transform-undefined-to-void"
 ];
-
-export const PRESERVING_PROPERTY_ACCESS_EXPRESSION_EXPRESSION = "__rollup_plugin_ts_temporary__";
-export const PRESERVING_PROPERTY_ACCESS_EXPRESSION_NAME = "__property_access_member__";
-export const PRESERVING_PROPERTY_ACCESS_EXPRESSION = `${PRESERVING_PROPERTY_ACCESS_EXPRESSION_EXPRESSION}.${PRESERVING_PROPERTY_ACCESS_EXPRESSION_NAME};`;
 
 export const FORCED_BABEL_PRESET_ENV_OPTIONS = {
 	modules: false

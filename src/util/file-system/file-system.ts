@@ -1,5 +1,4 @@
-import {PathLike, statSync, WriteFileOptions, writeFileSync as _writeFileSync} from "fs";
-import {sync} from "mkdirp";
+import {statSync} from "fs";
 import {dirname} from "path";
 import {sys} from "typescript";
 
@@ -9,7 +8,6 @@ export interface FileSystem {
 	fileExists(path: string): boolean;
 	readFile(path: string, encoding?: string): string | undefined;
 	ensureDirectory(path: string): string;
-	writeFileSync<T>(path: PathLike | number, data: T, options?: WriteFileOptions): void;
 	readDirectory(
 		path: string,
 		extensions?: ReadonlyArray<string>,
@@ -29,9 +27,5 @@ export const REAL_FILE_SYSTEM: FileSystem = {
 	},
 	ensureDirectory(path: string): string {
 		return statSync(path).isDirectory() ? path : dirname(path);
-	},
-	writeFileSync<T>(path: PathLike | number, data: T, options?: WriteFileOptions): void {
-		if (typeof path === "string") sync(dirname(path));
-		return _writeFileSync(path, data, options);
 	}
 };

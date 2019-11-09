@@ -1,4 +1,4 @@
-import {ParsedCommandLine, CustomTransformers, CompilerOptions} from "typescript";
+import {CompilerOptions, CustomTransformers, ParsedCommandLine} from "typescript";
 import {IBabelInputOptions} from "./i-babel-options";
 import {CustomTransformersFunction} from "../util/merge-transformers/i-custom-transformer-options";
 import {FileSystem} from "../util/file-system/file-system";
@@ -29,15 +29,17 @@ export interface HookRecord {
 	outputPath: OutputPathHook;
 }
 
+export interface InputCompilerOptions extends Omit<CompilerOptions, "module" | "moduleResolution" | "newLine" | "jsx" | "target"> {
+	module: string;
+	moduleResolution: string;
+	newLine: string;
+	jsx: string;
+	target: string;
+}
+
 export interface ITypescriptPluginBaseOptions {
 	transpiler: Transpiler;
-	tsconfig?:
-		| string
-		| Partial<CompilerOptions>
-		| Partial<Record<keyof CompilerOptions, string | number | boolean>>
-		| ParsedCommandLine
-		| TsConfigResolver
-		| TsConfigResolverWithFileName;
+	tsconfig?: string | Partial<CompilerOptions> | Partial<InputCompilerOptions> | ParsedCommandLine | TsConfigResolver | TsConfigResolverWithFileName;
 	browserslist?: false | string[] | string | BrowserslistConfig;
 	cwd: string;
 	resolveTypescriptLibFrom: string;
@@ -47,6 +49,7 @@ export interface ITypescriptPluginBaseOptions {
 	transpileOnly?: boolean;
 	fileSystem: FileSystem;
 	hook: Partial<HookRecord>;
+	debug: boolean;
 }
 
 export interface ITypescriptPluginTypescriptOptions extends ITypescriptPluginBaseOptions {

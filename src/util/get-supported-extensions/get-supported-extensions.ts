@@ -1,16 +1,18 @@
 import {JS_EXTENSION, JSON_EXTENSION, JSX_EXTENSION, MJS_EXTENSION, MJSX_EXTENSION, TS_EXTENSION, TSX_EXTENSION} from "../../constant/constant";
 
+export type SupportedExtensions = Set<string>;
+
 /**
  * Gets the extensions that are supported by Typescript, depending on whether or not to allow JS and JSON
  * @param {boolean} allowJs
  * @param {boolean} allowJson
- * @returns {string[]}
+ * @returns {SupportedExtensions}
  */
-export function getSupportedExtensions(allowJs: boolean, allowJson: boolean): string[] {
-	return [
+export function getSupportedExtensions(allowJs: boolean, allowJson: boolean): SupportedExtensions {
+	return new Set([
 		TS_EXTENSION,
 		TSX_EXTENSION,
 		...(allowJs ? [JS_EXTENSION, JSX_EXTENSION, MJS_EXTENSION, MJSX_EXTENSION] : []),
 		...(allowJson ? [JSON_EXTENSION] : [])
-	];
+	]);
 }

@@ -1,11 +1,10 @@
-import {dirname, isAbsolute, join, normalize} from "path";
+import {dirname, isAbsolute, join, normalize, parse} from "path";
 import {rollup, RollupOptions, RollupOutput} from "rollup";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
-import {PathLike} from "fs";
-import {CompilerOptions, sys} from "typescript";
+import {sys} from "typescript";
 import {REAL_FILE_SYSTEM} from "../../src/util/file-system/file-system";
+import {HookRecord, InputCompilerOptions} from "../../src/plugin/i-typescript-plugin-options";
 import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION} from "../../src/constant/constant";
-import {HookRecord} from "../../src/plugin/i-typescript-plugin-options";
 
 // tslint:disable:no-any
 
@@ -32,7 +31,9 @@ export interface GenerateRollupBundleResult {
 
 export interface GenerateRollupBundleOptions {
 	rollupOptions: Partial<RollupOptions>;
-	tsconfig: Partial<Record<keyof CompilerOptions, string | number | boolean>>;
+	tsconfig: Partial<InputCompilerOptions>;
+	transpileOnly: boolean;
+	debug: boolean;
 	hook?: HookRecord;
 }
 
@@ -44,7 +45,13 @@ export interface GenerateRollupBundleOptions {
  */
 export async function generateRollupBundle(
 	inputFiles: TestFile[] | TestFile,
-	{rollupOptions = {}, tsconfig = {}, hook = {outputPath: path => path}}: Partial<GenerateRollupBundleOptions> = {}
+	{
+		rollupOptions = {},
+		tsconfig = {},
+		transpileOnly = false,
+		debug = false,
+		hook = {outputPath: path => path}
+	}: Partial<GenerateRollupBundleOptions> = {}
 ): Promise<GenerateRollupBundleResult> {
 	const cwd = process.cwd();
 
@@ -62,8 +69,8 @@ export async function generateRollupBundle(
 
 	const directories = new Set(files.map(file => dirname(file.fileName)));
 
-	const entryFile = files.find(file => file.entry);
-	if (entryFile == null) {
+	const entryFiles = files.filter(file => file.entry);
+	if (entryFiles.length === 0) {
 		throw new ReferenceError(`No entry could be found`);
 	}
 
@@ -91,7 +98,7 @@ export async function generateRollupBundle(
 	const declarationMaps: FileResult[] = [];
 
 	const result = await rollup({
-		input: entryFile.fileName,
+		input: entryFiles.length === 1 ? entryFiles[0].fileName : Object.fromEntries(entryFiles.map(file => [parse(file.fileName).name, file.fileName])),
 		...rollupOptions,
 		plugins: [
 			{
@@ -100,6 +107,8 @@ export async function generateRollupBundle(
 				load
 			},
 			typescriptRollupPlugin({
+				transpileOnly,
+				debug,
 				tsconfig: {
 					target: "esnext",
 					declaration: true,
@@ -112,31 +121,21 @@ export async function generateRollupBundle(
 					...REAL_FILE_SYSTEM,
 					useCaseSensitiveFileNames: true,
 					readFile: fileName => {
-						const file = files.find(currentFile => currentFile.fileName === fileName);
+						const absoluteFileName = isAbsolute(fileName) ? fileName : join(cwd, fileName);
+						const file = files.find(currentFile => currentFile.fileName === absoluteFileName);
 						if (file != null) return file.text;
-						return sys.readFile(fileName);
+						return sys.readFile(absoluteFileName);
 					},
 					fileExists: fileName => {
-						if (files.some(file => file.fileName === fileName)) return true;
-						return sys.fileExists(fileName);
+						const absoluteFileName = isAbsolute(fileName) ? fileName : join(cwd, fileName);
+						if (files.some(file => file.fileName === absoluteFileName)) {
+							return true;
+						}
+						return sys.fileExists(absoluteFileName);
 					},
 					directoryExists: dirName => {
 						if (directories.has(dirName)) return true;
 						return sys.directoryExists(dirName);
-					},
-					writeFileSync<T>(path: PathLike, data: T): void {
-						if (typeof path !== "string" || typeof data !== "string") return;
-						if (path.endsWith(DECLARATION_MAP_EXTENSION)) {
-							declarationMaps.push({
-								fileName: path,
-								code: data
-							});
-						} else if (path.endsWith(DECLARATION_EXTENSION)) {
-							declarations.push({
-								fileName: path,
-								code: data
-							});
-						}
 					},
 					realpath(path: string): string {
 						return path;
@@ -146,12 +145,30 @@ export async function generateRollupBundle(
 			...(rollupOptions.plugins == null ? [] : rollupOptions.plugins)
 		]
 	});
+
+	const bundle = await result.generate({
+		format: "esm",
+		sourcemap: true
+	});
+
+	for (const file of bundle.output) {
+		if (file.type === "chunk") continue;
+		if (file.fileName.endsWith(DECLARATION_MAP_EXTENSION)) {
+			declarationMaps.push({
+				code: file.source.toString(),
+				fileName: file.fileName
+			});
+		} else if (file.fileName.endsWith(DECLARATION_EXTENSION)) {
+			declarations.push({
+				code: file.source.toString(),
+				fileName: file.fileName
+			});
+		}
+	}
+
 	return {
 		declarations,
 		declarationMaps,
-		bundle: await result.generate({
-			format: "esm",
-			sourcemap: true
-		})
+		bundle
 	};
 }

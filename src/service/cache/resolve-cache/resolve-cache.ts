@@ -8,12 +8,11 @@ import {
 	resolveModuleName
 } from "typescript";
 import {IGetResolvedIdWithCachingOptions} from "./i-get-resolved-id-with-caching-options";
-import {IResolveCache} from "./i-resolve-cache";
-import {ensureAbsolute, isBabelHelper, isTslib, setExtension} from "../../../util/path/path-util";
+import {ExtendedResolvedModule, IResolveCache} from "./i-resolve-cache";
+import {ensureAbsolute, setExtension} from "../../../util/path/path-util";
 import {sync} from "find-up";
-import {takeBestSubModuleFromPackage} from "../../../util/take-best-sub-module-from-package/take-best-sub-module-from-package";
-import {join, normalize} from "path";
-import {JS_EXTENSION, PACKAGE_JSON_FILENAME} from "../../../constant/constant";
+import {normalize} from "path";
+import {DECLARATION_EXTENSION, JS_EXTENSION} from "../../../constant/constant";
 import {FileSystem} from "../../../util/file-system/file-system";
 
 export interface ResolveCacheOptions {
@@ -26,9 +25,9 @@ export interface ResolveCacheOptions {
 export class ResolveCache implements IResolveCache {
 	/**
 	 * A memory-persistent cache of resolved modules for files over time
-	 * @type {Map<string, Map<string|null>>}
+	 * @type {Map<string, Map<ExtendedResolvedModule|null>>}
 	 */
-	private readonly RESOLVE_CACHE: Map<string, Map<string, string | null>> = new Map();
+	private readonly RESOLVE_CACHE: Map<string, Map<string, ExtendedResolvedModule | null>> = new Map();
 
 	constructor(private readonly options: ResolveCacheOptions) {}
 
@@ -36,9 +35,9 @@ export class ResolveCache implements IResolveCache {
 	 * Gets the resolved path for an id from a parent
 	 * @param {string} id
 	 * @param {string} parent
-	 * @returns {string | null | undefined}
+	 * @returns {ResolvedModuleFull | null | undefined}
 	 */
-	public getFromCache(id: string, parent: string): string | null | undefined {
+	public getFromCache(id: string, parent: string): ExtendedResolvedModule | null | undefined {
 		const parentMap = this.RESOLVE_CACHE.get(parent);
 		if (parentMap == null) return undefined;
 		return parentMap.get(id);
@@ -55,12 +54,12 @@ export class ResolveCache implements IResolveCache {
 
 	/**
 	 * Sets the given resolved module in the resolve cache
-	 * @param {string|null} result
+	 * @param {ResolvedModule|null} result
 	 * @param {string} id
 	 * @param {string} parent
-	 * @returns {string|null}
+	 * @returns {ExtendedResolvedModule|null}
 	 */
-	public setInCache(result: string | null, id: string, parent: string): string | null {
+	public setInCache(result: ExtendedResolvedModule | null, id: string, parent: string): ExtendedResolvedModule | null {
 		let parentMap = this.RESOLVE_CACHE.get(parent);
 		if (parentMap == null) {
 			parentMap = new Map();
@@ -75,7 +74,6 @@ export class ResolveCache implements IResolveCache {
 	 * @type {string | null}
 	 */
 	public resolveModuleName(
-		cwd: string,
 		moduleName: string,
 		containingFile: string,
 		compilerOptions: CompilerOptions,
@@ -83,35 +81,7 @@ export class ResolveCache implements IResolveCache {
 		cache?: ModuleResolutionCache,
 		redirectedReference?: ResolvedProjectReference
 	): ResolvedModuleWithFailedLookupLocations {
-		// Handle tslib differently
-		if (isTslib(moduleName)) {
-			const tslibPath = this.findHelperFromNodeModules("tslib/tslib.es6.js", cwd);
-			if (tslibPath != null) {
-				return {
-					resolvedModule: {
-						resolvedFileName: tslibPath,
-						isExternalLibraryImport: false,
-						extension: Extension.Js
-					}
-				};
-			}
-		}
-
-		// Handle Babel helpers differently
-		else if (isBabelHelper(moduleName)) {
-			const babelHelperPath = this.findHelperFromNodeModules(moduleName, cwd);
-			if (babelHelperPath != null) {
-				return {
-					resolvedModule: {
-						resolvedFileName: babelHelperPath,
-						isExternalLibraryImport: false,
-						extension: Extension.Js
-					}
-				};
-			}
-		}
-
-		// Otherwise, default to using Typescript's resolver directly
+		// Default to using Typescript's resolver directly
 		return resolveModuleName(moduleName, containingFile, compilerOptions, host, cache, redirectedReference);
 	}
 
@@ -121,9 +91,26 @@ export class ResolveCache implements IResolveCache {
 	 * @param {string} cwd
 	 * @return {string | undefined}
 	 */
-	private findHelperFromNodeModules(path: string, cwd: string): string | undefined {
+	public findHelperFromNodeModules(path: string, cwd: string): string | undefined {
+		let cacheResult = this.getFromCache(path, cwd);
+		if (cacheResult != null) {
+			return cacheResult.resolvedFileName;
+		}
 		for (const resolvedPath of [sync(`node_modules/${setExtension(path, JS_EXTENSION)}`, {cwd}), sync(`node_modules/${path}/index.js`, {cwd})]) {
-			if (resolvedPath != null) return resolvedPath;
+			if (resolvedPath != null) {
+				this.setInCache(
+					{
+						resolvedFileName: resolvedPath,
+						resolvedAmbientFileName: undefined,
+						isExternalLibraryImport: false,
+						extension: Extension.Js,
+						packageId: undefined
+					},
+					path,
+					cwd
+				);
+				return resolvedPath;
+			}
 		}
 
 		return undefined;
@@ -133,16 +120,18 @@ export class ResolveCache implements IResolveCache {
 	 * Gets a cached module result for the given file from the given parent and returns it if it exists already.
 	 * If not, it will compute it, update the cache, and then return it
 	 * @param {IGetResolvedIdWithCachingOptions} opts
-	 * @returns {string|null}
+	 * @returns {ExtendedResolvedModule|null}
 	 */
-	public get({id, parent, moduleResolutionHost, options, cwd}: IGetResolvedIdWithCachingOptions): string | null {
+	public get({id, parent, moduleResolutionHost, options, cwd, supportedExtensions}: IGetResolvedIdWithCachingOptions): ExtendedResolvedModule | null {
 		let cacheResult = this.getFromCache(id, parent);
 		if (cacheResult != null) {
 			return cacheResult;
 		}
 
 		// Resolve the file via Typescript, either through classic or node module resolution
-		const {resolvedModule} = this.resolveModuleName(cwd, id, parent, options, moduleResolutionHost);
+		const {resolvedModule} = this.resolveModuleName(id, parent, options, moduleResolutionHost) as {
+			resolvedModule: ExtendedResolvedModule | undefined;
+		};
 
 		// If it could not be resolved, the cache result will be equal to null
 		if (resolvedModule == null) {
@@ -152,33 +141,35 @@ export class ResolveCache implements IResolveCache {
 		// Otherwise, proceed
 		else {
 			// Make sure that the path is absolute from the cwd
-			resolvedModule.resolvedFileName = normalize(ensureAbsolute(cwd, resolvedModule.resolvedFileName));
+			resolvedModule.resolvedFileName = normalize(ensureAbsolute(cwd, resolvedModule.resolvedFileName!));
 
-			// If it is an external library, re-resolve since we may want to use a different package.json key than "main",
-			// for example in order get the ES-module variant of the library
-			if (resolvedModule.isExternalLibraryImport === true) {
-				// Find the package.json located closest to the resolved file
-				const packageJsonPath = sync(PACKAGE_JSON_FILENAME, {cwd: resolvedModule.resolvedFileName});
-				if (packageJsonPath != null) {
-					// Resolve the package.json file
-					const packageJsonText = this.options.fileSystem.readFile(normalize(packageJsonPath));
-					if (packageJsonText != null) {
-						const pkg = JSON.parse(packageJsonText.toString());
-						// Compute the absolute path to the path pointed to by the 'main' property
-						const mainPath = pkg.main == null ? "index.js" : join(this.options.fileSystem.ensureDirectory(packageJsonPath), pkg.main);
+			if (resolvedModule.resolvedFileName.endsWith(DECLARATION_EXTENSION)) {
+				resolvedModule.resolvedAmbientFileName = resolvedModule.resolvedFileName;
+				resolvedModule.resolvedFileName = undefined;
+				resolvedModule.extension = DECLARATION_EXTENSION as Extension;
 
-						// If the resolved file name is equal to that of the main property, check if there is another path on the "module" field (which will be better suited for Rollup)
-						if (mainPath != null && resolvedModule.resolvedFileName === mainPath) {
-							const submodule = takeBestSubModuleFromPackage(pkg);
-							if (submodule != null) {
-								// Rollup plays nice with ES-modules by default, so if there is any module property in the package, chances are that is using ES modules
-								resolvedModule.resolvedFileName = join(this.options.fileSystem.ensureDirectory(packageJsonPath), submodule);
-							}
+				// Don't go and attempt to resolve sources for external libraries
+				if (!resolvedModule.isExternalLibraryImport) {
+					// Try to determine the resolved file name.
+					for (const extension of supportedExtensions) {
+						const candidate = normalize(setExtension(resolvedModule.resolvedAmbientFileName, extension));
+
+						if (this.options.fileSystem.fileExists(candidate)) {
+							resolvedModule.resolvedFileName = candidate;
+							break;
 						}
 					}
 				}
+			} else {
+				resolvedModule.resolvedAmbientFileName = undefined;
+				const candidate = normalize(setExtension(resolvedModule.resolvedFileName, DECLARATION_EXTENSION));
+
+				if (this.options.fileSystem.fileExists(candidate)) {
+					resolvedModule.resolvedAmbientFileName = candidate;
+				}
 			}
-			cacheResult = resolvedModule.resolvedFileName;
+
+			cacheResult = resolvedModule;
 		}
 
 		// Store the new result in the cache

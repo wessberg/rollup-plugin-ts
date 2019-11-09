@@ -5,6 +5,7 @@ import {
 	getDefaultLibFileName,
 	IScriptSnapshot,
 	LanguageServiceHost,
+	ResolvedModuleFull,
 	ScriptKind,
 	ScriptSnapshot,
 	SourceFile
@@ -19,6 +20,7 @@ import {DEFAULT_LIB_NAMES} from "../../constant/constant";
 import {ensureAbsolute, isInternalFile} from "../../util/path/path-util";
 import {CustomTransformersFunction} from "../../util/merge-transformers/i-custom-transformer-options";
 import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
+import {resolveId} from "../../util/resolve-id/resolve-id";
 
 // tslint:disable:no-any
 
@@ -102,7 +104,10 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 
 		// Otherwise, take all transformer diagnostics for all files
 		else {
-			return ([] as IExtendedDiagnostic[]).concat.apply([], [...this.files.values()].map(v => v.transformerDiagnostics));
+			return ([] as IExtendedDiagnostic[]).concat.apply(
+				[],
+				[...this.files.values()].map(v => v.transformerDiagnostics)
+			);
 		}
 	}
 
@@ -180,6 +185,30 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 
 		// Otherwise, try to properly resolve the file
 		return this.options.fileSystem.readFile(fileName, encoding);
+	}
+
+	public resolveModuleNames(moduleNames: string[], containingFile: string): (ResolvedModuleFull | undefined)[] {
+		const resolvedModules: (ResolvedModuleFull | undefined)[] = [];
+		for (const moduleName of moduleNames) {
+			// try to use standard resolution
+			let result = resolveId({
+				cwd: this.options.cwd,
+				parent: containingFile,
+				id: moduleName,
+				moduleResolutionHost: this,
+				options: this.getCompilationSettings(),
+				resolveCache: this.options.resolveCache,
+				supportedExtensions: this.options.supportedExtensions
+			});
+			if (result != null && result.resolvedAmbientFileName != null) {
+				resolvedModules.push({...result, resolvedFileName: result.resolvedAmbientFileName});
+			} else if (result != null && result.resolvedFileName != null) {
+				resolvedModules.push({...result, resolvedFileName: result.resolvedFileName});
+			} else {
+				resolvedModules.push(undefined);
+			}
+		}
+		return resolvedModules;
 	}
 
 	/**
@@ -385,14 +414,18 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 */
 	private assertHasFileName(fileName: string): IFile {
 		if (!this.files.has(fileName)) {
+			const absoluteFileName = DEFAULT_LIB_NAMES.has(fileName) ? fileName : ensureAbsolute(this.options.cwd, fileName);
+
 			// If the file exists on disk, add it
-			const code = this.options.fileSystem.readFile(fileName);
+			const code = this.options.fileSystem.readFile(absoluteFileName);
 			if (code != null) {
-				this.addFile({file: fileName, code}, isInternalFile(fileName));
+				this.addFile({file: absoluteFileName, code}, isInternalFile(absoluteFileName));
+				return this.files.get(absoluteFileName)!;
 			} else {
-				throw new ReferenceError(`The given file: '${fileName}' doesn't exist!`);
+				throw new ReferenceError(`The given file: '${absoluteFileName}' doesn't exist!`);
 			}
+		} else {
+			return this.files.get(fileName)!;
 		}
-		return this.files.get(fileName)!;
 	}
 }

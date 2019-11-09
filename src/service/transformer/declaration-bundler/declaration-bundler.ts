@@ -1,15 +1,25 @@
 import {CustomTransformers} from "typescript";
-import {IDeclarationBundlerOptions} from "./i-declaration-bundler-options";
-import {updateExports} from "./update-exports/update-exports";
-import {deconflict} from "./deconflict/deconflict";
+import {DeclarationBundlerOptions} from "./declaration-bundler-options";
+import {treeShaker} from "./tree-shaker/tree-shaker";
+import {modularizer} from "./modularizer/modularizer";
+import {statementMerger} from "./statement-merger/statement-merger";
 
 /**
- * Will bundle declaration files
- * @param {IDeclarationBundlerOptions} options
+ * Bundles declarations
+ * @param {DeclarationBundlerOptions} options
  * @returns {CustomTransformers}
  */
-export function declarationBundler(options: IDeclarationBundlerOptions): CustomTransformers {
+export function declarationBundler(options: DeclarationBundlerOptions): CustomTransformers {
 	return {
-		afterDeclarations: [deconflict(options), updateExports(options)]
+		afterDeclarations: [
+			// Adds imports and exports to SourceFiles where necessary
+			modularizer(options),
+
+			// Tree-shakes declarations based on reference counting
+			treeShaker(options),
+
+			// Merges statements, such as Import- and ExportDeclarations
+			statementMerger(options)
+		]
 	};
 }
