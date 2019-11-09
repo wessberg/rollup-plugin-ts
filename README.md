@@ -645,6 +645,10 @@ First, Typescript will be used for:
 
 Babel will then be used for all other syntax transformation from then on, depending on the combination of default, provided, and forced presets and plugins.
 
+#### Why is @babel/plugin-transform-runtime and tslib included by default?
+
+[See this explainer](./documentation/explainer/why_is_babel-plugin-transform-runtime_and_tslib_included_by_default.md).
+
 <!-- SHADOW_SECTION_LICENSE_START -->
 
 ## License
