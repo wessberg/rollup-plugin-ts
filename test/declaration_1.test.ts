@@ -258,10 +258,9 @@ test("Flattens declarations. #7", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		type m = {
-			ten: typeof ten;
-		};
-		declare const ten = 10;
+		declare namespace m {
+    	const ten = 10;
+		}
 		export { m };
 		`)
 	);

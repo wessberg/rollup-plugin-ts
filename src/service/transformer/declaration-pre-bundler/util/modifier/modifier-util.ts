@@ -49,6 +49,16 @@ export function removeExportModifier(modifiers: Modifiers | undefined): Modifier
 }
 
 /**
+ * Removes an export and/or declare modifier from the given ModifiersArray
+ * @param {Modifiers?} modifiers
+ * @returns {Modifier[]}
+ */
+export function removeExportAndDeclareModifiers(modifiers: Modifiers | undefined): Modifier[] | undefined {
+	if (modifiers == null) return modifiers;
+	return modifiers.filter(modifier => !isExportModifier(modifier) && !isDefaultModifier(modifier) && !isDeclareModifier(modifier));
+}
+
+/**
  * Removes an export modifier from the given ModifiersArray
  * @param {ModifiersArray} modifiers
  * @returns {Modifier[]}

@@ -413,6 +413,40 @@ test("Flattens declarations. #25", async t => {
 	);
 });
 
+test("Flattens declarations. #26", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+        import * as bar from './bar';
+        export type FooType = bar.BarType;
+			`
+		},
+		{
+			entry: false,
+			fileName: "bar.ts",
+			text: `\
+        export type BarType = 'a' | 'b' | 'c';
+			`
+		}
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare namespace bar {
+					type BarType = 'a' | 'b' | 'c';
+			}
+			declare type FooType = bar.BarType;
+			export { FooType };
+		`)
+	);
+});
+
 test("A file with no exports generates a .d.ts file with an 'export {}' declaration to mark it as a module. #1", async t => {
 	const bundle = await generateRollupBundle([
 		{

@@ -1,12 +1,44 @@
-import {createIdentifier, createImportClause, createImportDeclaration, createImportSpecifier, createNamedImports, createNamespaceImport, createPropertySignature, createStringLiteral, createTypeAliasDeclaration, createTypeLiteralNode, createTypeQueryNode, createTypeReferenceNode, createVariableDeclaration, createVariableDeclarationList, createVariableStatement, ImportDeclaration, NodeFlags, SyntaxKind, TypeAliasDeclaration, TypeQueryNode, TypeReferenceNode, VariableStatement} from "typescript";
+import {
+	createIdentifier,
+	createImportClause,
+	createImportDeclaration,
+	createImportSpecifier,
+	createModuleBlock,
+	createModuleDeclaration,
+	createNamedImports,
+	createNamespaceImport,
+	createStringLiteral,
+	createTypeAliasDeclaration,
+	createTypeQueryNode,
+	createTypeReferenceNode,
+	createVariableDeclaration,
+	createVariableDeclarationList,
+	createVariableStatement,
+	ImportDeclaration,
+	ModuleDeclaration,
+	NodeFlags,
+	Statement,
+	SyntaxKind,
+	TypeAliasDeclaration,
+	TypeQueryNode,
+	TypeReferenceNode,
+	VariableStatement
+} from "typescript";
 import {dirname, relative} from "path";
 import {ensureHasLeadingDotAndPosix, stripKnownExtension} from "../../../../../util/path/path-util";
 import {SupportedExtensions} from "../../../../../util/get-supported-extensions/get-supported-extensions";
 import {ChunkToOriginalFileMap} from "../../../../../util/chunk/get-chunk-to-original-file-map";
-import {ImportedSymbol, NamedExportedSymbol, NamedImportedSymbol, SourceFileToExportedSymbolSet, SourceFileToLocalSymbolMap} from "../../../declaration-pre-bundler/declaration-pre-bundler-options";
+import {
+	ImportedSymbol,
+	NamedExportedSymbol,
+	NamedImportedSymbol,
+	SourceFileToExportedSymbolSet,
+	SourceFileToLocalSymbolMap
+} from "../../../declaration-pre-bundler/declaration-pre-bundler-options";
 import {getChunkFilename} from "../../../declaration-pre-bundler/util/get-chunk-filename/get-chunk-filename";
-import {ensureHasDeclareModifier} from "../../../declaration-pre-bundler/util/modifier/modifier-util";
+import {ensureHasDeclareModifier, removeExportAndDeclareModifiers} from "../../../declaration-pre-bundler/util/modifier/modifier-util";
 import {ChunkForModuleCache} from "../../../declaration/declaration-options";
+import {cloneNode} from "@wessberg/ts-clone-node";
 
 export interface VisitImportedSymbolOptions {
 	chunkForModuleCache: ChunkForModuleCache;
@@ -19,7 +51,10 @@ export interface VisitImportedSymbolOptions {
 	absoluteChunkFileName: string;
 }
 
-export function createAliasedBinding (importedSymbol: NamedImportedSymbol, propertyName: string): ImportDeclaration|TypeAliasDeclaration|VariableStatement {
+export function createAliasedBinding(
+	importedSymbol: NamedImportedSymbol,
+	propertyName: string
+): ImportDeclaration | TypeAliasDeclaration | VariableStatement {
 	switch (importedSymbol.node.kind) {
 		case SyntaxKind.ClassDeclaration:
 		case SyntaxKind.ClassExpression:
@@ -28,15 +63,13 @@ export function createAliasedBinding (importedSymbol: NamedImportedSymbol, prope
 		case SyntaxKind.EnumDeclaration:
 		case SyntaxKind.VariableDeclaration:
 		case SyntaxKind.VariableStatement:
-		case SyntaxKind.ExportAssignment:{
+		case SyntaxKind.ExportAssignment: {
 			return createVariableStatement(
 				ensureHasDeclareModifier(undefined),
-				createVariableDeclarationList([
-					createVariableDeclaration(
-						createIdentifier(importedSymbol.name),
-						createTypeQueryNode(createIdentifier(propertyName))
-					)
-				], NodeFlags.Const)
+				createVariableDeclarationList(
+					[createVariableDeclaration(createIdentifier(importedSymbol.name), createTypeQueryNode(createIdentifier(propertyName)))],
+					NodeFlags.Const
+				)
 			);
 		}
 
@@ -52,7 +85,7 @@ export function createAliasedBinding (importedSymbol: NamedImportedSymbol, prope
 	}
 }
 
-export function createTypeReferenceOrTypeQueryBasedOnNode (exportedSymbol: NamedExportedSymbol): TypeReferenceNode|TypeQueryNode {
+export function createTypeReferenceOrTypeQueryBasedOnNode(exportedSymbol: NamedExportedSymbol): TypeReferenceNode | TypeQueryNode {
 	switch (exportedSymbol.node.kind) {
 		case SyntaxKind.ClassDeclaration:
 		case SyntaxKind.ClassExpression:
@@ -61,21 +94,16 @@ export function createTypeReferenceOrTypeQueryBasedOnNode (exportedSymbol: Named
 		case SyntaxKind.EnumDeclaration:
 		case SyntaxKind.VariableDeclaration:
 		case SyntaxKind.VariableStatement: {
-			return createTypeQueryNode(
-				createIdentifier(exportedSymbol.name)
-			);
+			return createTypeQueryNode(createIdentifier(exportedSymbol.name));
 		}
 
 		default: {
-			return createTypeReferenceNode(
-				createIdentifier(exportedSymbol.name),
-				undefined
-			);
+			return createTypeReferenceNode(createIdentifier(exportedSymbol.name), undefined);
 		}
 	}
 }
 
-function getAllNamedExportsForModule (moduleName: string, sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet): NamedExportedSymbol[] {
+function getAllNamedExportsForModule(moduleName: string, sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet): NamedExportedSymbol[] {
 	const exportedSymbols = sourceFileToExportedSymbolSet.get(moduleName);
 	if (exportedSymbols == null) return [];
 	const namedExportedSymbols: NamedExportedSymbol[] = [];
@@ -93,14 +121,24 @@ function getAllNamedExportsForModule (moduleName: string, sourceFileToExportedSy
 	return namedExportedSymbols;
 }
 
-export function visitImportedSymbol (options: VisitImportedSymbolOptions): (ImportDeclaration|TypeAliasDeclaration|VariableStatement)[] {
+export function visitImportedSymbol(
+	options: VisitImportedSymbolOptions
+): (ImportDeclaration | TypeAliasDeclaration | ModuleDeclaration | VariableStatement)[] {
 	const {importedSymbol, sourceFileToExportedSymbolSet, sourceFileToLocalSymbolMap, absoluteChunkFileName} = options;
 	const otherChunkFileName = getChunkFilename({...options, fileName: importedSymbol.originalModule});
-	const importDeclarations: (ImportDeclaration|TypeAliasDeclaration)[] = [];
+	const importDeclarations: (ImportDeclaration | TypeAliasDeclaration | ModuleDeclaration)[] = [];
 
 	// Generate a module specifier that points to the referenced module, relative to the current sourcefile
-	const relativeToSourceFileDirectory = importedSymbol.isExternal && importedSymbol.rawModuleSpecifier != null ? importedSymbol.rawModuleSpecifier : otherChunkFileName == null ? importedSymbol.originalModule : relative(dirname(absoluteChunkFileName), otherChunkFileName.fileName);
-	const moduleSpecifier = importedSymbol.isExternal && importedSymbol.rawModuleSpecifier != null ? importedSymbol.rawModuleSpecifier : ensureHasLeadingDotAndPosix(stripKnownExtension(relativeToSourceFileDirectory), false);
+	const relativeToSourceFileDirectory =
+		importedSymbol.isExternal && importedSymbol.rawModuleSpecifier != null
+			? importedSymbol.rawModuleSpecifier
+			: otherChunkFileName == null
+			? importedSymbol.originalModule
+			: relative(dirname(absoluteChunkFileName), otherChunkFileName.fileName);
+	const moduleSpecifier =
+		importedSymbol.isExternal && importedSymbol.rawModuleSpecifier != null
+			? importedSymbol.rawModuleSpecifier
+			: ensureHasLeadingDotAndPosix(stripKnownExtension(relativeToSourceFileDirectory), false);
 
 	// Find the local symbols for the referenced module
 	const otherModuleLocalSymbols = sourceFileToLocalSymbolMap.get(importedSymbol.originalModule);
@@ -120,14 +158,14 @@ export function visitImportedSymbol (options: VisitImportedSymbolOptions): (Impo
 					"defaultImport" in importedSymbol && importedSymbol.defaultImport ? createIdentifier(importedSymbol.name) : undefined,
 					"namespaceImport" in importedSymbol
 						? createNamespaceImport(createIdentifier(importedSymbol.name))
-						: importedSymbol.defaultImport ? undefined : createNamedImports([
-							createImportSpecifier(
-								importedSymbol.propertyName != null
-									? createIdentifier(importedSymbol.propertyName)
-									: undefined,
-								createIdentifier(importedSymbol.name)
-							)
-						])
+						: importedSymbol.defaultImport
+						? undefined
+						: createNamedImports([
+								createImportSpecifier(
+									importedSymbol.propertyName != null ? createIdentifier(importedSymbol.propertyName) : undefined,
+									createIdentifier(importedSymbol.name)
+								)
+						  ])
 				),
 				createStringLiteral(moduleSpecifier)
 			)
@@ -136,7 +174,6 @@ export function visitImportedSymbol (options: VisitImportedSymbolOptions): (Impo
 
 	// If the import originates from a module within the same chunk,
 	if (absoluteChunkFileName === otherChunkFileName.fileName) {
-
 		// Most likely, the import should be left out, given that the symbol
 		// might already be part of the chunk.
 		// But, there can be plenty reasons why that would not be the case.
@@ -145,7 +182,8 @@ export function visitImportedSymbol (options: VisitImportedSymbolOptions): (Impo
 		// Or, it may be something like 'export {...} from "..."'
 		// in which case *that* might be part of a different chunk (or none at all).
 		if (otherModuleExportedSymbols != null) {
-			const propertyName = "propertyName" in importedSymbol && importedSymbol.propertyName != null ? importedSymbol.propertyName : importedSymbol.name;
+			const propertyName =
+				"propertyName" in importedSymbol && importedSymbol.propertyName != null ? importedSymbol.propertyName : importedSymbol.name;
 			const matchingExportedSymbol = [...otherModuleExportedSymbols].find(exportedSymbol =>
 				"defaultImport" in importedSymbol && importedSymbol.defaultImport
 					? "defaultExport" in exportedSymbol && exportedSymbol.defaultExport
@@ -156,10 +194,19 @@ export function visitImportedSymbol (options: VisitImportedSymbolOptions): (Impo
 				const matchingExportedSymbolChunk = getChunkFilename({...options, fileName: matchingExportedSymbol.originalModule});
 
 				// If the chunk in which the exported binding resides isn't part of the same chunk, import the binding into the current module
-				if (matchingExportedSymbolChunk == null || matchingExportedSymbol.isExternal || absoluteChunkFileName !== matchingExportedSymbolChunk.fileName) {
-
-					const otherRelativeToSourceFileDirectory = matchingExportedSymbol.isExternal && matchingExportedSymbol.rawModuleSpecifier != null ? matchingExportedSymbol.rawModuleSpecifier : relative(dirname(importedSymbol.originalModule), matchingExportedSymbol.originalModule);
-					const otherUpdatedModuleSpecifierText = matchingExportedSymbol.isExternal && matchingExportedSymbol.rawModuleSpecifier != null ? matchingExportedSymbol.rawModuleSpecifier : ensureHasLeadingDotAndPosix(stripKnownExtension(otherRelativeToSourceFileDirectory), false);
+				if (
+					matchingExportedSymbolChunk == null ||
+					matchingExportedSymbol.isExternal ||
+					absoluteChunkFileName !== matchingExportedSymbolChunk.fileName
+				) {
+					const otherRelativeToSourceFileDirectory =
+						matchingExportedSymbol.isExternal && matchingExportedSymbol.rawModuleSpecifier != null
+							? matchingExportedSymbol.rawModuleSpecifier
+							: relative(dirname(importedSymbol.originalModule), matchingExportedSymbol.originalModule);
+					const otherUpdatedModuleSpecifierText =
+						matchingExportedSymbol.isExternal && matchingExportedSymbol.rawModuleSpecifier != null
+							? matchingExportedSymbol.rawModuleSpecifier
+							: ensureHasLeadingDotAndPosix(stripKnownExtension(otherRelativeToSourceFileDirectory), false);
 
 					importDeclarations.push(
 						createImportDeclaration(
@@ -169,36 +216,32 @@ export function visitImportedSymbol (options: VisitImportedSymbolOptions): (Impo
 								"defaultExport" in matchingExportedSymbol && matchingExportedSymbol.defaultExport ? createIdentifier(importedSymbol.name) : undefined,
 								"namespaceExport" in matchingExportedSymbol
 									? createNamespaceImport(createIdentifier(importedSymbol.name))
-									: "defaultExport" in matchingExportedSymbol && matchingExportedSymbol.defaultExport ? undefined : createNamedImports([
-										createImportSpecifier(
-											matchingExportedSymbol.propertyName != null
-												? createIdentifier(matchingExportedSymbol.propertyName)
-												: undefined,
-											createIdentifier(importedSymbol.name)
-										)
-									])
+									: "defaultExport" in matchingExportedSymbol && matchingExportedSymbol.defaultExport
+									? undefined
+									: createNamedImports([
+											createImportSpecifier(
+												matchingExportedSymbol.propertyName != null ? createIdentifier(matchingExportedSymbol.propertyName) : undefined,
+												createIdentifier(importedSymbol.name)
+											)
+									  ])
 							),
 							createStringLiteral(otherUpdatedModuleSpecifierText)
 						)
 					);
-				}
-
-				else if ("defaultImport" in importedSymbol && importedSymbol.defaultImport && "name" in matchingExportedSymbol && matchingExportedSymbol.name !== importedSymbol.name) {
-					return [
-						...importDeclarations,
-						createAliasedBinding(importedSymbol, matchingExportedSymbol.name)
-					];
+				} else if (
+					"defaultImport" in importedSymbol &&
+					importedSymbol.defaultImport &&
+					"name" in matchingExportedSymbol &&
+					matchingExportedSymbol.name !== importedSymbol.name
+				) {
+					return [...importDeclarations, createAliasedBinding(importedSymbol, matchingExportedSymbol.name)];
 				}
 			}
-
 		}
 
 		// Create a TypeAlias that aliases the imported property
 		if ("propertyName" in importedSymbol && importedSymbol.propertyName != null) {
-			return [
-				...importDeclarations,
-				createAliasedBinding(importedSymbol, importedSymbol.propertyName)
-			];
+			return [...importDeclarations, createAliasedBinding(importedSymbol, importedSymbol.propertyName)];
 		}
 
 		// If a namespace is imported, create a type literal under the same name as the namespace binding
@@ -206,18 +249,20 @@ export function visitImportedSymbol (options: VisitImportedSymbolOptions): (Impo
 			const namedExportsForModule = getAllNamedExportsForModule(importedSymbol.originalModule, sourceFileToExportedSymbolSet);
 			return [
 				...importDeclarations,
-				createTypeAliasDeclaration(
+				createModuleDeclaration(
 					undefined,
-					undefined,
+					ensureHasDeclareModifier([]),
 					createIdentifier(importedSymbol.name),
-					undefined,
-					createTypeLiteralNode(namedExportsForModule.map(namedExport => createPropertySignature(
-						undefined,
-						createIdentifier(namedExport.name),
-						undefined,
-						createTypeReferenceOrTypeQueryBasedOnNode(namedExport),
-						undefined
-					)))
+					createModuleBlock(
+						namedExportsForModule.map(namedExport => {
+							return cloneNode(namedExport.node, {
+								hook: {
+									modifiers: removeExportAndDeclareModifiers
+								}
+							}) as Statement;
+						})
+					),
+					NodeFlags.Namespace
 				)
 			];
 		}
@@ -235,10 +280,7 @@ export function visitImportedSymbol (options: VisitImportedSymbolOptions): (Impo
 			createImportDeclaration(
 				undefined,
 				undefined,
-				createImportClause(
-					undefined,
-					createNamespaceImport(createIdentifier(importedSymbol.name))
-				),
+				createImportClause(undefined, createNamespaceImport(createIdentifier(importedSymbol.name))),
 				createStringLiteral(moduleSpecifier)
 			)
 		];
@@ -246,7 +288,6 @@ export function visitImportedSymbol (options: VisitImportedSymbolOptions): (Impo
 
 	// Otherwise, if it is a default import, add an ImportDeclaration that imports the default binding under whatever name is given
 	else if ("defaultImport" in importedSymbol && importedSymbol.defaultImport) {
-
 		return [
 			...importDeclarations,
 			createImportDeclaration(
@@ -273,12 +314,15 @@ export function visitImportedSymbol (options: VisitImportedSymbolOptions): (Impo
 					createImportDeclaration(
 						undefined,
 						undefined,
-						createImportClause(undefined, createNamedImports([
-							createImportSpecifier(
-								deconflictedPropertyName === name ? undefined : createIdentifier(deconflictedPropertyName),
-								createIdentifier(name)
-							)
-						])),
+						createImportClause(
+							undefined,
+							createNamedImports([
+								createImportSpecifier(
+									deconflictedPropertyName === name ? undefined : createIdentifier(deconflictedPropertyName),
+									createIdentifier(name)
+								)
+							])
+						),
 						createStringLiteral(moduleSpecifier)
 					)
 				];
@@ -291,12 +335,12 @@ export function visitImportedSymbol (options: VisitImportedSymbolOptions): (Impo
 			createImportDeclaration(
 				undefined,
 				undefined,
-				createImportClause(undefined, createNamedImports([
-					createImportSpecifier(
-						propertyName == null || propertyName === name ? undefined : createIdentifier(propertyName),
-						createIdentifier(name)
-					)
-				])),
+				createImportClause(
+					undefined,
+					createNamedImports([
+						createImportSpecifier(propertyName == null || propertyName === name ? undefined : createIdentifier(propertyName), createIdentifier(name))
+					])
+				),
 				createStringLiteral(moduleSpecifier)
 			)
 		];

@@ -1,4 +1,35 @@
-import {forEachChild, isArrayBindingPattern, isBindingElement, isClassDeclaration, isClassExpression, isEnumDeclaration, isExportAssignment, isExportDeclaration, isExportSpecifier, isFunctionDeclaration, isFunctionExpression, isGetAccessorDeclaration, isIdentifier, isIndexedAccessTypeNode, isInterfaceDeclaration, isMethodDeclaration, isMethodSignature, isModuleDeclaration, isObjectBindingPattern, isParameter, isPropertyDeclaration, isPropertySignature, isSetAccessorDeclaration, isTypeAliasDeclaration, isVariableDeclaration, isVariableDeclarationList, isVariableStatement, Node} from "typescript";
+import {
+	forEachChild,
+	isArrayBindingPattern,
+	isBindingElement,
+	isClassDeclaration,
+	isClassExpression,
+	isEnumDeclaration,
+	isExportAssignment,
+	isExportDeclaration,
+	isExportSpecifier,
+	isFunctionDeclaration,
+	isFunctionExpression,
+	isGetAccessorDeclaration,
+	isIdentifier,
+	isIndexedAccessTypeNode,
+	isInterfaceDeclaration,
+	isMethodDeclaration,
+	isMethodSignature,
+	isModuleDeclaration,
+	isObjectBindingPattern,
+	isParameter,
+	isPropertyAccessExpression,
+	isPropertyDeclaration,
+	isPropertySignature,
+	isQualifiedName,
+	isSetAccessorDeclaration,
+	isTypeAliasDeclaration,
+	isVariableDeclaration,
+	isVariableDeclarationList,
+	isVariableStatement,
+	Node
+} from "typescript";
 import {IsReferencedOptions} from "./is-referenced-options";
 import {nodeContainsChild} from "../../util/node-contains-child";
 import {getIdentifiersForNode} from "../../util/get-identifiers-for-node";
@@ -32,20 +63,23 @@ import {checkExportDeclaration} from "./visitor/check-export-declaration";
 import {checkExportAssignment} from "./visitor/check-export-assignment";
 import {checkModuleDeclaration} from "./visitor/check-module-declaration";
 import {checkIndexedAccessTypeNode} from "./visitor/check-indexed-access-type-node";
+import {checkPropertyAccessExpression} from "./visitor/check-property-access-expression";
+import {checkQualifiedName} from "./visitor/check-qualified-name";
 
 /**
  * Visits the given node. Returns true if it references the node to check for references, and false otherwise
  * @param {Node} currentNode
  * @return {boolean}
  */
-function checkNode ({node, originalNode, ...rest}: ReferenceVisitorOptions): string[] {
-
+function checkNode({node, originalNode, ...rest}: ReferenceVisitorOptions): string[] {
 	if (isArrayBindingPattern(node)) {
 		return checkArrayBindingPattern({node, originalNode, ...rest});
 	} else if (isObjectBindingPattern(node)) {
 		return checkObjectBindingPattern({node, originalNode, ...rest});
 	} else if (isParameter(node)) {
 		return checkParameterDeclaration({node, originalNode, ...rest});
+	} else if (isQualifiedName(node)) {
+		return checkQualifiedName({node, originalNode, ...rest});
 	} else if (isBindingElement(node)) {
 		return checkBindingElement({node, originalNode, ...rest});
 	} else if (isMethodDeclaration(node)) {
@@ -56,6 +90,8 @@ function checkNode ({node, originalNode, ...rest}: ReferenceVisitorOptions): str
 		return checkGetAccessorDeclaration({node, originalNode, ...rest});
 	} else if (isSetAccessorDeclaration(node)) {
 		return checkSetAccessorDeclaration({node, originalNode, ...rest});
+	} else if (isPropertyAccessExpression(node)) {
+		return checkPropertyAccessExpression({node, originalNode, ...rest});
 	} else if (isPropertyDeclaration(node)) {
 		return checkPropertyDeclaration({node, originalNode, ...rest});
 	} else if (isPropertySignature(node)) {
@@ -101,7 +137,7 @@ function checkNode ({node, originalNode, ...rest}: ReferenceVisitorOptions): str
  * Visits the given node. Returns true if it references the node to check for references, and false otherwise
  * @return {Node?}
  */
-function getReferencingNodes (originalNode: Node, identifiers: LocalSymbolMap, cache: NodeToReferencedIdentifiersCache): Node[] {
+function getReferencingNodes(originalNode: Node, identifiers: LocalSymbolMap, cache: NodeToReferencedIdentifiersCache): Node[] {
 	const referencingNodes = new Set<Node>();
 
 	for (const identifier of identifiers.keys()) {
@@ -122,7 +158,7 @@ function getReferencingNodes (originalNode: Node, identifiers: LocalSymbolMap, c
  * @param {IsReferencedOptions} opts
  * @return {Node[]}
  */
-export function isReferenced<T extends Node> ({seenNodes = new Set(), ...options}: IsReferencedOptions<T>): boolean {
+export function isReferenced<T extends Node>({seenNodes = new Set(), ...options}: IsReferencedOptions<T>): boolean {
 	// Exports are always referenced and should never be removed
 	if (
 		isExportDeclaration(options.node) ||
@@ -167,7 +203,7 @@ export function isReferenced<T extends Node> ({seenNodes = new Set(), ...options
 	return result;
 }
 
-function collectReferences<T extends Node> (options: IsReferencedOptions<T>, identifiers: LocalSymbolMap): Node[] {
+function collectReferences<T extends Node>(options: IsReferencedOptions<T>, identifiers: LocalSymbolMap): Node[] {
 	let nodeToReferencedIdentifiersCache = options.sourceFileToNodeToReferencedIdentifiersCache.get(options.sourceFile.fileName);
 
 	// If it has been computed for the SourceFile previously, use it.
@@ -179,7 +215,7 @@ function collectReferences<T extends Node> (options: IsReferencedOptions<T>, ide
 		const visitorOptions = {
 			...options,
 			originalNode: options.node,
-			markIdentifiersAsReferenced (fromNode: Node, ...referencedIdentifiers: string[]) {
+			markIdentifiersAsReferenced(fromNode: Node, ...referencedIdentifiers: string[]) {
 				for (const identifier of referencedIdentifiers) {
 					let matchingSet = nodeToReferencedIdentifiersCache!.get(identifier);
 					if (matchingSet == null) {
@@ -204,9 +240,5 @@ function collectReferences<T extends Node> (options: IsReferencedOptions<T>, ide
 		});
 	}
 
-	return getReferencingNodes(
-		options.node,
-		identifiers,
-		nodeToReferencedIdentifiersCache
-	);
+	return getReferencingNodes(options.node, identifiers, nodeToReferencedIdentifiersCache);
 }
