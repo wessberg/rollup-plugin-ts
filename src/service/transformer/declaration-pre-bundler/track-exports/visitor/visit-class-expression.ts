@@ -7,12 +7,12 @@ import {ensureHasDeclareModifier, hasDefaultExportModifier, hasExportModifier, r
  * @param {TrackExportsVisitorOptions<ClassExpression>} options
  * @returns {ClassExpression | undefined}
  */
-export function visitClassExpression ({
-																				node,
-																				sourceFile,
-																				markAsExported,
-																				getDeconflictedNameAndPropertyName
-																			}: TrackExportsVisitorOptions<ClassExpression>): ClassExpression|undefined {
+export function visitClassExpression({
+	node,
+	sourceFile,
+	markAsExported,
+	getDeconflictedNameAndPropertyName
+}: TrackExportsVisitorOptions<ClassExpression>): ClassExpression | undefined {
 	// If the node has no export modifier, leave it as it is
 	if (!hasExportModifier(node)) return node;
 

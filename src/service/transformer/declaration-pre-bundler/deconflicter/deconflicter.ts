@@ -1,4 +1,26 @@
-import {createIdentifier, forEachChild, Identifier, isBindingElement, isExportSpecifier, isGetAccessorDeclaration, isIdentifier, isImportSpecifier, isMappedTypeNode, isMethodDeclaration, isMethodSignature, isParameter, isPropertyAssignment, isPropertyDeclaration, isPropertySignature, isSetAccessorDeclaration, Node, SourceFile, TransformerFactory, updateSourceFileNode, visitEachChild} from "typescript";
+import {
+	createIdentifier,
+	forEachChild,
+	Identifier,
+	isBindingElement,
+	isExportSpecifier,
+	isGetAccessorDeclaration,
+	isIdentifier,
+	isImportSpecifier,
+	isMappedTypeNode,
+	isMethodDeclaration,
+	isMethodSignature,
+	isParameter,
+	isPropertyAssignment,
+	isPropertyDeclaration,
+	isPropertySignature,
+	isSetAccessorDeclaration,
+	Node,
+	SourceFile,
+	TransformerFactory,
+	updateSourceFileNode,
+	visitEachChild
+} from "typescript";
 import {DeclarationPreBundlerOptions, LocalSymbol} from "../declaration-pre-bundler-options";
 import {getChunkFilename} from "../util/get-chunk-filename/get-chunk-filename";
 import {ContinuationOptions, DeconflicterVisitorOptions} from "./deconflicter-visitor-options";
@@ -23,7 +45,7 @@ import {traceIdentifiers} from "./visitor/trace-identifiers/trace-identifiers";
  * @param {DeconflicterVisitorOptions} options
  * @return {Node?}
  */
-function deconflictNode ({node, ...rest}: DeconflicterVisitorOptions): Node|undefined {
+function deconflictNode({node, ...rest}: DeconflicterVisitorOptions): Node | undefined {
 	if (isBindingElement(node)) {
 		return deconflictBindingElement({node, ...rest});
 	} else if (isImportSpecifier(node)) {
@@ -58,8 +80,7 @@ function deconflictNode ({node, ...rest}: DeconflicterVisitorOptions): Node|unde
  * @param {DeclarationPreBundlerOptions} options
  * @return {TransformerFactory<SourceFile>}
  */
-export function deconflicter (options: DeclarationPreBundlerOptions): TransformerFactory<SourceFile> {
-
+export function deconflicter(options: DeclarationPreBundlerOptions): TransformerFactory<SourceFile> {
 	return context => {
 		return sourceFile => {
 			const sourceFileName = normalize(sourceFile.fileName);
@@ -123,17 +144,16 @@ export function deconflicter (options: DeclarationPreBundlerOptions): Transforme
 				return true;
 			};
 
-
 			// Prepare some VisitorOptions
 			const traceIdentifiersVisitorOptions = {
 				...sharedVisitorOptions,
 
-				childContinuation: <U extends Node> (node: U): Node|void => {
+				childContinuation: <U extends Node>(node: U): Node | void => {
 					forEachChild(node, newNode => traceIdentifiers({...traceIdentifiersVisitorOptions, node: newNode, sourceFile}));
 				},
-				continuation: <U extends Node> (node: U): Node|void => traceIdentifiers({...traceIdentifiersVisitorOptions, node, sourceFile}),
+				continuation: <U extends Node>(node: U): Node | void => traceIdentifiers({...traceIdentifiersVisitorOptions, node, sourceFile}),
 
-				addIdentifier (name: string, localSymbol: LocalSymbol): void {
+				addIdentifier(name: string, localSymbol: LocalSymbol): void {
 					localSymbolMap!.set(name, localSymbol);
 				}
 			};
@@ -142,7 +162,7 @@ export function deconflicter (options: DeclarationPreBundlerOptions): Transforme
 			const deconflictVisitorOptions = {
 				...sharedVisitorOptions,
 
-				childContinuation: <U extends Node> (node: U, continuationOptions: ContinuationOptions): U =>
+				childContinuation: <U extends Node>(node: U, continuationOptions: ContinuationOptions): U =>
 					visitEachChild(
 						node,
 						nextNode =>
@@ -154,14 +174,14 @@ export function deconflicter (options: DeclarationPreBundlerOptions): Transforme
 						context
 					),
 
-				continuation: <U extends Node> (node: U, continuationOptions: ContinuationOptions): U|undefined =>
+				continuation: <U extends Node>(node: U, continuationOptions: ContinuationOptions): U | undefined =>
 					deconflictNode({
 						...deconflictVisitorOptions,
 						...continuationOptions,
 						node
-					}) as U|undefined,
+					}) as U | undefined,
 
-				updateIdentifierIfNeeded (identifier: Identifier, {lexicalIdentifiers, lValues}: ContinuationOptions): Identifier {
+				updateIdentifierIfNeeded(identifier: Identifier, {lexicalIdentifiers, lValues}: ContinuationOptions): Identifier {
 					if (lValues.has(identifier) || (lexicalIdentifiers != null && lexicalIdentifiers.has(identifier.text))) return identifier;
 
 					if (isIdentifierFree(identifier.text)) {

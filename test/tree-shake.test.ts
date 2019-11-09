@@ -106,27 +106,26 @@ test("Tree-shakes correctly. #3", async t => {
 });
 
 test("Tree-shakes correctly. #4", async t => {
-	const bundle = await generateRollupBundle(
-		[
-			{
-				entry: true,
-				fileName: "a.ts",
-				text: `\
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "a.ts",
+			text: `\
 					export {Logger} from "./logger";
 					`
-			},
-			{
-				entry: true,
-				fileName: "b.ts",
-				text: `\
+		},
+		{
+			entry: true,
+			fileName: "b.ts",
+			text: `\
 					import {Logger} from "./logger";
 					console.log(Logger);
 					`
-			},
-			{
-				entry: false,
-				fileName: "logger.ts",
-				text: `\
+		},
+		{
+			entry: false,
+			fileName: "logger.ts",
+			text: `\
 					import {LogLevel} from "./log-level";
 
 					export class Logger {
@@ -134,16 +133,15 @@ test("Tree-shakes correctly. #4", async t => {
 						}
 					}
 					`
-			},
-			{
-				entry: false,
-				fileName: "log-level.ts",
-				text: `\
+		},
+		{
+			entry: false,
+			fileName: "log-level.ts",
+			text: `\
 					export enum LogLevel {}
 					`
-			}
-		]
-	);
+		}
+	]);
 	const {declarations} = bundle;
 
 	const aFile = declarations.find(file => file.fileName.includes("a.d.ts"));

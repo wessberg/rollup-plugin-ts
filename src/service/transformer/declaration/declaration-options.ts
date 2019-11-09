@@ -4,7 +4,12 @@ import {TypescriptPluginOptions} from "../../../plugin/i-typescript-plugin-optio
 import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "../declaration-bundler/reference/cache/reference-cache";
 import {NodeIdentifierCache} from "../declaration-bundler/util/get-identifiers-for-node";
 import {SupportedExtensions} from "../../../util/get-supported-extensions/get-supported-extensions";
-import {SourceFileToExportedSymbolSet, SourceFileToGeneratedVariableNameSet, SourceFileToImportedSymbolSet, SourceFileToLocalSymbolMap} from "../declaration-pre-bundler/declaration-pre-bundler-options";
+import {
+	SourceFileToExportedSymbolSet,
+	SourceFileToGeneratedVariableNameSet,
+	SourceFileToImportedSymbolSet,
+	SourceFileToLocalSymbolMap
+} from "../declaration-pre-bundler/declaration-pre-bundler-options";
 import {ChunkToOriginalFileMap} from "../../../util/chunk/get-chunk-to-original-file-map";
 
 export interface GetChunkFilenameResult {
@@ -12,7 +17,7 @@ export interface GetChunkFilenameResult {
 	isAmbient: boolean;
 }
 
-export type ChunkForModuleCache = Map<string, GetChunkFilenameResult|undefined>;
+export type ChunkForModuleCache = Map<string, GetChunkFilenameResult | undefined>;
 
 export interface DeclarationOptions {
 	isEntryChunk: boolean;
@@ -42,10 +47,10 @@ export interface DeclarationOptions {
 	rewrittenDeclarationMapFilename: string;
 
 	absoluteDeclarationFilename: string;
-	augmentedAbsoluteDeclarationFileName: string|undefined;
+	augmentedAbsoluteDeclarationFileName: string | undefined;
 	rewrittenAbsoluteDeclarationFilename: string;
 	absoluteDeclarationMapFilename: string;
-	augmentedAbsoluteDeclarationMapFileName: string|undefined;
+	augmentedAbsoluteDeclarationMapFileName: string | undefined;
 	rewrittenAbsoluteDeclarationMapFilename: string;
 
 	relativeDeclarationMapDirname: string;

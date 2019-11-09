@@ -1,5 +1,18 @@
 import {TraceIdentifiersVisitorOptions} from "../../trace-identifiers-visitor-options";
-import {isBindingElement, isClassDeclaration, isEnumDeclaration, isExportSpecifier, isFunctionDeclaration, isIdentifier, isImportClause, isImportSpecifier, isInterfaceDeclaration, isNamespaceImport, isTypeAliasDeclaration, isVariableDeclaration} from "typescript";
+import {
+	isBindingElement,
+	isClassDeclaration,
+	isEnumDeclaration,
+	isExportSpecifier,
+	isFunctionDeclaration,
+	isIdentifier,
+	isImportClause,
+	isImportSpecifier,
+	isInterfaceDeclaration,
+	isNamespaceImport,
+	isTypeAliasDeclaration,
+	isVariableDeclaration
+} from "typescript";
 import {traceIdentifiersForBindingElement} from "./trace-identifiers-for-binding-element";
 import {traceIdentifiersForClassDeclaration} from "./trace-identifiers-for-class-declaration";
 import {traceIdentifiersForEnumDeclaration} from "./trace-identifiers-for-enum-declaration";
@@ -19,7 +32,7 @@ import {traceIdentifiersForVariableDeclaration} from "./trace-identifiers-for-va
  * @param {TraceIdentifiersVisitorOptions} options
  * @returns {Node | undefined}
  */
-export function traceIdentifiers ({node, ...rest}: TraceIdentifiersVisitorOptions): void {
+export function traceIdentifiers({node, ...rest}: TraceIdentifiersVisitorOptions): void {
 	if (isBindingElement(node)) traceIdentifiersForBindingElement({...rest, node});
 	else if (isClassDeclaration(node)) traceIdentifiersForClassDeclaration({...rest, node});
 	else if (isEnumDeclaration(node)) traceIdentifiersForEnumDeclaration({...rest, node});

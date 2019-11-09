@@ -1,4 +1,24 @@
-import {Expression, isClassDeclaration, isClassExpression, isEnumDeclaration, isExportAssignment, isExportDeclaration, isExportSpecifier, isFunctionDeclaration, isFunctionExpression, isInterfaceDeclaration, isModuleDeclaration, isNamedExports, isTypeAliasDeclaration, isVariableStatement, Node, SourceFile, TransformerFactory, updateSourceFileNode, visitEachChild} from "typescript";
+import {
+	Expression,
+	isClassDeclaration,
+	isClassExpression,
+	isEnumDeclaration,
+	isExportAssignment,
+	isExportDeclaration,
+	isExportSpecifier,
+	isFunctionDeclaration,
+	isFunctionExpression,
+	isInterfaceDeclaration,
+	isModuleDeclaration,
+	isNamedExports,
+	isTypeAliasDeclaration,
+	isVariableStatement,
+	Node,
+	SourceFile,
+	TransformerFactory,
+	updateSourceFileNode,
+	visitEachChild
+} from "typescript";
 import {DeclarationPreBundlerOptions, ExportedSymbol} from "../declaration-pre-bundler-options";
 import {visitExportDeclaration} from "./visitor/visit-export-declaration";
 import {visitExportAssignment} from "./visitor/visit-export-assignment";
@@ -19,8 +39,7 @@ import {visitClassExpression} from "./visitor/visit-class-expression";
  * // Tracks exports across files such that they can be added back in if necessary at a later point
  * @param {DeclarationPreBundlerOptions} options
  */
-export function trackExports (options: DeclarationPreBundlerOptions): TransformerFactory<SourceFile> {
-
+export function trackExports(options: DeclarationPreBundlerOptions): TransformerFactory<SourceFile> {
 	return context => {
 		return sourceFile => {
 			const sourceFileName = normalize(sourceFile.fileName);
@@ -40,26 +59,26 @@ export function trackExports (options: DeclarationPreBundlerOptions): Transforme
 				options.sourceFileToExportedSymbolSet.set(sourceFileName, exportedSymbolSet);
 			}
 
-			let currentModuleSpecifier: Expression|undefined;
+			let currentModuleSpecifier: Expression | undefined;
 
 			// Prepare some VisitorOptions
 			const visitorOptions = {
 				...options,
 				sourceFile,
 				isEntry: options.entryFileNames.includes(sourceFileName),
-				setCurrentModuleSpecifier (newModuleSpecifier: Expression|undefined) {
+				setCurrentModuleSpecifier(newModuleSpecifier: Expression | undefined) {
 					currentModuleSpecifier = newModuleSpecifier;
 				},
-				getCurrentModuleSpecifier (): Expression|undefined {
+				getCurrentModuleSpecifier(): Expression | undefined {
 					return currentModuleSpecifier;
 				},
-				childContinuation: <U extends Node> (node: U): U|undefined => {
+				childContinuation: <U extends Node>(node: U): U | undefined => {
 					return visitEachChild(node, visitor, context);
 				},
-				continuation: <U extends Node> (node: U): U|undefined => {
-					return visitor(node) as U|undefined;
+				continuation: <U extends Node>(node: U): U | undefined => {
+					return visitor(node) as U | undefined;
 				},
-				getDeconflictedNameAndPropertyName (propertyName: string|undefined, name: string): [string|undefined, string] {
+				getDeconflictedNameAndPropertyName(propertyName: string | undefined, name: string): [string | undefined, string] {
 					const localSymbols = options.sourceFileToLocalSymbolMap.get(sourceFileName);
 
 					// If no local symbols could be found for the file, return the current propertyName and name
@@ -80,7 +99,7 @@ export function trackExports (options: DeclarationPreBundlerOptions): Transforme
 					}
 					return [propertyName, name];
 				},
-				markAsExported (exportedSymbol: ExportedSymbol): void {
+				markAsExported(exportedSymbol: ExportedSymbol): void {
 					exportedSymbolSet!.add(exportedSymbol);
 				}
 			};
@@ -90,7 +109,7 @@ export function trackExports (options: DeclarationPreBundlerOptions): Transforme
 			 * @param {Node} node
 			 * @returns {Node | undefined}
 			 */
-			function visitor (node: Node): Node|Node[]|undefined {
+			function visitor(node: Node): Node | Node[] | undefined {
 				if (isExportAssignment(node)) return visitExportAssignment({node, ...visitorOptions});
 				else if (isExportDeclaration(node)) return visitExportDeclaration({node, ...visitorOptions});
 				else if (isNamedExports(node)) return visitNamedExports({node, ...visitorOptions});

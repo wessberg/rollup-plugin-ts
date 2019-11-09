@@ -4,7 +4,7 @@ import {normalize} from "path";
 import {mergeExports} from "../util/merge-exports/merge-exports";
 import {mergeImports} from "../util/merge-imports/merge-imports";
 
-export function statementMerger ({declarationFilename, ...options}: DeclarationBundlerOptions): TransformerFactory<SourceFile> {
+export function statementMerger({declarationFilename, ...options}: DeclarationBundlerOptions): TransformerFactory<SourceFile> {
 	return _ => {
 		return sourceFile => {
 			const sourceFileName = normalize(sourceFile.fileName);
@@ -23,7 +23,7 @@ export function statementMerger ({declarationFilename, ...options}: DeclarationB
 				sourceFile,
 				mergedStatements.length < 1
 					? // Create an 'export {}' declaration to mark the declaration file as module-based
-					[createExportDeclaration(undefined, undefined, createNamedExports([]))]
+					  [createExportDeclaration(undefined, undefined, createNamedExports([]))]
 					: mergedStatements,
 				sourceFile.isDeclarationFile,
 				sourceFile.referencedFiles,

@@ -14,7 +14,7 @@ export interface ITestFile {
 	entry: boolean;
 }
 
-export type TestFile = ITestFile|string;
+export type TestFile = ITestFile | string;
 
 interface FileResult {
 	fileName: string;
@@ -43,8 +43,8 @@ export interface GenerateRollupBundleOptions {
  * @param {GenerateRollupBundleOptions} options
  * @returns {Promise<GenerateRollupBundleResult>}
  */
-export async function generateRollupBundle (
-	inputFiles: TestFile[]|TestFile,
+export async function generateRollupBundle(
+	inputFiles: TestFile[] | TestFile,
 	{
 		rollupOptions = {},
 		tsconfig = {},
@@ -59,10 +59,10 @@ export async function generateRollupBundle (
 		.map(file =>
 			typeof file === "string"
 				? {
-					text: file,
-					fileName: `auto-generated-${Math.floor(Math.random() * 100000)}.ts`,
-					entry: true
-				}
+						text: file,
+						fileName: `auto-generated-${Math.floor(Math.random() * 100000)}.ts`,
+						entry: true
+				  }
 				: file
 		)
 		.map(file => ({...file, fileName: join(cwd, file.fileName)}));
@@ -74,7 +74,7 @@ export async function generateRollupBundle (
 		throw new ReferenceError(`No entry could be found`);
 	}
 
-	const resolveId = (fileName: string, parent: string|undefined): string|undefined => {
+	const resolveId = (fileName: string, parent: string | undefined): string | undefined => {
 		const absolute = isAbsolute(fileName) ? fileName : join(parent == null ? "" : dirname(parent), fileName);
 		const filenames = [normalize(absolute), join(absolute, "/index")];
 		for (const filename of filenames) {
@@ -89,7 +89,7 @@ export async function generateRollupBundle (
 		return undefined;
 	};
 
-	const load = (id: string): string|null => {
+	const load = (id: string): string | null => {
 		const matchedFile = files.find(file => file.fileName === id);
 		return matchedFile == null ? null : matchedFile.text;
 	};
@@ -137,7 +137,7 @@ export async function generateRollupBundle (
 						if (directories.has(dirName)) return true;
 						return sys.directoryExists(dirName);
 					},
-					realpath (path: string): string {
+					realpath(path: string): string {
 						return path;
 					}
 				}
@@ -158,8 +158,7 @@ export async function generateRollupBundle (
 				code: file.source.toString(),
 				fileName: file.fileName
 			});
-		}
-		else if (file.fileName.endsWith(DECLARATION_EXTENSION)) {
+		} else if (file.fileName.endsWith(DECLARATION_EXTENSION)) {
 			declarations.push({
 				code: file.source.toString(),
 				fileName: file.fileName

@@ -13,7 +13,7 @@ export interface MergeChunksWithAmbientDependenciesResult {
 	ambientModules: Set<string>;
 }
 
-function getChunksWithModule (moduleName: string, chunks: Iterable<MergedChunk>): Set<MergedChunk> {
+function getChunksWithModule(moduleName: string, chunks: Iterable<MergedChunk>): Set<MergedChunk> {
 	const chunksWithModule = new Set<MergedChunk>();
 	// Test how many chunks include the module
 	for (const chunk of chunks) {
@@ -25,7 +25,7 @@ function getChunksWithModule (moduleName: string, chunks: Iterable<MergedChunk>)
 	return chunksWithModule;
 }
 
-function splitAmbientModule (moduleName: string, chunks: Iterable<MergedChunk>): void {
+function splitAmbientModule(moduleName: string, chunks: Iterable<MergedChunk>): void {
 	const chunksWithModule = getChunksWithModule(moduleName, chunks);
 
 	// Not more than 1 chunk can contain the module.
@@ -48,7 +48,7 @@ function splitAmbientModule (moduleName: string, chunks: Iterable<MergedChunk>):
 	}
 }
 
-function splitAmbientModules (chunks: MergedChunk[], ambientModules: Set<string>) {
+function splitAmbientModules(chunks: MergedChunk[], ambientModules: Set<string>) {
 	for (const chunk of chunks) {
 		for (const module of chunk.modules) {
 			if (ambientModules.has(module)) {
@@ -57,16 +57,22 @@ function splitAmbientModules (chunks: MergedChunk[], ambientModules: Set<string>
 
 				if (chunksWithModule.size < 1) {
 					throw new RangeError(`Expected module: '${module}' to exist within a chunk, but was found under none`);
-				}
-				else if (chunksWithModule.size !== 1) {
-					throw new RangeError(`Expected module: '${module}' to exist within only chunk, but was found under chunks: ${[...chunksWithModule].map(c => `'${c.fileName}'`).join(",")}`);
+				} else if (chunksWithModule.size !== 1) {
+					throw new RangeError(
+						`Expected module: '${module}' to exist within only chunk, but was found under chunks: ${[...chunksWithModule]
+							.map(c => `'${c.fileName}'`)
+							.join(",")}`
+					);
 				}
 			}
 		}
 	}
 }
 
-export function mergeChunksWithAmbientDependencies(chunks: OutputChunk[], moduleDependencyMap: ModuleDependencyMap): MergeChunksWithAmbientDependenciesResult {
+export function mergeChunksWithAmbientDependencies(
+	chunks: OutputChunk[],
+	moduleDependencyMap: ModuleDependencyMap
+): MergeChunksWithAmbientDependenciesResult {
 	const ambientModules = new Set<string>();
 	const chunkLength = chunks.length;
 	const mergedChunks: MergedChunk[] = Array(chunkLength);
@@ -85,13 +91,13 @@ export function mergeChunksWithAmbientDependencies(chunks: OutputChunk[], module
 	// Find ambient chunks that will be placed inside of shared chunks
 
 	const allRollupChunkModules = new Set<string>();
-	for (const chunk of mergedChunks)  {
+	for (const chunk of mergedChunks) {
 		for (const module of chunk.modules) {
 			allRollupChunkModules.add(module);
 		}
 	}
 
-	for (const modules of moduleDependencyMap.values())  {
+	for (const modules of moduleDependencyMap.values()) {
 		for (const module of modules) {
 			if (!allRollupChunkModules.has(module)) {
 				ambientModules.add(module);
@@ -105,7 +111,9 @@ export function mergeChunksWithAmbientDependencies(chunks: OutputChunk[], module
 			const entryIndex = chunk.modules.indexOf(entry);
 			if (entryIndex < 0) continue;
 
-			for (const dependency of [...moduleDependencies].reverse().filter(moduleDependency => ambientModules.has(moduleDependency) && !chunk.modules.includes(moduleDependency))) {
+			for (const dependency of [...moduleDependencies]
+				.reverse()
+				.filter(moduleDependency => ambientModules.has(moduleDependency) && !chunk.modules.includes(moduleDependency))) {
 				chunk.modules.splice(entryIndex, 0, dependency);
 			}
 		}

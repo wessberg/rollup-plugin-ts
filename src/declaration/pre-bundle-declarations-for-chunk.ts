@@ -14,8 +14,7 @@ export interface PreBundleDeclarationsForChunkOptions extends Omit<DeclarationPr
 	languageServiceHost: IncrementalLanguageService;
 }
 
-export function preBundleDeclarationsForChunk (options: PreBundleDeclarationsForChunkOptions): SourceDescription {
-
+export function preBundleDeclarationsForChunk(options: PreBundleDeclarationsForChunkOptions): SourceDescription {
 	const program = createProgram({
 		rootNames: options.localModuleNames,
 		options: options.languageServiceHost.getCompilationSettings(),
@@ -28,7 +27,7 @@ export function preBundleDeclarationsForChunk (options: PreBundleDeclarationsFor
 	const generatedOutDir = compilationSettings.outDir as string;
 
 	let code: string = "";
-	let map: ExistingRawSourceMap|undefined;
+	let map: ExistingRawSourceMap | undefined;
 
 	program.emit(
 		undefined,

@@ -1,7 +1,11 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
 import {InterfaceDeclaration} from "typescript";
 
-export function checkInterfaceDeclaration({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<InterfaceDeclaration>): string[] {
+export function checkInterfaceDeclaration({
+	node,
+	continuation,
+	markIdentifiersAsReferenced
+}: ReferenceVisitorOptions<InterfaceDeclaration>): string[] {
 	const referencedIdentifiers: string[] = [];
 	if (node.heritageClauses != null) {
 		for (const heritageClause of node.heritageClauses) {

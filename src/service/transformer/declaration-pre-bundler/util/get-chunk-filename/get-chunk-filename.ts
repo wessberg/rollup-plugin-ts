@@ -4,8 +4,6 @@ import {SupportedExtensions} from "../../../../../util/get-supported-extensions/
 import {ChunkToOriginalFileMap} from "../../../../../util/chunk/get-chunk-to-original-file-map";
 import {ChunkForModuleCache, GetChunkFilenameResult} from "../../../declaration/declaration-options";
 
-
-
 export interface GetChunkFilenameOptions {
 	fileName: string;
 	supportedExtensions: SupportedExtensions;
@@ -18,7 +16,12 @@ export interface GetChunkFilenameOptions {
  * @param {GetChunkFilenameOptions} options
  * @return {string|undefined}
  */
-export function getChunkFilename ({chunkForModuleCache, chunkToOriginalFileMap, fileName, supportedExtensions}: GetChunkFilenameOptions): GetChunkFilenameResult|undefined {
+export function getChunkFilename({
+	chunkForModuleCache,
+	chunkToOriginalFileMap,
+	fileName,
+	supportedExtensions
+}: GetChunkFilenameOptions): GetChunkFilenameResult | undefined {
 	if (chunkForModuleCache.has(fileName)) {
 		return chunkForModuleCache.get(fileName)!;
 	}

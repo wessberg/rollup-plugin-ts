@@ -1,9 +1,19 @@
-import {createIdentifier, createQualifiedName, createTypeQueryNode, EntityName, ImportTypeNode, isIdentifier, isLiteralTypeNode, isStringLiteralLike, TypeQueryNode} from "typescript";
+import {
+	createIdentifier,
+	createQualifiedName,
+	createTypeQueryNode,
+	EntityName,
+	ImportTypeNode,
+	isIdentifier,
+	isLiteralTypeNode,
+	isStringLiteralLike,
+	TypeQueryNode
+} from "typescript";
 import {TrackImportsVisitorOptions} from "../track-imports-visitor-options";
 import {getIdentifiersForNode} from "../../../declaration-bundler/util/get-identifiers-for-node";
 import {pascalCase} from "@wessberg/stringutil";
 import {isExternalLibrary, stripKnownExtension} from "../../../../../util/path/path-util";
-import { basename } from 'path';
+import {basename} from "path";
 import {getAliasedDeclaration} from "../../util/symbol/get-aliased-declaration";
 
 /**
@@ -24,7 +34,8 @@ export function visitImportTypeNode({
 	const specifier = node.argument.literal;
 	const qualifier = node.qualifier;
 
-	const originalModule = specifier == null || !isStringLiteralLike(specifier) ? sourceFile.fileName : resolver(specifier.text, sourceFile.fileName) ?? sourceFile.fileName;
+	const originalModule =
+		specifier == null || !isStringLiteralLike(specifier) ? sourceFile.fileName : resolver(specifier.text, sourceFile.fileName) ?? sourceFile.fileName;
 	const rawModuleSpecifier = specifier == null || !isStringLiteralLike(specifier) ? undefined : specifier.text;
 
 	// If the node has no qualifier, it imports the entire module as a namespace.
@@ -42,9 +53,7 @@ export function visitImportTypeNode({
 			propertyName: undefined
 		});
 		const innerContent = createIdentifier(namespaceName);
-		return node.isTypeOf
-			? createTypeQueryNode(innerContent)
-			: innerContent;
+		return node.isTypeOf ? createTypeQueryNode(innerContent) : innerContent;
 	}
 
 	// Otherwise, take all identifiers for the EntityName that is the qualifier and mark them as imported

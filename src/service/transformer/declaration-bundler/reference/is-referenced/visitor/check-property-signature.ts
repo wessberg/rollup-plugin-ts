@@ -1,7 +1,7 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
 import {isIdentifier, PropertySignature} from "typescript";
 
-export function checkPropertySignature ({node, continuation}: ReferenceVisitorOptions<PropertySignature>): string[] {
+export function checkPropertySignature({node, continuation}: ReferenceVisitorOptions<PropertySignature>): string[] {
 	const referencedIdentifiers: string[] = [];
 
 	if (!isIdentifier(node.name)) {

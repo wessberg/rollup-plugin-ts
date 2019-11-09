@@ -16,7 +16,10 @@ export function visitExportSpecifier({
 	getCurrentModuleSpecifier
 }: TrackExportsVisitorOptions<ExportSpecifier>): ExportSpecifier | undefined {
 	const moduleSpecifier = getCurrentModuleSpecifier();
-	const originalModule = moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? sourceFile.fileName : resolver(moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName;
+	const originalModule =
+		moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier)
+			? sourceFile.fileName
+			: resolver(moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName;
 	const rawModuleSpecifier = moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? undefined : moduleSpecifier.text;
 	const [propertyName, name] = getDeconflictedNameAndPropertyName(node.propertyName == null ? undefined : node.propertyName.text, node.name.text);
 

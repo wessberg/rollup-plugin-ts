@@ -8,14 +8,14 @@ import {getIdentifiersForNode} from "../../../declaration-bundler/util/get-ident
  * @param {TrackExportsVisitorOptions<VariableStatement>} options
  * @returns {VariableStatement | undefined}
  */
-export function visitVariableStatement ({
-																					node,
-																					sourceFile,
-																					markAsExported,
-																					resolver,
-																					nodeIdentifierCache,
-																					getDeconflictedNameAndPropertyName
-																				}: TrackExportsVisitorOptions<VariableStatement>): VariableStatement|undefined {
+export function visitVariableStatement({
+	node,
+	sourceFile,
+	markAsExported,
+	resolver,
+	nodeIdentifierCache,
+	getDeconflictedNameAndPropertyName
+}: TrackExportsVisitorOptions<VariableStatement>): VariableStatement | undefined {
 	// If the node has no export modifier, leave it as it is
 	if (!hasExportModifier(node)) return node;
 

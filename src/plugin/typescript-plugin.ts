@@ -46,7 +46,7 @@ const PLUGIN_NAME = "Typescript";
  * A Rollup plugin that transpiles the given input with Typescript
  * @param {TypescriptPluginOptions} [pluginInputOptions={}]
  */
-export default function typescriptRollupPlugin (pluginInputOptions: Partial<TypescriptPluginOptions> = {}): Plugin {
+export default function typescriptRollupPlugin(pluginInputOptions: Partial<TypescriptPluginOptions> = {}): Plugin {
 	const pluginOptions: TypescriptPluginOptions = getPluginOptions(pluginInputOptions);
 	const {include, exclude, tsconfig, cwd, resolveTypescriptLibFrom, browserslist} = pluginOptions;
 	const transformers = pluginOptions.transformers == null ? [] : ensureArray(pluginOptions.transformers);
@@ -63,13 +63,13 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 	 * The config to use with Babel, if Babel should transpile source code
 	 * @type {IBabelConfig}
 	 */
-	let babelConfig: ((filename: string) => IBabelConfig)|undefined;
+	let babelConfig: ((filename: string) => IBabelConfig) | undefined;
 
 	/**
 	 * If babel is to be used, and if one or more minify presets/plugins has been passed, this config will be used
 	 * @type {boolean}
 	 */
-	let babelMinifyConfig: ((filename: string) => IBabelConfig)|undefined;
+	let babelMinifyConfig: ((filename: string) => IBabelConfig) | undefined;
 
 	/**
 	 * If babel is to be used, and if one or more minify presets/plugins has been passed, this will be true
@@ -156,7 +156,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 	 * A Set of the entry filenames for when using rollup-plugin-multi-entry (we need to track this for generating valid declarations)
 	 * @type {Set<string>?}
 	 */
-	let MULTI_ENTRY_FILE_NAMES: Set<string>|undefined;
+	let MULTI_ENTRY_FILE_NAMES: Set<string> | undefined;
 
 	/**
 	 * Returns true if Typescript can emit something for the given file
@@ -173,7 +173,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		 * Invoked when Input options has been received by Rollup
 		 * @param {InputOptions} options
 		 */
-		options (options: InputOptions): undefined {
+		options(options: InputOptions): undefined {
 			// Break if we've already received options
 			if (rollupInputOptions != null) return;
 
@@ -269,7 +269,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		 * @param {RenderedChunk} chunk
 		 * @returns {Promise<{ code: string, map: SourceMap } | null>}
 		 */
-		async renderChunk (this: PluginContext, code: string, chunk: RenderedChunk): Promise<{ code: string; map: SourceMap }|null> {
+		async renderChunk(this: PluginContext, code: string, chunk: RenderedChunk): Promise<{code: string; map: SourceMap} | null> {
 			// Don't proceed if there is no minification config
 			if (!hasBabelMinifyOptions || babelMinifyConfig == null) return null;
 
@@ -292,7 +292,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		 * @param {string} file
 		 * @returns {Promise<TransformSourceDescription?>}
 		 */
-		async transform (this: PluginContext, code: string, file: string): Promise<TransformSourceDescription|undefined> {
+		async transform(this: PluginContext, code: string, file: string): Promise<TransformSourceDescription | undefined> {
 			// If this file represents ROLLUP_PLUGIN_MULTI_ENTRY, we need to parse its' contents to understand which files it aliases.
 			// Following that, there's nothing more to do
 			if (isRollupPluginMultiEntry(file)) {
@@ -312,31 +312,31 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 					? {code, map: undefined}
 					: undefined
 				: (() => {
-					if (transformedFiles.has(file)) {
-						// Remove the file from the resolve cache, now that it has changed.
-						resolveCache.delete(file);
-						moduleDependencyCache.delete(file);
-					}
+						if (transformedFiles.has(file)) {
+							// Remove the file from the resolve cache, now that it has changed.
+							resolveCache.delete(file);
+							moduleDependencyCache.delete(file);
+						}
 
-					// Add the file to the LanguageServiceHost
-					languageServiceHost.addFile({file, code});
-					moduleDependencyMap.set(
-						file,
-						getModuleDependencies({
-							resolver: ambientResolver,
-							languageServiceHost,
+						// Add the file to the LanguageServiceHost
+						languageServiceHost.addFile({file, code});
+						moduleDependencyMap.set(
 							file,
-							supportedExtensions: SUPPORTED_EXTENSIONS,
-							cache: moduleDependencyCache
-						})
-					);
+							getModuleDependencies({
+								resolver: ambientResolver,
+								languageServiceHost,
+								file,
+								supportedExtensions: SUPPORTED_EXTENSIONS,
+								cache: moduleDependencyCache
+							})
+						);
 
-					// Get some EmitOutput, optionally from the cache if the file contents are unchanged
-					const emitOutput = emitCache.get({fileName: file, languageService});
+						// Get some EmitOutput, optionally from the cache if the file contents are unchanged
+						const emitOutput = emitCache.get({fileName: file, languageService});
 
-					// Return the emit output results to Rollup
-					return getSourceDescriptionFromEmitOutput(emitOutput);
-				})();
+						// Return the emit output results to Rollup
+						return getSourceDescriptionFromEmitOutput(emitOutput);
+				  })();
 
 			// If nothing was emitted, simply return undefined
 			if (sourceDescription == null) {
@@ -372,7 +372,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		 * @param {string} parent
 		 * @returns {string | null}
 		 */
-		resolveId (this: PluginContext, id: string, parent: string|undefined): string|null {
+		resolveId(this: PluginContext, id: string, parent: string | undefined): string | null {
 			// Don't proceed if there is no parent (in which case this is an entry module)
 			if (parent == null) return null;
 
@@ -403,7 +403,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		 * @param {string} id
 		 * @returns {string | null}
 		 */
-		load (this: PluginContext, id: string): string|null {
+		load(this: PluginContext, id: string): string | null {
 			// Return the alternative source for the regenerator runtime if that file is attempted to be loaded
 			if (id.endsWith(REGENERATOR_RUNTIME_NAME_1) || id.endsWith(REGENERATOR_RUNTIME_NAME_2)) {
 				return REGENERATOR_SOURCE;
@@ -418,7 +418,7 @@ export default function typescriptRollupPlugin (pluginInputOptions: Partial<Type
 		 * @param {OutputBundle} bundle
 		 * @returns {void | Promise<void>}
 		 */
-		generateBundle (this: PluginContext, outputOptions: OutputOptions, bundle: OutputBundle): void {
+		generateBundle(this: PluginContext, outputOptions: OutputOptions, bundle: OutputBundle): void {
 			// Only emit diagnostics if the plugin options allow it
 			if (!Boolean(pluginOptions.transpileOnly)) {
 				// Emit all reported diagnostics

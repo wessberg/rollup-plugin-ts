@@ -1,7 +1,7 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
 import {isIdentifier, ParameterDeclaration} from "typescript";
 
-export function checkParameterDeclaration ({node, continuation}: ReferenceVisitorOptions<ParameterDeclaration>): string[] {
+export function checkParameterDeclaration({node, continuation}: ReferenceVisitorOptions<ParameterDeclaration>): string[] {
 	const referencedIdentifiers: string[] = [];
 
 	if (!isIdentifier(node.name)) {

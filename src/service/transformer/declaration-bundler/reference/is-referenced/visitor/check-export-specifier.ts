@@ -5,9 +5,7 @@ export function checkExportSpecifier({node, continuation}: ReferenceVisitorOptio
 	const referencedIdentifiers: string[] = [];
 	if (node.propertyName != null) {
 		referencedIdentifiers.push(...continuation(node.propertyName));
-	}
-
-	else if (node.propertyName == null) {
+	} else if (node.propertyName == null) {
 		referencedIdentifiers.push(...continuation(node.name));
 	}
 

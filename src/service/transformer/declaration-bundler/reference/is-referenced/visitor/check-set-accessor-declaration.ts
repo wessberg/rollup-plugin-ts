@@ -1,7 +1,7 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
 import {isIdentifier, SetAccessorDeclaration} from "typescript";
 
-export function checkSetAccessorDeclaration ({node, continuation}: ReferenceVisitorOptions<SetAccessorDeclaration>): string[] {
+export function checkSetAccessorDeclaration({node, continuation}: ReferenceVisitorOptions<SetAccessorDeclaration>): string[] {
 	const referencedIdentifiers: string[] = [];
 
 	if (!isIdentifier(node.name)) {

@@ -1,7 +1,7 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
 import {isIdentifier, MethodDeclaration} from "typescript";
 
-export function checkMethodDeclaration ({node, continuation}: ReferenceVisitorOptions<MethodDeclaration>): string[] {
+export function checkMethodDeclaration({node, continuation}: ReferenceVisitorOptions<MethodDeclaration>): string[] {
 	const referencedIdentifiers: string[] = [];
 
 	if (!isIdentifier(node.name)) {

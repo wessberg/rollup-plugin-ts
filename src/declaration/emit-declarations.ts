@@ -4,9 +4,17 @@ import {getDeclarationOutDir} from "../util/get-declaration-out-dir/get-declarat
 import {getOutDir} from "../util/get-out-dir/get-out-dir";
 import {mergeChunksWithAmbientDependencies} from "../util/chunk/merge-chunks-with-ambient-dependencies";
 import {getChunkToOriginalFileMap} from "../util/chunk/get-chunk-to-original-file-map";
-import {SourceFileToExportedSymbolSet, SourceFileToGeneratedVariableNameSet, SourceFileToImportedSymbolSet, SourceFileToLocalSymbolMap} from "../service/transformer/declaration-pre-bundler/declaration-pre-bundler-options";
+import {
+	SourceFileToExportedSymbolSet,
+	SourceFileToGeneratedVariableNameSet,
+	SourceFileToImportedSymbolSet,
+	SourceFileToLocalSymbolMap
+} from "../service/transformer/declaration-pre-bundler/declaration-pre-bundler-options";
 import {NodeIdentifierCache} from "../service/transformer/declaration-bundler/util/get-identifiers-for-node";
-import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "../service/transformer/declaration-bundler/reference/cache/reference-cache";
+import {
+	ReferenceCache,
+	SourceFileToNodeToReferencedIdentifiersCache
+} from "../service/transformer/declaration-bundler/reference/cache/reference-cache";
 import {CompilerOptions, createPrinter} from "typescript";
 import {OutputBundle, OutputOptions, PluginContext, SourceDescription} from "rollup";
 import {ModuleDependencyMap} from "../util/module/get-module-dependencies";
@@ -34,11 +42,11 @@ export interface EmitDeclarationsOptions {
 	pluginOptions: TypescriptPluginOptions;
 	outputOptions: OutputOptions;
 	moduleDependencyMap: ModuleDependencyMap;
-	multiEntryFileNames: Set<string>|undefined;
-	canEmitForFile (id: string): boolean;
+	multiEntryFileNames: Set<string> | undefined;
+	canEmitForFile(id: string): boolean;
 }
 
-export function emitDeclarations (options: EmitDeclarationsOptions) {
+export function emitDeclarations(options: EmitDeclarationsOptions) {
 	const chunkToPreBundleResult = new Map<string, SourceDescription>();
 	const chunks = Object.values(options.bundle).filter(isOutputChunk);
 
@@ -89,7 +97,9 @@ export function emitDeclarations (options: EmitDeclarationsOptions) {
 
 			const augmentedAbsoluteDeclarationFileName = options.pluginOptions.hook.outputPath?.(absoluteDeclarationFilename, "declaration");
 			const rewrittenAbsoluteDeclarationFilename = augmentedAbsoluteDeclarationFileName ?? absoluteDeclarationFilename;
-			const augmentedAbsoluteDeclarationMapFileName = generateMap ? options.pluginOptions.hook.outputPath?.(absoluteDeclarationMapFilename, "declarationMap") : undefined;
+			const augmentedAbsoluteDeclarationMapFileName = generateMap
+				? options.pluginOptions.hook.outputPath?.(absoluteDeclarationMapFilename, "declarationMap")
+				: undefined;
 			const rewrittenAbsoluteDeclarationMapFilename = augmentedAbsoluteDeclarationMapFileName ?? absoluteDeclarationMapFilename;
 			const rewrittenDeclarationFilename =
 				rewrittenAbsoluteDeclarationFilename === absoluteDeclarationFilename ? declarationFilename : parse(rewrittenAbsoluteDeclarationFilename).base;
@@ -168,10 +178,7 @@ export function emitDeclarations (options: EmitDeclarationsOptions) {
 
 			switch (pass) {
 				case 1:
-					chunkToPreBundleResult.set(
-						absoluteChunkFileName,
-						preBundleDeclarationsForChunk(baseOptions)
-					);
+					chunkToPreBundleResult.set(absoluteChunkFileName, preBundleDeclarationsForChunk(baseOptions));
 					break;
 				case 2: {
 					const bundleResult = bundleDeclarationsForChunk({

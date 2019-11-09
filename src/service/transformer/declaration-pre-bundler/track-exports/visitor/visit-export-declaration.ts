@@ -27,9 +27,10 @@ export function visitExportDeclaration({
 
 	// Otherwise, this is a 'export * from "..."' export that we need to handle here
 	else {
-		const originalModule = node.moduleSpecifier == null || !isStringLiteralLike(node.moduleSpecifier)
-			? sourceFile.fileName
-			: resolver(node.moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName;
+		const originalModule =
+			node.moduleSpecifier == null || !isStringLiteralLike(node.moduleSpecifier)
+				? sourceFile.fileName
+				: resolver(node.moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName;
 
 		const rawModuleSpecifier = node.moduleSpecifier == null || !isStringLiteralLike(node.moduleSpecifier) ? undefined : node.moduleSpecifier.text;
 

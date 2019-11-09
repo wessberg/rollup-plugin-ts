@@ -18,9 +18,9 @@ export type SourceFileToGeneratedVariableNameSet = Map<string, GeneratedVariable
  */
 export interface LocalSymbol {
 	// The original module hosting the symbol. If it couldn't be resolved, it will be undefined
-	originalModule: string|undefined;
+	originalModule: string | undefined;
 	// Some local symbols may be renamed to avoid conflicts with other symbols inside generated chunks
-	deconflictedName: string|undefined;
+	deconflictedName: string | undefined;
 }
 
 /**
@@ -40,7 +40,7 @@ export interface ImportedSymbolBase {
 	originalModule: string;
 
 	// The raw module specifier with no modifications
-	rawModuleSpecifier: string|undefined;
+	rawModuleSpecifier: string | undefined;
 	// Whether or not the module is external
 	isExternal: boolean;
 
@@ -50,14 +50,14 @@ export interface ImportedSymbolBase {
 
 export interface NamedImportedSymbol extends ImportedSymbolBase {
 	defaultImport: boolean;
-	propertyName: string|undefined;
+	propertyName: string | undefined;
 }
 
 export interface NamespaceImportedSymbol extends ImportedSymbolBase {
 	namespaceImport: true;
 }
 
-export type ImportedSymbol = NamedImportedSymbol|NamespaceImportedSymbol;
+export type ImportedSymbol = NamedImportedSymbol | NamespaceImportedSymbol;
 
 /**
  * A Map between imported symbols and data about them
@@ -74,7 +74,7 @@ export interface ExportedSymbolBase {
 	originalModule: string;
 
 	// The raw module specifier with no modifications
-	rawModuleSpecifier: string|undefined;
+	rawModuleSpecifier: string | undefined;
 	// Whether or not the module is external
 	isExternal: boolean;
 
@@ -85,14 +85,14 @@ export interface ExportedSymbolBase {
 export interface NamedExportedSymbol extends ExportedSymbolBase {
 	name: string;
 	defaultExport: boolean;
-	propertyName: string|undefined;
+	propertyName: string | undefined;
 }
 
 export interface NamespaceExportedSymbol extends ExportedSymbolBase {
 	namespaceExport: true;
 }
 
-export type ExportedSymbol = NamedExportedSymbol|NamespaceExportedSymbol;
+export type ExportedSymbol = NamedExportedSymbol | NamespaceExportedSymbol;
 
 /**
  * A Set of exported symbols and data about them
@@ -106,5 +106,5 @@ export type SourceFileToExportedSymbolSet = Map<string, ExportedSymbolSet>;
 
 export interface DeclarationPreBundlerOptions extends DeclarationOptions {
 	typeChecker: TypeChecker;
-	generateUniqueVariableName (candidate: string, sourceFileName: string): string;
+	generateUniqueVariableName(candidate: string, sourceFileName: string): string;
 }

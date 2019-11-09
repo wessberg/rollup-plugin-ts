@@ -104,7 +104,10 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 
 		// Otherwise, take all transformer diagnostics for all files
 		else {
-			return ([] as IExtendedDiagnostic[]).concat.apply([], [...this.files.values()].map(v => v.transformerDiagnostics));
+			return ([] as IExtendedDiagnostic[]).concat.apply(
+				[],
+				[...this.files.values()].map(v => v.transformerDiagnostics)
+			);
 		}
 	}
 

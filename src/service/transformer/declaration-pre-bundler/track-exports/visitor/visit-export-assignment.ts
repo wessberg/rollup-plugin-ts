@@ -7,14 +7,14 @@ import {getAliasedDeclaration} from "../../util/symbol/get-aliased-declaration";
  * @param {TrackExportsVisitorOptions<ExportAssignment>} options
  * @returns {ExportAssignment | VariableStatement | undefined}
  */
-export function visitExportAssignment ({
-																				 node,
-																				 sourceFile,
-																				 typeChecker,
-																				 markAsExported,
-																				 pluginOptions,
-																				 getDeconflictedNameAndPropertyName
-																			 }: TrackExportsVisitorOptions<ExportAssignment>): ExportAssignment|VariableStatement|undefined {
+export function visitExportAssignment({
+	node,
+	sourceFile,
+	typeChecker,
+	markAsExported,
+	pluginOptions,
+	getDeconflictedNameAndPropertyName
+}: TrackExportsVisitorOptions<ExportAssignment>): ExportAssignment | VariableStatement | undefined {
 	const declaration = getAliasedDeclaration(node.expression, typeChecker);
 
 	if (isIdentifier(node.expression)) {

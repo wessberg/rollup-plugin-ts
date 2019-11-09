@@ -23,14 +23,14 @@ export function getIdentifiersForNode({node, ...rest}: GetIdentifiersWithCacheOp
 }
 
 function getIdentifiers({node, ...rest}: GetIdentifiersWithCacheOptions, identifiers: LocalSymbolMap): LocalSymbolMap {
-
 	traceIdentifiers({
 		...rest,
 		node,
 		continuation: nextNode => getIdentifiersForNode({...rest, node: nextNode}, identifiers),
-		childContinuation: nextNode => forEachChild(nextNode, nextNextNode => {
-			getIdentifiersForNode({...rest, node: nextNextNode}, identifiers);
-		}),
+		childContinuation: nextNode =>
+			forEachChild(nextNode, nextNextNode => {
+				getIdentifiersForNode({...rest, node: nextNextNode}, identifiers);
+			}),
 		addIdentifier(name: string, localSymbol: LocalSymbol): void {
 			identifiers.set(name, localSymbol);
 		}
