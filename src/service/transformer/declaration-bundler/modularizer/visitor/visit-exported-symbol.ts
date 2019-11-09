@@ -116,7 +116,9 @@ export function visitExportedSymbolFromOtherChunk(options: VisitExportedSymbolOp
 				undefined,
 				createNamedExports([
 					createExportSpecifier(
-						exportedSymbol.propertyName == null ? undefined : createIdentifier(exportedSymbol.propertyName),
+						exportedSymbol.propertyName == null || exportedSymbol.propertyName === exportedSymbol.name
+							? undefined
+							: createIdentifier(exportedSymbol.propertyName),
 						createIdentifier(exportedSymbol.name)
 					)
 				]),
@@ -180,7 +182,10 @@ export function visitExportedSymbolFromEntryModule({
 				undefined,
 				undefined,
 				createNamedExports([
-					createExportSpecifier(correctedPropertyName == null ? undefined : createIdentifier(correctedPropertyName), createIdentifier(correctedName))
+					createExportSpecifier(
+						correctedPropertyName == null || correctedPropertyName === correctedName ? undefined : createIdentifier(correctedPropertyName),
+						createIdentifier(correctedName)
+					)
 				])
 			)
 		);
