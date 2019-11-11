@@ -105,6 +105,7 @@ In comparison with the [official plugin](https://github.com/rollup/rollup-plugin
   - [Why wouldn't you use just Typescript?](#why-wouldnt-you-use-just-typescript)
   - [Okay, then why wouldn't you use just babel?](#okay-then-why-wouldnt-you-use-just-babel)
   - [When combined with Babel, what does Typescript do, and what does Babel do?](#when-combined-with-babel-what-does-typescript-do-and-what-does-babel-do)
+  - [Why is @babel/plugin-transform-runtime and tslib included by default?](#why-is-babelplugin-transform-runtime-and-tslib-included-by-default)
 - [License](#license)
 
 <!-- SHADOW_SECTION_TOC_END -->

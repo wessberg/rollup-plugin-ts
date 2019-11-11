@@ -1,3 +1,10 @@
+## [1.1.75](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.74...v1.1.75) (2019-11-11)
+
+### Bug Fixes
+
+- **bug:** fix bug that could lead to conflicting local symbols ([de41822](https://github.com/wessberg/rollup-plugin-ts/commit/de41822c0757301a9d16483efda12e22aaa7373d))
+- **bug:** fix bug where multiple rollup configs inside a compilation unit could lead to faulty cashes ([2ad464b](https://github.com/wessberg/rollup-plugin-ts/commit/2ad464bff61a8e525ce0cf2c351afdc3016f3661))
+
 ## [1.1.74](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.73...v1.1.74) (2019-11-09)
 
 ### Bug Fixes
