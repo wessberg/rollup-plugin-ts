@@ -1,3 +1,9 @@
+## [1.1.76](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.75...v1.1.76) (2019-11-11)
+
+### Features
+
+- **statement merging:** add support for merging type- and lib reference directives ([92122b1](https://github.com/wessberg/rollup-plugin-ts/commit/92122b1da43de7950e76e9e4a5fda3abfedd3dd2))
+
 ## [1.1.75](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.74...v1.1.75) (2019-11-11)
 
 ### Bug Fixes
