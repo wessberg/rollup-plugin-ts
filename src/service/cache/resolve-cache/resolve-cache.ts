@@ -52,6 +52,10 @@ export class ResolveCache implements IResolveCache {
 		return this.RESOLVE_CACHE.delete(parent);
 	}
 
+	public clear(): void {
+		this.RESOLVE_CACHE.clear();
+	}
+
 	/**
 	 * Sets the given resolved module in the resolve cache
 	 * @param {ResolvedModule|null} result

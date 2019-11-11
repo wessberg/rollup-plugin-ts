@@ -28,16 +28,16 @@ export function getChunkFilename({
 	for (const [chunkFilename, originalSourceFilenames] of chunkToOriginalFileMap) {
 		const filenames = [normalize(fileName), join(fileName, "/index")];
 		for (const file of filenames) {
-			for (const [originalSourceFilename, isAmbient] of originalSourceFilenames) {
+			for (const originalSourceFilename of originalSourceFilenames) {
 				if (originalSourceFilename === file) {
-					const returnValue = {fileName: chunkFilename, isAmbient};
+					const returnValue = {fileName: chunkFilename};
 					chunkForModuleCache.set(fileName, returnValue);
 					return returnValue;
 				}
 
 				for (const extension of [extname(file), ...supportedExtensions]) {
 					if (originalSourceFilename === setExtension(file, extension)) {
-						const returnValueWithExtension = {fileName: chunkFilename, isAmbient};
+						const returnValueWithExtension = {fileName: chunkFilename};
 						chunkForModuleCache.set(fileName, returnValueWithExtension);
 						return returnValueWithExtension;
 					}

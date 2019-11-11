@@ -1,16 +1,19 @@
 import {Resolver} from "../resolve-id/resolver";
 import {IncrementalLanguageService} from "../../service/language-service/incremental-language-service";
 import {
+	CallExpression,
 	ExportDeclaration,
 	forEachChild,
 	ImportDeclaration,
 	ImportTypeNode,
+	isCallExpression,
 	isExportDeclaration,
 	isImportDeclaration,
 	isImportTypeNode,
 	isLiteralTypeNode,
 	isStringLiteralLike,
-	Node
+	Node,
+	SyntaxKind
 } from "typescript";
 import {extname, normalize} from "path";
 import {SupportedExtensions} from "../get-supported-extensions/get-supported-extensions";
@@ -74,6 +77,18 @@ export function getModuleDependencies(
 		return node;
 	}
 
+	function visitCallExpression(node: CallExpression): CallExpression {
+		if (node.expression.kind !== SyntaxKind.ImportKeyword) return node;
+		const [specifier] = node.arguments;
+		if (specifier == null || !isStringLiteralLike(specifier)) return node;
+
+		const resolved = resolver(specifier.text, sourceFile!.fileName);
+		if (resolved != null) {
+			addDependency(resolved);
+		}
+		return node;
+	}
+
 	/**
 	 * Visits the given Node
 	 * @param {Node} node
@@ -84,6 +99,8 @@ export function getModuleDependencies(
 			visitImportOrExportDeclaration(node);
 		} else if (isImportTypeNode(node)) {
 			visitImportTypeNode(node);
+		} else if (isCallExpression(node)) {
+			visitCallExpression(node);
 		}
 
 		forEachChild(node, visitor);
@@ -98,7 +115,6 @@ export function getModuleDependencies(
 		dependencies.add(nextFile);
 	}
 
-	// Reverse the dependencies
 	cache.set(file, dependencies);
 	return dependencies;
 }

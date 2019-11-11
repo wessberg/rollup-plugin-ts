@@ -311,82 +311,6 @@ test("Flattens declarations. #24", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
-			fileName: "a.ts",
-			text: `\
-				import {Shared} from "./shared";
-
-				export class A extends Shared {
-					a: string;
-				}
-				`
-		},
-		{
-			entry: true,
-			fileName: "b.ts",
-			text: `\
-				import {Shared} from "./shared";
-
-				export class B extends Shared {
-					b: string;
-				}
-				`
-		},
-		{
-			entry: false,
-			fileName: "shared.ts",
-			text: `\
-							export class Shared {
-								shared: string;
-							}
-        	`
-		}
-	]);
-	const {declarations} = bundle;
-
-	const aFile = declarations.find(file => file.fileName.includes("a.d.ts"));
-	const bFile = declarations.find(file => file.fileName.includes("b.d.ts"));
-	const sharedFile = declarations.find(file => file.fileName.includes("shared-be8cec94.d.ts"));
-	t.true(aFile != null);
-	t.true(bFile != null);
-	t.true(sharedFile != null);
-
-	t.deepEqual(
-		formatCode(aFile!.code),
-		formatCode(`\
-			import { Shared } from "./shared-be8cec94";
-			declare class A extends Shared {
-					a: string;
-			}
-			export {A};
-		`)
-	);
-
-	t.deepEqual(
-		formatCode(bFile!.code),
-		formatCode(`\
-			import { Shared } from "./shared-be8cec94";
-			declare class B extends Shared {
-					b: string;
-			}
-			export {B};
-		`)
-	);
-
-	t.deepEqual(
-		formatCode(sharedFile!.code),
-		formatCode(`\
-			declare class Shared {
-				shared: string;
-			}
-			export {Shared};
-		`)
-	);
-});
-
-test("Flattens declarations. #25", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
 			fileName: "index.ts",
 			text: `\
 							export {default} from "./foo";
@@ -413,7 +337,7 @@ test("Flattens declarations. #25", async t => {
 	);
 });
 
-test("Flattens declarations. #26", async t => {
+test("Flattens declarations. #25", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,

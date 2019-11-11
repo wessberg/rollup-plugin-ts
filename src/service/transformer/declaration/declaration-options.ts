@@ -14,7 +14,6 @@ import {ChunkToOriginalFileMap} from "../../../util/chunk/get-chunk-to-original-
 
 export interface GetChunkFilenameResult {
 	fileName: string;
-	isAmbient: boolean;
 }
 
 export type ChunkForModuleCache = Map<string, GetChunkFilenameResult | undefined>;

@@ -174,10 +174,16 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * @param {InputOptions} options
 		 */
 		options(options: InputOptions): undefined {
-			// Break if we've already received options
-			if (rollupInputOptions != null) return;
+			// Break if the options aren't different from the previous ones
+			if (options === rollupInputOptions) return;
 
+			// Re-assign the input options
 			rollupInputOptions = options;
+
+			// Clear resolve-related caches
+			moduleDependencyMap.clear();
+			moduleDependencyCache.clear();
+			resolveCache.clear();
 
 			// Make sure we have a proper ParsedCommandLine to work with
 			parsedCommandLineResult = getParsedCommandLine({
