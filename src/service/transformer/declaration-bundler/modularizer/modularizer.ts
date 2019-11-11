@@ -42,7 +42,8 @@ export function modularizer({declarationFilename, ...options}: DeclarationBundle
 						importDeclarations.push(
 							...visitImportedSymbol({
 								...options,
-								importedSymbol
+								importedSymbol,
+								module
 							})
 						);
 					}

@@ -108,12 +108,7 @@
 	},
 	"ava": {
 		"files": [
-			"test/declaration-1.test.ts",
-			"test/declaration-2.test.ts",
-			"test/declaration-map.test.ts",
-			"test/deconflict.test.ts",
-			"test/hook.test.ts",
-			"test/tree-shake.test.ts"
+			"test/**.test.ts"
 		],
 		"verbose": true,
 		"failFast": true,

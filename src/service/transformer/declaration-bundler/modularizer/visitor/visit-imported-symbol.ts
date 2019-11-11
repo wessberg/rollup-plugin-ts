@@ -45,6 +45,7 @@ export interface VisitImportedSymbolOptions {
 	sourceFileToLocalSymbolMap: SourceFileToLocalSymbolMap;
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
 	importedSymbol: ImportedSymbol;
+	module: string;
 	supportedExtensions: SupportedExtensions;
 	chunkToOriginalFileMap: ChunkToOriginalFileMap;
 	relativeChunkFileName: string;
@@ -124,7 +125,7 @@ function getAllNamedExportsForModule(moduleName: string, sourceFileToExportedSym
 export function visitImportedSymbol(
 	options: VisitImportedSymbolOptions
 ): (ImportDeclaration | TypeAliasDeclaration | ModuleDeclaration | VariableStatement)[] {
-	const {importedSymbol, sourceFileToExportedSymbolSet, sourceFileToLocalSymbolMap, absoluteChunkFileName} = options;
+	const {importedSymbol, sourceFileToExportedSymbolSet, sourceFileToLocalSymbolMap, absoluteChunkFileName, module} = options;
 	const otherChunkFileName = getChunkFilename({...options, fileName: importedSymbol.originalModule});
 	const importDeclarations: (ImportDeclaration | TypeAliasDeclaration | ModuleDeclaration)[] = [];
 
@@ -142,6 +143,9 @@ export function visitImportedSymbol(
 
 	// Find the local symbols for the referenced module
 	const otherModuleLocalSymbols = sourceFileToLocalSymbolMap.get(importedSymbol.originalModule);
+
+	// Find the local symbols for the current module
+	const currentModuleLocalSymbols = sourceFileToLocalSymbolMap.get(module);
 
 	// Find the exported symbols for the referenced module
 	const otherModuleExportedSymbols = sourceFileToExportedSymbolSet.get(importedSymbol.originalModule);
@@ -241,7 +245,20 @@ export function visitImportedSymbol(
 
 		// Create a TypeAlias that aliases the imported property
 		if ("propertyName" in importedSymbol && importedSymbol.propertyName != null) {
-			return [...importDeclarations, createAliasedBinding(importedSymbol, importedSymbol.propertyName)];
+			let hasLocalConflict = false;
+
+			if (currentModuleLocalSymbols != null) {
+				for (const localSymbol of currentModuleLocalSymbols.values()) {
+					if (localSymbol.deconflictedName != null && localSymbol.deconflictedName === importedSymbol.name) {
+						hasLocalConflict = true;
+						break;
+					}
+				}
+			}
+
+			if (!hasLocalConflict) {
+				return [...importDeclarations, createAliasedBinding(importedSymbol, importedSymbol.propertyName)];
+			}
 		}
 
 		// If a namespace is imported, create a type literal under the same name as the namespace binding

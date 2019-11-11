@@ -11,7 +11,7 @@ import {
 } from "typescript";
 import {TrackImportsVisitorOptions} from "../track-imports-visitor-options";
 import {getIdentifiersForNode} from "../../../declaration-bundler/util/get-identifiers-for-node";
-import {pascalCase} from "@wessberg/stringutil";
+import {camelCase} from "@wessberg/stringutil";
 import {isExternalLibrary, stripKnownExtension} from "../../../../../util/path/path-util";
 import {basename} from "path";
 import {getAliasedDeclaration} from "../../util/symbol/get-aliased-declaration";
@@ -40,7 +40,7 @@ export function visitImportTypeNode({
 
 	// If the node has no qualifier, it imports the entire module as a namespace.
 	// Generate a name for it
-	const namespaceName = generateUniqueVariableName(`${pascalCase(stripKnownExtension(basename(originalModule)))}NS`, originalModule);
+	const namespaceName = generateUniqueVariableName(`${camelCase(stripKnownExtension(basename(originalModule)))}NS`, originalModule);
 
 	if (qualifier == null) {
 		markAsImported({
