@@ -1,8 +1,11 @@
 import {createExportDeclaration, createNamedExports, SourceFile, TransformerFactory, updateSourceFileNode} from "typescript";
+
 import {DeclarationBundlerOptions} from "../declaration-bundler-options";
 import {normalize} from "path";
 import {mergeExports} from "../util/merge-exports/merge-exports";
 import {mergeImports} from "../util/merge-imports/merge-imports";
+import {mergeTypeReferenceDirectives} from "../util/merge-file-references/merge-type-reference-directives";
+import {mergeLibReferenceDirectives} from "../util/merge-file-references/merge-lib-reference-directives";
 
 export function statementMerger({declarationFilename, ...options}: DeclarationBundlerOptions): TransformerFactory<SourceFile> {
 	return _ => {
@@ -27,9 +30,9 @@ export function statementMerger({declarationFilename, ...options}: DeclarationBu
 					: mergedStatements,
 				sourceFile.isDeclarationFile,
 				sourceFile.referencedFiles,
-				sourceFile.typeReferenceDirectives,
+				mergeTypeReferenceDirectives(sourceFile),
 				sourceFile.hasNoDefaultLib,
-				sourceFile.libReferenceDirectives
+				mergeLibReferenceDirectives(sourceFile)
 			);
 
 			if (options.pluginOptions.debug) {
