@@ -99,7 +99,7 @@
 		"url": "https://github.com/wessberg/rollup-plugin-ts/issues"
 	},
 	"engines": {
-		"node": ">=8.0.0"
+		"node": ">=8.16.2"
 	},
 	"husky": {
 		"hooks": {
