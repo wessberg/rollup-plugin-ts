@@ -1,6 +1,7 @@
 import {FunctionDeclaration, updateFunctionDeclaration} from "typescript";
 import {TrackExportsVisitorOptions} from "../track-exports-visitor-options";
 import {ensureHasDeclareModifier, hasDefaultExportModifier, hasExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
+import {normalize} from "path";
 
 /**
  * Visits the given FunctionDeclaration.
@@ -22,7 +23,7 @@ export function visitFunctionDeclaration({
 		propertyName,
 		node,
 		defaultExport: node.name == null || hasDefaultExportModifier(node.modifiers),
-		originalModule: sourceFile.fileName,
+		originalModule: normalize(sourceFile.fileName),
 		rawModuleSpecifier: undefined,
 		isExternal: false
 	});

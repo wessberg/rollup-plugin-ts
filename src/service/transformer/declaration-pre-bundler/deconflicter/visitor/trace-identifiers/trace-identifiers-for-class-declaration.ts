@@ -1,5 +1,6 @@
 import {ClassDeclaration} from "typescript";
 import {TraceIdentifiersVisitorOptions} from "../../trace-identifiers-visitor-options";
+import {normalize} from "path";
 
 /**
  * Traces identifiers for the given ClassDeclaration.
@@ -10,7 +11,7 @@ export function traceIdentifiersForClassDeclaration({node, sourceFile, addIdenti
 	if (node.name == null) return;
 
 	addIdentifier(node.name.text, {
-		originalModule: sourceFile.fileName,
+		originalModule: normalize(sourceFile.fileName),
 		deconflictedName: undefined
 	});
 }

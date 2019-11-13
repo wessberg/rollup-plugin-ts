@@ -1,6 +1,7 @@
 import {ExportSpecifier, isStringLiteralLike} from "typescript";
 import {TrackExportsVisitorOptions} from "../track-exports-visitor-options";
 import {isExternalLibrary} from "../../../../../util/path/path-util";
+import {normalize} from "path";
 
 /**
  * Visits the given ExportSpecifier.
@@ -16,10 +17,11 @@ export function visitExportSpecifier({
 	getCurrentModuleSpecifier
 }: TrackExportsVisitorOptions<ExportSpecifier>): ExportSpecifier | undefined {
 	const moduleSpecifier = getCurrentModuleSpecifier();
-	const originalModule =
+	const originalModule = normalize(
 		moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier)
 			? sourceFile.fileName
-			: resolver(moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName;
+			: resolver(moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName
+	);
 	const rawModuleSpecifier = moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? undefined : moduleSpecifier.text;
 	const [propertyName, name] = getDeconflictedNameAndPropertyName(node.propertyName == null ? undefined : node.propertyName.text, node.name.text);
 

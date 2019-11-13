@@ -1,5 +1,6 @@
 import {InterfaceDeclaration} from "typescript";
 import {TraceIdentifiersVisitorOptions} from "../../trace-identifiers-visitor-options";
+import {normalize} from "path";
 
 /**
  * Traces identifiers for the given InterfaceDeclaration.
@@ -11,7 +12,7 @@ export function traceIdentifiersForInterfaceDeclaration({
 	addIdentifier
 }: TraceIdentifiersVisitorOptions<InterfaceDeclaration>): void {
 	addIdentifier(node.name.text, {
-		originalModule: sourceFile.fileName,
+		originalModule: normalize(sourceFile.fileName),
 		deconflictedName: undefined
 	});
 }

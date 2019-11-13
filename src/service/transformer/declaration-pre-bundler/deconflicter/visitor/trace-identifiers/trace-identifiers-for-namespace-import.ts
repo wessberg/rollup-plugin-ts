@@ -1,5 +1,6 @@
 import {isStringLiteralLike, NamespaceImport} from "typescript";
 import {TraceIdentifiersVisitorOptions} from "../../trace-identifiers-visitor-options";
+import {normalize} from "path";
 
 /**
  * Traces identifiers for the given NamespaceImport.
@@ -16,8 +17,11 @@ export function traceIdentifiersForNamespaceImport({
 	if (node.name != null) {
 		addIdentifier(node.name.text, {
 			deconflictedName: undefined,
-			originalModule:
-				moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? sourceFile.fileName : resolver(moduleSpecifier.text, sourceFile.fileName)
+			originalModule: normalize(
+				moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier)
+					? sourceFile.fileName
+					: resolver(moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName
+			)
 		});
 	}
 }

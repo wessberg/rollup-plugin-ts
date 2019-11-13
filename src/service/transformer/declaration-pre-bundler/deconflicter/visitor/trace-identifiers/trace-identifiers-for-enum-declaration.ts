@@ -1,5 +1,6 @@
 import {EnumDeclaration} from "typescript";
 import {TraceIdentifiersVisitorOptions} from "../../trace-identifiers-visitor-options";
+import {normalize} from "path";
 
 /**
  * Traces identifiers for the given EnumDeclaration.
@@ -8,7 +9,7 @@ import {TraceIdentifiersVisitorOptions} from "../../trace-identifiers-visitor-op
  */
 export function traceIdentifiersForEnumDeclaration({node, sourceFile, addIdentifier}: TraceIdentifiersVisitorOptions<EnumDeclaration>): void {
 	addIdentifier(node.name.text, {
-		originalModule: sourceFile.fileName,
+		originalModule: normalize(sourceFile.fileName),
 		deconflictedName: undefined
 	});
 }

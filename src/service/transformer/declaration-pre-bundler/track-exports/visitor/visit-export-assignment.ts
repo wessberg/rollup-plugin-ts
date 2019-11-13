@@ -1,6 +1,7 @@
 import {ExportAssignment, isIdentifier, VariableStatement} from "typescript";
 import {TrackExportsVisitorOptions} from "../track-exports-visitor-options";
 import {getAliasedDeclaration} from "../../util/symbol/get-aliased-declaration";
+import {normalize} from "path";
 
 /**
  * Visits the given ExportAssignment.
@@ -22,7 +23,7 @@ export function visitExportAssignment({
 
 		markAsExported({
 			node: declaration ?? node.expression,
-			originalModule: sourceFile.fileName,
+			originalModule: normalize(sourceFile.fileName),
 			isExternal: false,
 			rawModuleSpecifier: undefined,
 			defaultExport: true,

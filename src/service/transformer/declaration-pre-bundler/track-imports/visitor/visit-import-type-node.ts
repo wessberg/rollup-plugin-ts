@@ -13,7 +13,7 @@ import {TrackImportsVisitorOptions} from "../track-imports-visitor-options";
 import {getIdentifiersForNode} from "../../../declaration-bundler/util/get-identifiers-for-node";
 import {camelCase} from "@wessberg/stringutil";
 import {isExternalLibrary, stripKnownExtension} from "../../../../../util/path/path-util";
-import {basename} from "path";
+import {basename, normalize} from "path";
 import {getAliasedDeclaration} from "../../util/symbol/get-aliased-declaration";
 
 /**
@@ -34,8 +34,9 @@ export function visitImportTypeNode({
 	const specifier = node.argument.literal;
 	const qualifier = node.qualifier;
 
-	const originalModule =
-		specifier == null || !isStringLiteralLike(specifier) ? sourceFile.fileName : resolver(specifier.text, sourceFile.fileName) ?? sourceFile.fileName;
+	const originalModule = normalize(
+		specifier == null || !isStringLiteralLike(specifier) ? sourceFile.fileName : resolver(specifier.text, sourceFile.fileName) ?? sourceFile.fileName
+	);
 	const rawModuleSpecifier = specifier == null || !isStringLiteralLike(specifier) ? undefined : specifier.text;
 
 	// If the node has no qualifier, it imports the entire module as a namespace.

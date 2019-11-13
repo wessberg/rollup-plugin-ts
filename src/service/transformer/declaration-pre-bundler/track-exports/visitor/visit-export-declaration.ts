@@ -1,6 +1,7 @@
 import {ExportDeclaration, isStringLiteralLike} from "typescript";
 import {TrackExportsVisitorOptions} from "../track-exports-visitor-options";
 import {isExternalLibrary} from "../../../../../util/path/path-util";
+import {normalize} from "path";
 
 /**
  * Visits the given ExportDeclaration.
@@ -27,10 +28,11 @@ export function visitExportDeclaration({
 
 	// Otherwise, this is a 'export * from "..."' export that we need to handle here
 	else {
-		const originalModule =
+		const originalModule = normalize(
 			node.moduleSpecifier == null || !isStringLiteralLike(node.moduleSpecifier)
 				? sourceFile.fileName
-				: resolver(node.moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName;
+				: resolver(node.moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName
+		);
 
 		const rawModuleSpecifier = node.moduleSpecifier == null || !isStringLiteralLike(node.moduleSpecifier) ? undefined : node.moduleSpecifier.text;
 
