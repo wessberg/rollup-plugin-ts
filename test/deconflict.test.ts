@@ -524,12 +524,11 @@ test("Handles different bindings from same module inside same chunk. #3", async 
 });
 
 test("Handles different bindings from same module inside same chunk. #4", async t => {
-	const bundle = await generateRollupBundle(
-		[
-			{
-				entry: true,
-				fileName: "index.ts",
-				text: `\
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
         import {tsModule} from "./bar";
         import {IFoo} from "./baz";
 
@@ -537,38 +536,36 @@ test("Handles different bindings from same module inside same chunk. #4", async 
         	readonly ts: typeof tsModule;
         }
 			`
-			},
-			{
-				entry: false,
-				fileName: "bar.ts",
-				text: `\
+		},
+		{
+			entry: false,
+			fileName: "bar.ts",
+			text: `\
 			import * as tsModuleType from "typescript";
 			export const tsModule: { ts: typeof tsModuleType } = { ts: tsModuleType };
 			`
-			},
-			{
-				entry: false,
-				fileName: "baz.ts",
-				text: `\
+		},
+		{
+			entry: false,
+			fileName: "baz.ts",
+			text: `\
 			import * as tsModule from "typescript";
 			export class IFoo {
 				readonly otherTs: typeof tsModule;
 			}
 			`
-			},
-			{
-				entry: false,
-				fileName: "qux.ts",
-				text: `\
+		},
+		{
+			entry: false,
+			fileName: "qux.ts",
+			text: `\
 			import * as tsModule from "typescript";
 			export class IBar {
 				readonly yetAnotherTs: typeof tsModule;
 			}
 			`
-			}
-		],
-		{debug: true}
-	);
+		}
+	]);
 	const {
 		declarations: [file]
 	} = bundle;

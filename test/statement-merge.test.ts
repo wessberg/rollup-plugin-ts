@@ -4,18 +4,15 @@ import {generateRollupBundle} from "./setup/setup-rollup";
 // tslint:disable:no-duplicate-string
 
 test("Merges identical statements correctly. #1", async t => {
-	const bundle = await generateRollupBundle(
-		[
-			{
-				entry: true,
-				fileName: "index.ts",
-				text: `\
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
 					export function foo (_arg: Buffer): void {}
 					`
-			}
-		],
-		{debug: true}
-	);
+		}
+	]);
 	const {
 		declarations: [file]
 	} = bundle;

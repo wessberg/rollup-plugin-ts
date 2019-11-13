@@ -44,41 +44,6 @@ test("Flattens declarations. #2", async t => {
 			entry: true,
 			fileName: "index.ts",
 			text: `\
-					import Bar from "./bar";
-					export interface Foo extends Bar {}
-					`
-		},
-		{
-			entry: false,
-			fileName: "bar.ts",
-			text: `\
-					export default interface Bar {
-						a: string;
-					}
-					`
-		}
-	]);
-	const {
-		declarations: [file]
-	} = bundle;
-	t.deepEqual(
-		formatCode(file.code),
-		formatCode(`\
-		interface Bar {
-			a: string;
-		}
-		interface Foo extends Bar {}
-		export {Foo};
-		`)
-	);
-});
-
-test("Flattens declarations. #3", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
 					import {Bar} from "./bar";
 					export interface Foo extends Bar {}
 					`
@@ -113,7 +78,7 @@ test("Flattens declarations. #3", async t => {
 	);
 });
 
-test("Flattens declarations. #4", async t => {
+test("Flattens declarations. #3", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -142,7 +107,7 @@ test("Flattens declarations. #4", async t => {
 	);
 });
 
-test("Flattens declarations. #5", async t => {
+test("Flattens declarations. #4", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -179,7 +144,7 @@ test("Flattens declarations. #5", async t => {
 	);
 });
 
-test("Flattens declarations. #6", async t => {
+test("Flattens declarations. #5", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -233,7 +198,7 @@ test("Flattens declarations. #6", async t => {
 	);
 });
 
-test("Flattens declarations. #7", async t => {
+test("Flattens declarations. #6", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -266,7 +231,7 @@ test("Flattens declarations. #7", async t => {
 	);
 });
 
-test("Flattens declarations. #8", async t => {
+test("Flattens declarations. #7", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -309,183 +274,57 @@ test("Flattens declarations. #8", async t => {
 	);
 });
 
+test("Flattens declarations. #8", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+          		export * from "./foo";
+        	`
+		},
+		{
+			entry: false,
+			fileName: "foo/index.ts",
+			text: `\
+				export const Foo = "foo";
+				`
+		}
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare const Foo = "foo";
+			export {Foo};
+		`)
+	);
+});
+
 test("Flattens declarations. #9", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
 			fileName: "index.ts",
 			text: `\
-          import magicString from './bar';
-					export const Foo = magicString;
-					`
-		},
-		{
-			entry: false,
-			fileName: "bar.ts",
-			text: `\
-          export {default} from 'magic-string';
-					`
-		}
-	]);
-	const {
-		declarations: [file]
-	} = bundle;
-	t.deepEqual(
-		formatCode(file.code),
-		formatCode(`\
-		import magicString from "magic-string";
-		declare const Foo: typeof magicString;
-		export {Foo};
-		`)
-	);
-});
-
-test("Flattens declarations. #10", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
-          import magicString from './bar';
-					export const Foo = magicString;
-					`
-		},
-		{
-			entry: false,
-			fileName: "bar.ts",
-			text: `\
-          export {default as default} from 'magic-string';
-					`
-		}
-	]);
-	const {
-		declarations: [file]
-	} = bundle;
-	t.deepEqual(
-		formatCode(file.code),
-		formatCode(`\
-		import magicString from "magic-string";
-		declare const Foo: typeof magicString;
-		export {Foo};
-		`)
-	);
-});
-
-test("Flattens declarations. #11", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
-          import {Bar} from './bar';
-					export const Foo = Bar;
-					`
-		},
-		{
-			entry: false,
-			fileName: "bar.ts",
-			text: `\
-          export {default as Bar} from 'magic-string';
-					`
-		}
-	]);
-	const {
-		declarations: [file]
-	} = bundle;
-
-	t.deepEqual(
-		formatCode(file.code),
-		formatCode(`\
-		import { default as Bar } from "magic-string";
-		declare const Foo: typeof Bar;
-		export {Foo};
-		`)
-	);
-});
-
-test("Flattens declarations. #12", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
-          		import X from './bar';
-          		export { X }
+          		export * from "./foo.baz";
+          		export * from "./bar.baz";
         	`
 		},
 		{
 			entry: false,
-			fileName: "bar.ts",
+			fileName: "foo.baz.ts",
 			text: `\
-				interface Foo { n: number; }
-				export const fn = (x: Foo): Foo => x;
-				export default fn({ n: 0 });
-            `
-		}
-	]);
-	const {
-		declarations: [file]
-	} = bundle;
-	t.deepEqual(
-		formatCode(file.code),
-		formatCode(`\
-		declare const X: typeof _default;
-		interface Foo {
-				n: number;
-		}
-		declare const _default: Foo;
-		export { X };
-		`)
-	);
-});
-
-test("Flattens declarations. #13", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
-          		import X from './bar';
-          		export { X }
-        	`
+				export const Foo = "foo";
+				`
 		},
 		{
 			entry: false,
-			fileName: "bar.ts",
+			fileName: "bar.baz.ts",
 			text: `\
-				export default function foo (): string {return "";} `
-		}
-	]);
-	const {
-		declarations: [file]
-	} = bundle;
-
-	t.deepEqual(
-		formatCode(file.code),
-		formatCode(`\
-		declare const X: typeof foo;
-		declare function foo(): string;
-		export { X };
-		`)
-	);
-});
-
-test("Flattens declarations. #14", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
-          		import X from './bar';
-          		export { X }
-        	`
-		},
-		{
-			entry: false,
-			fileName: "bar.ts",
-			text: `\
-				enum FooKind {A, B}
-				export default FooKind;
+				export const Bar = "bar";
 				`
 		}
 	]);
@@ -496,12 +335,213 @@ test("Flattens declarations. #14", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		declare const X: typeof FooKind;
-		declare enum FooKind {
-			A = 0,
-			B = 1
+			declare const Foo = "foo";
+			declare const Bar = "bar";
+			export {Foo, Bar};
+		`)
+	);
+});
+
+test("Flattens declarations. #10", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+          		export * from "@/foo";
+        	`
+			},
+			{
+				entry: false,
+				fileName: "foo.ts",
+				text: `\
+				export const Foo = "foo";
+				`
+			}
+		],
+		{
+			transpileOnly: true,
+			tsconfig: {
+				paths: {
+					"@/*": ["*"]
+				}
+			}
 		}
-		export { X };
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare const Foo = "foo";
+			export {Foo};
+		`)
+	);
+});
+
+test("Flattens declarations. #11", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+          		export {A, B} from "@/foo";
+        	`
+			},
+			{
+				entry: false,
+				fileName: "foo.ts",
+				text: `\
+				export const A = "A";
+				export const B = "B";
+				`
+			}
+		],
+		{
+			transpileOnly: true,
+			tsconfig: {
+				paths: {
+					"@/*": ["*"]
+				}
+			}
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare const A = "A";
+			declare const B = "B";
+			export {A, B};
+		`)
+	);
+});
+
+test("Flattens declarations. #12", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+          		import {Foo} from "@/foo";
+          		export {Foo};
+        	`
+			},
+			{
+				entry: false,
+				fileName: "foo.ts",
+				text: `\
+				export const Foo = "Foo";
+				`
+			}
+		],
+		{
+			transpileOnly: true,
+			tsconfig: {
+				paths: {
+					"@/*": ["*"]
+				}
+			}
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare const Foo = "Foo";
+			export {Foo};
+		`)
+	);
+});
+
+test("Flattens declarations. #13", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+          		export const Bar: typeof import("@/foo").Foo = "foo";
+        	`
+			},
+			{
+				entry: false,
+				fileName: "foo.ts",
+				text: `\
+				export const Foo: string = "bar";
+				`
+			}
+		],
+		{
+			transpileOnly: true,
+			tsconfig: {
+				paths: {
+					"@/*": ["*"]
+				}
+			}
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare const Foo: string;
+			declare const Bar: typeof Foo;
+			export {Bar};
+		`)
+	);
+});
+
+test("Flattens declarations. #14", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "src/index.ts",
+				text: `\
+          		export * from "@/foo";
+        	`
+			},
+			{
+				entry: false,
+				fileName: "src/foo.ts",
+				text: `\
+				export const Foo = "Foo";
+				`
+			}
+		],
+		{
+			transpileOnly: true,
+			tsconfig: {
+				paths: {
+					"@/*": ["src/*"]
+				}
+			}
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare const Foo = "Foo";
+			export {Foo};
 		`)
 	);
 });
@@ -512,16 +552,15 @@ test("Flattens declarations. #15", async t => {
 			entry: true,
 			fileName: "index.ts",
 			text: `\
-          		import X from './bar';
-          		export { X }
+							import {Foo} from "./foo";
+          		export const foo: Foo = 2;
         	`
 		},
 		{
 			entry: false,
-			fileName: "bar.ts",
+			fileName: "foo.ts",
 			text: `\
-				interface FooKind {}
-				export default FooKind;
+				export type Foo = number;
 				`
 		}
 	]);
@@ -532,10 +571,64 @@ test("Flattens declarations. #15", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		type X = FooKind;
-		interface FooKind {
+			declare type Foo = number;
+			declare const foo: Foo;
+			export {foo};
+		`)
+	);
+});
+
+test("Flattens declarations. #16", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+        import * as bar from './bar';
+        export type FooType = bar.BarType;
+			`
+		},
+		{
+			entry: false,
+			fileName: "bar.ts",
+			text: `\
+        export type BarType = 'a' | 'b' | 'c';
+			`
 		}
-		export { X };
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare namespace bar {
+					type BarType = 'a' | 'b' | 'c';
+			}
+			declare type FooType = bar.BarType;
+			export { FooType };
+		`)
+	);
+});
+
+test("A file with no exports generates a .d.ts file with an 'export {}' declaration to mark it as a module. #1", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+					console.log(true);
+					`
+		}
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		export {};
 		`)
 	);
 });

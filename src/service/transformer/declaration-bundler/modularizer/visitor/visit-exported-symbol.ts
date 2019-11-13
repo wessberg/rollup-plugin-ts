@@ -179,6 +179,12 @@ export function visitExportedSymbolFromEntryModule({
 			}
 		}
 
+		// If this is a default export, make sure to export it correctly: 'export {Foo as default}'
+		if (exportedSymbol.defaultExport && correctedPropertyName == null && correctedName !== "default") {
+			correctedPropertyName = correctedName;
+			correctedName = "default";
+		}
+
 		exportDeclarations.push(
 			createExportDeclaration(
 				undefined,
