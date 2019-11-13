@@ -1,6 +1,7 @@
 import test from "ava";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
+import {stripKnownExtension} from "../src/util/path/path-util";
 // tslint:disable:no-duplicate-string
 
 test("Declaration bundling supports code splitting. #1", async t => {
@@ -41,7 +42,7 @@ test("Declaration bundling supports code splitting. #1", async t => {
 
 	const aFile = declarations.find(file => file.fileName.includes("a.d.ts"));
 	const bFile = declarations.find(file => file.fileName.includes("b.d.ts"));
-	const sharedFile = declarations.find(file => file.fileName.includes("shared-be8cec94.d.ts"));
+	const sharedFile = declarations.find(file => file.fileName.startsWith("shared-"));
 	t.true(aFile != null);
 	t.true(bFile != null);
 	t.true(sharedFile != null);
@@ -49,7 +50,7 @@ test("Declaration bundling supports code splitting. #1", async t => {
 	t.deepEqual(
 		formatCode(aFile!.code),
 		formatCode(`\
-			import { Shared } from "./shared-be8cec94";
+			import { Shared } from "./${stripKnownExtension(sharedFile!.fileName)}";
 			declare class A extends Shared {
 					a: string;
 			}
@@ -60,7 +61,7 @@ test("Declaration bundling supports code splitting. #1", async t => {
 	t.deepEqual(
 		formatCode(bFile!.code),
 		formatCode(`\
-			import { Shared } from "./shared-be8cec94";
+			import { Shared } from "./${stripKnownExtension(sharedFile!.fileName)}";
 			declare class B extends Shared {
 					b: string;
 			}
@@ -120,7 +121,7 @@ test("Declaration bundling supports code splitting. #2", async t => {
 
 	const aFile = declarations.find(file => file.fileName.includes("a.d.ts"));
 	const bFile = declarations.find(file => file.fileName.includes("b.d.ts"));
-	const loggerFile = declarations.find(file => file.fileName.includes("logger-8396bc98"));
+	const loggerFile = declarations.find(file => file.fileName.startsWith("logger-"));
 	t.true(aFile != null);
 	t.true(bFile != null);
 	t.true(loggerFile != null);
@@ -128,7 +129,7 @@ test("Declaration bundling supports code splitting. #2", async t => {
 	t.deepEqual(
 		formatCode(aFile!.code),
 		formatCode(`\
-			export { Logger } from "./logger-8396bc98";
+			export { Logger } from "./${stripKnownExtension(loggerFile!.fileName)}";
 		`)
 	);
 
