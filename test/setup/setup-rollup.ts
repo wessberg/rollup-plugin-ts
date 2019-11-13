@@ -97,8 +97,18 @@ export async function generateRollupBundle(
 	const declarations: FileResult[] = [];
 	const declarationMaps: FileResult[] = [];
 
+	let input: Record<string, string> | string;
+	if (entryFiles.length === 1) {
+		input = entryFiles[0].fileName;
+	} else {
+		input = {};
+		for (const entryFile of entryFiles) {
+			input[parse(entryFile.fileName).name] = entryFile.fileName;
+		}
+	}
+
 	const result = await rollup({
-		input: entryFiles.length === 1 ? entryFiles[0].fileName : Object.fromEntries(entryFiles.map(file => [parse(file.fileName).name, file.fileName])),
+		input,
 		...rollupOptions,
 		plugins: [
 			{
