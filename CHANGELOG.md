@@ -1,3 +1,12 @@
+## [1.1.78](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.77...v1.1.78) (2019-11-13)
+
+### Bug Fixes
+
+- **bug:** always use LF line endings when formatting with Prettier inside test runner ([1a98dff](https://github.com/wessberg/rollup-plugin-ts/commit/1a98dff5d739a7d9587c3fc3edb2a26f06195db7))
+- **bug:** fix bug where paths could be POSIX on Windows in the modularizing phase ([6401151](https://github.com/wessberg/rollup-plugin-ts/commit/6401151df8a8edeb4638c5ea5c6e8c51943c3c39))
+- **bug:** fix issue on Windows with generating declaration maps ([3e971bc](https://github.com/wessberg/rollup-plugin-ts/commit/3e971bc44009f1653605ab8805c4f1449525ea2d))
+- **bug:** support multiple environments inside code splitting tests ([ca5aa78](https://github.com/wessberg/rollup-plugin-ts/commit/ca5aa78c7692e9d341d76cadff79a48b978ed3c8))
+
 ## [1.1.77](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.76...v1.1.77) (2019-11-13)
 
 ### Bug Fixes
