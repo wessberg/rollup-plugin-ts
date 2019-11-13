@@ -18,7 +18,7 @@ import {
 import {CompilerOptions, createPrinter} from "typescript";
 import {OutputBundle, OutputOptions, PluginContext, SourceDescription} from "rollup";
 import {ModuleDependencyMap} from "../util/module/get-module-dependencies";
-import {setExtension} from "../util/path/path-util";
+import {ensurePosix, setExtension} from "../util/path/path-util";
 import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION, ROLLUP_PLUGIN_MULTI_ENTRY} from "../constant/constant";
 import {TypescriptPluginOptions} from "../plugin/i-typescript-plugin-options";
 import {Resolver} from "../util/resolve-id/resolver";
@@ -108,16 +108,21 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 					? declarationMapFilename
 					: parse(rewrittenAbsoluteDeclarationMapFilename).base;
 
-			let emitFileDeclarationFilename = join(relative(relativeOutDir, relativeDeclarationOutDir), rewrittenDeclarationFilename);
-			let emitFileDeclarationMapFilename = join(relative(relativeOutDir, relativeDeclarationOutDir), rewrittenDeclarationMapFilename);
+			// We'll need to work with POSIX paths for now
+			let emitFileDeclarationFilename = ensurePosix(join(relative(relativeOutDir, relativeDeclarationOutDir), rewrittenDeclarationFilename));
+			let emitFileDeclarationMapFilename = ensurePosix(join(relative(relativeOutDir, relativeDeclarationOutDir), rewrittenDeclarationMapFilename));
 
 			// Rollup does not allow emitting files outside of the root of the whatever 'dist' directory that has been provided.
-			while (emitFileDeclarationFilename.startsWith("../")) {
+			while (emitFileDeclarationFilename.startsWith("../") || emitFileDeclarationFilename.startsWith("..\\")) {
 				emitFileDeclarationFilename = emitFileDeclarationFilename.slice("../".length);
 			}
-			while (emitFileDeclarationMapFilename.startsWith("../")) {
+			while (emitFileDeclarationMapFilename.startsWith("../") || emitFileDeclarationMapFilename.startsWith("..\\")) {
 				emitFileDeclarationMapFilename = emitFileDeclarationMapFilename.slice("../".length);
 			}
+
+			// Now, make sure to normalize the file names again
+			emitFileDeclarationFilename = normalize(emitFileDeclarationFilename);
+			emitFileDeclarationMapFilename = normalize(emitFileDeclarationMapFilename);
 
 			const rawLocalModuleNames = chunk.modules;
 			const localModuleNames = rawLocalModuleNames.filter(options.canEmitForFile);

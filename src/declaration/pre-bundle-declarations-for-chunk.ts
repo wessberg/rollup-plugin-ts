@@ -32,7 +32,8 @@ export function preBundleDeclarationsForChunk(options: PreBundleDeclarationsForC
 	program.emit(
 		undefined,
 		(file, data) => {
-			const replacedFile = normalize(file.replace(generatedOutDir, "").replace(options.cwd, ""));
+			const normalizedFile = normalize(file);
+			const replacedFile = normalize(normalizedFile.replace(generatedOutDir, "").replace(options.cwd, ""));
 			const replacedFileDir = normalize(dirname(replacedFile));
 
 			if (replacedFile.endsWith(DECLARATION_MAP_EXTENSION)) {
@@ -56,7 +57,9 @@ export function preBundleDeclarationsForChunk(options: PreBundleDeclarationsForC
 						const absoluteSource = join(options.absoluteDeclarationMapDirname, source);
 						const chunkFileNameResult = getChunkFilename({...options, fileName: absoluteSource});
 						return chunkFileNameResult != null && chunkFileNameResult.fileName === options.absoluteChunkFileName;
-					});
+					})
+					// Make sure that the paths are POSIX-based
+					.map(ensurePosix);
 
 				// If there are sources for this chunk, include it
 				if (parsedData.sources.length > 0) {
