@@ -1,3 +1,9 @@
+## [1.1.77](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.76...v1.1.77) (2019-11-13)
+
+### Bug Fixes
+
+- **bug:** fix regression with same-chunk default exports. Closes [#48](https://github.com/wessberg/rollup-plugin-ts/issues/48) ([0831af7](https://github.com/wessberg/rollup-plugin-ts/commit/0831af78ff45266236b614aa892894ad350b9ed4))
+
 ## [1.1.76](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.75...v1.1.76) (2019-11-11)
 
 ### Features
