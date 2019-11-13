@@ -67,7 +67,7 @@ export async function generateRollupBundle(
 		)
 		.map(file => ({...file, fileName: join(cwd, file.fileName)}));
 
-	const directories = new Set(files.map(file => dirname(file.fileName)));
+	const directories = new Set(files.map(file => normalize(dirname(file.fileName))));
 
 	const entryFiles = files.filter(file => file.entry);
 	if (entryFiles.length === 0) {
@@ -90,7 +90,8 @@ export async function generateRollupBundle(
 	};
 
 	const load = (id: string): string | null => {
-		const matchedFile = files.find(file => file.fileName === id);
+		const normalized = normalize(id);
+		const matchedFile = files.find(file => file.fileName === normalized);
 		return matchedFile == null ? null : matchedFile.text;
 	};
 
@@ -131,24 +132,27 @@ export async function generateRollupBundle(
 					...REAL_FILE_SYSTEM,
 					useCaseSensitiveFileNames: true,
 					readFile: fileName => {
-						const absoluteFileName = isAbsolute(fileName) ? fileName : join(cwd, fileName);
+						const normalized = normalize(fileName);
+						const absoluteFileName = isAbsolute(normalized) ? normalized : join(cwd, normalized);
 						const file = files.find(currentFile => currentFile.fileName === absoluteFileName);
 						if (file != null) return file.text;
 						return sys.readFile(absoluteFileName);
 					},
 					fileExists: fileName => {
-						const absoluteFileName = isAbsolute(fileName) ? fileName : join(cwd, fileName);
+						const normalized = normalize(fileName);
+						const absoluteFileName = isAbsolute(normalized) ? normalized : join(cwd, normalized);
 						if (files.some(file => file.fileName === absoluteFileName)) {
 							return true;
 						}
 						return sys.fileExists(absoluteFileName);
 					},
 					directoryExists: dirName => {
-						if (directories.has(dirName)) return true;
-						return sys.directoryExists(dirName);
+						const normalized = normalize(dirName);
+						if (directories.has(normalized)) return true;
+						return sys.directoryExists(normalized);
 					},
 					realpath(path: string): string {
-						return path;
+						return normalize(path);
 					}
 				}
 			}),

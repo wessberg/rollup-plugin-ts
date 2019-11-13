@@ -100,7 +100,10 @@ export class ResolveCache implements IResolveCache {
 		if (cacheResult != null) {
 			return cacheResult.resolvedFileName;
 		}
-		for (const resolvedPath of [sync(`node_modules/${setExtension(path, JS_EXTENSION)}`, {cwd}), sync(`node_modules/${path}/index.js`, {cwd})]) {
+		for (const resolvedPath of [
+			sync(normalize(`node_modules/${setExtension(path, JS_EXTENSION)}`), {cwd}),
+			sync(normalize(`node_modules/${path}/index.js`), {cwd})
+		]) {
 			if (resolvedPath != null) {
 				this.setInCache(
 					{
