@@ -34,4 +34,3 @@ Thumbs.db
 *.csr
 /node_modules/
 /dist/
-package-lock.json
