@@ -84,7 +84,19 @@ function combineConfigItems(
  * @returns {boolean}
  */
 function configItemIsMinificationRelated(id: string): boolean {
-	return BABEL_MINIFY_PRESET_NAMES.some(preset => id.includes(preset)) || BABEL_MINIFY_PLUGIN_NAMES.some(plugin => id.includes(plugin));
+	return (
+		(/\bminify\b/.test(id) ||
+			BABEL_MINIFY_PRESET_NAMES.some(preset => id.includes(preset)) ||
+			BABEL_MINIFY_PLUGIN_NAMES.some(plugin => id.includes(plugin))) &&
+		!(
+			BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES.some(preset => id.includes(preset)) ||
+			BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES.some(plugin => id.includes(plugin))
+		)
+	);
+}
+
+function configItemIsSyntaxRelated(id: string): boolean {
+	return /\bsyntax\b/.test(id);
 }
 
 /**
@@ -93,10 +105,7 @@ function configItemIsMinificationRelated(id: string): boolean {
  * @returns {boolean}
  */
 function configItemIsAllowedDuringMinification(id: string): boolean {
-	return (
-		BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES.every(preset => !id.includes(preset)) &&
-		BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES.every(plugin => !id.includes(plugin))
-	);
+	return configItemIsSyntaxRelated(id) || configItemIsMinificationRelated(id);
 }
 
 /**
@@ -105,7 +114,7 @@ function configItemIsAllowedDuringMinification(id: string): boolean {
  * @returns {boolean}
  */
 function configItemIsAllowedDuringNoMinification(id: string): boolean {
-	return BABEL_MINIFY_PRESET_NAMES.every(preset => !id.includes(preset)) && BABEL_MINIFY_PLUGIN_NAMES.every(plugin => !id.includes(plugin));
+	return configItemIsSyntaxRelated(id) || !configItemIsMinificationRelated(id);
 }
 
 /**
