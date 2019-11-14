@@ -132,7 +132,7 @@ export function getBabelConfig({
 
 	if (noBabelConfigCustomization === true) {
 		const loadOptionsForFilename = (filename: string, useChunkOptions: boolean = false) => {
-			const partialConfig =
+			const partialCustomConfig =
 				resolvedConfig != null && resolvedConfig.kind === "dict"
 					? // If the given babelConfig is an object of input options, use that as the basis for the full config
 					  resolvedConfig
@@ -146,28 +146,29 @@ export function getBabelConfig({
 
 			// fully load all options, which results in a flat plugins structure
 			// which can then be used to match chunk plugins
-			const options = loadOptions({
-				...partialConfig.options,
+			const fullOptions = loadOptions({
+				...partialCustomConfig.options,
 				...forcedOptions,
-				presets: partialConfig.options.presets,
-				plugins: partialConfig.options.plugins,
+				presets: partialCustomConfig.options.presets,
+				plugins: partialCustomConfig.options.plugins,
 				filename,
 				caller: {
 					name: "rollup-plugin-ts",
-					...(partialConfig.options.caller || {}),
+					...(partialCustomConfig.options.caller ? partialCustomConfig.options.caller : {}),
 					supportsStaticESM: true,
 					supportsDynamicImport: true
 				}
 			});
 
 			// sourceMap is an alias for 'sourceMaps'. If the user provided it, make sure it is undefined. Otherwise, Babel will fail during validation
-			if ("sourceMap" in options) {
-				delete options.sourceMap;
+			if ("sourceMap" in fullOptions) {
+				delete fullOptions.sourceMap;
 			}
 
 			return {
-				...options,
-				plugins: combineConfigItems(options.plugins, [], [], useChunkOptions)
+				...fullOptions,
+				// presets is an empty array as babel as resolved all plugins
+				plugins: combineConfigItems(fullOptions.plugins, [], [], useChunkOptions)
 			};
 		};
 
