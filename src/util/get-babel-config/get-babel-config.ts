@@ -1,3 +1,5 @@
+import {dirname} from "path";
+import {InputOptions} from "rollup";
 import {IBabelConfigItem} from "../../plugin/i-babel-options";
 import {isBabelPluginTransformRuntime, isBabelPresetEnv, isYearlyBabelPreset} from "../path/path-util";
 import {
@@ -19,6 +21,7 @@ import {findBabelConfig} from "./find-babel-config";
 
 interface IBabelPlugin {
 	key: string;
+	options?: {[key: string]: unknown};
 }
 
 function getBabelItemId(item: IBabelConfigItem | IBabelPlugin): string {
@@ -114,6 +117,39 @@ function configItemIsAllowedForTransform(id: string): boolean {
 	return configItemIsSyntaxRelated(id) || !configItemIsChunkRelated(id);
 }
 
+type BabelTransformOptions = Partial<ReturnType<typeof FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS>> & {corejs?: boolean; useESModules?: boolean};
+
+function enforceBabelTransformRuntime<T extends IBabelConfigItem | IBabelPlugin>(
+	plugins: T[],
+	rollupInputOptions: InputOptions,
+	filename: string
+): T[] {
+	const babelTransformPlugin = plugins.find(item => isBabelPluginTransformRuntime(getBabelItemId(item)));
+
+	const babelTransformOptions: BabelTransformOptions = {
+		...FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS(rollupInputOptions),
+		corejs: false
+	};
+
+	if (babelTransformPlugin != null) {
+		const options: BabelTransformOptions = babelTransformPlugin.options != null ? babelTransformPlugin.options : {};
+
+		// set default options but keep explicitly defined options
+		babelTransformPlugin.options = {
+			...babelTransformOptions,
+			...options
+		};
+
+		return plugins;
+	}
+
+	return [
+		...plugins,
+		// Force the use of helpers (e.g. the runtime). But *don't* apply polyfills.
+		createConfigItem(["@babel/plugin-transform-runtime", babelTransformOptions], {type: "plugin", dirname: dirname(filename)})
+	];
+}
+
 /**
  * Gets a Babel Config based on the given options
  * @param {GetBabelConfigOptions} options
@@ -165,10 +201,13 @@ export function getBabelConfig({
 				delete fullOptions.sourceMap;
 			}
 
+			// Force the use of helpers (e.g. the runtime) for transform
+			const plugins = useChunkOptions ? fullOptions.plugins : enforceBabelTransformRuntime(fullOptions.plugins, rollupInputOptions, filename);
+
 			return {
 				...fullOptions,
 				// presets is an empty array as babel as resolved all plugins
-				plugins: combineConfigItems(fullOptions.plugins, [], [], useChunkOptions)
+				plugins: combineConfigItems(plugins, [], [], useChunkOptions)
 			};
 		};
 
