@@ -66,16 +66,16 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	let babelConfig: ((filename: string) => IBabelConfig) | undefined;
 
 	/**
-	 * If babel is to be used, and if one or more minify presets/plugins has been passed, this config will be used
+	 * If babel is to be used, and if one or more chunk presets/plugins has been passed, this config will be used
 	 * @type {boolean}
 	 */
-	let babelMinifyConfig: ((filename: string) => IBabelConfig) | undefined;
+	let babelChunkConfig: ((filename: string) => IBabelConfig) | undefined;
 
 	/**
-	 * If babel is to be used, and if one or more minify presets/plugins has been passed, this will be true
+	 * If babel is to be used, and if one or more chunk presets/plugins has been passed, this will be true
 	 * @type {boolean}
 	 */
-	let hasBabelMinifyOptions: boolean = false;
+	let hasBabelChunkOptions: boolean = false;
 
 	/**
 	 * The (Incremental) LanguageServiceHost to use
@@ -211,8 +211,8 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 					rollupInputOptions
 				});
 				babelConfig = babelConfigResult.config;
-				babelMinifyConfig = babelConfigResult.minifyConfig;
-				hasBabelMinifyOptions = babelConfigResult.hasMinifyOptions;
+				babelChunkConfig = babelConfigResult.chunkConfig;
+				hasBabelChunkOptions = babelConfigResult.hasChunkOptions;
 			}
 
 			SUPPORTED_EXTENSIONS = getSupportedExtensions(
@@ -278,10 +278,10 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 */
 		async renderChunk(this: PluginContext, code: string, chunk: RenderedChunk): Promise<{code: string; map: SourceMap} | null> {
 			// Don't proceed if there is no minification config
-			if (!hasBabelMinifyOptions || babelMinifyConfig == null) return null;
+			if (!hasBabelChunkOptions || babelChunkConfig == null) return null;
 
 			const transpilationResult = await transformAsync(code, {
-				...babelMinifyConfig(chunk.fileName),
+				...babelChunkConfig(chunk.fileName),
 				filename: chunk.fileName,
 				filenameRelative: ensureRelative(cwd, chunk.fileName)
 			});

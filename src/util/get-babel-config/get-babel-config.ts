@@ -1,10 +1,10 @@
 import {IBabelConfigItem} from "../../plugin/i-babel-options";
 import {isBabelPluginTransformRuntime, isBabelPresetEnv, isYearlyBabelPreset} from "../path/path-util";
 import {
-	BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES,
-	BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES,
-	BABEL_MINIFY_PLUGIN_NAMES,
-	BABEL_MINIFY_PRESET_NAMES,
+	BABEL_CHUNK_BLACKLIST_PLUGIN_NAMES,
+	BABEL_CHUNK_BLACKLIST_PRESET_NAMES,
+	BABEL_CHUNK_PLUGIN_NAMES,
+	BABEL_CHUNK_PRESET_NAMES,
 	FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS,
 	FORCED_BABEL_PRESET_ENV_OPTIONS,
 	FORCED_BABEL_YEARLY_PRESET_OPTIONS
@@ -30,7 +30,7 @@ function getBabelItemId(item: IBabelConfigItem | IBabelPlugin): string {
 	// 2 & 3) full module name
 	if (key.startsWith("/") || key.startsWith("@") || key.startsWith("babel-plugin-")) return key;
 
-	// add prefix to match keys defined in BABEL_MINIFY_PLUGIN_NAMES
+	// add prefix to match keys defined in BABEL_CHUNK_PLUGIN_NAMES
 	return `babel-plugin-${key}`;
 }
 
@@ -39,14 +39,14 @@ function getBabelItemId(item: IBabelConfigItem | IBabelPlugin): string {
  * @param {(IBabelConfigItem | IBabelPlugin)[]} userItems
  * @param {(IBabelConfigItem | IBabelPlugin)[]} defaultItems
  * @param {(IBabelConfigItem | IBabelPlugin)[]} [forcedItems]
- * @param {boolean} [useMinifyOptions]
+ * @param {boolean} [useChunkOptions]
  * @returns {{}[]}
  */
 function combineConfigItems(
 	userItems: (IBabelConfigItem | IBabelPlugin)[],
 	defaultItems: (IBabelConfigItem | IBabelPlugin)[] = [],
 	forcedItems: (IBabelConfigItem | IBabelPlugin)[] = [],
-	useMinifyOptions: boolean = false
+	useChunkOptions: boolean = false
 ): {}[] {
 	const namesInUserItems = new Set(userItems.map(getBabelItemId));
 	const namesInForcedItems = new Set(forcedItems.map(getBabelItemId));
@@ -69,28 +69,25 @@ function combineConfigItems(
 			// Apply the forced items at all times
 			...forcedItems
 		]
-			// Filter out those options that do not apply depending on whether or not to apply minification
+			// Filter out those options that do not apply depending chunk generation
 			.filter(configItem =>
-				useMinifyOptions
-					? configItemIsAllowedDuringMinification(getBabelItemId(configItem))
-					: configItemIsAllowedDuringNoMinification(getBabelItemId(configItem))
+				useChunkOptions ? configItemIsAllowedForChunk(getBabelItemId(configItem)) : configItemIsAllowedForTransform(getBabelItemId(configItem))
 			)
 	);
 }
 
 /**
- * Returns true if the given configItem is related to minification
+ * Returns true if the given configItem is related to chunk transform
  * @param {string} resolved
  * @returns {boolean}
  */
-function configItemIsMinificationRelated(id: string): boolean {
+function configItemIsChunkRelated(id: string): boolean {
 	return (
 		(/\bminify\b/.test(id) ||
-			BABEL_MINIFY_PRESET_NAMES.some(preset => id.includes(preset)) ||
-			BABEL_MINIFY_PLUGIN_NAMES.some(plugin => id.includes(plugin))) &&
+			BABEL_CHUNK_PRESET_NAMES.some(preset => id.includes(preset)) ||
+			BABEL_CHUNK_PLUGIN_NAMES.some(plugin => id.includes(plugin))) &&
 		!(
-			BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES.some(preset => id.includes(preset)) ||
-			BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES.some(plugin => id.includes(plugin))
+			BABEL_CHUNK_BLACKLIST_PLUGIN_NAMES.some(preset => id.includes(preset)) || BABEL_CHUNK_BLACKLIST_PRESET_NAMES.some(plugin => id.includes(plugin))
 		)
 	);
 }
@@ -100,21 +97,21 @@ function configItemIsSyntaxRelated(id: string): boolean {
 }
 
 /**
- * Returns true if the given configItem is allowed during minification
+ * Returns true if the given configItem is allowed for chunk
  * @param {string} resolved
  * @returns {boolean}
  */
-function configItemIsAllowedDuringMinification(id: string): boolean {
-	return configItemIsSyntaxRelated(id) || configItemIsMinificationRelated(id);
+function configItemIsAllowedForChunk(id: string): boolean {
+	return configItemIsSyntaxRelated(id) || configItemIsChunkRelated(id);
 }
 
 /**
- * Returns true if the given configItem is allowed when not applying minification
+ * Returns true if the given configItem is allowed for transform
  * @param {string} resolved
  * @returns {boolean}
  */
-function configItemIsAllowedDuringNoMinification(id: string): boolean {
-	return configItemIsSyntaxRelated(id) || !configItemIsMinificationRelated(id);
+function configItemIsAllowedForTransform(id: string): boolean {
+	return configItemIsSyntaxRelated(id) || !configItemIsChunkRelated(id);
 }
 
 /**
@@ -134,7 +131,7 @@ export function getBabelConfig({
 	const resolvedConfig = findBabelConfig({cwd, babelConfig});
 
 	if (noBabelConfigCustomization === true) {
-		const loadOptionsForFilename = (filename: string, useMinifyOptions: boolean = false) => {
+		const loadOptionsForFilename = (filename: string, useChunkOptions: boolean = false) => {
 			const partialConfig =
 				resolvedConfig != null && resolvedConfig.kind === "dict"
 					? // If the given babelConfig is an object of input options, use that as the basis for the full config
@@ -148,7 +145,7 @@ export function getBabelConfig({
 					  });
 
 			// fully load all options, which results in a flat plugins structure
-			// which can then be used to match minification plugins
+			// which can then be used to match chunk plugins
 			const options = loadOptions({
 				...partialConfig.options,
 				...forcedOptions,
@@ -170,14 +167,14 @@ export function getBabelConfig({
 
 			return {
 				...options,
-				plugins: combineConfigItems(options.plugins, [], [], useMinifyOptions)
+				plugins: combineConfigItems(options.plugins, [], [], useChunkOptions)
 			};
 		};
 
 		return {
 			config: filename => loadOptionsForFilename(filename, false),
-			minifyConfig: filename => loadOptionsForFilename(filename, true),
-			hasMinifyOptions: true
+			chunkConfig: filename => loadOptionsForFilename(filename, true),
+			hasChunkOptions: true
 		};
 	}
 
@@ -288,8 +285,8 @@ export function getBabelConfig({
 		delete combined.sourceMap;
 	}
 
-	// Combine the partial config with the default and forced options for the minifyConfig
-	const minifyCombined = {
+	// Combine the partial config with the default and forced options for the chunkConfig
+	const chunkCombined = {
 		...combined,
 		presets: combineConfigItems(
 			options.presets,
@@ -306,18 +303,16 @@ export function getBabelConfig({
 	};
 
 	const finalConfigFileOption = config == null ? configFileOption : {configFile: config};
-	const finalMinifyConfigFileOption = config == null ? configFileOption : {configFile: `${config}.minify`};
+	const finalchunkConfigFileOption = config == null ? configFileOption : {configFile: `${config}.minify`};
 
 	// Normalize the options
 	return {
 		config: filename => loadOptions({...combined, filename, ...finalConfigFileOption}),
 		// Only return the minify config if it includes at least one plugin or preset
-		minifyConfig:
-			minifyCombined.plugins.length < 1 && minifyCombined.presets.length < 1
+		chunkConfig:
+			chunkCombined.plugins.length < 1 && chunkCombined.presets.length < 1
 				? undefined
-				: filename => loadOptions({...minifyCombined, filename, ...finalMinifyConfigFileOption}),
-		hasMinifyOptions:
-			[...minifyCombined.plugins.filter(configItemIsMinificationRelated), ...minifyCombined.presets.filter(configItemIsMinificationRelated)].length >
-			0
+				: filename => loadOptions({...chunkCombined, filename, ...finalchunkConfigFileOption}),
+		hasChunkOptions: [...chunkCombined.plugins.filter(configItemIsChunkRelated), ...chunkCombined.presets.filter(configItemIsChunkRelated)].length > 0
 	};
 }

@@ -36,13 +36,13 @@ export const REGENERATOR_RUNTIME_NAME_1 = `${BABEL_RUNTIME_PREFIX_1}regenerator/
 export const REGENERATOR_RUNTIME_NAME_2 = `${BABEL_RUNTIME_PREFIX_2}regenerator/index.js`;
 export const BABEL_EXAMPLE_HELPERS = [`${BABEL_RUNTIME_PREFIX_1}helpers/esm/typeof.js`, `${BABEL_RUNTIME_PREFIX_2}helpers/esm/typeof.js`];
 
-export const BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES = [];
+export const BABEL_CHUNK_BLACKLIST_PRESET_NAMES = [];
 
-export const BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES = ["@babel/plugin-transform-runtime", "babel-plugin-transform-runtime"];
+export const BABEL_CHUNK_BLACKLIST_PLUGIN_NAMES = ["@babel/plugin-transform-runtime", "babel-plugin-transform-runtime"];
 
-export const BABEL_MINIFY_PRESET_NAMES = ["babel-preset-minify"];
+export const BABEL_CHUNK_PRESET_NAMES = ["babel-preset-minify"];
 
-export const BABEL_MINIFY_PLUGIN_NAMES = [
+export const BABEL_CHUNK_PLUGIN_NAMES = [
 	"babel-plugin-transform-minify-booleans",
 	"babel-plugin-minify-builtins",
 	"babel-plugin-transform-inline-consecutive-adds",
