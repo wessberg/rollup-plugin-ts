@@ -1,4 +1,4 @@
-import {CompilerOptions, CustomTransformers, ParsedCommandLine} from "typescript";
+import {CompilerOptions, CustomTransformers, ParsedCommandLine, Diagnostic} from "typescript";
 import {IBabelInputOptions} from "./i-babel-options";
 import {CustomTransformersFunction} from "../util/merge-transformers/i-custom-transformer-options";
 import {FileSystem} from "../util/file-system/file-system";
@@ -24,9 +24,11 @@ export type TsConfigResolver = TsConfigResolverWithFileName["hook"];
 
 export type OutputPathKind = "declaration" | "declarationMap";
 export type OutputPathHook = (path: string, kind: OutputPathKind) => string | undefined;
+export type DiagnosticsHook = (diagnostics: readonly Diagnostic[]) => readonly Diagnostic[] | undefined;
 
 export interface HookRecord {
 	outputPath: OutputPathHook;
+	diagnostics: DiagnosticsHook;
 }
 
 export interface InputCompilerOptions extends Omit<CompilerOptions, "module" | "moduleResolution" | "newLine" | "jsx" | "target"> {

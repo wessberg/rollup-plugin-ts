@@ -34,7 +34,7 @@ export interface GenerateRollupBundleOptions {
 	tsconfig: Partial<InputCompilerOptions>;
 	transpileOnly: boolean;
 	debug: boolean;
-	hook?: HookRecord;
+	hook?: Partial<HookRecord>;
 }
 
 /**

@@ -1,5 +1,5 @@
 import {IGetDiagnosticsOptions} from "./i-get-diagnostics-options";
-import {DiagnosticCategory, flattenDiagnosticMessageText, formatDiagnosticsWithColorAndContext, getPreEmitDiagnostics} from "typescript";
+import {DiagnosticCategory, flattenDiagnosticMessageText, formatDiagnosticsWithColorAndContext, getPreEmitDiagnostics, Diagnostic} from "typescript";
 import {RollupError, RollupWarning} from "rollup";
 import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
 
@@ -7,11 +7,21 @@ import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
  * Gets diagnostics for the given fileName
  * @param {IGetDiagnosticsOptions} options
  */
-export function emitDiagnosticsThroughRollup({languageService, languageServiceHost, context}: IGetDiagnosticsOptions): void {
+export function emitDiagnosticsThroughRollup({languageService, languageServiceHost, context, pluginOptions}: IGetDiagnosticsOptions): void {
 	const program = languageService.getProgram();
 	if (program == null) return;
 
-	[...getPreEmitDiagnostics(program), ...languageServiceHost.getTransformerDiagnostics()].forEach((diagnostic: IExtendedDiagnostic) => {
+	let diagnostics: readonly Diagnostic[] | undefined = [...getPreEmitDiagnostics(program), ...languageServiceHost.getTransformerDiagnostics()];
+
+	// If there is a hook for diagnostics, call it assign the result of calling it to the local variable 'diagnostics'
+	if (pluginOptions.hook.diagnostics != null) {
+		diagnostics = pluginOptions.hook.diagnostics(diagnostics);
+	}
+
+	// Don't proceed if the hook returned null or undefined
+	if (diagnostics == null) return;
+
+	diagnostics.forEach((diagnostic: IExtendedDiagnostic) => {
 		const message = flattenDiagnosticMessageText(diagnostic.messageText, "\n");
 		const position =
 			diagnostic.start == null || diagnostic.file == null ? undefined : diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
@@ -37,7 +47,7 @@ export function emitDiagnosticsThroughRollup({languageService, languageServiceHo
 		switch (diagnostic.category) {
 			case DiagnosticCategory.Error:
 				context.error(
-					<RollupError>{
+					{
 						frame,
 						code,
 						name: code,
@@ -54,7 +64,7 @@ export function emitDiagnosticsThroughRollup({languageService, languageServiceHo
 							  }),
 						...(diagnostic.file == null ? {} : {pos: diagnostic.file.pos}),
 						message
-					},
+					} as RollupError,
 					position == null ? undefined : {line: position.line + 1, column: position.character + 1}
 				);
 				break;
@@ -63,7 +73,7 @@ export function emitDiagnosticsThroughRollup({languageService, languageServiceHo
 			case DiagnosticCategory.Message:
 			case DiagnosticCategory.Suggestion:
 				context.warn(
-					<RollupWarning>{
+					{
 						frame,
 						code,
 						name: code,
@@ -75,7 +85,7 @@ export function emitDiagnosticsThroughRollup({languageService, languageServiceHo
 						},
 						...(diagnostic.file == null ? {} : {pos: diagnostic.file.pos}),
 						message
-					},
+					} as RollupWarning,
 					position == null ? undefined : {line: position.line + 1, column: position.character + 1}
 				);
 				break;

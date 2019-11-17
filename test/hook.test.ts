@@ -45,3 +45,33 @@ test("Declarations respect rewritten output paths. #1", async t => {
 		`)
 	);
 });
+
+test("Diagnostics can be filtered with the 'diagnostics' hook. #1", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+					export const foo: number = String(2);
+					`
+			}
+		],
+		{
+			hook: {
+				diagnostics: () => undefined
+			}
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare const foo: number;
+		export {foo};
+		`)
+	);
+});
