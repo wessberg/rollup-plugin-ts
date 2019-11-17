@@ -5,18 +5,18 @@
 	"scripts": {
 		"generate:scaffold": "scaffold all --yes",
 		"generate:changelog": "standard-changelog --first-release",
-		"generate:all": "npm run generate:scaffold && npm run generate:changelog",
+		"generate:all": "pnpm run generate:scaffold && pnpm run generate:changelog",
 		"clean:dist": "rm -rf dist",
-		"clean": "npm run clean:dist",
+		"clean": "pnpm run clean:dist",
 		"lint": "tsc --noEmit && tslint -c tslint.json --project tsconfig.json",
 		"prettier": "prettier --write '{src,test,documentation}/**/*.{js,ts,json,html,xml,css,md}'",
 		"test": "ava",
-		"prebuild": "npm run clean:dist",
-		"build": "npm run rollup",
-		"watch": "npm run rollup -- --watch",
+		"prebuild": "pnpm run clean:dist",
+		"build": "pnpm run rollup",
+		"watch": "pnpm run rollup -- --watch",
 		"rollup": "rollup -c rollup.config.js",
-		"preversion": "npm run lint && NODE_ENV=production npm run build",
-		"version": "npm run generate:all && git add .",
+		"preversion": "npm run lint && NODE_ENV=production pnpm run build",
+		"version": "pnpm run generate:all && git add .",
 		"release": "np --no-cleanup --no-yarn"
 	},
 	"keywords": [
@@ -47,8 +47,9 @@
 	],
 	"license": "MIT",
 	"devDependencies": {
-		"@wessberg/rollup-plugin-ts": "^1.1.76",
-		"@wessberg/scaffold": "^1.0.22",
+		"@types/prettier": "^1.18.3",
+		"@wessberg/rollup-plugin-ts": "^1.1.78",
+		"@wessberg/scaffold": "^1.0.23",
 		"@wessberg/ts-config": "^0.0.42",
 		"ava": "2.4.0",
 		"husky": "^3.0.9",
@@ -57,9 +58,10 @@
 		"pretty-quick": "^2.0.1",
 		"rollup": "^1.27.0",
 		"standard-changelog": "^2.0.17",
-		"ts-node": "8.5.0",
+		"ts-node": "8.5.2",
 		"tslint": "^5.20.1",
-		"typescript": "^3.7.2"
+		"typescript": "^3.7.2",
+		"pnpm": "^4.2.2"
 	},
 	"dependencies": {
 		"@babel/core": "^7.7.2",
@@ -67,7 +69,7 @@
 		"@babel/preset-env": "^7.7.1",
 		"@babel/runtime": "^7.7.2",
 		"@types/mkdirp": "^0.5.2",
-		"@types/node": "^12.12.7",
+		"@types/node": "^12.12.8",
 		"@types/resolve": "0.0.8",
 		"@wessberg/browserslist-generator": "^1.0.30",
 		"@wessberg/ts-clone-node": "^0.0.0",
@@ -99,7 +101,7 @@
 		"url": "https://github.com/wessberg/rollup-plugin-ts/issues"
 	},
 	"engines": {
-		"node": ">=8.16.2"
+		"node": ">=8.0.0"
 	},
 	"husky": {
 		"hooks": {

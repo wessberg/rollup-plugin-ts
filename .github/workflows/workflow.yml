@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-18.04]
+        os: [windows-latest, macos-latest, ubuntu-18.04]
         node: [8, 10, 13]
 
     steps:
@@ -22,25 +22,14 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Cache
-        uses: actions/cache@preview
-        id: cache
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-${{ matrix.node }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.node }}-node-
+      - name: Setup pnpm
+        run: npm install pnpm -g
 
       - name: Install
-        if: steps.cache.outputs.cache-hit != 'true' && matrix.node != 8
-        run: npm ci
-
-      - name: Install
-        if: steps.cache.outputs.cache-hit != 'true' && matrix.node == 8
-        run: npm install --no-package-lock
+        run: pnpm install
 
       - name: Lint
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Test
-        run: npm test
+        run: pnpm test
