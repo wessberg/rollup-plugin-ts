@@ -1,3 +1,9 @@
+## [1.1.79](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.78...v1.1.79) (2019-11-17)
+
+### Features
+
+- **hook:** add 'diagnostics' hook. Closes [#50](https://github.com/wessberg/rollup-plugin-ts/issues/50) ([75fb907](https://github.com/wessberg/rollup-plugin-ts/commit/75fb90739398162f7c0903da795b086a2d1135c9))
+
 ## [1.1.78](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.77...v1.1.78) (2019-11-13)
 
 ### Bug Fixes

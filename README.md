@@ -58,8 +58,9 @@ In comparison with the [official plugin](https://github.com/rollup/rollup-plugin
   - [Features](#features)
 - [Table of Contents](#table-of-contents)
 - [Install](#install)
-  - [NPM](#npm)
+  - [npm](#npm)
   - [Yarn](#yarn)
+  - [pnpm](#pnpm)
 - [Usage](#usage)
   - [Using it with just Typescript](#using-it-with-just-typescript)
     - [Typescript and tslib helpers](#typescript-and-tslib-helpers)
@@ -79,6 +80,7 @@ In comparison with the [official plugin](https://github.com/rollup/rollup-plugin
   - [Advanced example of using Typescript, Babel, and Browserslists together](#advanced-example-of-using-typescript-babel-and-browserslists-together)
 - [Hooks](#hooks)
   - [The `outputPath` hook](#the-outputpath-hook)
+  - [The `diagnostics` hook](#the-diagnostics-hook)
 - [Full list of plugin options](#full-list-of-plugin-options)
   - [`transpiler`](#transpiler)
   - [`babelConfig`](#babelconfig)
@@ -114,7 +116,7 @@ In comparison with the [official plugin](https://github.com/rollup/rollup-plugin
 
 ## Install
 
-### NPM
+### npm
 
 ```
 $ npm install @wessberg/rollup-plugin-ts
@@ -124,6 +126,12 @@ $ npm install @wessberg/rollup-plugin-ts
 
 ```
 $ yarn add @wessberg/rollup-plugin-ts
+```
+
+### pnpm
+
+```
+$ pnpm add @wessberg/rollup-plugin-ts
 ```
 
 <!-- SHADOW_SECTION_INSTALL_END -->
