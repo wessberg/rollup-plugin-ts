@@ -1,3 +1,9 @@
+## [1.1.80](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.79...v1.1.80) (2019-11-17)
+
+### Bug Fixes
+
+- **builtins:** fix issue where packages with identical names to built in modules wasn't resolvable. Closes [#46](https://github.com/wessberg/rollup-plugin-ts/issues/46) ([fe266f6](https://github.com/wessberg/rollup-plugin-ts/commit/fe266f69df5cb318acf3a2470237a1e12c3f17ac))
+
 ## [1.1.79](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.78...v1.1.79) (2019-11-17)
 
 ### Features
