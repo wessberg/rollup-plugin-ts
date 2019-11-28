@@ -1,3 +1,9 @@
+## [1.1.82](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.81...v1.1.82) (2019-11-28)
+
+### Bug Fixes
+
+- **bug:** fix multiple aliased exports from same module ([d7e7ec5](https://github.com/wessberg/rollup-plugin-ts/commit/d7e7ec578c8e0f56ab8b9aeaff4a2db3c5d4f5d5))
+
 ## [1.1.81](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.80...v1.1.81) (2019-11-28)
 
 ### Bug Fixes
