@@ -1,3 +1,9 @@
+## [1.1.81](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.80...v1.1.81) (2019-11-28)
+
+### Bug Fixes
+
+- **bug:** fix with multiple duplicate reexports ([294d7c5](https://github.com/wessberg/rollup-plugin-ts/commit/294d7c519e723260eb9378fd6d0b307947f95446))
+
 ## [1.1.80](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.79...v1.1.80) (2019-11-17)
 
 ### Bug Fixes
