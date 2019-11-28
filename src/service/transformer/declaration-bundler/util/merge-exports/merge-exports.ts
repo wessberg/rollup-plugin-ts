@@ -65,8 +65,14 @@ export function mergeExports(statements: Statement[]): Statement[] {
 		if (exportedBindings.size === 0) continue;
 
 		const exportSpecifiers: ExportSpecifier[] = [];
+		const bindings = new Set<string>();
+
 		for (const [propertyName, aliases] of exportedBindings) {
 			for (const alias of aliases) {
+				// If a binding, A, is exported already, it cannot be exported again.
+				if (bindings.has(alias)) continue;
+				bindings.add(alias);
+
 				if (propertyName === alias) {
 					exportSpecifiers.push(createExportSpecifier(undefined, alias));
 				} else {
