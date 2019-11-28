@@ -15,14 +15,13 @@ const EMPTY_MODULE_SPECIFIER_TOKEN = "_#gen__empty__module__specifier";
 
 /**
  * Merges the exports based on the given Statements
- * @param {Statement[]} statements
- * @return {Statement[]}
  */
 export function mergeExports(statements: Statement[]): Statement[] {
 	const exports = statements.filter(isExportDeclaration);
 	const otherStatements = statements.filter(statement => !isExportDeclaration(statement));
 	const moduleSpecifierToExportedBindingsMap: Map<string, Set<string>> = new Map();
 	const exportDeclarations: Set<ExportDeclaration> = new Set();
+	const reExportedSpecifiers = new Set<string>();
 
 	for (const exportDeclaration of exports) {
 		// If the ModuleSpecifier is given and it isn't a string literal, leave it as it is
@@ -57,7 +56,12 @@ export function mergeExports(statements: Statement[]): Statement[] {
 					createExportDeclaration(undefined, undefined, createNamedExports([...aliasedExportSpecifiers]), exportDeclaration.moduleSpecifier)
 				);
 			}
-		} else {
+		}
+		// If it has no exportClause, it's a reexport (such as export * from "./<specifier>").
+		else {
+			// Don't include the same clause twice
+			if (reExportedSpecifiers.has(specifierText)) continue;
+			reExportedSpecifiers.add(specifierText);
 			exportDeclarations.add(exportDeclaration);
 		}
 	}
