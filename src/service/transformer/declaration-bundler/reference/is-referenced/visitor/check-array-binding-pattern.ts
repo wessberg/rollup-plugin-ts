@@ -1,7 +1,7 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {ArrayBindingPattern} from "typescript";
+import {TS} from "../../../../../../type/ts";
 
-export function checkArrayBindingPattern({node, continuation}: ReferenceVisitorOptions<ArrayBindingPattern>): string[] {
+export function checkArrayBindingPattern({node, continuation}: ReferenceVisitorOptions<TS.ArrayBindingPattern>): string[] {
 	const referencedIdentifiers: string[] = [];
 
 	for (const element of node.elements) {

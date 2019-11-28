@@ -1,33 +1,30 @@
-import {ExportSpecifier, isStringLiteralLike} from "typescript";
 import {TrackExportsVisitorOptions} from "../track-exports-visitor-options";
 import {isExternalLibrary} from "../../../../../util/path/path-util";
 import {normalize} from "path";
+import {TS} from "../../../../../type/ts";
 
 /**
  * Visits the given ExportSpecifier.
- * @param {TrackExportsVisitorOptions<ExportSpecifier>} options
- * @returns {ExportSpecifier | undefined}
  */
 export function visitExportSpecifier({
 	node,
 	sourceFile,
 	resolver,
 	markAsExported,
-	getDeconflictedNameAndPropertyName,
-	getCurrentModuleSpecifier
-}: TrackExportsVisitorOptions<ExportSpecifier>): ExportSpecifier | undefined {
+	getCurrentModuleSpecifier,
+	typescript
+}: TrackExportsVisitorOptions<TS.ExportSpecifier>): TS.ExportSpecifier | undefined {
 	const moduleSpecifier = getCurrentModuleSpecifier();
 	const originalModule = normalize(
-		moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier)
+		moduleSpecifier == null || !typescript.isStringLiteralLike(moduleSpecifier)
 			? sourceFile.fileName
 			: resolver(moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName
 	);
-	const rawModuleSpecifier = moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? undefined : moduleSpecifier.text;
-	const [propertyName, name] = getDeconflictedNameAndPropertyName(node.propertyName == null ? undefined : node.propertyName.text, node.name.text);
+	const rawModuleSpecifier = moduleSpecifier == null || !typescript.isStringLiteralLike(moduleSpecifier) ? undefined : moduleSpecifier.text;
 
 	markAsExported({
-		name,
-		propertyName,
+		name: node.name.text,
+		propertyName: node.propertyName?.text,
 		node,
 		originalModule,
 		rawModuleSpecifier,

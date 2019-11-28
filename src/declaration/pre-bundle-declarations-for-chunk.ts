@@ -1,5 +1,4 @@
 import {dirname, join, normalize, relative} from "path";
-import {createProgram} from "typescript";
 import {ExistingRawSourceMap, SourceDescription} from "rollup";
 import {ensurePosix} from "../util/path/path-util";
 import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION} from "../constant/constant";
@@ -15,7 +14,7 @@ export interface PreBundleDeclarationsForChunkOptions extends Omit<DeclarationPr
 }
 
 export function preBundleDeclarationsForChunk(options: PreBundleDeclarationsForChunkOptions): SourceDescription {
-	const program = createProgram({
+	const program = options.typescript.createProgram({
 		rootNames: options.localModuleNames,
 		options: options.languageServiceHost.getCompilationSettings(),
 		host: options.languageServiceHost

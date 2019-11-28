@@ -1,33 +1,30 @@
-import {ModuleDeclaration, updateModuleDeclaration} from "typescript";
 import {TrackExportsVisitorOptions} from "../track-exports-visitor-options";
 import {hasDefaultExportModifier, hasExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
 import {normalize} from "path";
+import {TS} from "../../../../../type/ts";
 
 /**
  * Visits the given ModuleDeclaration.
- * @param {TrackExportsVisitorOptions<ModuleDeclaration>} options
- * @returns {ModuleDeclaration | undefined}
  */
 export function visitModuleDeclaration({
 	node,
 	sourceFile,
 	markAsExported,
-	getDeconflictedNameAndPropertyName
-}: TrackExportsVisitorOptions<ModuleDeclaration>): ModuleDeclaration | undefined {
+	typescript
+}: TrackExportsVisitorOptions<TS.ModuleDeclaration>): TS.ModuleDeclaration | undefined {
 	// If the node has no export modifier, leave it as it is
-	if (!hasExportModifier(node)) return node;
-	const [propertyName, name] = getDeconflictedNameAndPropertyName(undefined, node.name.text);
+	if (!hasExportModifier(node, typescript)) return node;
 
 	markAsExported({
-		name,
-		propertyName,
+		name: node.name.text,
+		propertyName: undefined,
 		node,
-		defaultExport: hasDefaultExportModifier(node.modifiers),
+		defaultExport: hasDefaultExportModifier(node.modifiers, typescript),
 		originalModule: normalize(sourceFile.fileName),
 		rawModuleSpecifier: undefined,
 		isExternal: false
 	});
 
 	// Update the node and remove the export modifiers from it
-	return updateModuleDeclaration(node, node.decorators, removeExportModifier(node.modifiers), node.name, node.body);
+	return typescript.updateModuleDeclaration(node, node.decorators, removeExportModifier(node.modifiers, typescript), node.name, node.body);
 }

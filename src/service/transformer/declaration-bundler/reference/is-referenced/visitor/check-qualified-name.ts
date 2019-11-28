@@ -1,6 +1,6 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {QualifiedName} from "typescript";
+import {TS} from "../../../../../../type/ts";
 
-export function checkQualifiedName({node, continuation}: ReferenceVisitorOptions<QualifiedName>): string[] {
+export function checkQualifiedName({node, continuation}: ReferenceVisitorOptions<TS.QualifiedName>): string[] {
 	return continuation(node.left);
 }

@@ -1,80 +1,66 @@
-import {createModifier, Modifier, ModifiersArray, Node, SyntaxKind} from "typescript";
+import {TS} from "../../../../../type/ts";
 
-export type Modifiers = ModifiersArray | Modifier[];
+export type Modifiers = TS.ModifiersArray | TS.Modifier[];
 
 /**
  * Returns true if the given node has an Export keyword in front of it
- * @param {Node} node
- * @returns {boolean}
  */
-export function hasExportModifier(node: Node): boolean {
-	return node.modifiers != null && node.modifiers.some(isExportModifier);
+export function hasExportModifier(node: TS.Node, typescript: typeof TS): boolean {
+	return node.modifiers != null && node.modifiers.some(modifier => isExportModifier(modifier, typescript));
 }
 
 /**
  * Returns true if the given modifier has an Export keyword in front of it
- * @param {Node} node
- * @returns {boolean}
  */
-export function isExportModifier(node: Modifier): boolean {
-	return node.kind === SyntaxKind.ExportKeyword;
+export function isExportModifier(node: TS.Modifier, typescript: typeof TS): boolean {
+	return node.kind === typescript.SyntaxKind.ExportKeyword;
 }
 
 /**
  * Returns true if the given modifier has an Default keyword in front of it
- * @param {Node} node
- * @returns {boolean}
  */
-export function isDefaultModifier(node: Modifier): boolean {
-	return node.kind === SyntaxKind.DefaultKeyword;
+export function isDefaultModifier(node: TS.Modifier, typescript: typeof TS): boolean {
+	return node.kind === typescript.SyntaxKind.DefaultKeyword;
 }
 
 /**
  * Returns true if the given modifier has an declare keyword in front of it
- * @param {Node} node
- * @returns {boolean}
  */
-export function isDeclareModifier(node: Modifier): boolean {
-	return node.kind === SyntaxKind.DeclareKeyword;
+export function isDeclareModifier(node: TS.Modifier, typescript: typeof TS): boolean {
+	return node.kind === typescript.SyntaxKind.DeclareKeyword;
 }
 
 /**
  * Removes an export modifier from the given ModifiersArray
- * @param {Modifiers?} modifiers
- * @returns {Modifier[]}
  */
-export function removeExportModifier(modifiers: Modifiers | undefined): Modifier[] | undefined {
+export function removeExportModifier(modifiers: Modifiers | undefined, typescript: typeof TS): TS.Modifier[] | undefined {
 	if (modifiers == null) return modifiers;
-	return modifiers.filter(modifier => !isExportModifier(modifier) && !isDefaultModifier(modifier));
+	return modifiers.filter(modifier => !isExportModifier(modifier, typescript) && !isDefaultModifier(modifier, typescript));
 }
 
 /**
  * Removes an export and/or declare modifier from the given ModifiersArray
- * @param {Modifiers?} modifiers
- * @returns {Modifier[]}
  */
-export function removeExportAndDeclareModifiers(modifiers: Modifiers | undefined): Modifier[] | undefined {
+export function removeExportAndDeclareModifiers(modifiers: Modifiers | undefined, typescript: typeof TS): TS.Modifier[] | undefined {
 	if (modifiers == null) return modifiers;
-	return modifiers.filter(modifier => !isExportModifier(modifier) && !isDefaultModifier(modifier) && !isDeclareModifier(modifier));
+	return modifiers.filter(
+		modifier => !isExportModifier(modifier, typescript) && !isDefaultModifier(modifier, typescript) && !isDeclareModifier(modifier, typescript)
+	);
 }
 
 /**
  * Removes an export modifier from the given ModifiersArray
- * @param {ModifiersArray} modifiers
- * @returns {Modifier[]}
  */
-export function ensureHasDeclareModifier(modifiers: Modifiers | undefined): Modifier[] | ModifiersArray | undefined {
-	if (modifiers == null) return [createModifier(SyntaxKind.DeclareKeyword)];
-	if (modifiers.some(m => m.kind === SyntaxKind.DeclareKeyword)) return modifiers;
-	return [createModifier(SyntaxKind.DeclareKeyword), ...modifiers];
+export function ensureHasDeclareModifier(modifiers: Modifiers | undefined, typescript: typeof TS): TS.Modifier[] | TS.ModifiersArray | undefined {
+	if (modifiers == null) return [typescript.createModifier(typescript.SyntaxKind.DeclareKeyword)];
+	if (modifiers.some(m => m.kind === typescript.SyntaxKind.DeclareKeyword)) return modifiers;
+	return [typescript.createModifier(typescript.SyntaxKind.DeclareKeyword), ...modifiers];
 }
 
 /**
  * Returns true if the given modifiers contain the keywords 'export' and 'default'
- * @param {ModifiersArray} modifiers
- * @returns {Modifier[]}
  */
-export function hasDefaultExportModifier(modifiers: ModifiersArray | undefined): boolean {
+export function hasDefaultExportModifier(modifiers: TS.ModifiersArray | undefined, typescript: typeof TS): boolean {
 	if (modifiers == null) return false;
-	return modifiers.some(modifier => isExportModifier(modifier)) && modifiers.some(modifier => isDefaultModifier(modifier));
+	return modifiers.some(modifier => isExportModifier(modifier, typescript)) && modifiers.some(modifier => isDefaultModifier(modifier, typescript));
 }

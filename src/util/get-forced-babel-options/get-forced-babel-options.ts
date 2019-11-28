@@ -3,8 +3,6 @@ import {IGetForcedBabelOptionsResult} from "./i-get-forced-babel-options-result"
 
 /**
  * Retrieves the Babel config options that will be forced
- * @param {IGetForcedBabelOptionsOptions} _options
- * @returns {IGetForcedBabelOptionsResult}
  */
 export function getForcedBabelOptions({cwd}: IGetForcedBabelOptionsOptions): IGetForcedBabelOptionsResult {
 	return {

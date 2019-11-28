@@ -13,8 +13,6 @@ export interface GetChunkFilenameOptions {
 
 /**
  * Gets the chunk filename that matches the given filename. It may be the same.
- * @param {GetChunkFilenameOptions} options
- * @return {string|undefined}
  */
 export function getChunkFilename({
 	chunkForModuleCache,

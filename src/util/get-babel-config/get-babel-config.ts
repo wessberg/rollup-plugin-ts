@@ -19,11 +19,6 @@ import {findBabelConfig} from "./find-babel-config";
 
 /**
  * Combines the given two sets of presets
- * @param {IBabelConfigItem[]} userItems
- * @param {IBabelConfigItem[]} defaultItems
- * @param {object[]} [forcedItems]
- * @param {boolean} [useMinifyOptions]
- * @returns {{}[]}
  */
 function combineConfigItems(
 	userItems: IBabelConfigItem[],
@@ -61,8 +56,6 @@ function combineConfigItems(
 
 /**
  * Returns true if the given configItem is related to minification
- * @param {string} resolved
- * @returns {boolean}
  */
 function configItemIsMinificationRelated({file: {resolved}}: IBabelConfigItem): boolean {
 	return BABEL_MINIFY_PRESET_NAMES.some(preset => resolved.includes(preset)) || BABEL_MINIFY_PLUGIN_NAMES.some(plugin => resolved.includes(plugin));
@@ -70,8 +63,6 @@ function configItemIsMinificationRelated({file: {resolved}}: IBabelConfigItem): 
 
 /**
  * Returns true if the given configItem is allowed during minification
- * @param {string} resolved
- * @returns {boolean}
  */
 function configItemIsAllowedDuringMinification({file: {resolved}}: IBabelConfigItem): boolean {
 	return (
@@ -82,8 +73,6 @@ function configItemIsAllowedDuringMinification({file: {resolved}}: IBabelConfigI
 
 /**
  * Returns true if the given configItem is allowed when not applying minification
- * @param {string} resolved
- * @returns {boolean}
  */
 function configItemIsAllowedDuringNoMinification({file: {resolved}}: IBabelConfigItem): boolean {
 	return (
@@ -93,8 +82,6 @@ function configItemIsAllowedDuringNoMinification({file: {resolved}}: IBabelConfi
 
 /**
  * Gets a Babel Config based on the given options
- * @param {GetBabelConfigOptions} options
- * @returns {GetBabelConfigResult}
  */
 export function getBabelConfig({
 	babelConfig,

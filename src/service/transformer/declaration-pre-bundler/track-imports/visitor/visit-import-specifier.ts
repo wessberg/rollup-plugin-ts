@@ -1,13 +1,11 @@
-import {ImportSpecifier, isStringLiteralLike} from "typescript";
 import {TrackImportsVisitorOptions} from "../track-imports-visitor-options";
 import {isExternalLibrary} from "../../../../../util/path/path-util";
 import {getAliasedDeclaration} from "../../util/symbol/get-aliased-declaration";
 import {normalize} from "path";
+import {TS} from "../../../../../type/ts";
 
 /**
  * Visits the given ImportSpecifier.
- * @param {TrackImportsVisitorOptions<ImportSpecifier>} options
- * @returns {ImportSpecifier | undefined}
  */
 export function visitImportSpecifier({
 	node,
@@ -15,16 +13,17 @@ export function visitImportSpecifier({
 	resolver,
 	markAsImported,
 	typeChecker,
-	getCurrentModuleSpecifier
-}: TrackImportsVisitorOptions<ImportSpecifier>): ImportSpecifier | undefined {
+	getCurrentModuleSpecifier,
+	typescript
+}: TrackImportsVisitorOptions<TS.ImportSpecifier>): TS.ImportSpecifier | undefined {
 	const moduleSpecifier = getCurrentModuleSpecifier();
 
 	const originalModule = normalize(
-		moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier)
+		moduleSpecifier == null || !typescript.isStringLiteralLike(moduleSpecifier)
 			? sourceFile.fileName
 			: resolver(moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName
 	);
-	const rawModuleSpecifier = moduleSpecifier == null || !isStringLiteralLike(moduleSpecifier) ? undefined : moduleSpecifier.text;
+	const rawModuleSpecifier = moduleSpecifier == null || !typescript.isStringLiteralLike(moduleSpecifier) ? undefined : moduleSpecifier.text;
 	const declaration = getAliasedDeclaration(node.propertyName ?? node.name, typeChecker);
 
 	markAsImported({

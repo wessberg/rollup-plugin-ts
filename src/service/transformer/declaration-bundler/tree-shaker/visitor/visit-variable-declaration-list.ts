@@ -1,11 +1,12 @@
-import {updateVariableDeclarationList, VariableDeclaration, VariableDeclarationList} from "typescript";
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
+import {TS} from "../../../../../type/ts";
 
 export function visitVariableDeclarationList({
 	node,
-	continuation
-}: TreeShakerVisitorOptions<VariableDeclarationList>): VariableDeclarationList | undefined {
-	const filteredVariableDeclarations: VariableDeclaration[] = [];
+	continuation,
+	typescript
+}: TreeShakerVisitorOptions<TS.VariableDeclarationList>): TS.VariableDeclarationList | undefined {
+	const filteredVariableDeclarations: TS.VariableDeclaration[] = [];
 	for (const variableDeclaration of node.declarations) {
 		const variableDeclarationContinuationResult = continuation(variableDeclaration);
 
@@ -17,5 +18,5 @@ export function visitVariableDeclarationList({
 		return undefined;
 	}
 
-	return updateVariableDeclarationList(node, filteredVariableDeclarations);
+	return typescript.updateVariableDeclarationList(node, filteredVariableDeclarations);
 }

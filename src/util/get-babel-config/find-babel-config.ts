@@ -11,8 +11,6 @@ import {findPackageData} from "@babel/core/lib/config/files/package";
 
 /**
  * Returns true if the given babelConfig is IBabelInputOptions
- * @param {FindBabelConfigOptions["babelConfig"]} babelConfig
- * @returns {babelConfig is IBabelInputOptions}
  */
 export function isBabelInputOptions(babelConfig?: FindBabelConfigOptions["babelConfig"]): babelConfig is Partial<IBabelInputOptions> {
 	return babelConfig != null && typeof babelConfig !== "string";
@@ -20,8 +18,6 @@ export function isBabelInputOptions(babelConfig?: FindBabelConfigOptions["babelC
 
 /**
  * Gets a Babel Config based on the given options
- * @param {GetBabelConfigOptions} options
- * @returns {GetBabelConfigResult}
  */
 export function findBabelConfig({babelConfig, cwd}: FindBabelConfigOptions): FindBabelConfigResult | undefined {
 	// If babel options are provided directly

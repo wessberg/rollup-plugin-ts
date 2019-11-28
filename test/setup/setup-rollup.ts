@@ -1,10 +1,11 @@
 import {dirname, isAbsolute, join, normalize, parse} from "path";
+import * as TSModule from "typescript";
 import {rollup, RollupOptions, RollupOutput} from "rollup";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
-import {sys} from "typescript";
-import {REAL_FILE_SYSTEM} from "../../src/util/file-system/file-system";
 import {HookRecord, InputCompilerOptions} from "../../src/plugin/i-typescript-plugin-options";
 import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION} from "../../src/constant/constant";
+import {getRealFileSystem} from "../../src/util/file-system/file-system";
+import {TS} from "../../src/type/ts";
 
 // tslint:disable:no-any
 
@@ -32,16 +33,14 @@ export interface GenerateRollupBundleResult {
 export interface GenerateRollupBundleOptions {
 	rollupOptions: Partial<RollupOptions>;
 	tsconfig: Partial<InputCompilerOptions>;
+	typescript: typeof TS;
 	transpileOnly: boolean;
 	debug: boolean;
-	hook?: Partial<HookRecord>;
+	hook: Partial<HookRecord>;
 }
 
 /**
  * Prepares a test
- * @param {ITestFile[]|TestFile} inputFiles
- * @param {GenerateRollupBundleOptions} options
- * @returns {Promise<GenerateRollupBundleResult>}
  */
 export async function generateRollupBundle(
 	inputFiles: TestFile[] | TestFile,
@@ -49,6 +48,7 @@ export async function generateRollupBundle(
 		rollupOptions = {},
 		tsconfig = {},
 		transpileOnly = false,
+		typescript = TSModule,
 		debug = false,
 		hook = {outputPath: path => path}
 	}: Partial<GenerateRollupBundleOptions> = {}
@@ -120,6 +120,7 @@ export async function generateRollupBundle(
 			typescriptRollupPlugin({
 				transpileOnly,
 				debug,
+				typescript,
 				tsconfig: {
 					target: "esnext",
 					declaration: true,
@@ -129,14 +130,14 @@ export async function generateRollupBundle(
 				},
 				hook,
 				fileSystem: {
-					...REAL_FILE_SYSTEM,
+					...getRealFileSystem(typescript),
 					useCaseSensitiveFileNames: true,
 					readFile: fileName => {
 						const normalized = normalize(fileName);
 						const absoluteFileName = isAbsolute(normalized) ? normalized : join(cwd, normalized);
 						const file = files.find(currentFile => currentFile.fileName === absoluteFileName);
 						if (file != null) return file.text;
-						return sys.readFile(absoluteFileName);
+						return typescript.sys.readFile(absoluteFileName);
 					},
 					fileExists: fileName => {
 						const normalized = normalize(fileName);
@@ -144,12 +145,12 @@ export async function generateRollupBundle(
 						if (files.some(file => file.fileName === absoluteFileName)) {
 							return true;
 						}
-						return sys.fileExists(absoluteFileName);
+						return typescript.sys.fileExists(absoluteFileName);
 					},
 					directoryExists: dirName => {
 						const normalized = normalize(dirName);
 						if (directories.has(normalized)) return true;
-						return sys.directoryExists(normalized);
+						return typescript.sys.directoryExists(normalized);
 					},
 					realpath(path: string): string {
 						return normalize(path);

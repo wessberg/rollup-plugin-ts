@@ -1,33 +1,24 @@
-import {
-	ExportDeclaration,
-	ImportDeclaration,
-	ModuleDeclaration,
-	SourceFile,
-	TransformerFactory,
-	TypeAliasDeclaration,
-	updateSourceFileNode,
-	VariableStatement
-} from "typescript";
 import {DeclarationBundlerOptions} from "../declaration-bundler-options";
 import {normalize} from "path";
 import {visitImportedSymbol} from "./visitor/visit-imported-symbol";
 import {visitExportedSymbol} from "./visitor/visit-exported-symbol";
+import {TS} from "../../../../type/ts";
 
-export function modularizer({declarationFilename, ...options}: DeclarationBundlerOptions): TransformerFactory<SourceFile> {
+export function modularizer({declarationFilename, typescript, ...options}: DeclarationBundlerOptions): TS.TransformerFactory<TS.SourceFile> {
 	return _ => {
 		return sourceFile => {
 			const sourceFileName = normalize(sourceFile.fileName);
 
 			// If the SourceFile is not part of the local module names, remove all statements from it and return immediately
-			if (sourceFileName !== normalize(declarationFilename)) return updateSourceFileNode(sourceFile, [], true);
+			if (sourceFileName !== normalize(declarationFilename)) return typescript.updateSourceFileNode(sourceFile, [], true);
 
 			if (options.pluginOptions.debug) {
 				console.log(`=== BEFORE MODULARIZING === (${sourceFileName})`);
 				console.log(options.printer.printFile(sourceFile));
 			}
 
-			const importDeclarations: (ImportDeclaration | TypeAliasDeclaration | VariableStatement | ModuleDeclaration)[] = [];
-			const exportDeclarations: ExportDeclaration[] = [];
+			const importDeclarations: (TS.ImportDeclaration | TS.TypeAliasDeclaration | TS.VariableStatement | TS.ModuleDeclaration)[] = [];
+			const exportDeclarations: TS.ExportDeclaration[] = [];
 
 			for (const module of options.localModuleNames) {
 				const importedSymbols = options.sourceFileToImportedSymbolSet.get(module);
@@ -42,6 +33,7 @@ export function modularizer({declarationFilename, ...options}: DeclarationBundle
 						importDeclarations.push(
 							...visitImportedSymbol({
 								...options,
+								typescript,
 								importedSymbol,
 								module
 							})
@@ -58,6 +50,7 @@ export function modularizer({declarationFilename, ...options}: DeclarationBundle
 						exportDeclarations.push(
 							...visitExportedSymbol({
 								...options,
+								typescript,
 								exportedSymbol,
 								module,
 								isEntryModule: options.entryFileNames.includes(module),
@@ -68,7 +61,7 @@ export function modularizer({declarationFilename, ...options}: DeclarationBundle
 				}
 			}
 
-			const updatedSourceFile = updateSourceFileNode(
+			const updatedSourceFile = typescript.updateSourceFileNode(
 				sourceFile,
 				[...importDeclarations, ...sourceFile.statements, ...exportDeclarations],
 				sourceFile.isDeclarationFile,

@@ -1,9 +1,9 @@
-import {EmitOutput} from "typescript";
 import {IGetEmitOutputWithCachingOptions} from "./i-get-emit-output-with-caching-options";
+import {TS} from "../../../type/ts";
 
 export interface IEmitCache {
-	getFromCache(fileName: string, dtsOnly?: boolean): EmitOutput | undefined;
+	getFromCache(fileName: string, dtsOnly?: boolean): TS.EmitOutput | undefined;
 	delete(fileName: string): boolean;
-	setInCache(emitOutput: EmitOutput, fileName: string, dtsOnly?: boolean): EmitOutput;
-	get(options: IGetEmitOutputWithCachingOptions): EmitOutput;
+	setInCache(emitOutput: TS.EmitOutput, fileName: string, dtsOnly?: boolean): TS.EmitOutput;
+	get(options: IGetEmitOutputWithCachingOptions): TS.EmitOutput;
 }

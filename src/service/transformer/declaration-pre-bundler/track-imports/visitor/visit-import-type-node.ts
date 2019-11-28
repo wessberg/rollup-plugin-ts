@@ -1,25 +1,13 @@
-import {
-	createIdentifier,
-	createQualifiedName,
-	createTypeQueryNode,
-	EntityName,
-	ImportTypeNode,
-	isIdentifier,
-	isLiteralTypeNode,
-	isStringLiteralLike,
-	TypeQueryNode
-} from "typescript";
 import {TrackImportsVisitorOptions} from "../track-imports-visitor-options";
 import {getIdentifiersForNode} from "../../../declaration-bundler/util/get-identifiers-for-node";
 import {camelCase} from "@wessberg/stringutil";
 import {isExternalLibrary, stripKnownExtension} from "../../../../../util/path/path-util";
 import {basename, normalize} from "path";
 import {getAliasedDeclaration} from "../../util/symbol/get-aliased-declaration";
+import {TS} from "../../../../../type/ts";
 
 /**
  * Visits the given ImportTypeNode.
- * @param {TrackImportsVisitorOptions<ImportTypeNode>} options
- * @returns {EntityName | undefined}
  */
 export function visitImportTypeNode({
 	node,
@@ -27,21 +15,23 @@ export function visitImportTypeNode({
 	resolver,
 	markAsImported,
 	nodeIdentifierCache,
-	generateUniqueVariableName,
-	typeChecker
-}: TrackImportsVisitorOptions<ImportTypeNode>): EntityName | ImportTypeNode | TypeQueryNode | undefined {
-	if (!isLiteralTypeNode(node.argument) || !isStringLiteralLike(node.argument.literal)) return node;
+	typeChecker,
+	typescript
+}: TrackImportsVisitorOptions<TS.ImportTypeNode>): TS.EntityName | TS.ImportTypeNode | TS.TypeQueryNode | undefined {
+	if (!typescript.isLiteralTypeNode(node.argument) || !typescript.isStringLiteralLike(node.argument.literal)) return node;
 	const specifier = node.argument.literal;
 	const qualifier = node.qualifier;
 
 	const originalModule = normalize(
-		specifier == null || !isStringLiteralLike(specifier) ? sourceFile.fileName : resolver(specifier.text, sourceFile.fileName) ?? sourceFile.fileName
+		specifier == null || !typescript.isStringLiteralLike(specifier)
+			? sourceFile.fileName
+			: resolver(specifier.text, sourceFile.fileName) ?? sourceFile.fileName
 	);
-	const rawModuleSpecifier = specifier == null || !isStringLiteralLike(specifier) ? undefined : specifier.text;
+	const rawModuleSpecifier = specifier == null || !typescript.isStringLiteralLike(specifier) ? undefined : specifier.text;
 
 	// If the node has no qualifier, it imports the entire module as a namespace.
 	// Generate a name for it
-	const namespaceName = generateUniqueVariableName(`${camelCase(stripKnownExtension(basename(originalModule)))}NS`, originalModule);
+	const namespaceName = `${camelCase(stripKnownExtension(basename(originalModule)))}NS`;
 
 	if (qualifier == null) {
 		markAsImported({
@@ -53,13 +43,13 @@ export function visitImportTypeNode({
 			name: namespaceName,
 			propertyName: undefined
 		});
-		const innerContent = createIdentifier(namespaceName);
-		return node.isTypeOf != null && node.isTypeOf ? createTypeQueryNode(innerContent) : innerContent;
+		const innerContent = typescript.createIdentifier(namespaceName);
+		return node.isTypeOf != null && node.isTypeOf ? typescript.createTypeQueryNode(innerContent) : innerContent;
 	}
 
 	// Otherwise, take all identifiers for the EntityName that is the qualifier and mark them as imported
 	else {
-		const identifiers = getIdentifiersForNode({node: qualifier, resolver, sourceFile, nodeIdentifierCache});
+		const identifiers = getIdentifiersForNode({node: qualifier, resolver, sourceFile, nodeIdentifierCache, typescript});
 		const declaration = getAliasedDeclaration(qualifier, typeChecker);
 		for (const identifier of identifiers.keys()) {
 			markAsImported({
@@ -73,7 +63,9 @@ export function visitImportTypeNode({
 			});
 		}
 
-		const innerContent = isIdentifier(qualifier) ? createIdentifier(qualifier.text) : createQualifiedName(qualifier.left, qualifier.right);
-		return node.isTypeOf != null && node.isTypeOf ? createTypeQueryNode(innerContent) : innerContent;
+		const innerContent = typescript.isIdentifier(qualifier)
+			? typescript.createIdentifier(qualifier.text)
+			: typescript.createQualifiedName(qualifier.left, qualifier.right);
+		return node.isTypeOf != null && node.isTypeOf ? typescript.createTypeQueryNode(innerContent) : innerContent;
 	}
 }

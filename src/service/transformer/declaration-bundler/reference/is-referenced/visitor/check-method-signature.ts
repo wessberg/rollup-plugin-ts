@@ -1,10 +1,10 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {isIdentifier, MethodSignature} from "typescript";
+import {TS} from "../../../../../../type/ts";
 
-export function checkMethodSignature({node, continuation}: ReferenceVisitorOptions<MethodSignature>): string[] {
+export function checkMethodSignature({node, continuation, typescript}: ReferenceVisitorOptions<TS.MethodSignature>): string[] {
 	const referencedIdentifiers: string[] = [];
 
-	if (!isIdentifier(node.name)) {
+	if (!typescript.isIdentifier(node.name)) {
 		referencedIdentifiers.push(...continuation(node.name));
 	}
 	for (const parameter of node.parameters) {

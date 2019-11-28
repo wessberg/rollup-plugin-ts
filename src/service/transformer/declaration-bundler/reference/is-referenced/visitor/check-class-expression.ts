@@ -1,7 +1,7 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {ClassExpression} from "typescript";
+import {TS} from "../../../../../../type/ts";
 
-export function checkClassExpression({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<ClassExpression>): string[] {
+export function checkClassExpression({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<TS.ClassExpression>): string[] {
 	const referencedIdentifiers: string[] = [];
 	if (node.heritageClauses != null) {
 		for (const heritageClause of node.heritageClauses) {

@@ -1,13 +1,14 @@
-import {forEachChild, Node, SourceFile} from "typescript";
 import {Resolver} from "../../../../util/resolve-id/resolver";
 import {LocalSymbol, LocalSymbolMap} from "../../declaration-pre-bundler/declaration-pre-bundler-options";
-import {traceIdentifiers} from "../../declaration-pre-bundler/deconflicter/visitor/trace-identifiers/trace-identifiers";
+import {traceIdentifiers} from "../../declaration-pre-bundler/track-locals/visitor/trace-identifiers/trace-identifiers";
+import {TS} from "../../../../type/ts";
 
-export type NodeIdentifierCache = WeakMap<Node, LocalSymbolMap>;
+export type NodeIdentifierCache = WeakMap<TS.Node, LocalSymbolMap>;
 
 export interface GetIdentifiersWithCacheOptions {
-	node: Node;
-	sourceFile: SourceFile;
+	typescript: typeof TS;
+	node: TS.Node;
+	sourceFile: TS.SourceFile;
 	resolver: Resolver;
 	nodeIdentifierCache: NodeIdentifierCache;
 }
@@ -28,7 +29,7 @@ function getIdentifiers({node, ...rest}: GetIdentifiersWithCacheOptions, identif
 		node,
 		continuation: nextNode => getIdentifiersForNode({...rest, node: nextNode}, identifiers),
 		childContinuation: nextNode =>
-			forEachChild(nextNode, nextNextNode => {
+			rest.typescript.forEachChild(nextNode, nextNextNode => {
 				getIdentifiersForNode({...rest, node: nextNextNode}, identifiers);
 			}),
 		addIdentifier(name: string, localSymbol: LocalSymbol): void {

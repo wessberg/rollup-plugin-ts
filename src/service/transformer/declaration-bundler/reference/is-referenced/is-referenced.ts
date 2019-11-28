@@ -1,35 +1,3 @@
-import {
-	forEachChild,
-	isArrayBindingPattern,
-	isBindingElement,
-	isClassDeclaration,
-	isClassExpression,
-	isEnumDeclaration,
-	isExportAssignment,
-	isExportDeclaration,
-	isExportSpecifier,
-	isFunctionDeclaration,
-	isFunctionExpression,
-	isGetAccessorDeclaration,
-	isIdentifier,
-	isIndexedAccessTypeNode,
-	isInterfaceDeclaration,
-	isMethodDeclaration,
-	isMethodSignature,
-	isModuleDeclaration,
-	isObjectBindingPattern,
-	isParameter,
-	isPropertyAccessExpression,
-	isPropertyDeclaration,
-	isPropertySignature,
-	isQualifiedName,
-	isSetAccessorDeclaration,
-	isTypeAliasDeclaration,
-	isVariableDeclaration,
-	isVariableDeclarationList,
-	isVariableStatement,
-	Node
-} from "typescript";
 import {IsReferencedOptions} from "./is-referenced-options";
 import {nodeContainsChild} from "../../util/node-contains-child";
 import {getIdentifiersForNode} from "../../util/get-identifiers-for-node";
@@ -65,80 +33,78 @@ import {checkModuleDeclaration} from "./visitor/check-module-declaration";
 import {checkIndexedAccessTypeNode} from "./visitor/check-indexed-access-type-node";
 import {checkPropertyAccessExpression} from "./visitor/check-property-access-expression";
 import {checkQualifiedName} from "./visitor/check-qualified-name";
+import {TS} from "../../../../../type/ts";
 
 /**
  * Visits the given node. Returns true if it references the node to check for references, and false otherwise
- * @param {Node} currentNode
- * @return {boolean}
  */
-function checkNode({node, originalNode, ...rest}: ReferenceVisitorOptions): string[] {
-	if (isArrayBindingPattern(node)) {
-		return checkArrayBindingPattern({node, originalNode, ...rest});
-	} else if (isObjectBindingPattern(node)) {
-		return checkObjectBindingPattern({node, originalNode, ...rest});
-	} else if (isParameter(node)) {
-		return checkParameterDeclaration({node, originalNode, ...rest});
-	} else if (isQualifiedName(node)) {
-		return checkQualifiedName({node, originalNode, ...rest});
-	} else if (isBindingElement(node)) {
-		return checkBindingElement({node, originalNode, ...rest});
-	} else if (isMethodDeclaration(node)) {
-		return checkMethodDeclaration({node, originalNode, ...rest});
-	} else if (isMethodSignature(node)) {
-		return checkMethodSignature({node, originalNode, ...rest});
-	} else if (isGetAccessorDeclaration(node)) {
-		return checkGetAccessorDeclaration({node, originalNode, ...rest});
-	} else if (isSetAccessorDeclaration(node)) {
-		return checkSetAccessorDeclaration({node, originalNode, ...rest});
-	} else if (isPropertyAccessExpression(node)) {
-		return checkPropertyAccessExpression({node, originalNode, ...rest});
-	} else if (isPropertyDeclaration(node)) {
-		return checkPropertyDeclaration({node, originalNode, ...rest});
-	} else if (isPropertySignature(node)) {
-		return checkPropertySignature({node, originalNode, ...rest});
-	} else if (isClassDeclaration(node)) {
-		return checkClassDeclaration({node, originalNode, ...rest});
-	} else if (isClassExpression(node)) {
-		return checkClassExpression({node, originalNode, ...rest});
-	} else if (isFunctionDeclaration(node)) {
-		return checkFunctionDeclaration({node, originalNode, ...rest});
-	} else if (isFunctionExpression(node)) {
-		return checkFunctionExpression({node, originalNode, ...rest});
-	} else if (isInterfaceDeclaration(node)) {
-		return checkInterfaceDeclaration({node, originalNode, ...rest});
-	} else if (isEnumDeclaration(node)) {
-		return checkEnumDeclaration({node, originalNode, ...rest});
-	} else if (isTypeAliasDeclaration(node)) {
-		return checkTypeAliasDeclaration({node, originalNode, ...rest});
-	} else if (isIndexedAccessTypeNode(node)) {
-		return checkIndexedAccessTypeNode({node, originalNode, ...rest});
-	} else if (isVariableStatement(node)) {
-		return checkVariableStatement({node, originalNode, ...rest});
-	} else if (isVariableDeclarationList(node)) {
-		return checkVariableDeclarationList({node, originalNode, ...rest});
-	} else if (isVariableDeclaration(node)) {
-		return checkVariableDeclaration({node, originalNode, ...rest});
-	} else if (isExportDeclaration(node)) {
-		return checkExportDeclaration({node, originalNode, ...rest});
-	} else if (isExportAssignment(node)) {
-		return checkExportAssignment({node, originalNode, ...rest});
-	} else if (isExportSpecifier(node)) {
-		return checkExportSpecifier({node, originalNode, ...rest});
-	} else if (isModuleDeclaration(node)) {
-		return checkModuleDeclaration({node, originalNode, ...rest});
-	} else if (isIdentifier(node)) {
-		return checkIdentifier({node, originalNode, ...rest});
+function checkNode({node, originalNode, ...options}: ReferenceVisitorOptions): string[] {
+	if (options.typescript.isArrayBindingPattern(node)) {
+		return checkArrayBindingPattern({node, originalNode, ...options});
+	} else if (options.typescript.isObjectBindingPattern(node)) {
+		return checkObjectBindingPattern({node, originalNode, ...options});
+	} else if (options.typescript.isParameter(node)) {
+		return checkParameterDeclaration({node, originalNode, ...options});
+	} else if (options.typescript.isQualifiedName(node)) {
+		return checkQualifiedName({node, originalNode, ...options});
+	} else if (options.typescript.isBindingElement(node)) {
+		return checkBindingElement({node, originalNode, ...options});
+	} else if (options.typescript.isMethodDeclaration(node)) {
+		return checkMethodDeclaration({node, originalNode, ...options});
+	} else if (options.typescript.isMethodSignature(node)) {
+		return checkMethodSignature({node, originalNode, ...options});
+	} else if (options.typescript.isGetAccessorDeclaration(node)) {
+		return checkGetAccessorDeclaration({node, originalNode, ...options});
+	} else if (options.typescript.isSetAccessorDeclaration(node)) {
+		return checkSetAccessorDeclaration({node, originalNode, ...options});
+	} else if (options.typescript.isPropertyAccessExpression(node)) {
+		return checkPropertyAccessExpression({node, originalNode, ...options});
+	} else if (options.typescript.isPropertyDeclaration(node)) {
+		return checkPropertyDeclaration({node, originalNode, ...options});
+	} else if (options.typescript.isPropertySignature(node)) {
+		return checkPropertySignature({node, originalNode, ...options});
+	} else if (options.typescript.isClassDeclaration(node)) {
+		return checkClassDeclaration({node, originalNode, ...options});
+	} else if (options.typescript.isClassExpression(node)) {
+		return checkClassExpression({node, originalNode, ...options});
+	} else if (options.typescript.isFunctionDeclaration(node)) {
+		return checkFunctionDeclaration({node, originalNode, ...options});
+	} else if (options.typescript.isFunctionExpression(node)) {
+		return checkFunctionExpression({node, originalNode, ...options});
+	} else if (options.typescript.isInterfaceDeclaration(node)) {
+		return checkInterfaceDeclaration({node, originalNode, ...options});
+	} else if (options.typescript.isEnumDeclaration(node)) {
+		return checkEnumDeclaration({node, originalNode, ...options});
+	} else if (options.typescript.isTypeAliasDeclaration(node)) {
+		return checkTypeAliasDeclaration({node, originalNode, ...options});
+	} else if (options.typescript.isIndexedAccessTypeNode(node)) {
+		return checkIndexedAccessTypeNode({node, originalNode, ...options});
+	} else if (options.typescript.isVariableStatement(node)) {
+		return checkVariableStatement({node, originalNode, ...options});
+	} else if (options.typescript.isVariableDeclarationList(node)) {
+		return checkVariableDeclarationList({node, originalNode, ...options});
+	} else if (options.typescript.isVariableDeclaration(node)) {
+		return checkVariableDeclaration({node, originalNode, ...options});
+	} else if (options.typescript.isExportDeclaration(node)) {
+		return checkExportDeclaration({node, originalNode, ...options});
+	} else if (options.typescript.isExportAssignment(node)) {
+		return checkExportAssignment({node, originalNode, ...options});
+	} else if (options.typescript.isExportSpecifier(node)) {
+		return checkExportSpecifier({node, originalNode, ...options});
+	} else if (options.typescript.isModuleDeclaration(node)) {
+		return checkModuleDeclaration({node, originalNode, ...options});
+	} else if (options.typescript.isIdentifier(node)) {
+		return checkIdentifier({node, originalNode, ...options});
 	} else {
-		return rest.childContinuation(node);
+		return options.childContinuation(node);
 	}
 }
 
 /**
  * Visits the given node. Returns true if it references the node to check for references, and false otherwise
- * @return {Node?}
  */
-function getReferencingNodes(originalNode: Node, identifiers: LocalSymbolMap, cache: NodeToReferencedIdentifiersCache): Node[] {
-	const referencingNodes = new Set<Node>();
+function getReferencingNodes(originalNode: TS.Node, identifiers: LocalSymbolMap, cache: NodeToReferencedIdentifiersCache): TS.Node[] {
+	const referencingNodes = new Set<TS.Node>();
 
 	for (const identifier of identifiers.keys()) {
 		const nodesReferencingIdentifier = cache.get(identifier);
@@ -155,17 +121,15 @@ function getReferencingNodes(originalNode: Node, identifiers: LocalSymbolMap, ca
 
 /**
  * Returns true if the given Node is referenced within the given options
- * @param {IsReferencedOptions} opts
- * @return {Node[]}
  */
-export function isReferenced<T extends Node>({seenNodes = new Set(), ...options}: IsReferencedOptions<T>): boolean {
+export function isReferenced<T extends TS.Node>({seenNodes = new Set(), ...options}: IsReferencedOptions<T>): boolean {
 	// Exports are always referenced and should never be removed
 	if (
-		isExportDeclaration(options.node) ||
-		isExportSpecifier(options.node) ||
-		isExportAssignment(options.node) ||
-		hasExportModifier(options.node) ||
-		isModuleDeclaration(options.node)
+		options.typescript.isExportDeclaration(options.node) ||
+		options.typescript.isExportSpecifier(options.node) ||
+		options.typescript.isExportAssignment(options.node) ||
+		hasExportModifier(options.node, options.typescript) ||
+		options.typescript.isModuleDeclaration(options.node)
 	) {
 		return true;
 	}
@@ -203,7 +167,7 @@ export function isReferenced<T extends Node>({seenNodes = new Set(), ...options}
 	return result;
 }
 
-function collectReferences<T extends Node>(options: IsReferencedOptions<T>, identifiers: LocalSymbolMap): Node[] {
+function collectReferences<T extends TS.Node>(options: IsReferencedOptions<T>, identifiers: LocalSymbolMap): TS.Node[] {
 	let nodeToReferencedIdentifiersCache = options.sourceFileToNodeToReferencedIdentifiersCache.get(options.sourceFile.fileName);
 
 	// If it has been computed for the SourceFile previously, use it.
@@ -215,7 +179,7 @@ function collectReferences<T extends Node>(options: IsReferencedOptions<T>, iden
 		const visitorOptions = {
 			...options,
 			originalNode: options.node,
-			markIdentifiersAsReferenced(fromNode: Node, ...referencedIdentifiers: string[]) {
+			markIdentifiersAsReferenced(fromNode: TS.Node, ...referencedIdentifiers: string[]) {
 				for (const identifier of referencedIdentifiers) {
 					let matchingSet = nodeToReferencedIdentifiersCache!.get(identifier);
 					if (matchingSet == null) {
@@ -225,17 +189,17 @@ function collectReferences<T extends Node>(options: IsReferencedOptions<T>, iden
 					matchingSet.add(fromNode);
 				}
 			},
-			childContinuation: (node: Node): string[] => {
+			childContinuation: (node: TS.Node): string[] => {
 				const referencedIdentifiers: string[] = [];
-				forEachChild<void>(node, nextNode => {
+				options.typescript.forEachChild<void>(node, nextNode => {
 					referencedIdentifiers.push(...checkNode({...visitorOptions, node: nextNode}));
 				});
 				return referencedIdentifiers;
 			},
-			continuation: (node: Node): string[] => checkNode({...visitorOptions, node})
+			continuation: (node: TS.Node): string[] => checkNode({...visitorOptions, node})
 		};
 
-		forEachChild<void>(options.sourceFile, node => {
+		options.typescript.forEachChild<void>(options.sourceFile, node => {
 			checkNode({...visitorOptions, node});
 		});
 	}

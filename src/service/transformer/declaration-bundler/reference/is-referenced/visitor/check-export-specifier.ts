@@ -1,7 +1,7 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {ExportSpecifier} from "typescript";
+import {TS} from "../../../../../../type/ts";
 
-export function checkExportSpecifier({node, continuation}: ReferenceVisitorOptions<ExportSpecifier>): string[] {
+export function checkExportSpecifier({node, continuation}: ReferenceVisitorOptions<TS.ExportSpecifier>): string[] {
 	const referencedIdentifiers: string[] = [];
 	if (node.propertyName != null) {
 		referencedIdentifiers.push(...continuation(node.propertyName));

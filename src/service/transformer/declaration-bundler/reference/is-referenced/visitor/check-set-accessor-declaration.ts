@@ -1,10 +1,10 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {isIdentifier, SetAccessorDeclaration} from "typescript";
+import {TS} from "../../../../../../type/ts";
 
-export function checkSetAccessorDeclaration({node, continuation}: ReferenceVisitorOptions<SetAccessorDeclaration>): string[] {
+export function checkSetAccessorDeclaration({node, continuation, typescript}: ReferenceVisitorOptions<TS.SetAccessorDeclaration>): string[] {
 	const referencedIdentifiers: string[] = [];
 
-	if (!isIdentifier(node.name)) {
+	if (!typescript.isIdentifier(node.name)) {
 		referencedIdentifiers.push(...continuation(node.name));
 	}
 	for (const parameter of node.parameters) {

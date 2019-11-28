@@ -1,34 +1,36 @@
-import {EnumDeclaration, updateEnumDeclaration} from "typescript";
 import {TrackExportsVisitorOptions} from "../track-exports-visitor-options";
 import {ensureHasDeclareModifier, hasDefaultExportModifier, hasExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
 import {normalize} from "path";
+import {TS} from "../../../../../type/ts";
 
 /**
  * Visits the given EnumDeclaration.
- * @param {TrackExportsVisitorOptions<EnumDeclaration>} options
- * @returns {EnumDeclaration | undefined}
  */
 export function visitEnumDeclaration({
 	node,
 	sourceFile,
 	markAsExported,
-	getDeconflictedNameAndPropertyName
-}: TrackExportsVisitorOptions<EnumDeclaration>): EnumDeclaration | undefined {
+	typescript
+}: TrackExportsVisitorOptions<TS.EnumDeclaration>): TS.EnumDeclaration | undefined {
 	// If the node has no export modifier, leave it as it is
-	if (!hasExportModifier(node)) return node;
-
-	const [propertyName, name] = getDeconflictedNameAndPropertyName(undefined, node.name.text);
+	if (!hasExportModifier(node, typescript)) return node;
 
 	markAsExported({
 		node,
-		defaultExport: hasDefaultExportModifier(node.modifiers),
+		defaultExport: hasDefaultExportModifier(node.modifiers, typescript),
 		originalModule: normalize(sourceFile.fileName),
 		isExternal: false,
 		rawModuleSpecifier: undefined,
-		name,
-		propertyName
+		name: node.name.text,
+		propertyName: undefined
 	});
 
 	// Update the node and remove the export modifiers from it
-	return updateEnumDeclaration(node, node.decorators, ensureHasDeclareModifier(removeExportModifier(node.modifiers)), node.name, node.members);
+	return typescript.updateEnumDeclaration(
+		node,
+		node.decorators,
+		ensureHasDeclareModifier(removeExportModifier(node.modifiers, typescript), typescript),
+		node.name,
+		node.members
+	);
 }

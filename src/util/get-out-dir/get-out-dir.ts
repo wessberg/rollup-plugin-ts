@@ -5,9 +5,6 @@ import {generateRandomHash} from "../hash/generate-random-hash";
 
 /**
  * Gets the destination directory to use based on the given Rollup output options
- * @param {string} cwd
- * @param {Partial<OutputOptions>} [options]
- * @returns {string?}
  */
 export function getOutDir(cwd: string, options?: Partial<OutputOptions>): string {
 	let outDir: string | undefined;

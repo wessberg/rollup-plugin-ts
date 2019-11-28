@@ -1,15 +1,13 @@
-import {EmitOutput} from "typescript";
 import {SourceDescription} from "rollup";
 import {SOURCE_MAP_COMMENT} from "../../constant/constant";
 import {isCodeOutputFile} from "../is-code-output-file/is-code-output-file";
 import {isMapOutputFile} from "../is-map-output-file/is-map-output-file";
+import {TS} from "../../type/ts";
 
 /**
  * Gets a SourceDescription from the given EmitOutput
- * @param {EmitOutput} output
- * @returns {Partial<SourceDescription>}
  */
-export function getSourceDescriptionFromEmitOutput(output: EmitOutput): SourceDescription | undefined {
+export function getSourceDescriptionFromEmitOutput(output: TS.EmitOutput): SourceDescription | undefined {
 	const code = output.outputFiles.find(isCodeOutputFile);
 	if (code == null) return undefined;
 

@@ -1,7 +1,7 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {FunctionExpression} from "typescript";
+import {TS} from "../../../../../../type/ts";
 
-export function checkFunctionExpression({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<FunctionExpression>): string[] {
+export function checkFunctionExpression({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<TS.FunctionExpression>): string[] {
 	const referencedIdentifiers: string[] = [];
 	for (const parameter of node.parameters) {
 		referencedIdentifiers.push(...continuation(parameter));

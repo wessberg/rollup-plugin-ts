@@ -1,10 +1,10 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {isIdentifier, ParameterDeclaration} from "typescript";
+import {TS} from "../../../../../../type/ts";
 
-export function checkParameterDeclaration({node, continuation}: ReferenceVisitorOptions<ParameterDeclaration>): string[] {
+export function checkParameterDeclaration({node, continuation, typescript}: ReferenceVisitorOptions<TS.ParameterDeclaration>): string[] {
 	const referencedIdentifiers: string[] = [];
 
-	if (!isIdentifier(node.name)) {
+	if (!typescript.isIdentifier(node.name)) {
 		referencedIdentifiers.push(...continuation(node.name));
 	}
 

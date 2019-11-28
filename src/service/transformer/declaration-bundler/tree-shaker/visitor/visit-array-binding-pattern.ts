@@ -1,8 +1,12 @@
-import {ArrayBindingElement, ArrayBindingPattern, updateArrayBindingPattern} from "typescript";
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
+import {TS} from "../../../../../type/ts";
 
-export function visitArrayBindingPattern({node, continuation}: TreeShakerVisitorOptions<ArrayBindingPattern>): ArrayBindingPattern | undefined {
-	const filteredArrayBindingElements: ArrayBindingElement[] = [];
+export function visitArrayBindingPattern({
+	node,
+	continuation,
+	typescript
+}: TreeShakerVisitorOptions<TS.ArrayBindingPattern>): TS.ArrayBindingPattern | undefined {
+	const filteredArrayBindingElements: TS.ArrayBindingElement[] = [];
 	for (const arrayBindingElement of node.elements) {
 		const arrayBindingElementContinuationResult = continuation(arrayBindingElement);
 
@@ -14,5 +18,5 @@ export function visitArrayBindingPattern({node, continuation}: TreeShakerVisitor
 		return undefined;
 	}
 
-	return updateArrayBindingPattern(node, filteredArrayBindingElements);
+	return typescript.updateArrayBindingPattern(node, filteredArrayBindingElements);
 }

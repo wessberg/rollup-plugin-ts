@@ -1,15 +1,13 @@
-import {NewLineKind} from "typescript";
+import {TS} from "../../type/ts";
 
 /**
  * Gets the NewLineCharacter to use for a NewLineKind
- * @param {NewLineKind} newLine
- * @returns {string}
  */
-export function getNewLineCharacter(newLine: NewLineKind): string {
+export function getNewLineCharacter(newLine: TS.NewLineKind, typescript: typeof TS): string {
 	switch (newLine) {
-		case NewLineKind.CarriageReturnLineFeed:
+		case typescript.NewLineKind.CarriageReturnLineFeed:
 			return "\r\n";
-		case NewLineKind.LineFeed:
+		case typescript.NewLineKind.LineFeed:
 			return "\n";
 	}
 }

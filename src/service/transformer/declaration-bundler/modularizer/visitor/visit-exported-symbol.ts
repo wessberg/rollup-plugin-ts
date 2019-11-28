@@ -1,12 +1,3 @@
-import {
-	createExportDeclaration,
-	createExportSpecifier,
-	createIdentifier,
-	createNamedExports,
-	createStringLiteral,
-	ExportDeclaration,
-	ExportSpecifier
-} from "typescript";
 import {SupportedExtensions} from "../../../../../util/get-supported-extensions/get-supported-extensions";
 import {ChunkToOriginalFileMap} from "../../../../../util/chunk/get-chunk-to-original-file-map";
 import {
@@ -20,8 +11,10 @@ import {assertDefined} from "../../../../../util/assert-defined/assert-defined";
 import {dirname, relative} from "path";
 import {ensureHasLeadingDotAndPosix, stripKnownExtension} from "../../../../../util/path/path-util";
 import {ChunkForModuleCache} from "../../../declaration/declaration-options";
+import {TS} from "../../../../../type/ts";
 
 export interface VisitExportedSymbolOptions {
+	typescript: typeof TS;
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
 	sourceFileToImportedSymbolSet: SourceFileToImportedSymbolSet;
 	chunkForModuleCache: ChunkForModuleCache;
@@ -93,8 +86,8 @@ export function exportedSymbolIsReferencedByOtherChunk({
 	return false;
 }
 
-export function visitExportedSymbolFromOtherChunk(options: VisitExportedSymbolOptions): ExportDeclaration[] {
-	const {exportedSymbol, absoluteChunkFileName} = options;
+export function visitExportedSymbolFromOtherChunk(options: VisitExportedSymbolOptions): TS.ExportDeclaration[] {
+	const {exportedSymbol, absoluteChunkFileName, typescript} = options;
 	const otherChunkFileName = getChunkFilename({...options, fileName: exportedSymbol.originalModule});
 
 	// Generate a module specifier that points to the referenced module, relative to the current sourcefile
@@ -110,44 +103,46 @@ export function visitExportedSymbolFromOtherChunk(options: VisitExportedSymbolOp
 			: ensureHasLeadingDotAndPosix(stripKnownExtension(relativeToSourceFileDirectory), false);
 
 	if ("namespaceExport" in exportedSymbol) {
-		return [createExportDeclaration(undefined, undefined, undefined, createStringLiteral(moduleSpecifier))];
+		return [typescript.createExportDeclaration(undefined, undefined, undefined, typescript.createStringLiteral(moduleSpecifier))];
 	} else {
 		return [
-			createExportDeclaration(
+			typescript.createExportDeclaration(
 				undefined,
 				undefined,
-				createNamedExports([
-					createExportSpecifier(
+				typescript.createNamedExports([
+					typescript.createExportSpecifier(
 						exportedSymbol.propertyName == null || exportedSymbol.propertyName === exportedSymbol.name
 							? undefined
-							: createIdentifier(exportedSymbol.propertyName),
-						createIdentifier(exportedSymbol.name)
+							: typescript.createIdentifier(exportedSymbol.propertyName),
+						typescript.createIdentifier(exportedSymbol.name)
 					)
 				]),
-				createStringLiteral(moduleSpecifier)
+				typescript.createStringLiteral(moduleSpecifier)
 			)
 		];
 	}
 }
 
 export function visitExportedSymbolFromEntryModule({
+	typescript,
 	exportedSymbol,
 	otherModuleExportedSymbols,
 	...rest
-}: VisitExportedSymbolFromEntryModuleOptions): ExportDeclaration[] {
-	const exportDeclarations: ExportDeclaration[] = [];
+}: VisitExportedSymbolFromEntryModuleOptions): TS.ExportDeclaration[] {
+	const exportDeclarations: TS.ExportDeclaration[] = [];
 
 	// If we're having to do with a namespace export from a module that is part of the same chunk,
 	// we can't do something like '{export *}', so we'll have to create an ExportDeclaration with
 	// ExportSpecifiers for all exported symbols
 	if ("namespaceExport" in exportedSymbol) {
-		const exportSpecifiers: ExportSpecifier[] = [];
+		const exportSpecifiers: TS.ExportSpecifier[] = [];
 
 		if (otherModuleExportedSymbols != null) {
 			for (const otherModuleExportedSymbol of otherModuleExportedSymbols) {
 				exportDeclarations.push(
 					...visitExportedSymbol({
 						...rest,
+						typescript,
 						exportedSymbol: otherModuleExportedSymbol
 					})
 				);
@@ -155,7 +150,7 @@ export function visitExportedSymbolFromEntryModule({
 		}
 
 		if (exportSpecifiers.length > 0) {
-			exportDeclarations.push(createExportDeclaration(undefined, undefined, createNamedExports(exportSpecifiers)));
+			exportDeclarations.push(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports(exportSpecifiers)));
 		}
 	}
 
@@ -186,13 +181,13 @@ export function visitExportedSymbolFromEntryModule({
 		}
 
 		exportDeclarations.push(
-			createExportDeclaration(
+			typescript.createExportDeclaration(
 				undefined,
 				undefined,
-				createNamedExports([
-					createExportSpecifier(
-						correctedPropertyName == null || correctedPropertyName === correctedName ? undefined : createIdentifier(correctedPropertyName),
-						createIdentifier(correctedName)
+				typescript.createNamedExports([
+					typescript.createExportSpecifier(
+						correctedPropertyName == null || correctedPropertyName === correctedName ? undefined : typescript.createIdentifier(correctedPropertyName),
+						typescript.createIdentifier(correctedName)
 					)
 				])
 			)
@@ -201,7 +196,7 @@ export function visitExportedSymbolFromEntryModule({
 	return exportDeclarations;
 }
 
-export function visitExportedSymbol({exportedSymbol, ...rest}: VisitExportedSymbolOptions): ExportDeclaration[] {
+export function visitExportedSymbol({exportedSymbol, ...rest}: VisitExportedSymbolOptions): TS.ExportDeclaration[] {
 	const {isEntryModule, isEntryChunk, sourceFileToExportedSymbolSet, absoluteChunkFileName} = rest;
 
 	const otherChunkFileName = getChunkFilename({...rest, fileName: exportedSymbol.originalModule});

@@ -1,7 +1,7 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {VariableDeclaration} from "typescript";
+import {TS} from "../../../../../../type/ts";
 
-export function checkVariableDeclaration({node, continuation}: ReferenceVisitorOptions<VariableDeclaration>): string[] {
+export function checkVariableDeclaration({node, continuation}: ReferenceVisitorOptions<TS.VariableDeclaration>): string[] {
 	const referencedIdentifiers: string[] = [];
 	if (node.initializer != null) {
 		referencedIdentifiers.push(...continuation(node.initializer));

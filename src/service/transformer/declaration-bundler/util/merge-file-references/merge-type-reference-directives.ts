@@ -1,4 +1,4 @@
-import {FileReference, SourceFile} from "typescript";
+import {TS} from "../../../../../type/ts";
 
 function formatTypeReferenceDirective(fileName: string): string {
 	return `/// <reference types="${fileName}" />`;
@@ -6,10 +6,8 @@ function formatTypeReferenceDirective(fileName: string): string {
 
 /**
  * Merges the type file references of the SourceFile
- * @param {SourceFile} sourceFile
- * @return {FileReference[]}
  */
-export function mergeTypeReferenceDirectives(sourceFile: SourceFile): FileReference[] {
+export function mergeTypeReferenceDirectives(sourceFile: TS.SourceFile): TS.FileReference[] {
 	return (
 		[...new Set<string>(sourceFile.typeReferenceDirectives.map(({fileName}) => fileName))]
 			// Don't include those that are already part of the SourceFile

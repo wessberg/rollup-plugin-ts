@@ -1,7 +1,7 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {ExportAssignment} from "typescript";
+import {TS} from "../../../../../../type/ts";
 
-export function checkExportAssignment({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<ExportAssignment>): string[] {
+export function checkExportAssignment({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<TS.ExportAssignment>): string[] {
 	const referencedIdentifiers = continuation(node.expression);
 
 	markIdentifiersAsReferenced(node, ...referencedIdentifiers);

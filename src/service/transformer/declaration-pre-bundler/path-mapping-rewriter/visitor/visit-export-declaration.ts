@@ -1,17 +1,20 @@
-import {createStringLiteral, ExportDeclaration, isStringLiteralLike, updateExportDeclaration} from "typescript";
 import {PathMappingRewriterVisitorOptions} from "../path-mapping-rewriter-visitor-options";
 import {dirname, relative} from "path";
 import {ensureHasLeadingDotAndPosix, stripKnownExtension} from "../../../../../util/path/path-util";
 import {NODE_MODULES} from "../../../../../constant/constant";
+import {TS} from "../../../../../type/ts";
 
 /**
  * Visits the given ExportDeclaration.
- * @param {PathMappingRewriterVisitorOptions<ExportDeclaration>} options
- * @returns {ExportDeclaration}
  */
-export function visitExportDeclaration({node, sourceFile, resolver}: PathMappingRewriterVisitorOptions<ExportDeclaration>): ExportDeclaration {
+export function visitExportDeclaration({
+	node,
+	sourceFile,
+	resolver,
+	typescript
+}: PathMappingRewriterVisitorOptions<TS.ExportDeclaration>): TS.ExportDeclaration {
 	const specifier = node.moduleSpecifier;
-	if (specifier == null || !isStringLiteralLike(specifier)) return node;
+	if (specifier == null || !typescript.isStringLiteralLike(specifier)) return node;
 
 	const resolved = resolver(specifier.text, sourceFile.fileName);
 
@@ -24,5 +27,11 @@ export function visitExportDeclaration({node, sourceFile, resolver}: PathMapping
 	if (specifier.text === updatedModuleSpecifierText || updatedModuleSpecifierText.includes(`/${NODE_MODULES}/`)) return node;
 
 	// Otherwise, update the module specifier to reflect the actual file path
-	return updateExportDeclaration(node, node.decorators, node.modifiers, node.exportClause, createStringLiteral(updatedModuleSpecifierText));
+	return typescript.updateExportDeclaration(
+		node,
+		node.decorators,
+		node.modifiers,
+		node.exportClause,
+		typescript.createStringLiteral(updatedModuleSpecifierText)
+	);
 }

@@ -1,8 +1,9 @@
-import {Node, SourceFile} from "typescript";
+import {TS} from "../../../../type/ts";
 
-export interface TreeShakerVisitorOptions<T extends Node> {
+export interface TreeShakerVisitorOptions<T extends TS.Node> {
+	typescript: typeof TS;
 	node: T;
-	sourceFile: SourceFile;
-	continuation<U extends Node>(node: U): U | undefined;
-	isReferenced(node: Node): boolean;
+	sourceFile: TS.SourceFile;
+	continuation<U extends TS.Node>(node: U): U | undefined;
+	isReferenced(node: TS.Node): boolean;
 }

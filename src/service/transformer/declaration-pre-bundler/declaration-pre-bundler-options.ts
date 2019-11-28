@@ -1,15 +1,5 @@
-import {Node, TypeChecker} from "typescript";
 import {DeclarationOptions} from "../declaration/declaration-options";
-
-/**
- * A Set of generated variable names
- */
-export type GeneratedVariableNameSet = Set<string>;
-
-/**
- * A Map between source files and their GeneratedVariableNameSets
- */
-export type SourceFileToGeneratedVariableNameSet = Map<string, GeneratedVariableNameSet>;
+import {TS} from "../../../type/ts";
 
 /**
  * Each symbol in a file may be part of the modules own declarations such as variable- or function declarations,
@@ -19,8 +9,6 @@ export type SourceFileToGeneratedVariableNameSet = Map<string, GeneratedVariable
 export interface LocalSymbol {
 	// The original module hosting the symbol. If it couldn't be resolved, it will be undefined
 	originalModule: string | undefined;
-	// Some local symbols may be renamed to avoid conflicts with other symbols inside generated chunks
-	deconflictedName: string | undefined;
 }
 
 /**
@@ -45,7 +33,7 @@ export interface ImportedSymbolBase {
 	isExternal: boolean;
 
 	// The original Node, such as the original ImportSpecifier or Identifier
-	node: Node;
+	node: TS.Node;
 }
 
 export interface NamedImportedSymbol extends ImportedSymbolBase {
@@ -79,7 +67,7 @@ export interface ExportedSymbolBase {
 	isExternal: boolean;
 
 	// The original Node that was exported
-	node: Node;
+	node: TS.Node;
 }
 
 export interface NamedExportedSymbol extends ExportedSymbolBase {
@@ -105,6 +93,5 @@ export type ExportedSymbolSet = Set<ExportedSymbol>;
 export type SourceFileToExportedSymbolSet = Map<string, ExportedSymbolSet>;
 
 export interface DeclarationPreBundlerOptions extends DeclarationOptions {
-	typeChecker: TypeChecker;
-	generateUniqueVariableName(candidate: string, sourceFileName: string): string;
+	typeChecker: TS.TypeChecker;
 }

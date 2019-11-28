@@ -1,32 +1,20 @@
-import {
-	createExportDeclaration,
-	createExportSpecifier,
-	createNamedExports,
-	createStringLiteral,
-	ExportDeclaration,
-	ExportSpecifier,
-	isExportDeclaration,
-	isStringLiteralLike,
-	Statement
-} from "typescript";
 import {ensureHasLeadingDotAndPosix} from "../../../../../util/path/path-util";
+import {TS} from "../../../../../type/ts";
 
 const EMPTY_MODULE_SPECIFIER_TOKEN = "_#gen__empty__module__specifier";
 
 /**
  * Merges the exports based on the given Statements
- * @param {Statement[]} statements
- * @return {Statement[]}
  */
-export function mergeExports(statements: Statement[]): Statement[] {
-	const exports = statements.filter(isExportDeclaration);
-	const otherStatements = statements.filter(statement => !isExportDeclaration(statement));
+export function mergeExports(statements: TS.Statement[], typescript: typeof TS): TS.Statement[] {
+	const exports = statements.filter(typescript.isExportDeclaration);
+	const otherStatements = statements.filter(statement => !typescript.isExportDeclaration(statement));
 	const moduleSpecifierToExportedBindingsMap: Map<string, Set<string>> = new Map();
-	const exportDeclarations: Set<ExportDeclaration> = new Set();
+	const exportDeclarations: Set<TS.ExportDeclaration> = new Set();
 
 	for (const exportDeclaration of exports) {
 		// If the ModuleSpecifier is given and it isn't a string literal, leave it as it is
-		if (exportDeclaration.moduleSpecifier != null && !isStringLiteralLike(exportDeclaration.moduleSpecifier)) {
+		if (exportDeclaration.moduleSpecifier != null && !typescript.isStringLiteralLike(exportDeclaration.moduleSpecifier)) {
 			exportDeclarations.add(exportDeclaration);
 			continue;
 		}
@@ -40,7 +28,7 @@ export function mergeExports(statements: Statement[]): Statement[] {
 		}
 
 		if (exportDeclaration.exportClause != null) {
-			const aliasedExportSpecifiers: Set<ExportSpecifier> = new Set();
+			const aliasedExportSpecifiers: Set<TS.ExportSpecifier> = new Set();
 
 			// Take all aliased exports
 			for (const element of exportDeclaration.exportClause.elements) {
@@ -54,7 +42,12 @@ export function mergeExports(statements: Statement[]): Statement[] {
 			// If at least 1 is aliased, generate an export containing only those
 			if (aliasedExportSpecifiers.size > 0) {
 				exportDeclarations.add(
-					createExportDeclaration(undefined, undefined, createNamedExports([...aliasedExportSpecifiers]), exportDeclaration.moduleSpecifier)
+					typescript.createExportDeclaration(
+						undefined,
+						undefined,
+						typescript.createNamedExports([...aliasedExportSpecifiers]),
+						exportDeclaration.moduleSpecifier
+					)
 				);
 			}
 		} else {
@@ -66,11 +59,11 @@ export function mergeExports(statements: Statement[]): Statement[] {
 		if (exportedBindings.size === 0) continue;
 
 		exportDeclarations.add(
-			createExportDeclaration(
+			typescript.createExportDeclaration(
 				undefined,
 				undefined,
-				createNamedExports([...exportedBindings].map(exportedBinding => createExportSpecifier(undefined, exportedBinding))),
-				specifier === EMPTY_MODULE_SPECIFIER_TOKEN ? undefined : createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
+				typescript.createNamedExports([...exportedBindings].map(exportedBinding => typescript.createExportSpecifier(undefined, exportedBinding))),
+				specifier === EMPTY_MODULE_SPECIFIER_TOKEN ? undefined : typescript.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
 			)
 		);
 	}

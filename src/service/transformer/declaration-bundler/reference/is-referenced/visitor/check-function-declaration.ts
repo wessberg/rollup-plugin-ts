@@ -1,7 +1,11 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {FunctionDeclaration} from "typescript";
+import {TS} from "../../../../../../type/ts";
 
-export function checkFunctionDeclaration({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<FunctionDeclaration>): string[] {
+export function checkFunctionDeclaration({
+	node,
+	continuation,
+	markIdentifiersAsReferenced
+}: ReferenceVisitorOptions<TS.FunctionDeclaration>): string[] {
 	const referencedIdentifiers: string[] = [];
 	for (const parameter of node.parameters) {
 		referencedIdentifiers.push(...continuation(parameter));

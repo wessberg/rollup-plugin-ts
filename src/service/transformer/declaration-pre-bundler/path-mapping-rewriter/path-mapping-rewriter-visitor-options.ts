@@ -1,8 +1,8 @@
-import {Node, SourceFile, VisitResult} from "typescript";
 import {DeclarationPreBundlerOptions} from "../declaration-pre-bundler-options";
+import {TS} from "../../../../type/ts";
 
-export interface PathMappingRewriterVisitorOptions<T extends Node> extends DeclarationPreBundlerOptions {
+export interface PathMappingRewriterVisitorOptions<T extends TS.Node> extends DeclarationPreBundlerOptions {
 	node: T;
-	sourceFile: SourceFile;
-	continuation<U extends Node>(node: U): VisitResult<U>;
+	sourceFile: TS.SourceFile;
+	continuation<U extends TS.Node>(node: U): TS.VisitResult<U>;
 }

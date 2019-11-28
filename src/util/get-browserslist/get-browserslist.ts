@@ -8,8 +8,6 @@ import {ensureArray} from "../ensure-array/ensure-array";
 
 /**
  * Returns true if the given browserslist is raw input for a Browserslist
- * @param {IGetBrowserslistOptions["browserslist"]} browserslist
- * @returns {boolean}
  */
 function isBrowserslistInput(browserslist: IGetBrowserslistOptions["browserslist"]): browserslist is string[] | string {
 	return typeof browserslist === "string" || Array.isArray(browserslist);
@@ -17,8 +15,6 @@ function isBrowserslistInput(browserslist: IGetBrowserslistOptions["browserslist
 
 /**
  * Returns true if the given browserslist is an IBrowserslistQueryConfig
- * @param {IGetBrowserslistOptions["browserslist"]} browserslist
- * @returns {boolean}
  */
 function isBrowserslistQueryConfig(browserslist: IGetBrowserslistOptions["browserslist"]): browserslist is IBrowserslistQueryConfig {
 	return (
@@ -28,8 +24,6 @@ function isBrowserslistQueryConfig(browserslist: IGetBrowserslistOptions["browse
 
 /**
  * Returns true if the given browserslist is an IBrowserslistPathConfig
- * @param {IGetBrowserslistOptions["browserslist"]} browserslist
- * @returns {boolean}
  */
 function isBrowserslistPathConfig(browserslist: IGetBrowserslistOptions["browserslist"]): browserslist is IBrowserslistPathConfig {
 	return browserslist != null && !isBrowserslistInput(browserslist) && browserslist !== false && "path" in browserslist && browserslist.path != null;
@@ -37,8 +31,6 @@ function isBrowserslistPathConfig(browserslist: IGetBrowserslistOptions["browser
 
 /**
  * Gets a Browserslist based on the given options
- * @param {IGetBrowserslistOptions} options
- * @returns {string[]?}
  */
 export function getBrowserslist({browserslist, cwd, fileSystem}: IGetBrowserslistOptions): string[] | undefined {
 	// If a Browserslist is provided directly from the options, use that

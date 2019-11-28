@@ -1,13 +1,13 @@
-import {Declaration, Expression, QualifiedName, Symbol, TypeChecker} from "typescript";
+import {TS} from "../../../../../type/ts";
 
 /**
  * Gets the Declaration for the given Expression
- * @param {Expression|Symbol} node
- * @param {TypeChecker} typeChecker
- * @return {Declaration | undefined}
  */
-export function getAliasedDeclaration(node: Expression | Symbol | QualifiedName | undefined, typeChecker: TypeChecker): Declaration | undefined {
-	let symbol: Symbol | undefined;
+export function getAliasedDeclaration(
+	node: TS.Expression | TS.Symbol | TS.QualifiedName | undefined,
+	typeChecker: TS.TypeChecker
+): TS.Declaration | undefined {
+	let symbol: TS.Symbol | undefined;
 	try {
 		symbol = node == null ? undefined : "valueDeclaration" in node || "declarations" in node ? node : typeChecker.getSymbolAtLocation(node);
 	} catch {

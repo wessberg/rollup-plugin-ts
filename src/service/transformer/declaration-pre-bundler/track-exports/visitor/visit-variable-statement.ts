@@ -1,13 +1,11 @@
-import {updateVariableStatement, VariableStatement} from "typescript";
 import {TrackExportsVisitorOptions} from "../track-exports-visitor-options";
 import {ensureHasDeclareModifier, hasDefaultExportModifier, hasExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
 import {getIdentifiersForNode} from "../../../declaration-bundler/util/get-identifiers-for-node";
 import {normalize} from "path";
+import {TS} from "../../../../../type/ts";
 
 /**
  * Visits the given VariableStatement.
- * @param {TrackExportsVisitorOptions<VariableStatement>} options
- * @returns {VariableStatement | undefined}
  */
 export function visitVariableStatement({
 	node,
@@ -15,20 +13,19 @@ export function visitVariableStatement({
 	markAsExported,
 	resolver,
 	nodeIdentifierCache,
-	getDeconflictedNameAndPropertyName
-}: TrackExportsVisitorOptions<VariableStatement>): VariableStatement | undefined {
+	typescript
+}: TrackExportsVisitorOptions<TS.VariableStatement>): TS.VariableStatement | undefined {
 	// If the node has no export modifier, leave it as it is
-	if (!hasExportModifier(node)) return node;
+	if (!hasExportModifier(node, typescript)) return node;
 
-	const identifiers = getIdentifiersForNode({node, resolver, sourceFile, nodeIdentifierCache});
+	const identifiers = getIdentifiersForNode({node, resolver, sourceFile, nodeIdentifierCache, typescript});
 
 	for (const identifier of identifiers.keys()) {
-		const [propertyName, name] = getDeconflictedNameAndPropertyName(undefined, identifier);
 		markAsExported({
-			name,
-			propertyName,
+			name: identifier,
+			propertyName: undefined,
 			node,
-			defaultExport: hasDefaultExportModifier(node.modifiers),
+			defaultExport: hasDefaultExportModifier(node.modifiers, typescript),
 			originalModule: normalize(sourceFile.fileName),
 			rawModuleSpecifier: undefined,
 			isExternal: false
@@ -36,5 +33,9 @@ export function visitVariableStatement({
 	}
 
 	// Remove the export modifier
-	return updateVariableStatement(node, ensureHasDeclareModifier(removeExportModifier(node.modifiers)), node.declarationList);
+	return typescript.updateVariableStatement(
+		node,
+		ensureHasDeclareModifier(removeExportModifier(node.modifiers, typescript), typescript),
+		node.declarationList
+	);
 }

@@ -1,7 +1,7 @@
-import {BindingElement, updateBindingElement} from "typescript";
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
+import {TS} from "../../../../../type/ts";
 
-export function visitBindingElement({node, continuation}: TreeShakerVisitorOptions<BindingElement>): BindingElement | undefined {
+export function visitBindingElement({node, continuation, typescript}: TreeShakerVisitorOptions<TS.BindingElement>): TS.BindingElement | undefined {
 	const nameContinuationResult = continuation(node.name);
 	if (nameContinuationResult == null) {
 		return undefined;
@@ -9,5 +9,5 @@ export function visitBindingElement({node, continuation}: TreeShakerVisitorOptio
 
 	return node.name === nameContinuationResult
 		? node
-		: updateBindingElement(node, node.dotDotDotToken, node.propertyName, nameContinuationResult, node.initializer);
+		: typescript.updateBindingElement(node, node.dotDotDotToken, node.propertyName, nameContinuationResult, node.initializer);
 }

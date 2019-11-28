@@ -1,38 +1,34 @@
-import {ClassExpression, updateClassExpression} from "typescript";
 import {TrackExportsVisitorOptions} from "../track-exports-visitor-options";
 import {ensureHasDeclareModifier, hasDefaultExportModifier, hasExportModifier, removeExportModifier} from "../../util/modifier/modifier-util";
 import {normalize} from "path";
+import {TS} from "../../../../../type/ts";
 
 /**
  * Visits the given ClassExpression.
- * @param {TrackExportsVisitorOptions<ClassExpression>} options
- * @returns {ClassExpression | undefined}
  */
 export function visitClassExpression({
 	node,
 	sourceFile,
 	markAsExported,
-	getDeconflictedNameAndPropertyName
-}: TrackExportsVisitorOptions<ClassExpression>): ClassExpression | undefined {
+	typescript
+}: TrackExportsVisitorOptions<TS.ClassExpression>): TS.ClassExpression | undefined {
 	// If the node has no export modifier, leave it as it is
-	if (!hasExportModifier(node)) return node;
-
-	const [propertyName, name] = getDeconflictedNameAndPropertyName(undefined, node.name == null ? "default" : node.name.text);
+	if (!hasExportModifier(node, typescript)) return node;
 
 	markAsExported({
-		name,
-		propertyName,
+		name: node.name == null ? "default" : node.name.text,
+		propertyName: undefined,
 		node,
 		originalModule: normalize(sourceFile.fileName),
 		isExternal: false,
 		rawModuleSpecifier: undefined,
-		defaultExport: node.name == null || hasDefaultExportModifier(node.modifiers)
+		defaultExport: node.name == null || hasDefaultExportModifier(node.modifiers, typescript)
 	});
 
 	// Update the node and remove the export modifiers from it
-	return updateClassExpression(
+	return typescript.updateClassExpression(
 		node,
-		ensureHasDeclareModifier(removeExportModifier(node.modifiers)),
+		ensureHasDeclareModifier(removeExportModifier(node.modifiers, typescript), typescript),
 		node.name,
 		node.typeParameters,
 		node.heritageClauses,

@@ -1,7 +1,7 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {ClassDeclaration} from "typescript";
+import {TS} from "../../../../../../type/ts";
 
-export function checkClassDeclaration({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<ClassDeclaration>): string[] {
+export function checkClassDeclaration({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<TS.ClassDeclaration>): string[] {
 	const referencedIdentifiers: string[] = [];
 	if (node.heritageClauses != null) {
 		for (const heritageClause of node.heritageClauses) {

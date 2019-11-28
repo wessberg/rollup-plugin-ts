@@ -1,12 +1,10 @@
-import {ExportAssignment, isIdentifier, VariableStatement} from "typescript";
 import {TrackExportsVisitorOptions} from "../track-exports-visitor-options";
 import {getAliasedDeclaration} from "../../util/symbol/get-aliased-declaration";
 import {normalize} from "path";
+import {TS} from "../../../../../type/ts";
 
 /**
  * Visits the given ExportAssignment.
- * @param {TrackExportsVisitorOptions<ExportAssignment>} options
- * @returns {ExportAssignment | VariableStatement | undefined}
  */
 export function visitExportAssignment({
 	node,
@@ -14,21 +12,19 @@ export function visitExportAssignment({
 	typeChecker,
 	markAsExported,
 	pluginOptions,
-	getDeconflictedNameAndPropertyName
-}: TrackExportsVisitorOptions<ExportAssignment>): ExportAssignment | VariableStatement | undefined {
+	typescript
+}: TrackExportsVisitorOptions<TS.ExportAssignment>): TS.ExportAssignment | TS.VariableStatement | undefined {
 	const declaration = getAliasedDeclaration(node.expression, typeChecker);
 
-	if (isIdentifier(node.expression)) {
-		const [propertyName, name] = getDeconflictedNameAndPropertyName(undefined, node.expression.text);
-
+	if (typescript.isIdentifier(node.expression)) {
 		markAsExported({
 			node: declaration ?? node.expression,
 			originalModule: normalize(sourceFile.fileName),
 			isExternal: false,
 			rawModuleSpecifier: undefined,
 			defaultExport: true,
-			name,
-			propertyName
+			name: node.expression.text,
+			propertyName: undefined
 		});
 	}
 

@@ -1,24 +1,3 @@
-import {
-	Expression,
-	isClassDeclaration,
-	isClassExpression,
-	isEnumDeclaration,
-	isExportAssignment,
-	isExportDeclaration,
-	isExportSpecifier,
-	isFunctionDeclaration,
-	isFunctionExpression,
-	isInterfaceDeclaration,
-	isModuleDeclaration,
-	isNamedExports,
-	isTypeAliasDeclaration,
-	isVariableStatement,
-	Node,
-	SourceFile,
-	TransformerFactory,
-	updateSourceFileNode,
-	visitEachChild
-} from "typescript";
 import {DeclarationPreBundlerOptions, ExportedSymbol} from "../declaration-pre-bundler-options";
 import {visitExportDeclaration} from "./visitor/visit-export-declaration";
 import {visitExportAssignment} from "./visitor/visit-export-assignment";
@@ -34,18 +13,18 @@ import {visitExportSpecifier} from "./visitor/visit-export-specifier";
 import {visitNamedExports} from "./visitor/visit-named-exports";
 import {visitFunctionExpression} from "./visitor/visit-function-expression";
 import {visitClassExpression} from "./visitor/visit-class-expression";
+import {TS} from "../../../../type/ts";
 
 /**
  * // Tracks exports across files such that they can be added back in if necessary at a later point
- * @param {DeclarationPreBundlerOptions} options
  */
-export function trackExports(options: DeclarationPreBundlerOptions): TransformerFactory<SourceFile> {
+export function trackExports({typescript, ...options}: DeclarationPreBundlerOptions): TS.TransformerFactory<TS.SourceFile> {
 	return context => {
 		return sourceFile => {
 			const sourceFileName = normalize(sourceFile.fileName);
 
 			// If the SourceFile is not part of the local module names, remove all statements from it and return immediately
-			if (!options.localModuleNames.includes(sourceFileName)) return updateSourceFileNode(sourceFile, [], true);
+			if (!options.localModuleNames.includes(sourceFileName)) return typescript.updateSourceFileNode(sourceFile, [], true);
 
 			if (options.pluginOptions.debug) {
 				console.log(`=== BEFORE TRACKING EXPORTS === (${sourceFileName})`);
@@ -59,45 +38,25 @@ export function trackExports(options: DeclarationPreBundlerOptions): Transformer
 				options.sourceFileToExportedSymbolSet.set(sourceFileName, exportedSymbolSet);
 			}
 
-			let currentModuleSpecifier: Expression | undefined;
+			let currentModuleSpecifier: TS.Expression | undefined;
 
 			// Prepare some VisitorOptions
 			const visitorOptions = {
 				...options,
+				typescript,
 				sourceFile,
 				isEntry: options.entryFileNames.includes(sourceFileName),
-				setCurrentModuleSpecifier(newModuleSpecifier: Expression | undefined) {
+				setCurrentModuleSpecifier(newModuleSpecifier: TS.Expression | undefined) {
 					currentModuleSpecifier = newModuleSpecifier;
 				},
-				getCurrentModuleSpecifier(): Expression | undefined {
+				getCurrentModuleSpecifier(): TS.Expression | undefined {
 					return currentModuleSpecifier;
 				},
-				childContinuation: <U extends Node>(node: U): U | undefined => {
-					return visitEachChild(node, visitor, context);
+				childContinuation: <U extends TS.Node>(node: U): U | undefined => {
+					return typescript.visitEachChild(node, visitor, context);
 				},
-				continuation: <U extends Node>(node: U): U | undefined => {
+				continuation: <U extends TS.Node>(node: U): U | undefined => {
 					return visitor(node) as U | undefined;
-				},
-				getDeconflictedNameAndPropertyName(propertyName: string | undefined, name: string): [string | undefined, string] {
-					const localSymbols = options.sourceFileToLocalSymbolMap.get(sourceFileName);
-
-					// If no local symbols could be found for the file, return the current propertyName and name
-					if (localSymbols == null) {
-						return [propertyName, name];
-					}
-
-					// Otherwise, check of the name has been deconflicted
-					for (const [originalName, localSymbol] of localSymbols) {
-						// If the name was matched with the local symbol keys, it didn't change
-						if (originalName === name) {
-							return [propertyName, name];
-						} else if (propertyName != null && localSymbol.deconflictedName === propertyName) {
-							return [localSymbol.deconflictedName, name];
-						} else if (propertyName == null && localSymbol.deconflictedName === name) {
-							return [localSymbol.deconflictedName, originalName];
-						}
-					}
-					return [propertyName, name];
 				},
 				markAsExported(exportedSymbol: ExportedSymbol): void {
 					exportedSymbolSet!.add(exportedSymbol);
@@ -106,27 +65,25 @@ export function trackExports(options: DeclarationPreBundlerOptions): Transformer
 
 			/**
 			 * Visits the given Node
-			 * @param {Node} node
-			 * @returns {Node | undefined}
 			 */
-			function visitor(node: Node): Node | Node[] | undefined {
-				if (isExportAssignment(node)) return visitExportAssignment({node, ...visitorOptions});
-				else if (isExportDeclaration(node)) return visitExportDeclaration({node, ...visitorOptions});
-				else if (isNamedExports(node)) return visitNamedExports({node, ...visitorOptions});
-				else if (isExportSpecifier(node)) return visitExportSpecifier({node, ...visitorOptions});
-				else if (isVariableStatement(node)) return visitVariableStatement({node, ...visitorOptions});
-				else if (isFunctionDeclaration(node)) return visitFunctionDeclaration({node, ...visitorOptions});
-				else if (isFunctionExpression(node)) return visitFunctionExpression({node, ...visitorOptions});
-				else if (isTypeAliasDeclaration(node)) return visitTypeAliasDeclaration({node, ...visitorOptions});
-				else if (isClassDeclaration(node)) return visitClassDeclaration({node, ...visitorOptions});
-				else if (isClassExpression(node)) return visitClassExpression({node, ...visitorOptions});
-				else if (isEnumDeclaration(node)) return visitEnumDeclaration({node, ...visitorOptions});
-				else if (isInterfaceDeclaration(node)) return visitInterfaceDeclaration({node, ...visitorOptions});
-				else if (isModuleDeclaration(node)) return visitModuleDeclaration({node, ...visitorOptions});
+			function visitor(node: TS.Node): TS.Node | TS.Node[] | undefined {
+				if (typescript.isExportAssignment(node)) return visitExportAssignment({node, ...visitorOptions});
+				else if (typescript.isExportDeclaration(node)) return visitExportDeclaration({node, ...visitorOptions});
+				else if (typescript.isNamedExports(node)) return visitNamedExports({node, ...visitorOptions});
+				else if (typescript.isExportSpecifier(node)) return visitExportSpecifier({node, ...visitorOptions});
+				else if (typescript.isVariableStatement(node)) return visitVariableStatement({node, ...visitorOptions});
+				else if (typescript.isFunctionDeclaration(node)) return visitFunctionDeclaration({node, ...visitorOptions});
+				else if (typescript.isFunctionExpression(node)) return visitFunctionExpression({node, ...visitorOptions});
+				else if (typescript.isTypeAliasDeclaration(node)) return visitTypeAliasDeclaration({node, ...visitorOptions});
+				else if (typescript.isClassDeclaration(node)) return visitClassDeclaration({node, ...visitorOptions});
+				else if (typescript.isClassExpression(node)) return visitClassExpression({node, ...visitorOptions});
+				else if (typescript.isEnumDeclaration(node)) return visitEnumDeclaration({node, ...visitorOptions});
+				else if (typescript.isInterfaceDeclaration(node)) return visitInterfaceDeclaration({node, ...visitorOptions});
+				else if (typescript.isModuleDeclaration(node)) return visitModuleDeclaration({node, ...visitorOptions});
 				else return node;
 			}
 
-			let updatedSourceFile = visitEachChild(sourceFile, visitor, context);
+			let updatedSourceFile = typescript.visitEachChild(sourceFile, visitor, context);
 
 			if (options.pluginOptions.debug) {
 				console.log(`=== AFTER TRACKING EXPORTS === (${sourceFileName})`);

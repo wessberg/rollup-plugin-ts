@@ -1,31 +1,3 @@
-import {
-	isArrayBindingPattern,
-	isBindingElement,
-	isClassDeclaration,
-	isClassExpression,
-	isEnumDeclaration,
-	isExportDeclaration,
-	isFunctionDeclaration,
-	isFunctionExpression,
-	isIdentifier,
-	isImportClause,
-	isImportDeclaration,
-	isImportSpecifier,
-	isInterfaceDeclaration,
-	isModuleDeclaration,
-	isNamedImports,
-	isNamespaceImport,
-	isObjectBindingPattern,
-	isTypeAliasDeclaration,
-	isVariableDeclaration,
-	isVariableDeclarationList,
-	isVariableStatement,
-	Node,
-	SourceFile,
-	TransformerFactory,
-	updateSourceFileNode,
-	visitEachChild
-} from "typescript";
 import {DeclarationBundlerOptions} from "../declaration-bundler-options";
 import {isReferenced} from "../reference/is-referenced/is-referenced";
 import {normalize} from "path";
@@ -51,14 +23,15 @@ import {visitArrayBindingPattern} from "./visitor/visit-array-binding-pattern";
 import {visitBindingElement} from "./visitor/visit-binding-element";
 import {visitObjectBindingPattern} from "./visitor/visit-object-binding-pattern";
 import {visitIdentifier} from "./visitor/visit-identifier";
+import {TS} from "../../../../type/ts";
 
-export function treeShaker({declarationFilename, ...options}: DeclarationBundlerOptions): TransformerFactory<SourceFile> {
+export function treeShaker({declarationFilename, typescript, ...options}: DeclarationBundlerOptions): TS.TransformerFactory<TS.SourceFile> {
 	return context => {
 		return sourceFile => {
 			const sourceFileName = normalize(sourceFile.fileName);
 
 			// If the SourceFile is not part of the local module names, remove all statements from it and return immediately
-			if (sourceFileName !== normalize(declarationFilename)) return updateSourceFileNode(sourceFile, [], true);
+			if (sourceFileName !== normalize(declarationFilename)) return typescript.updateSourceFileNode(sourceFile, [], true);
 
 			if (options.pluginOptions.debug) {
 				console.log(`=== BEFORE TREE-SHAKING === (${sourceFileName})`);
@@ -68,59 +41,60 @@ export function treeShaker({declarationFilename, ...options}: DeclarationBundler
 			// Prepare some VisitorOptions
 			const visitorOptions = {
 				...options,
+				typescript,
 				sourceFile,
-				isReferenced: <U extends Node>(node: U): boolean => {
+				isReferenced: <U extends TS.Node>(node: U): boolean => {
 					return isReferenced({...visitorOptions, node});
 				},
-				continuation: <U extends Node>(node: U): U | undefined => {
+				continuation: <U extends TS.Node>(node: U): U | undefined => {
 					return visitor(node) as U | undefined;
 				}
 			};
 
-			function visitor(node: Node): Node | undefined {
-				if (hasExportModifier(node)) return node;
+			function visitor(node: TS.Node): TS.Node | undefined {
+				if (hasExportModifier(node, typescript)) return node;
 
-				if (isClassDeclaration(node)) {
+				if (typescript.isClassDeclaration(node)) {
 					return visitClassDeclaration({...visitorOptions, node});
-				} else if (isClassExpression(node)) {
+				} else if (typescript.isClassExpression(node)) {
 					return visitClassExpression({...visitorOptions, node});
-				} else if (isFunctionDeclaration(node)) {
+				} else if (typescript.isFunctionDeclaration(node)) {
 					return visitFunctionDeclaration({...visitorOptions, node});
-				} else if (isFunctionExpression(node)) {
+				} else if (typescript.isFunctionExpression(node)) {
 					return visitFunctionExpression({...visitorOptions, node});
-				} else if (isEnumDeclaration(node)) {
+				} else if (typescript.isEnumDeclaration(node)) {
 					return visitEnumDeclaration({...visitorOptions, node});
-				} else if (isInterfaceDeclaration(node)) {
+				} else if (typescript.isInterfaceDeclaration(node)) {
 					return visitInterfaceDeclaration({...visitorOptions, node});
-				} else if (isTypeAliasDeclaration(node)) {
+				} else if (typescript.isTypeAliasDeclaration(node)) {
 					return visitTypeAliasDeclaration({...visitorOptions, node});
-				} else if (isModuleDeclaration(node)) {
+				} else if (typescript.isModuleDeclaration(node)) {
 					return visitModuleDeclaration({...visitorOptions, node});
-				} else if (isExportDeclaration(node)) {
+				} else if (typescript.isExportDeclaration(node)) {
 					return visitExportDeclaration({...visitorOptions, node});
-				} else if (isVariableStatement(node)) {
+				} else if (typescript.isVariableStatement(node)) {
 					return visitVariableStatement({node, ...visitorOptions});
-				} else if (isVariableDeclarationList(node)) {
+				} else if (typescript.isVariableDeclarationList(node)) {
 					return visitVariableDeclarationList({node, ...visitorOptions});
-				} else if (isVariableDeclaration(node)) {
+				} else if (typescript.isVariableDeclaration(node)) {
 					return visitVariableDeclaration({node, ...visitorOptions});
-				} else if (isImportDeclaration(node)) {
+				} else if (typescript.isImportDeclaration(node)) {
 					return visitImportDeclaration({node, ...visitorOptions});
-				} else if (isImportSpecifier(node)) {
+				} else if (typescript.isImportSpecifier(node)) {
 					return visitImportSpecifier({node, ...visitorOptions});
-				} else if (isImportClause(node)) {
+				} else if (typescript.isImportClause(node)) {
 					return visitImportClause({node, ...visitorOptions});
-				} else if (isNamedImports(node)) {
+				} else if (typescript.isNamedImports(node)) {
 					return visitNamedImports({node, ...visitorOptions});
-				} else if (isNamespaceImport(node)) {
+				} else if (typescript.isNamespaceImport(node)) {
 					return visitNamespaceImport({node, ...visitorOptions});
-				} else if (isArrayBindingPattern(node)) {
+				} else if (typescript.isArrayBindingPattern(node)) {
 					return visitArrayBindingPattern({node, ...visitorOptions});
-				} else if (isObjectBindingPattern(node)) {
+				} else if (typescript.isObjectBindingPattern(node)) {
 					return visitObjectBindingPattern({node, ...visitorOptions});
-				} else if (isBindingElement(node)) {
+				} else if (typescript.isBindingElement(node)) {
 					return visitBindingElement({node, ...visitorOptions});
-				} else if (isIdentifier(node)) {
+				} else if (typescript.isIdentifier(node)) {
 					return visitIdentifier({node, ...visitorOptions});
 				} else {
 					// Fall back to dropping the node
@@ -128,7 +102,7 @@ export function treeShaker({declarationFilename, ...options}: DeclarationBundler
 				}
 			}
 
-			const updatedSourceFile = visitEachChild(sourceFile, visitor, context);
+			const updatedSourceFile = typescript.visitEachChild(sourceFile, visitor, context);
 
 			if (options.pluginOptions.debug) {
 				console.log(`=== AFTER TREE-SHAKING === (${sourceFileName})`);

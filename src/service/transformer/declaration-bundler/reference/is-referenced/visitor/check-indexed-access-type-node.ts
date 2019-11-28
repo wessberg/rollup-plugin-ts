@@ -1,7 +1,7 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {IndexedAccessTypeNode} from "typescript";
+import {TS} from "../../../../../../type/ts";
 
-export function checkIndexedAccessTypeNode({node, continuation}: ReferenceVisitorOptions<IndexedAccessTypeNode>): string[] {
+export function checkIndexedAccessTypeNode({node, continuation}: ReferenceVisitorOptions<TS.IndexedAccessTypeNode>): string[] {
 	const referencedIdentifiers: string[] = [];
 
 	referencedIdentifiers.push(...continuation(node.indexType));

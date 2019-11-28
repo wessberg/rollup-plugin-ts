@@ -5,8 +5,6 @@ import {FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS, FORCED_BABEL_PRESET_ENV_O
 /**
  * Retrieves the Babel config options that will be used by default. If the user provides the same keys/presets/plugins, *they*
  * will take precedence
- * @param {IGetDefaultBabelOptionsOptions} _options
- * @returns {IGetDefaultBabelOptionsResult}
  */
 export function getDefaultBabelOptions({browserslist, rollupInputOptions}: IGetDefaultBabelOptionsOptions): IGetDefaultBabelOptionsResult {
 	const includePresetEnv = browserslist != null;

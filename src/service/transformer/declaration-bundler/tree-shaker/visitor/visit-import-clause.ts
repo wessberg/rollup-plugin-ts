@@ -1,7 +1,7 @@
-import {ImportClause, updateImportClause} from "typescript";
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
+import {TS} from "../../../../../type/ts";
 
-export function visitImportClause({node, continuation}: TreeShakerVisitorOptions<ImportClause>): ImportClause | undefined {
+export function visitImportClause({node, continuation, typescript}: TreeShakerVisitorOptions<TS.ImportClause>): TS.ImportClause | undefined {
 	const namedBindingsContinuationResult = node.namedBindings == null ? undefined : continuation(node.namedBindings);
 	const nameContinuationResult = node.name == null ? undefined : continuation(node.name);
 
@@ -12,5 +12,5 @@ export function visitImportClause({node, continuation}: TreeShakerVisitorOptions
 		return undefined;
 	}
 
-	return updateImportClause(node, removeName ? undefined : node.name, removeNamedBindings ? undefined : namedBindingsContinuationResult);
+	return typescript.updateImportClause(node, removeName ? undefined : node.name, removeNamedBindings ? undefined : namedBindingsContinuationResult);
 }

@@ -1,9 +1,9 @@
-import {Node, SourceFile} from "typescript";
 import {DeclarationPreBundlerOptions} from "./declaration-pre-bundler-options";
+import {TS} from "../../../type/ts";
 
-export interface VisitorOptions<T extends Node> extends DeclarationPreBundlerOptions {
+export interface VisitorOptions<T extends TS.Node> extends DeclarationPreBundlerOptions {
 	node: T;
-	sourceFile: SourceFile;
-	continuation<U extends Node>(node: U): U | undefined;
-	childContinuation<U extends Node>(node: U): U | undefined;
+	sourceFile: TS.SourceFile;
+	continuation<U extends TS.Node>(node: U): U | undefined;
+	childContinuation<U extends TS.Node>(node: U): U | undefined;
 }

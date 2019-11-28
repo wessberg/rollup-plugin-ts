@@ -1,6 +1,6 @@
 import {statSync} from "fs";
 import {dirname} from "path";
-import {sys} from "typescript";
+import {TS} from "../../type/ts";
 
 export interface FileSystem {
 	newLine: string;
@@ -20,12 +20,14 @@ export interface FileSystem {
 	directoryExists(path: string): boolean;
 }
 
-export const REAL_FILE_SYSTEM: FileSystem = {
-	...sys,
-	realpath(path: string): string {
-		return sys.realpath == null ? path : sys.realpath(path);
-	},
-	ensureDirectory(path: string): string {
-		return statSync(path).isDirectory() ? path : dirname(path);
-	}
-};
+export function getRealFileSystem(typescript: typeof TS): FileSystem {
+	return {
+		...typescript.sys,
+		realpath(path: string): string {
+			return typescript.sys.realpath == null ? path : typescript.sys.realpath(path);
+		},
+		ensureDirectory(path: string): string {
+			return statSync(path).isDirectory() ? path : dirname(path);
+		}
+	};
+}

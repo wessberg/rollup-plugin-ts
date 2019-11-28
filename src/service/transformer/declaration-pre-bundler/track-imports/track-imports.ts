@@ -1,16 +1,3 @@
-import {
-	Expression,
-	isImportClause,
-	isImportDeclaration,
-	isImportSpecifier,
-	isImportTypeNode,
-	isNamespaceImport,
-	Node,
-	SourceFile,
-	TransformerFactory,
-	updateSourceFileNode,
-	visitEachChild
-} from "typescript";
 import {DeclarationPreBundlerOptions, ImportedSymbol} from "../declaration-pre-bundler-options";
 import {normalize} from "path";
 import {visitImportTypeNode} from "./visitor/visit-import-type-node";
@@ -18,19 +5,19 @@ import {visitImportClause} from "./visitor/visit-import-clause";
 import {visitNamespaceImport} from "./visitor/visit-namespace-import";
 import {visitImportSpecifier} from "./visitor/visit-import-specifier";
 import {visitImportDeclaration} from "./visitor/visit-import-declaration";
+import {TS} from "../../../../type/ts";
 
 /**
  * Tracks imports across files such that they can be added back in if necessary at a later point or at
  * least to understand the dependencies across modules
- * @param {DeclarationPreBundlerOptions} options
  */
-export function trackImports(options: DeclarationPreBundlerOptions): TransformerFactory<SourceFile> {
+export function trackImports({typescript, ...options}: DeclarationPreBundlerOptions): TS.TransformerFactory<TS.SourceFile> {
 	return context => {
 		return sourceFile => {
 			const sourceFileName = normalize(sourceFile.fileName);
 
 			// If the SourceFile is not part of the local module names, remove all statements from it and return immediately
-			if (!options.localModuleNames.includes(sourceFileName)) return updateSourceFileNode(sourceFile, [], true);
+			if (!options.localModuleNames.includes(sourceFileName)) return typescript.updateSourceFileNode(sourceFile, [], true);
 
 			if (options.pluginOptions.debug) {
 				console.log(`=== BEFORE TRACKING IMPORTS === (${sourceFileName})`);
@@ -44,23 +31,24 @@ export function trackImports(options: DeclarationPreBundlerOptions): Transformer
 				options.sourceFileToImportedSymbolSet.set(sourceFileName, importedSymbolSet);
 			}
 
-			let currentModuleSpecifier: Expression | undefined;
+			let currentModuleSpecifier: TS.Expression | undefined;
 
 			// Prepare some VisitorOptions
 			const visitorOptions = {
 				...options,
+				typescript,
 				sourceFile,
 				isEntry: options.entryFileNames.includes(sourceFileName),
-				setCurrentModuleSpecifier(newModuleSpecifier: Expression | undefined) {
+				setCurrentModuleSpecifier(newModuleSpecifier: TS.Expression | undefined) {
 					currentModuleSpecifier = newModuleSpecifier;
 				},
-				getCurrentModuleSpecifier(): Expression | undefined {
+				getCurrentModuleSpecifier(): TS.Expression | undefined {
 					return currentModuleSpecifier;
 				},
-				childContinuation: <U extends Node>(node: U): U | undefined => {
-					return visitEachChild(node, visitor, context);
+				childContinuation: <U extends TS.Node>(node: U): U | undefined => {
+					return typescript.visitEachChild(node, visitor, context);
 				},
-				continuation: <U extends Node>(node: U): U | undefined => {
+				continuation: <U extends TS.Node>(node: U): U | undefined => {
 					return visitor(node) as U | undefined;
 				},
 				markAsImported(importedSymbol: ImportedSymbol): void {
@@ -70,19 +58,18 @@ export function trackImports(options: DeclarationPreBundlerOptions): Transformer
 
 			/**
 			 * Visits the given Node
-			 * @param {Node} node
-			 * @returns {Node | undefined}
 			 */
-			function visitor(node: Node): Node | Node[] | undefined {
-				if (isImportTypeNode(node)) return visitImportTypeNode({node, ...visitorOptions});
-				else if (isImportDeclaration(node)) return visitImportDeclaration({node, ...visitorOptions});
-				else if (isImportClause(node)) return visitImportClause({node, ...visitorOptions});
-				else if (isImportSpecifier(node)) return visitImportSpecifier({node, ...visitorOptions});
-				else if (isNamespaceImport(node)) return visitNamespaceImport({node, ...visitorOptions});
-				else return visitEachChild(node, visitor, context);
+			function visitor(node: TS.Node): TS.Node | TS.Node[] | undefined {
+				// Some TypeScript versions may not support ImportTypeNodes, hence the optional call
+				if (typescript.isImportTypeNode?.(node)) return visitImportTypeNode({node, ...visitorOptions});
+				else if (typescript.isImportDeclaration(node)) return visitImportDeclaration({node, ...visitorOptions});
+				else if (typescript.isImportClause(node)) return visitImportClause({node, ...visitorOptions});
+				else if (typescript.isImportSpecifier(node)) return visitImportSpecifier({node, ...visitorOptions});
+				else if (typescript.isNamespaceImport(node)) return visitNamespaceImport({node, ...visitorOptions});
+				else return typescript.visitEachChild(node, visitor, context);
 			}
 
-			let updatedSourceFile = visitEachChild(sourceFile, visitor, context);
+			let updatedSourceFile = typescript.visitEachChild(sourceFile, visitor, context);
 
 			if (options.pluginOptions.debug) {
 				console.log(`=== AFTER TRACKING IMPORTS === (${sourceFileName})`);

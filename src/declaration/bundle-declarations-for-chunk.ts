@@ -1,7 +1,7 @@
-import {createSourceFile, ScriptKind, ScriptTarget, SourceFile, transform, TransformerFactory} from "typescript";
 import {SourceDescription} from "rollup";
 import {declarationBundler} from "../service/transformer/declaration-bundler/declaration-bundler";
 import {PreBundleDeclarationsForChunkOptions} from "./pre-bundle-declarations-for-chunk";
+import {TS} from "../type/ts";
 
 export interface BundleDeclarationsForChunkOptions extends PreBundleDeclarationsForChunkOptions {
 	preBundleResult: SourceDescription;
@@ -9,11 +9,17 @@ export interface BundleDeclarationsForChunkOptions extends PreBundleDeclarations
 
 export function bundleDeclarationsForChunk(options: BundleDeclarationsForChunkOptions): SourceDescription {
 	// Run a tree-shaking pass on the code
-	const result = transform(
-		createSourceFile(options.declarationFilename, options.preBundleResult.code, ScriptTarget.ESNext, true, ScriptKind.TS),
+	const result = options.typescript.transform(
+		options.typescript.createSourceFile(
+			options.declarationFilename,
+			options.preBundleResult.code,
+			options.typescript.ScriptTarget.ESNext,
+			true,
+			options.typescript.ScriptKind.TS
+		),
 		declarationBundler({
 			...options
-		}).afterDeclarations! as TransformerFactory<SourceFile>[],
+		}).afterDeclarations! as TS.TransformerFactory<TS.SourceFile>[],
 		options.languageServiceHost.getCompilationSettings()
 	);
 

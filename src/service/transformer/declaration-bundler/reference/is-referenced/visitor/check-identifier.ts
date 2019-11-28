@@ -1,6 +1,6 @@
-import {Identifier} from "typescript";
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
+import {TS} from "../../../../../../type/ts";
 
-export function checkIdentifier({node}: ReferenceVisitorOptions<Identifier>): string[] {
+export function checkIdentifier({node}: ReferenceVisitorOptions<TS.Identifier>): string[] {
 	return [node.text];
 }

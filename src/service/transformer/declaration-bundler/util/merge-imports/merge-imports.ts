@@ -1,38 +1,23 @@
-import {
-	createIdentifier,
-	createImportClause,
-	createImportDeclaration,
-	createImportSpecifier,
-	createNamedImports,
-	createNamespaceImport,
-	createStringLiteral,
-	ImportDeclaration,
-	isImportDeclaration,
-	isNamespaceImport,
-	isStringLiteralLike,
-	Statement
-} from "typescript";
 import {ensureHasLeadingDotAndPosix} from "../../../../../util/path/path-util";
+import {TS} from "../../../../../type/ts";
 
 /**
  * Merges the exports based on the given Statements
- * @param {Statement[]} statements
- * @return {Statement[]}
  */
-export function mergeImports(statements: Statement[]): Statement[] {
-	const imports = statements.filter(isImportDeclaration);
-	const otherStatements = statements.filter(statement => !isImportDeclaration(statement));
+export function mergeImports(statements: TS.Statement[], typescript: typeof TS): TS.Statement[] {
+	const imports = statements.filter(typescript.isImportDeclaration);
+	const otherStatements = statements.filter(statement => !typescript.isImportDeclaration(statement));
 
 	const namedImportsFromModulesMap: Map<string, {propertyName: string; alias: string}[][]> = new Map();
 	const bindingLessImportModules: Set<string> = new Set();
 	const defaultImportsFromModulesMap: Map<string, Set<string>> = new Map();
 	const namespaceImportsFromModulesMap: Map<string, Set<string>> = new Map();
 
-	const importDeclarations: Set<ImportDeclaration> = new Set();
+	const importDeclarations: Set<TS.ImportDeclaration> = new Set();
 
 	for (const importDeclaration of imports) {
 		// If the ModuleSpecifier is given and it isn't a string literal, leave it as it is
-		if (!isStringLiteralLike(importDeclaration.moduleSpecifier)) {
+		if (!typescript.isStringLiteralLike(importDeclaration.moduleSpecifier)) {
 			importDeclarations.add(importDeclaration);
 			continue;
 		}
@@ -82,7 +67,7 @@ export function mergeImports(statements: Statement[]): Statement[] {
 			}
 
 			if (importDeclaration.importClause.namedBindings != null) {
-				if (isNamespaceImport(importDeclaration.importClause.namedBindings)) {
+				if (typescript.isNamespaceImport(importDeclaration.importClause.namedBindings)) {
 					namespaceImportsFromModules.add(importDeclaration.importClause.namedBindings.name.text);
 				} else {
 					for (const element of importDeclaration.importClause.namedBindings.elements) {
@@ -99,14 +84,19 @@ export function mergeImports(statements: Statement[]): Statement[] {
 
 	// All all binding-less imports in the very top
 	for (const module of bindingLessImportModules) {
-		importDeclarations.add(createImportDeclaration(undefined, undefined, undefined, createStringLiteral(module)));
+		importDeclarations.add(typescript.createImportDeclaration(undefined, undefined, undefined, typescript.createStringLiteral(module)));
 	}
 
 	// Add all default imports from the module (They may have different local names)
 	for (const [module, names] of defaultImportsFromModulesMap) {
 		for (const name of names) {
 			importDeclarations.add(
-				createImportDeclaration(undefined, undefined, createImportClause(createIdentifier(name), undefined), createStringLiteral(module))
+				typescript.createImportDeclaration(
+					undefined,
+					undefined,
+					typescript.createImportClause(typescript.createIdentifier(name), undefined),
+					typescript.createStringLiteral(module)
+				)
 			);
 		}
 	}
@@ -115,11 +105,11 @@ export function mergeImports(statements: Statement[]): Statement[] {
 	for (const [module, names] of namespaceImportsFromModulesMap) {
 		for (const name of names) {
 			importDeclarations.add(
-				createImportDeclaration(
+				typescript.createImportDeclaration(
 					undefined,
 					undefined,
-					createImportClause(undefined, createNamespaceImport(createIdentifier(name))),
-					createStringLiteral(module)
+					typescript.createImportClause(undefined, typescript.createNamespaceImport(typescript.createIdentifier(name))),
+					typescript.createStringLiteral(module)
 				)
 			);
 		}
@@ -132,20 +122,20 @@ export function mergeImports(statements: Statement[]): Statement[] {
 			if (collection.length < 1) continue;
 
 			importDeclarations.add(
-				createImportDeclaration(
+				typescript.createImportDeclaration(
 					undefined,
 					undefined,
-					createImportClause(
+					typescript.createImportClause(
 						undefined,
-						createNamedImports(
+						typescript.createNamedImports(
 							collection.map(record =>
 								record.propertyName !== record.alias
-									? createImportSpecifier(createIdentifier(record.propertyName), createIdentifier(record.alias))
-									: createImportSpecifier(undefined, createIdentifier(record.alias))
+									? typescript.createImportSpecifier(typescript.createIdentifier(record.propertyName), typescript.createIdentifier(record.alias))
+									: typescript.createImportSpecifier(undefined, typescript.createIdentifier(record.alias))
 							)
 						)
 					),
-					createStringLiteral(ensureHasLeadingDotAndPosix(module))
+					typescript.createStringLiteral(ensureHasLeadingDotAndPosix(module))
 				)
 			);
 		}

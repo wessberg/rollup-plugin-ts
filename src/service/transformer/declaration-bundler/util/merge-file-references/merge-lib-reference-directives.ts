@@ -1,4 +1,4 @@
-import {FileReference, SourceFile} from "typescript";
+import {TS} from "../../../../../type/ts";
 
 function formatLibReferenceDirective(libName: string): string {
 	return `/// <reference lib="${libName}" />`;
@@ -6,10 +6,8 @@ function formatLibReferenceDirective(libName: string): string {
 
 /**
  * Merges the lib file references of the SourceFile
- * @param {SourceFile} sourceFile
- * @return {FileReference[]}
  */
-export function mergeLibReferenceDirectives(sourceFile: SourceFile): FileReference[] {
+export function mergeLibReferenceDirectives(sourceFile: TS.SourceFile): TS.FileReference[] {
 	return (
 		[...new Set<string>(sourceFile.libReferenceDirectives.map(({fileName}) => fileName))]
 			// Don't include those that are already part of the SourceFile

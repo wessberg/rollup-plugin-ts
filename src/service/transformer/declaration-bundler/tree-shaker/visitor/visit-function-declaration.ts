@@ -1,18 +1,22 @@
-import {FunctionDeclaration, updateFunctionDeclaration} from "typescript";
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
 import {ensureHasDeclareModifier} from "../../../declaration-pre-bundler/util/modifier/modifier-util";
+import {TS} from "../../../../../type/ts";
 
-export function visitFunctionDeclaration({node, continuation}: TreeShakerVisitorOptions<FunctionDeclaration>): FunctionDeclaration | undefined {
+export function visitFunctionDeclaration({
+	node,
+	continuation,
+	typescript
+}: TreeShakerVisitorOptions<TS.FunctionDeclaration>): TS.FunctionDeclaration | undefined {
 	const nameContinuationResult = node.name == null ? undefined : continuation(node.name);
 	if (nameContinuationResult == null) {
 		return undefined;
 	}
 	return node.name === nameContinuationResult
 		? node
-		: updateFunctionDeclaration(
+		: typescript.updateFunctionDeclaration(
 				node,
 				node.decorators,
-				ensureHasDeclareModifier(node.modifiers),
+				ensureHasDeclareModifier(node.modifiers, typescript),
 				node.asteriskToken,
 				nameContinuationResult,
 				node.typeParameters,

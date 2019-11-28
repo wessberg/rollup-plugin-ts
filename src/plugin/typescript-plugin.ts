@@ -1,5 +1,4 @@
 import {InputOptions, OutputBundle, OutputOptions, Plugin, PluginContext, RenderedChunk, SourceMap, TransformSourceDescription} from "rollup";
-import {createDocumentRegistry, createLanguageService, LanguageService} from "typescript";
 import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line";
 import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options";
 import {IncrementalLanguageService} from "../service/language-service/incremental-language-service";
@@ -34,84 +33,73 @@ import {takeBrowserslistOrComputeBasedOnCompilerOptions} from "../util/take-brow
 import {matchAll} from "@wessberg/stringutil";
 import {Resolver} from "../util/resolve-id/resolver";
 import {getModuleDependencies, ModuleDependencyMap} from "../util/module/get-module-dependencies";
-import {emitDeclarations} from "../declaration/emit-declarations";
+import {emitDeclarations} from "../declaration/emit-declarations-2";
+import {TS} from "../type/ts";
 
 /**
  * The name of the Rollup plugin
- * @type {string}
  */
 const PLUGIN_NAME = "Typescript";
 
 /**
  * A Rollup plugin that transpiles the given input with Typescript
- * @param {TypescriptPluginOptions} [pluginInputOptions={}]
  */
 export default function typescriptRollupPlugin(pluginInputOptions: Partial<TypescriptPluginOptions> = {}): Plugin {
 	const pluginOptions: TypescriptPluginOptions = getPluginOptions(pluginInputOptions);
-	const {include, exclude, tsconfig, cwd, resolveTypescriptLibFrom, browserslist} = pluginOptions;
+	const {include, exclude, tsconfig, cwd, resolveTypescriptLibFrom, browserslist, typescript, fileSystem, transpileOnly} = pluginOptions;
 	const transformers = pluginOptions.transformers == null ? [] : ensureArray(pluginOptions.transformers);
 	// Make sure to normalize the received Browserslist
-	const normalizedBrowserslist = getBrowserslist({browserslist, cwd, fileSystem: pluginOptions.fileSystem});
+	const normalizedBrowserslist = getBrowserslist({browserslist, cwd, fileSystem});
 
 	/**
 	 * The ParsedCommandLine to use with Typescript
-	 * @type {GetParsedCommandLineResult?}
 	 */
 	let parsedCommandLineResult: GetParsedCommandLineResult;
 
 	/**
 	 * The config to use with Babel, if Babel should transpile source code
-	 * @type {IBabelConfig}
 	 */
 	let babelConfig: ((filename: string) => IBabelConfig) | undefined;
 
 	/**
 	 * If babel is to be used, and if one or more minify presets/plugins has been passed, this config will be used
-	 * @type {boolean}
 	 */
 	let babelMinifyConfig: ((filename: string) => IBabelConfig) | undefined;
 
 	/**
 	 * If babel is to be used, and if one or more minify presets/plugins has been passed, this will be true
-	 * @type {boolean}
 	 */
 	let hasBabelMinifyOptions: boolean = false;
 
 	/**
 	 * The (Incremental) LanguageServiceHost to use
-	 * @type {IncrementalLanguageService?}
 	 */
 	let languageServiceHost: IncrementalLanguageService;
 
 	/**
 	 * The host to use for when resolving modules
-	 * @type {ModuleResolutionHost}
 	 */
 	let moduleResolutionHost: ModuleResolutionHost;
 
 	/**
 	 * The LanguageService to use
-	 * @type {LanguageService?}
 	 */
-	let languageService: LanguageService;
+	let languageService: TS.LanguageService;
 
 	/**
 	 * A function that given an id and a parent resolves the full path for a dependency. The Module Resolution Algorithm depends on the CompilerOptions as well
 	 * as the supported extensions
-	 * @type {Resolver}
 	 */
 	let resolver: Resolver;
 
 	/**
 	 * A function that given an id and a parent resolves the full path for a dependency, prioritizing ambient files (.d.ts). The Module Resolution Algorithm depends on the CompilerOptions as well
 	 * as the supported extensions
-	 * @type {Resolver}
 	 */
 	let ambientResolver: Resolver;
 
 	/**
 	 * The EmitCache to use
-	 * @type {EmitCache}
 	 */
 	const emitCache: IEmitCache = new EmitCache();
 
@@ -119,14 +107,12 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 	/**
 	 * The ResolveCache to use
-	 * @type {ResolveCache}
 	 */
-	const resolveCache: IResolveCache = new ResolveCache({fileSystem: pluginOptions.fileSystem});
+	const resolveCache: IResolveCache = new ResolveCache({fileSystem});
 
 	/**
 	 * A Map between file names and the Set of absolute paths they depend on. Not all will be part of Rollup's chunk modules (specifically, emit-less ones won't be).
 	 * This is going to be important in the declaration bundling and tree-shaking phase since this information would otherwise be lost.
-	 * @type {Map<string, Set<string>>}
 	 */
 	const moduleDependencyMap: ModuleDependencyMap = new Map();
 
@@ -142,27 +128,21 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 	/**
 	 * All supported extensions
-	 * @type {string[]}
 	 */
 	let SUPPORTED_EXTENSIONS: Set<string>;
 
 	/**
 	 * The InputOptions provided to Rollup
-	 * @type {InputOptions}
 	 */
 	let rollupInputOptions: InputOptions;
 
 	/**
 	 * A Set of the entry filenames for when using rollup-plugin-multi-entry (we need to track this for generating valid declarations)
-	 * @type {Set<string>?}
 	 */
 	let MULTI_ENTRY_FILE_NAMES: Set<string> | undefined;
 
 	/**
 	 * Returns true if Typescript can emit something for the given file
-	 * @param {string} id
-	 * @param {string[]} supportedExtensions
-	 * @returns {boolean}
 	 */
 	let canEmitForFile: (id: string) => boolean;
 
@@ -171,7 +151,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 		/**
 		 * Invoked when Input options has been received by Rollup
-		 * @param {InputOptions} options
 		 */
 		options(options: InputOptions): undefined {
 			// Break if the options aren't different from the previous ones
@@ -189,8 +168,9 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			parsedCommandLineResult = getParsedCommandLine({
 				tsconfig,
 				cwd,
-				forcedCompilerOptions: getForcedCompilerOptions({pluginOptions, rollupInputOptions, browserslist: normalizedBrowserslist}),
-				fileSystem: pluginOptions.fileSystem
+				fileSystem,
+				typescript,
+				forcedCompilerOptions: getForcedCompilerOptions({pluginOptions, rollupInputOptions, browserslist: normalizedBrowserslist})
 			});
 
 			// Prepare a Babel config if Babel should be the transpiler
@@ -198,7 +178,8 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				// A browserslist may already be provided, but if that is not the case, one can be computed based on the "target" from the tsconfig
 				const computedBrowserslist = takeBrowserslistOrComputeBasedOnCompilerOptions(
 					normalizedBrowserslist,
-					parsedCommandLineResult.originalCompilerOptions
+					parsedCommandLineResult.originalCompilerOptions,
+					typescript
 				);
 
 				const babelConfigResult = getBabelConfig({
@@ -229,6 +210,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 					options: parsedCommandLineResult.parsedCommandLine.options,
 					moduleResolutionHost,
 					resolveCache,
+					typescript,
 					supportedExtensions: SUPPORTED_EXTENSIONS
 				});
 
@@ -249,16 +231,17 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				emitCache,
 				resolveCache,
 				rollupInputOptions,
+				fileSystem,
+				typescript,
 				supportedExtensions: SUPPORTED_EXTENSIONS,
-				fileSystem: pluginOptions.fileSystem,
 				parsedCommandLine: parsedCommandLineResult.parsedCommandLine,
 				transformers: mergeTransformers(...transformers),
 				languageService: () => languageService
 			});
 
-			languageService = createLanguageService(
+			languageService = typescript.createLanguageService(
 				languageServiceHost,
-				createDocumentRegistry(languageServiceHost.useCaseSensitiveFileNames(), languageServiceHost.getCurrentDirectory())
+				typescript.createDocumentRegistry(languageServiceHost.useCaseSensitiveFileNames(), languageServiceHost.getCurrentDirectory())
 			);
 
 			// Hook up a new ModuleResolutionHost
@@ -271,9 +254,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * Renders the given chunk. Will emit declaration files if the Typescript config says so.
 		 * Will also apply any minification via Babel if a minification plugin or preset has been provided,
 		 * and if Babel is the chosen transpiler. Otherwise, it will simply do nothing
-		 * @param {string} code
-		 * @param {RenderedChunk} chunk
-		 * @returns {Promise<{ code: string, map: SourceMap } | null>}
 		 */
 		async renderChunk(this: PluginContext, code: string, chunk: RenderedChunk): Promise<{code: string; map: SourceMap} | null> {
 			// Don't proceed if there is no minification config
@@ -294,9 +274,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 		/**
 		 * Transforms the given code and file
-		 * @param {string} code
-		 * @param {string} file
-		 * @returns {Promise<TransformSourceDescription?>}
 		 */
 		async transform(this: PluginContext, code: string, file: string): Promise<TransformSourceDescription | undefined> {
 			// If this file represents ROLLUP_PLUGIN_MULTI_ENTRY, we need to parse its' contents to understand which files it aliases.
@@ -331,6 +308,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 							getModuleDependencies({
 								resolver: ambientResolver,
 								languageServiceHost,
+								typescript,
 								file,
 								supportedExtensions: SUPPORTED_EXTENSIONS,
 								cache: moduleDependencyCache
@@ -374,9 +352,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 		/**
 		 * Attempts to resolve the given id via the LanguageServiceHost
-		 * @param {string} id
-		 * @param {string} parent
-		 * @returns {string | null}
 		 */
 		resolveId(this: PluginContext, id: string, parent: string | undefined): string | null {
 			// Don't proceed if there is no parent (in which case this is an entry module)
@@ -384,7 +359,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 			// Handle tslib differently
 			if (isTslib(id)) {
-				const tslibPath = resolveCache.findHelperFromNodeModules("tslib/tslib.es6.js", cwd);
+				const tslibPath = resolveCache.findHelperFromNodeModules(typescript, "tslib/tslib.es6.js", cwd);
 				if (tslibPath != null) {
 					return tslibPath;
 				}
@@ -392,7 +367,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 			// Handle Babel helpers differently
 			else if (isBabelHelper(id)) {
-				const babelHelperPath = resolveCache.findHelperFromNodeModules(id, cwd);
+				const babelHelperPath = resolveCache.findHelperFromNodeModules(typescript, id, cwd);
 				if (babelHelperPath != null) {
 					return babelHelperPath;
 				}
@@ -406,8 +381,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * Optionally loads the given id. Is used to swap out the regenerator-runtime implementation used by babel
 		 * to use one that is using ESM by default to play nice with Rollup even when rollup-plugin-commonjs isn't
 		 * being used
-		 * @param {string} id
-		 * @returns {string | null}
 		 */
 		load(this: PluginContext, id: string): string | null {
 			// Return the alternative source for the regenerator runtime if that file is attempted to be loaded
@@ -420,24 +393,21 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		/**
 		 * Invoked when a full bundle is generated. Will take all modules for all chunks and make sure to remove all removed files
 		 * from the LanguageService
-		 * @param {OutputOptions} outputOptions
-		 * @param {OutputBundle} bundle
-		 * @returns {void | Promise<void>}
 		 */
 		generateBundle(this: PluginContext, outputOptions: OutputOptions, bundle: OutputBundle): void {
 			// Only emit diagnostics if the plugin options allow it
-			if (!Boolean(pluginOptions.transpileOnly)) {
+			if (!Boolean(transpileOnly)) {
 				// Emit all reported diagnostics
-				emitDiagnosticsThroughRollup({languageServiceHost, languageService, pluginOptions, context: this});
+				emitDiagnosticsThroughRollup({languageServiceHost, languageService, pluginOptions, typescript, context: this});
 			}
 
 			// Emit declaration files if required
 			if (Boolean(parsedCommandLineResult.parsedCommandLine.options.declaration)) {
 				emitDeclarations({
 					bundle,
+					fileSystem,
 					pluginContext: this,
 					supportedExtensions: SUPPORTED_EXTENSIONS,
-					fileSystem: pluginOptions.fileSystem,
 					resolver: ambientResolver,
 					cwd,
 					outputOptions,

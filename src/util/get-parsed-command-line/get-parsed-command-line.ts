@@ -1,23 +1,19 @@
-import {CompilerOptions, parseConfigFileTextToJson, ParsedCommandLine, parseJsonConfigFileContent} from "typescript";
 import {IGetParsedCommandLineOptions} from "./i-get-parsed-command-line-options";
 import {ensureAbsolute} from "../path/path-util";
 import {DECLARATION_EXTENSION} from "../../constant/constant";
 import {GetParsedCommandLineResult} from "./get-parsed-command-line-result";
 import {InputCompilerOptions, TsConfigResolver, TsConfigResolverWithFileName} from "../../plugin/i-typescript-plugin-options";
+import {TS} from "../../type/ts";
 
 /**
  * Returns true if the given tsconfig is a ParsedCommandLine
- * @param {IGetParsedCommandLineOptions["tsconfig"]} tsconfig
- * @returns {tsconfig is ParsedCommandLine}
  */
-export function isParsedCommandLine(tsconfig?: IGetParsedCommandLineOptions["tsconfig"]): tsconfig is ParsedCommandLine {
+export function isParsedCommandLine(tsconfig?: IGetParsedCommandLineOptions["tsconfig"]): tsconfig is TS.ParsedCommandLine {
 	return tsconfig != null && typeof tsconfig !== "string" && typeof tsconfig !== "function" && "options" in tsconfig && !("hook" in tsconfig);
 }
 
 /**
  * Returns true if the given tsconfig are raw, JSON-serializable CompilerOptions
- * @param {IGetParsedCommandLineOptions["tsconfig"]} tsconfig
- * @returns {tsconfig is Partial<Record<keyof CompilerOptions, string | number | boolean>>}
  */
 export function isRawCompilerOptions(tsconfig?: IGetParsedCommandLineOptions["tsconfig"]): tsconfig is Partial<InputCompilerOptions> {
 	return tsconfig != null && typeof tsconfig !== "string" && typeof tsconfig !== "function" && !("options" in tsconfig) && !("hook" in tsconfig);
@@ -25,8 +21,6 @@ export function isRawCompilerOptions(tsconfig?: IGetParsedCommandLineOptions["ts
 
 /**
  * Returns true if the given tsconfig is in fact a function that receives resolved CompilerOptions that can be extended
- * @param {IGetParsedCommandLineOptions["tsconfig"]} tsconfig
- * @returns {tsconfig is TsConfigResolver}
  */
 export function isTsConfigResolver(tsconfig?: IGetParsedCommandLineOptions["tsconfig"]): tsconfig is TsConfigResolver {
 	return tsconfig != null && typeof tsconfig === "function";
@@ -35,8 +29,6 @@ export function isTsConfigResolver(tsconfig?: IGetParsedCommandLineOptions["tsco
 /**
  * Returns true if the given tsconfig is in fact an object that provides a filename for a tsconfig,
  * as well as a 'hook' function that receives resolved CompilerOptions that can be extended
- * @param {IGetParsedCommandLineOptions["tsconfig"]} tsconfig
- * @returns {tsconfig is TsConfigResolverWithFileName}
  */
 export function isTsConfigResolverWithFileName(tsconfig?: IGetParsedCommandLineOptions["tsconfig"]): tsconfig is TsConfigResolverWithFileName {
 	return tsconfig != null && typeof tsconfig !== "string" && typeof tsconfig !== "function" && !("options" in tsconfig) && "hook" in tsconfig;
@@ -44,10 +36,8 @@ export function isTsConfigResolverWithFileName(tsconfig?: IGetParsedCommandLineO
 
 /**
  * Returns true if the given tsconfig are CompilerOptions
- * @param {IGetParsedCommandLineOptions["tsconfig"]} tsconfig
- * @returns {tsconfig is CompilerOptions}
  */
-export function isCompilerOptions(tsconfig?: IGetParsedCommandLineOptions["tsconfig"]): tsconfig is Partial<CompilerOptions> {
+export function isCompilerOptions(tsconfig?: IGetParsedCommandLineOptions["tsconfig"]): tsconfig is Partial<TS.CompilerOptions> {
 	return (
 		tsconfig != null &&
 		typeof tsconfig !== "string" &&
@@ -64,18 +54,17 @@ export function isCompilerOptions(tsconfig?: IGetParsedCommandLineOptions["tscon
 
 /**
  * Gets a ParsedCommandLine based on the given options
- * @param {IGetParsedCommandLineOptions} options
- * @returns {GetParsedCommandLineResult}
  */
 export function getParsedCommandLine({
 	cwd,
 	tsconfig,
 	fileSystem,
-	forcedCompilerOptions = {}
+	forcedCompilerOptions = {},
+	typescript
 }: IGetParsedCommandLineOptions): GetParsedCommandLineResult {
 	const hasProvidedTsconfig = tsconfig != null;
-	let originalCompilerOptions: CompilerOptions | undefined;
-	let parsedCommandLine: ParsedCommandLine;
+	let originalCompilerOptions: TS.CompilerOptions | undefined;
+	let parsedCommandLine: TS.ParsedCommandLine;
 
 	// If the given tsconfig is already a ParsedCommandLine, use that one, but apply the forced CompilerOptions
 	if (isParsedCommandLine(tsconfig)) {
@@ -86,8 +75,8 @@ export function getParsedCommandLine({
 
 	// If the user provided CompilerOptions directly, use those to build a ParsedCommandLine
 	else if (isCompilerOptions(tsconfig)) {
-		originalCompilerOptions = parseJsonConfigFileContent({}, fileSystem, cwd, tsconfig).options;
-		parsedCommandLine = parseJsonConfigFileContent({}, fileSystem, cwd, {
+		originalCompilerOptions = typescript.parseJsonConfigFileContent({}, fileSystem, cwd, tsconfig).options;
+		parsedCommandLine = typescript.parseJsonConfigFileContent({}, fileSystem, cwd, {
 			...tsconfig,
 			...forcedCompilerOptions
 		});
@@ -95,8 +84,8 @@ export function getParsedCommandLine({
 
 	// If the user provided JSON-serializable ("raw") CompilerOptions directly, use those to build a ParsedCommandLine
 	else if (isRawCompilerOptions(tsconfig)) {
-		originalCompilerOptions = parseJsonConfigFileContent({compilerOptions: tsconfig}, fileSystem, cwd).options;
-		parsedCommandLine = parseJsonConfigFileContent({compilerOptions: tsconfig}, fileSystem, cwd, forcedCompilerOptions);
+		originalCompilerOptions = typescript.parseJsonConfigFileContent({compilerOptions: tsconfig}, fileSystem, cwd).options;
+		parsedCommandLine = typescript.parseJsonConfigFileContent({compilerOptions: tsconfig}, fileSystem, cwd, forcedCompilerOptions);
 	}
 
 	// Otherwise, attempt to resolve it and parse it
@@ -119,15 +108,15 @@ export function getParsedCommandLine({
 			throw new ReferenceError(`The given tsconfig: '${tsconfigPath}' doesn't exist!`);
 		}
 
-		originalCompilerOptions = parseJsonConfigFileContent(
-			parseConfigFileTextToJson(tsconfigPath, tsconfigContent).config,
+		originalCompilerOptions = typescript.parseJsonConfigFileContent(
+			typescript.parseConfigFileTextToJson(tsconfigPath, tsconfigContent).config,
 			fileSystem,
 			cwd,
 			{},
 			tsconfigPath
 		).options;
-		parsedCommandLine = parseJsonConfigFileContent(
-			parseConfigFileTextToJson(tsconfigPath, tsconfigContent).config,
+		parsedCommandLine = typescript.parseJsonConfigFileContent(
+			typescript.parseConfigFileTextToJson(tsconfigPath, tsconfigContent).config,
 			fileSystem,
 			cwd,
 			forcedCompilerOptions,

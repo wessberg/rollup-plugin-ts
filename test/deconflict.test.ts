@@ -31,9 +31,9 @@ test("Deconflicts symbols. #1", async t => {
 			declare const OtherFoo: typeof Foo;
 			declare class Foo {
 			}
-			declare class Foo_$0 extends OtherFoo {
+			declare class Foo$0 extends OtherFoo {
 			}
-			export {Foo_$0 as Foo};
+			export {Foo$0 as Foo};
 		`)
 	);
 });
@@ -46,6 +46,7 @@ test("Deconflicts symbols. #2", async t => {
 			text: `\
 					export {Foo} from "./foo";
 					export {Bar} from "./bar";
+					export type Baz = import("./foo").Foo;
 					`
 		},
 		{
@@ -75,12 +76,12 @@ test("Deconflicts symbols. #2", async t => {
 		formatCode(`\
 			declare class Foo {
 			}
-			declare type Foo_$0 = number;
+			type Foo$0 = number;
 			declare class Bar {
-				someProp: Foo_$0;
+					someProp: Foo$0;
 			}
-			export {Foo, Bar};
-
+			export type Baz = Foo;
+			export { Foo, Bar };
 		`)
 	);
 });
@@ -350,6 +351,157 @@ test("Deconflicts symbols. #7", async t => {
 					[Foo in "Foo"]: Baz[Foo];
 			};
 			export { Foo, Baz, Bar };
+		`)
+	);
+});
+
+test("Deconflicts symbols. #8", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+					import {TS} from "./bar";
+          export function foo<T extends TS.Node> (): void {
+          }
+					`
+		},
+		{
+			entry: false,
+			fileName: "bar.ts",
+			text: `\
+          import * as TS from "typescript";
+          export {TS};
+					`
+		}
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		import * as TS from "typescript";
+		declare function foo<T extends TS.Node>(): void;
+		export { foo };
+		`)
+	);
+});
+
+test("Deconflicts symbols. #9", async t => {
+	const bundle = await generateRollupBundle([
+		{
+			entry: true,
+			fileName: "index.ts",
+			text: `\
+					export * from "./foo";
+					`
+		},
+		{
+			entry: false,
+			fileName: "foo.ts",
+			text: `\
+					import {Bar} from "./bar";
+					type Prop = string;
+					export class Foo extends Bar {
+						someProp: Prop;
+					}
+					`
+		},
+		{
+			entry: false,
+			fileName: "bar.ts",
+			text: `\
+					import {Baz} from "./baz";
+					type Prop = string;
+					export class Bar extends Baz {
+						someOtherProp: Prop;
+					}
+					`
+		},
+		{
+			entry: false,
+			fileName: "baz.ts",
+			text: `\
+					type Prop = string;
+					export class Baz {
+						someOtherOtherProp: Prop;
+					}
+					`
+		}
+	]);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare type Prop = string;
+		declare class Baz {
+				someOtherOtherProp: Prop;
+		}
+		declare type Prop$0 = string;
+		declare class Bar extends Baz {
+				someOtherProp: Prop$0;
+		}
+		declare type Prop$1 = string;
+		declare class Foo extends Bar {
+				someProp: Prop$1;
+		}
+		export { Foo };
+		`)
+	);
+});
+
+test.only("Deconflicts symbols. #10", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+					export {Foo} from "./foo";
+					export {Bar} from "./bar";
+					export type Baz = typeof import("./foo");
+					`
+			},
+			{
+				entry: false,
+				fileName: "foo.ts",
+				text: `\
+					export class Foo {}
+					`
+			},
+			{
+				entry: false,
+				fileName: "bar.ts",
+				text: `\
+					export type Foo = number;
+					export class Bar {
+						someProp: Foo;
+					}
+					`
+			}
+		],
+		{debug: true}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare class Foo {
+			}
+			type Foo$0 = number;
+			declare class Bar {
+					someProp: Foo$0;
+			}
+			export type Baz = Foo;
+			export { Foo, Bar };
 		`)
 	);
 });

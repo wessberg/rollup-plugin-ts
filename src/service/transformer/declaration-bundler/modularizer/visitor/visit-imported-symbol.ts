@@ -1,29 +1,3 @@
-import {
-	createIdentifier,
-	createImportClause,
-	createImportDeclaration,
-	createImportSpecifier,
-	createModuleBlock,
-	createModuleDeclaration,
-	createNamedImports,
-	createNamespaceImport,
-	createStringLiteral,
-	createTypeAliasDeclaration,
-	createTypeQueryNode,
-	createTypeReferenceNode,
-	createVariableDeclaration,
-	createVariableDeclarationList,
-	createVariableStatement,
-	ImportDeclaration,
-	ModuleDeclaration,
-	NodeFlags,
-	Statement,
-	SyntaxKind,
-	TypeAliasDeclaration,
-	TypeQueryNode,
-	TypeReferenceNode,
-	VariableStatement
-} from "typescript";
 import {dirname, relative} from "path";
 import {ensureHasLeadingDotAndPosix, stripKnownExtension} from "../../../../../util/path/path-util";
 import {SupportedExtensions} from "../../../../../util/get-supported-extensions/get-supported-extensions";
@@ -39,8 +13,10 @@ import {getChunkFilename} from "../../../declaration-pre-bundler/util/get-chunk-
 import {ensureHasDeclareModifier, removeExportAndDeclareModifiers} from "../../../declaration-pre-bundler/util/modifier/modifier-util";
 import {ChunkForModuleCache} from "../../../declaration/declaration-options";
 import {cloneNode} from "@wessberg/ts-clone-node";
+import {TS} from "../../../../../type/ts";
 
 export interface VisitImportedSymbolOptions {
+	typescript: typeof TS;
 	chunkForModuleCache: ChunkForModuleCache;
 	sourceFileToLocalSymbolMap: SourceFileToLocalSymbolMap;
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
@@ -54,52 +30,40 @@ export interface VisitImportedSymbolOptions {
 
 export function createAliasedBinding(
 	importedSymbol: NamedImportedSymbol,
-	propertyName: string
-): ImportDeclaration | TypeAliasDeclaration | VariableStatement {
+	propertyName: string,
+	typescript: typeof TS
+): TS.ImportDeclaration | TS.TypeAliasDeclaration | TS.VariableStatement {
 	switch (importedSymbol.node.kind) {
-		case SyntaxKind.ClassDeclaration:
-		case SyntaxKind.ClassExpression:
-		case SyntaxKind.FunctionDeclaration:
-		case SyntaxKind.FunctionExpression:
-		case SyntaxKind.EnumDeclaration:
-		case SyntaxKind.VariableDeclaration:
-		case SyntaxKind.VariableStatement:
-		case SyntaxKind.ExportAssignment: {
-			return createVariableStatement(
-				ensureHasDeclareModifier(undefined),
-				createVariableDeclarationList(
-					[createVariableDeclaration(createIdentifier(importedSymbol.name), createTypeQueryNode(createIdentifier(propertyName)))],
-					NodeFlags.Const
+		case typescript.SyntaxKind.ClassDeclaration:
+		case typescript.SyntaxKind.ClassExpression:
+		case typescript.SyntaxKind.FunctionDeclaration:
+		case typescript.SyntaxKind.FunctionExpression:
+		case typescript.SyntaxKind.EnumDeclaration:
+		case typescript.SyntaxKind.VariableDeclaration:
+		case typescript.SyntaxKind.VariableStatement:
+		case typescript.SyntaxKind.ExportAssignment: {
+			return typescript.createVariableStatement(
+				ensureHasDeclareModifier(undefined, typescript),
+				typescript.createVariableDeclarationList(
+					[
+						typescript.createVariableDeclaration(
+							typescript.createIdentifier(importedSymbol.name),
+							typescript.createTypeQueryNode(typescript.createIdentifier(propertyName))
+						)
+					],
+					typescript.NodeFlags.Const
 				)
 			);
 		}
 
 		default: {
-			return createTypeAliasDeclaration(
+			return typescript.createTypeAliasDeclaration(
 				undefined,
 				undefined,
-				createIdentifier(importedSymbol.name),
+				typescript.createIdentifier(importedSymbol.name),
 				undefined,
-				createTypeReferenceNode(createIdentifier(propertyName), undefined)
+				typescript.createTypeReferenceNode(typescript.createIdentifier(propertyName), undefined)
 			);
-		}
-	}
-}
-
-export function createTypeReferenceOrTypeQueryBasedOnNode(exportedSymbol: NamedExportedSymbol): TypeReferenceNode | TypeQueryNode {
-	switch (exportedSymbol.node.kind) {
-		case SyntaxKind.ClassDeclaration:
-		case SyntaxKind.ClassExpression:
-		case SyntaxKind.FunctionDeclaration:
-		case SyntaxKind.FunctionExpression:
-		case SyntaxKind.EnumDeclaration:
-		case SyntaxKind.VariableDeclaration:
-		case SyntaxKind.VariableStatement: {
-			return createTypeQueryNode(createIdentifier(exportedSymbol.name));
-		}
-
-		default: {
-			return createTypeReferenceNode(createIdentifier(exportedSymbol.name), undefined);
 		}
 	}
 }
@@ -124,10 +88,10 @@ function getAllNamedExportsForModule(moduleName: string, sourceFileToExportedSym
 
 export function visitImportedSymbol(
 	options: VisitImportedSymbolOptions
-): (ImportDeclaration | TypeAliasDeclaration | ModuleDeclaration | VariableStatement)[] {
-	const {importedSymbol, sourceFileToExportedSymbolSet, sourceFileToLocalSymbolMap, absoluteChunkFileName, module} = options;
+): (TS.ImportDeclaration | TS.TypeAliasDeclaration | TS.ModuleDeclaration | TS.VariableStatement)[] {
+	const {importedSymbol, sourceFileToExportedSymbolSet, sourceFileToLocalSymbolMap, absoluteChunkFileName, typescript} = options;
 	const otherChunkFileName = getChunkFilename({...options, fileName: importedSymbol.originalModule});
-	const importDeclarations: (ImportDeclaration | TypeAliasDeclaration | ModuleDeclaration)[] = [];
+	const importDeclarations: (TS.ImportDeclaration | TS.TypeAliasDeclaration | TS.ModuleDeclaration)[] = [];
 
 	// Generate a module specifier that points to the referenced module, relative to the current sourcefile
 	const relativeToSourceFileDirectory =
@@ -144,9 +108,6 @@ export function visitImportedSymbol(
 	// Find the local symbols for the referenced module
 	const otherModuleLocalSymbols = sourceFileToLocalSymbolMap.get(importedSymbol.originalModule);
 
-	// Find the local symbols for the current module
-	const currentModuleLocalSymbols = sourceFileToLocalSymbolMap.get(module);
-
 	// Find the exported symbols for the referenced module
 	const otherModuleExportedSymbols = sourceFileToExportedSymbolSet.get(importedSymbol.originalModule);
 
@@ -155,23 +116,23 @@ export function visitImportedSymbol(
 	if (otherChunkFileName == null || importedSymbol.isExternal) {
 		return [
 			...importDeclarations,
-			createImportDeclaration(
+			typescript.createImportDeclaration(
 				undefined,
 				undefined,
-				createImportClause(
-					"defaultImport" in importedSymbol && importedSymbol.defaultImport ? createIdentifier(importedSymbol.name) : undefined,
+				typescript.createImportClause(
+					"defaultImport" in importedSymbol && importedSymbol.defaultImport ? typescript.createIdentifier(importedSymbol.name) : undefined,
 					"namespaceImport" in importedSymbol
-						? createNamespaceImport(createIdentifier(importedSymbol.name))
+						? typescript.createNamespaceImport(typescript.createIdentifier(importedSymbol.name))
 						: importedSymbol.defaultImport
 						? undefined
-						: createNamedImports([
-								createImportSpecifier(
-									importedSymbol.propertyName != null ? createIdentifier(importedSymbol.propertyName) : undefined,
-									createIdentifier(importedSymbol.name)
+						: typescript.createNamedImports([
+								typescript.createImportSpecifier(
+									importedSymbol.propertyName != null ? typescript.createIdentifier(importedSymbol.propertyName) : undefined,
+									typescript.createIdentifier(importedSymbol.name)
 								)
 						  ])
 				),
-				createStringLiteral(moduleSpecifier)
+				typescript.createStringLiteral(moduleSpecifier)
 			)
 		];
 	}
@@ -213,23 +174,25 @@ export function visitImportedSymbol(
 							: ensureHasLeadingDotAndPosix(stripKnownExtension(otherRelativeToSourceFileDirectory), false);
 
 					importDeclarations.push(
-						createImportDeclaration(
+						typescript.createImportDeclaration(
 							undefined,
 							undefined,
-							createImportClause(
-								"defaultExport" in matchingExportedSymbol && matchingExportedSymbol.defaultExport ? createIdentifier(importedSymbol.name) : undefined,
+							typescript.createImportClause(
+								"defaultExport" in matchingExportedSymbol && matchingExportedSymbol.defaultExport
+									? typescript.createIdentifier(importedSymbol.name)
+									: undefined,
 								"namespaceExport" in matchingExportedSymbol
-									? createNamespaceImport(createIdentifier(importedSymbol.name))
+									? typescript.createNamespaceImport(typescript.createIdentifier(importedSymbol.name))
 									: "defaultExport" in matchingExportedSymbol && matchingExportedSymbol.defaultExport
 									? undefined
-									: createNamedImports([
-											createImportSpecifier(
-												matchingExportedSymbol.propertyName != null ? createIdentifier(matchingExportedSymbol.propertyName) : undefined,
-												createIdentifier(importedSymbol.name)
+									: typescript.createNamedImports([
+											typescript.createImportSpecifier(
+												matchingExportedSymbol.propertyName != null ? typescript.createIdentifier(matchingExportedSymbol.propertyName) : undefined,
+												typescript.createIdentifier(importedSymbol.name)
 											)
 									  ])
 							),
-							createStringLiteral(otherUpdatedModuleSpecifierText)
+							typescript.createStringLiteral(otherUpdatedModuleSpecifierText)
 						)
 					);
 				} else if (
@@ -238,27 +201,14 @@ export function visitImportedSymbol(
 					"name" in matchingExportedSymbol &&
 					matchingExportedSymbol.name !== importedSymbol.name
 				) {
-					return [...importDeclarations, createAliasedBinding(importedSymbol, matchingExportedSymbol.name)];
+					return [...importDeclarations, createAliasedBinding(importedSymbol, matchingExportedSymbol.name, typescript)];
 				}
 			}
 		}
 
 		// Create a TypeAlias that aliases the imported property
 		if ("propertyName" in importedSymbol && importedSymbol.propertyName != null) {
-			let hasLocalConflict = false;
-
-			if (currentModuleLocalSymbols != null) {
-				for (const localSymbol of currentModuleLocalSymbols.values()) {
-					if (localSymbol.deconflictedName != null && localSymbol.deconflictedName === importedSymbol.name) {
-						hasLocalConflict = true;
-						break;
-					}
-				}
-			}
-
-			if (!hasLocalConflict) {
-				return [...importDeclarations, createAliasedBinding(importedSymbol, importedSymbol.propertyName)];
-			}
+			return [...importDeclarations, createAliasedBinding(importedSymbol, importedSymbol.propertyName, typescript)];
 		}
 
 		// If a namespace is imported, create a type literal under the same name as the namespace binding
@@ -266,20 +216,20 @@ export function visitImportedSymbol(
 			const namedExportsForModule = getAllNamedExportsForModule(importedSymbol.originalModule, sourceFileToExportedSymbolSet);
 			return [
 				...importDeclarations,
-				createModuleDeclaration(
+				typescript.createModuleDeclaration(
 					undefined,
-					ensureHasDeclareModifier([]),
-					createIdentifier(importedSymbol.name),
-					createModuleBlock(
+					ensureHasDeclareModifier([], typescript),
+					typescript.createIdentifier(importedSymbol.name),
+					typescript.createModuleBlock(
 						namedExportsForModule.map(namedExport => {
 							return cloneNode(namedExport.node, {
 								hook: {
-									modifiers: removeExportAndDeclareModifiers
+									modifiers: modifiers => removeExportAndDeclareModifiers(modifiers, typescript)
 								}
-							}) as Statement;
+							}) as TS.Statement;
 						})
 					),
-					NodeFlags.Namespace
+					typescript.NodeFlags.Namespace
 				)
 			];
 		}
@@ -294,11 +244,11 @@ export function visitImportedSymbol(
 	if ("namespaceImport" in importedSymbol) {
 		return [
 			...importDeclarations,
-			createImportDeclaration(
+			typescript.createImportDeclaration(
 				undefined,
 				undefined,
-				createImportClause(undefined, createNamespaceImport(createIdentifier(importedSymbol.name))),
-				createStringLiteral(moduleSpecifier)
+				typescript.createImportClause(undefined, typescript.createNamespaceImport(typescript.createIdentifier(importedSymbol.name))),
+				typescript.createStringLiteral(moduleSpecifier)
 			)
 		];
 	}
@@ -307,11 +257,11 @@ export function visitImportedSymbol(
 	else if ("defaultImport" in importedSymbol && importedSymbol.defaultImport) {
 		return [
 			...importDeclarations,
-			createImportDeclaration(
+			typescript.createImportDeclaration(
 				undefined,
 				undefined,
-				createImportClause(createIdentifier(importedSymbol.name), undefined),
-				createStringLiteral(moduleSpecifier)
+				typescript.createImportClause(typescript.createIdentifier(importedSymbol.name), undefined),
+				typescript.createStringLiteral(moduleSpecifier)
 			)
 		];
 	}
@@ -323,24 +273,23 @@ export function visitImportedSymbol(
 		if (otherModuleLocalSymbols != null) {
 			const match = otherModuleLocalSymbols.get(propertyName ?? name);
 			const actualPropertyName = propertyName ?? name;
-			const deconflictedPropertyName = match == null ? actualPropertyName : match.deconflictedName ?? actualPropertyName;
 
 			if (match != null) {
 				return [
 					...importDeclarations,
-					createImportDeclaration(
+					typescript.createImportDeclaration(
 						undefined,
 						undefined,
-						createImportClause(
+						typescript.createImportClause(
 							undefined,
-							createNamedImports([
-								createImportSpecifier(
-									deconflictedPropertyName === name ? undefined : createIdentifier(deconflictedPropertyName),
-									createIdentifier(name)
+							typescript.createNamedImports([
+								typescript.createImportSpecifier(
+									actualPropertyName === name ? undefined : typescript.createIdentifier(actualPropertyName),
+									typescript.createIdentifier(name)
 								)
 							])
 						),
-						createStringLiteral(moduleSpecifier)
+						typescript.createStringLiteral(moduleSpecifier)
 					)
 				];
 			}
@@ -349,16 +298,19 @@ export function visitImportedSymbol(
 		// If no exported symbol could be found, assume that the import binding is OK as it is
 		return [
 			...importDeclarations,
-			createImportDeclaration(
+			typescript.createImportDeclaration(
 				undefined,
 				undefined,
-				createImportClause(
+				typescript.createImportClause(
 					undefined,
-					createNamedImports([
-						createImportSpecifier(propertyName == null || propertyName === name ? undefined : createIdentifier(propertyName), createIdentifier(name))
+					typescript.createNamedImports([
+						typescript.createImportSpecifier(
+							propertyName == null || propertyName === name ? undefined : typescript.createIdentifier(propertyName),
+							typescript.createIdentifier(name)
+						)
 					])
 				),
-				createStringLiteral(moduleSpecifier)
+				typescript.createStringLiteral(moduleSpecifier)
 			)
 		];
 	}

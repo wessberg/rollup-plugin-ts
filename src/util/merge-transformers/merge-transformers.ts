@@ -1,30 +1,28 @@
-import {Bundle, CustomTransformers, SourceFile, TransformerFactory, CustomTransformerFactory} from "typescript";
 import {CustomTransformersFunction} from "./i-custom-transformer-options";
+import {TS} from "../../type/ts";
 
 /**
  * Merges all of the given transformers
- * @param {(CustomTransformers|CustomTransformersFunction|undefined)[]} transformers
- * @returns {CustomTransformersFunction}
  */
-export function mergeTransformers(...transformers: (CustomTransformers | CustomTransformersFunction | undefined)[]): CustomTransformersFunction {
+export function mergeTransformers(...transformers: (TS.CustomTransformers | CustomTransformersFunction | undefined)[]): CustomTransformersFunction {
 	return options => {
 		const instantiatedTransformers = transformers
 			.filter(transformer => transformer != null)
-			.map((transformer: CustomTransformers | CustomTransformersFunction) =>
+			.map((transformer: TS.CustomTransformers | CustomTransformersFunction) =>
 				typeof transformer === "function" ? transformer(options) : transformer
 			);
 
-		const beforeTransformers = ([] as (TransformerFactory<SourceFile> | CustomTransformerFactory)[]).concat.apply(
+		const beforeTransformers = ([] as (TS.TransformerFactory<TS.SourceFile> | TS.CustomTransformerFactory)[]).concat.apply(
 			[],
 			instantiatedTransformers.map(transformer => transformer.before!).filter(beforeTransformer => beforeTransformer != null)
 		);
 
-		const afterTransformers = ([] as (TransformerFactory<SourceFile> | CustomTransformerFactory)[]).concat.apply(
+		const afterTransformers = ([] as (TS.TransformerFactory<TS.SourceFile> | TS.CustomTransformerFactory)[]).concat.apply(
 			[],
 			instantiatedTransformers.map(transformer => transformer.after!).filter(afterTransformer => afterTransformer != null)
 		);
 
-		const afterDeclarationsTransformers = ([] as (TransformerFactory<Bundle | SourceFile> | CustomTransformerFactory)[]).concat.apply(
+		const afterDeclarationsTransformers = ([] as (TS.TransformerFactory<TS.Bundle | TS.SourceFile> | TS.CustomTransformerFactory)[]).concat.apply(
 			[],
 			instantiatedTransformers
 				.map(transformer => transformer.afterDeclarations!)

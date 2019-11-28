@@ -1,7 +1,7 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {EnumDeclaration} from "typescript";
+import {TS} from "../../../../../../type/ts";
 
-export function checkEnumDeclaration({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<EnumDeclaration>): string[] {
+export function checkEnumDeclaration({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<TS.EnumDeclaration>): string[] {
 	const referencedIdentifiers: string[] = [];
 
 	for (const member of node.members) {

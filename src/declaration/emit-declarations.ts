@@ -6,7 +6,6 @@ import {mergeChunksWithAmbientDependencies} from "../util/chunk/merge-chunks-wit
 import {getChunkToOriginalFileMap} from "../util/chunk/get-chunk-to-original-file-map";
 import {
 	SourceFileToExportedSymbolSet,
-	SourceFileToGeneratedVariableNameSet,
 	SourceFileToImportedSymbolSet,
 	SourceFileToLocalSymbolMap
 } from "../service/transformer/declaration-pre-bundler/declaration-pre-bundler-options";
@@ -15,7 +14,6 @@ import {
 	ReferenceCache,
 	SourceFileToNodeToReferencedIdentifiersCache
 } from "../service/transformer/declaration-bundler/reference/cache/reference-cache";
-import {CompilerOptions, createPrinter} from "typescript";
 import {OutputBundle, OutputOptions, PluginContext, SourceDescription} from "rollup";
 import {ModuleDependencyMap} from "../util/module/get-module-dependencies";
 import {ensurePosix, setExtension} from "../util/path/path-util";
@@ -29,6 +27,7 @@ import {bundleDeclarationsForChunk} from "./bundle-declarations-for-chunk";
 import {ensureDefined} from "../util/assert-defined/assert-defined";
 import {FileSystem} from "../util/file-system/file-system";
 import {ChunkForModuleCache} from "../service/transformer/declaration/declaration-options";
+import {TS} from "../type/ts";
 
 export interface EmitDeclarationsOptions {
 	resolver: Resolver;
@@ -37,7 +36,7 @@ export interface EmitDeclarationsOptions {
 	pluginContext: PluginContext;
 	bundle: OutputBundle;
 	cwd: string;
-	compilerOptions: CompilerOptions;
+	compilerOptions: TS.CompilerOptions;
 	languageServiceHost: IncrementalLanguageService;
 	pluginOptions: TypescriptPluginOptions;
 	outputOptions: OutputOptions;
@@ -47,6 +46,7 @@ export interface EmitDeclarationsOptions {
 }
 
 export function emitDeclarations(options: EmitDeclarationsOptions) {
+	const {typescript} = options.pluginOptions;
 	const chunkToPreBundleResult = new Map<string, SourceDescription>();
 	const chunks = Object.values(options.bundle).filter(isOutputChunk);
 
@@ -59,16 +59,16 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 	const chunkToOriginalFileMap = getChunkToOriginalFileMap(absoluteOutDir, mergeChunksResult);
 	const sourceFileToImportedSymbolSet: SourceFileToImportedSymbolSet = new Map();
 	const sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet = new Map();
-	const sourceFileToGeneratedVariableNameSet: SourceFileToGeneratedVariableNameSet = new Map();
 	const sourceFileToLocalSymbolMap: SourceFileToLocalSymbolMap = new Map();
 	const sourceFileToNodeToReferencedIdentifiersCache: SourceFileToNodeToReferencedIdentifiersCache = new Map();
 	const nodeIdentifierCache: NodeIdentifierCache = new Map();
 	const chunkForModuleCache: ChunkForModuleCache = new Map();
 	const referenceCache: ReferenceCache = new Map();
-	const printer = createPrinter({newLine: options.compilerOptions.newLine});
+	const printer = typescript.createPrinter({newLine: options.compilerOptions.newLine});
 
 	const sharedOptions = {
 		...options,
+		typescript,
 		chunkToOriginalFileMap,
 		generateMap,
 		nodeIdentifierCache,
@@ -77,7 +77,6 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		referenceCache,
 		sourceFileToExportedSymbolSet,
 		sourceFileToImportedSymbolSet,
-		sourceFileToGeneratedVariableNameSet,
 		sourceFileToLocalSymbolMap,
 		sourceFileToNodeToReferencedIdentifiersCache,
 		isMultiChunk: mergeChunksResult.mergedChunks.length > 1
@@ -158,27 +157,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 				rewrittenAbsoluteDeclarationFilename,
 				rewrittenAbsoluteDeclarationMapFilename,
 				rewrittenDeclarationFilename,
-				rewrittenDeclarationMapFilename,
-
-				generateUniqueVariableName: (candidate: string, sourceFileName: string): string => {
-					const suffix = "_$";
-					let counter = 0;
-					let generatedVariableNames = sourceFileToGeneratedVariableNameSet.get(sourceFileName);
-					if (generatedVariableNames == null) {
-						generatedVariableNames = new Set();
-						sourceFileToGeneratedVariableNameSet.set(sourceFileName, generatedVariableNames);
-					}
-
-					while (true) {
-						let currentCandidate = candidate + suffix + counter;
-						if (generatedVariableNames.has(currentCandidate)) {
-							counter++;
-						} else {
-							generatedVariableNames.add(currentCandidate);
-							return currentCandidate;
-						}
-					}
-				}
+				rewrittenDeclarationMapFilename
 			};
 
 			switch (pass) {

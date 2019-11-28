@@ -1,12 +1,10 @@
-import {ExportDeclaration, isStringLiteralLike} from "typescript";
 import {TrackExportsVisitorOptions} from "../track-exports-visitor-options";
 import {isExternalLibrary} from "../../../../../util/path/path-util";
 import {normalize} from "path";
+import {TS} from "../../../../../type/ts";
 
 /**
  * Visits the given ExportDeclaration.
- * @param {TrackExportsVisitorOptions<ExportDeclaration>} options
- * @returns {ExportDeclaration | undefined}
  */
 export function visitExportDeclaration({
 	node,
@@ -14,8 +12,9 @@ export function visitExportDeclaration({
 	continuation,
 	resolver,
 	markAsExported,
-	setCurrentModuleSpecifier
-}: TrackExportsVisitorOptions<ExportDeclaration>): ExportDeclaration | undefined {
+	setCurrentModuleSpecifier,
+	typescript
+}: TrackExportsVisitorOptions<TS.ExportDeclaration>): TS.ExportDeclaration | undefined {
 	setCurrentModuleSpecifier(node.moduleSpecifier);
 	// If there is an export clause, this is something like 'export {...} [from "..."]'.
 	// We'll let other visitors handle such cases.
@@ -29,12 +28,13 @@ export function visitExportDeclaration({
 	// Otherwise, this is a 'export * from "..."' export that we need to handle here
 	else {
 		const originalModule = normalize(
-			node.moduleSpecifier == null || !isStringLiteralLike(node.moduleSpecifier)
+			node.moduleSpecifier == null || !typescript.isStringLiteralLike(node.moduleSpecifier)
 				? sourceFile.fileName
 				: resolver(node.moduleSpecifier.text, sourceFile.fileName) ?? sourceFile.fileName
 		);
 
-		const rawModuleSpecifier = node.moduleSpecifier == null || !isStringLiteralLike(node.moduleSpecifier) ? undefined : node.moduleSpecifier.text;
+		const rawModuleSpecifier =
+			node.moduleSpecifier == null || !typescript.isStringLiteralLike(node.moduleSpecifier) ? undefined : node.moduleSpecifier.text;
 
 		markAsExported({
 			node,

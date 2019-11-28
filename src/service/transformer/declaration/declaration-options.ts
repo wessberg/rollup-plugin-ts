@@ -1,16 +1,15 @@
 import {Resolver} from "../../../util/resolve-id/resolver";
-import {Printer} from "typescript";
 import {TypescriptPluginOptions} from "../../../plugin/i-typescript-plugin-options";
 import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "../declaration-bundler/reference/cache/reference-cache";
 import {NodeIdentifierCache} from "../declaration-bundler/util/get-identifiers-for-node";
 import {SupportedExtensions} from "../../../util/get-supported-extensions/get-supported-extensions";
 import {
 	SourceFileToExportedSymbolSet,
-	SourceFileToGeneratedVariableNameSet,
 	SourceFileToImportedSymbolSet,
 	SourceFileToLocalSymbolMap
 } from "../declaration-pre-bundler/declaration-pre-bundler-options";
 import {ChunkToOriginalFileMap} from "../../../util/chunk/get-chunk-to-original-file-map";
+import {TS} from "../../../type/ts";
 
 export interface GetChunkFilenameResult {
 	fileName: string;
@@ -19,6 +18,7 @@ export interface GetChunkFilenameResult {
 export type ChunkForModuleCache = Map<string, GetChunkFilenameResult | undefined>;
 
 export interface DeclarationOptions {
+	typescript: typeof TS;
 	isEntryChunk: boolean;
 	localModuleNames: string[];
 	entryFileNames: string[];
@@ -33,7 +33,7 @@ export interface DeclarationOptions {
 
 	// A function that can resolve bare module specifiers
 	resolver: Resolver;
-	printer: Printer;
+	printer: TS.Printer;
 
 	pluginOptions: TypescriptPluginOptions;
 
@@ -64,7 +64,6 @@ export interface DeclarationOptions {
 	sourceFileToImportedSymbolSet: SourceFileToImportedSymbolSet;
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
 	sourceFileToLocalSymbolMap: SourceFileToLocalSymbolMap;
-	sourceFileToGeneratedVariableNameSet: SourceFileToGeneratedVariableNameSet;
 	sourceFileToNodeToReferencedIdentifiersCache: SourceFileToNodeToReferencedIdentifiersCache;
 
 	// Whether or not multiple chunks will be emitted
