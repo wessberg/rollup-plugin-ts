@@ -145,8 +145,7 @@ test("Deconflicts symbols. #3", async t => {
 			interface A {
 					b: B;
 			}
-			export { B_$0 as B };
-			export { A };
+			export { A, B_$0 as B };
 		`)
 	);
 });
@@ -198,8 +197,7 @@ test("Deconflicts symbols. #4", async t => {
 			declare const B = 2;
 			declare const A: typeof B;
 			declare const B_$0: typeof OriginalB;
-			export { B_$0 as B };
-			export { A };
+			export { A, B_$0 as B };
 		`)
 	);
 });
