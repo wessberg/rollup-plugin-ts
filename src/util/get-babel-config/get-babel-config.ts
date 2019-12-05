@@ -84,7 +84,9 @@ function combineConfigItems(
  * @param {string} resolved
  * @returns {boolean}
  */
-function configItemIsChunkRelated(id: string): boolean {
+function configItemIsChunkRelated(item: string | IBabelConfigItem): boolean {
+	const id = typeof item === "string" ? item : getBabelItemId(item);
+
 	return (
 		(/\bminify\b/.test(id) ||
 			BABEL_CHUNK_PRESET_NAMES.some(preset => id.includes(preset)) ||
