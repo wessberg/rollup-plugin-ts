@@ -2,8 +2,8 @@ import {SourceDescription, SourceMap} from "rollup";
 import {setExtension} from "../util/path/path-util";
 import {DECLARATION_MAP_EXTENSION, JS_EXTENSION} from "../constant/constant";
 import {IncrementalLanguageService} from "../service/language-service/incremental-language-service";
-import {DeclarationBundlerOptions} from "../service/transformer/2/declaration-bundler/declaration-bundler-options";
-import {declarationBundler} from "../service/transformer/2/declaration-bundler/declaration-bundler";
+import {DeclarationBundlerOptions} from "../service/transformer/declaration-bundler/declaration-bundler-options";
+import {declarationBundler} from "../service/transformer/declaration-bundler/declaration-bundler";
 
 export interface PreBundleDeclarationsForChunkOptions extends Omit<DeclarationBundlerOptions, "typeChecker"> {
 	cwd: string;
@@ -26,6 +26,8 @@ export function bundleDeclarationsForChunk(options: PreBundleDeclarationsForChun
 		host: options.languageServiceHost
 	});
 
+	const typeChecker = program.getTypeChecker();
+
 	program.emit(
 		undefined,
 		(file, data) => {
@@ -37,7 +39,10 @@ export function bundleDeclarationsForChunk(options: PreBundleDeclarationsForChun
 		},
 		undefined,
 		true,
-		declarationBundler(options)
+		declarationBundler({
+			...options,
+			typeChecker
+		})
 	);
 
 	return {

@@ -15,12 +15,12 @@ import {getChunkToOriginalFileMap} from "../util/chunk/get-chunk-to-original-fil
 import {ensurePosix, setExtension} from "../util/path/path-util";
 import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION, ROLLUP_PLUGIN_MULTI_ENTRY} from "../constant/constant";
 import {bundleDeclarationsForChunk} from "./bundle-declarations-for-chunk-2";
+import {ChunkForModuleCache} from "../service/transformer/declaration-bundler/declaration-bundler-options";
 import {
 	ReferenceCache,
 	SourceFileToNodeToReferencedIdentifiersCache
-} from "../service/transformer/declaration-bundler/reference/cache/reference-cache";
-import {NodeIdentifierCache} from "../service/transformer/declaration-bundler/util/get-identifiers-for-node";
-import {ChunkForModuleCache} from "../service/transformer/2/declaration-bundler/declaration-bundler-options";
+} from "../service/transformer/declaration-bundler/transformers/reference/cache/reference-cache";
+import {NodeIdentifierCache} from "../service/transformer/declaration-bundler/transformers/trace-identifiers/trace-identifiers";
 
 export interface EmitDeclarationsOptions {
 	resolver: Resolver;

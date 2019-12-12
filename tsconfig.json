@@ -2,6 +2,8 @@
 	"extends": "@wessberg/ts-config",
 	"compilerOptions": {
 		"module": "commonjs",
-		"target": "es2016"
+		"target": "es2016",
+		"skipLibCheck": false,
+		"lib": ["es5", "es2015", "es6", "es7", "es2016", "es2017", "es2018", "es2019", "es2020", "esnext"]
 	}
 }

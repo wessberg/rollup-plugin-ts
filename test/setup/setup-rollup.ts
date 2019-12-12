@@ -128,6 +128,7 @@ export async function generateRollupBundle(
 					target: "esnext",
 					declaration: true,
 					moduleResolution: "node",
+					allowJs: true,
 					baseUrl: ".",
 					...tsconfig
 				},
