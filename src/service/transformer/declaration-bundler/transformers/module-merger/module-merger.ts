@@ -63,12 +63,12 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 			},
 
 			getMatchingSourceFile(moduleSpecifier: string, from: string): TS.SourceFile | undefined {
-				const resolvedSourceFileName = options.resolver(moduleSpecifier, from);
+				const resolverResult = options.resolver(moduleSpecifier, from);
 				// If no SourceFile could be resolved
-				if (resolvedSourceFileName == null) return undefined;
+				if (resolverResult == null) return undefined;
 
 				for (const sourceFile of options.otherSourceFiles) {
-					if (pathsAreEqual(sourceFile.fileName, resolvedSourceFileName)) {
+					if (pathsAreEqual(sourceFile.fileName, resolverResult.fileName)) {
 						return sourceFile;
 					}
 				}

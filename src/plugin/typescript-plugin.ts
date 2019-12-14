@@ -33,7 +33,7 @@ import {takeBrowserslistOrComputeBasedOnCompilerOptions} from "../util/take-brow
 import {matchAll} from "@wessberg/stringutil";
 import {Resolver} from "../util/resolve-id/resolver";
 import {getModuleDependencies, ModuleDependencyMap} from "../util/module/get-module-dependencies";
-import {emitDeclarations} from "../declaration/emit-declarations-2";
+import {emitDeclarations} from "../declaration/emit-declarations";
 import {TS} from "../type/ts";
 
 /**
@@ -216,12 +216,23 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 			resolver = (id: string, parent: string) => {
 				const resolved = resolve(id, parent);
-				return resolved == null ? undefined : resolved.resolvedFileName;
+
+				return resolved == null || resolved.resolvedFileName == null
+					? undefined
+					: {
+							fileName: resolved.resolvedFileName,
+							isExternalLibrary: resolved.isExternalLibraryImport === true
+					  };
 			};
 
 			ambientResolver = (id: string, parent: string) => {
 				const resolved = resolve(id, parent);
-				return resolved == null ? undefined : resolved.resolvedAmbientFileName != null ? resolved.resolvedAmbientFileName : resolved.resolvedFileName;
+				return resolved == null || (resolved.resolvedAmbientFileName == null && resolved.resolvedFileName == null)
+					? undefined
+					: {
+							fileName: resolved.resolvedAmbientFileName ?? resolved.resolvedFileName!,
+							isExternalLibrary: resolved.isExternalLibraryImport === true
+					  };
 			};
 
 			// Hook up a LanguageServiceHost and a LanguageService
@@ -374,7 +385,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			}
 
 			const resolveResult = resolver(id, parent);
-			return resolveResult == null ? null : resolveResult;
+			return resolveResult == null ? null : resolveResult.fileName;
 		},
 
 		/**

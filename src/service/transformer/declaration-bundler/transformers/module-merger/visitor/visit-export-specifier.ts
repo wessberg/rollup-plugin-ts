@@ -8,15 +8,14 @@ export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.Expo
 	const {node, payload, typescript} = options;
 	if (payload.moduleSpecifier == null) return options.childContinuation(node, undefined);
 
-	const matchingSourceFile = options.getMatchingSourceFile(payload.moduleSpecifier, options.sourceFile.fileName);
 	const contResult = options.childContinuation(node, undefined);
 
 	// If no SourceFile was resolved, preserve the export as it is.
-	if (matchingSourceFile == null) {
+	if (payload.matchingSourceFile == null) {
 		return contResult;
 	}
 
-	options.prependNodes(...options.includeSourceFile(matchingSourceFile));
+	options.prependNodes(...options.includeSourceFile(payload.matchingSourceFile));
 
 	// Now, we might be referencing the default export from the original module, in which case this should be rewritten to point to the exact identifier
 	const propertyName = contResult.propertyName ?? contResult.name;

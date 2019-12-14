@@ -82,17 +82,41 @@ export function visitExportDeclaration({
 	typescript,
 	...options
 }: ModuleMergerVisitorOptions<TS.ExportDeclaration>): VisitResult<TS.ExportDeclaration> {
+	const moduleSpecifier =
+		node.moduleSpecifier == null || !typescript.isStringLiteralLike(node.moduleSpecifier) ? undefined : node.moduleSpecifier.text;
+	const updatedModuleSpecifier =
+		moduleSpecifier == null
+			? undefined
+			: generateModuleSpecifier({
+					...options,
+					moduleSpecifier,
+					parent: options.sourceFile.fileName
+			  });
+
+	const matchingSourceFile = moduleSpecifier == null ? undefined : options.getMatchingSourceFile(moduleSpecifier, options.sourceFile.fileName);
+
 	const payload = {
-		moduleSpecifier: node.moduleSpecifier == null || !typescript.isStringLiteralLike(node.moduleSpecifier) ? undefined : node.moduleSpecifier.text
+		moduleSpecifier,
+		matchingSourceFile
 	};
 
-	const matchingSourceFile =
-		payload.moduleSpecifier == null ? undefined : options.getMatchingSourceFile(payload.moduleSpecifier, options.sourceFile.fileName);
 	const contResult = options.childContinuation(node, payload);
 
-	// If no SourceFile was resolved, preserve the export as it is.
+	// If no SourceFile was resolved
 	if (matchingSourceFile == null) {
-		return contResult;
+		// If the module specifier didn't change, preserve the export as it is.
+		if (moduleSpecifier === updatedModuleSpecifier || updatedModuleSpecifier == null) {
+			return contResult;
+		}
+
+		// Otherwise, update the module specifier
+		return typescript.updateExportDeclaration(
+			contResult,
+			contResult.decorators,
+			contResult.modifiers,
+			contResult.exportClause,
+			typescript.createStringLiteral(updatedModuleSpecifier)
+		);
 	}
 
 	// If it is a NamespaceExport, we'll need to add explicit named ExportSpecifiers for all of the re-exported bindings instead

@@ -10,8 +10,6 @@ export function visitImportClause(options: ModuleMergerVisitorOptions<TS.ImportC
 	const {node, payload, typescript} = options;
 	// If there is no moduleSpecifier, proceed from the children.
 	if (payload.moduleSpecifier == null) return options.childContinuation(node, payload);
-
-	const matchingSourceFile = options.getMatchingSourceFile(payload.moduleSpecifier, options.sourceFile.fileName);
 	const contResult = options.childContinuation(node, payload);
 
 	if (node.name == null || contResult.name == null) {
@@ -20,7 +18,7 @@ export function visitImportClause(options: ModuleMergerVisitorOptions<TS.ImportC
 	}
 
 	// If no SourceFile was resolved, preserve the ImportClause, but potentially remove the default import
-	if (matchingSourceFile == null) {
+	if (payload.matchingSourceFile == null) {
 		// If the default import should be preserved, return the continuation result
 		if (options.shouldPreserveImportedSymbol(getImportedSymbolFromImportClauseName(contResult.name, payload.moduleSpecifier, options))) {
 			return contResult;
@@ -31,7 +29,7 @@ export function visitImportClause(options: ModuleMergerVisitorOptions<TS.ImportC
 	}
 
 	// Otherwise, prepend the nodes for the SourceFile
-	options.prependNodes(...options.includeSourceFile(matchingSourceFile));
+	options.prependNodes(...options.includeSourceFile(payload.matchingSourceFile));
 
 	// Now, we might be so lucky that the name of the default import _exactly_ matches that of the default export, in which case we don't need to do anything
 	// So, let's test if the identifiers match between the binding given to the default import and the bound identifier of the imported declaration

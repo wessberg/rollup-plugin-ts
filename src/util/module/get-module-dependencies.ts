@@ -48,7 +48,7 @@ export function getModuleDependencies(
 
 		const resolved = resolver(specifier.text, sourceFile!.fileName);
 		if (resolved != null) {
-			addDependency(resolved);
+			addDependency(resolved.fileName);
 		}
 		return node;
 	}
@@ -59,7 +59,7 @@ export function getModuleDependencies(
 
 		const resolved = resolver(specifier.text, sourceFile!.fileName);
 		if (resolved != null) {
-			addDependency(resolved);
+			addDependency(resolved.fileName);
 		}
 		return node;
 	}
@@ -71,7 +71,7 @@ export function getModuleDependencies(
 
 		const resolved = resolver(specifier.text, sourceFile!.fileName);
 		if (resolved != null) {
-			addDependency(resolved);
+			addDependency(resolved.fileName);
 		}
 		return node;
 	}

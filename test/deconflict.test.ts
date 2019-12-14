@@ -877,7 +877,7 @@ test("Deconflicts symbols. #16", async t => {
 	);
 });
 
-test.only("Deconflicts symbols. #17", async t => {
+test("Deconflicts symbols. #17", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{

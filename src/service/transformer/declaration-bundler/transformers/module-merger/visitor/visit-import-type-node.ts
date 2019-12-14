@@ -13,16 +13,17 @@ export function visitImportTypeNode({
 	nodeToOriginalSymbolMap,
 	...options
 }: ModuleMergerVisitorOptions<TS.ImportTypeNode>): VisitResult<TS.ImportTypeNode> {
+	const moduleSpecifier =
+		!options.typescript.isLiteralTypeNode(node.argument) || !options.typescript.isStringLiteralLike(node.argument.literal)
+			? undefined
+			: node.argument.literal.text;
+	const matchingSourceFile = moduleSpecifier == null ? undefined : options.getMatchingSourceFile(moduleSpecifier, options.sourceFile.fileName);
 	const payload = {
-		moduleSpecifier:
-			!options.typescript.isLiteralTypeNode(node.argument) || !options.typescript.isStringLiteralLike(node.argument.literal)
-				? undefined
-				: node.argument.literal.text
+		moduleSpecifier,
+		matchingSourceFile
 	};
 
 	if (payload.moduleSpecifier == null) return options.childContinuation(node, payload);
-
-	const matchingSourceFile = options.getMatchingSourceFile(payload.moduleSpecifier, options.sourceFile.fileName);
 	const contResult = options.childContinuation(node, payload);
 
 	// If no SourceFile was resolved, preserve the export as it is.

@@ -2,7 +2,7 @@ import {setExtension} from "../../../../util/path/path-util";
 import {extname, join, normalize} from "path";
 import {SupportedExtensions} from "../../../../util/get-supported-extensions/get-supported-extensions";
 import {ChunkToOriginalFileMap} from "../../../../util/chunk/get-chunk-to-original-file-map";
-import {ChunkForModuleCache, GetChunkFilenameResult} from "../declaration-bundler-options";
+import {ChunkForModuleCache} from "../declaration-bundler-options";
 
 export interface GetChunkFilenameOptions {
 	fileName: string;
@@ -19,7 +19,7 @@ export function getChunkFilename({
 	chunkToOriginalFileMap,
 	fileName,
 	supportedExtensions
-}: GetChunkFilenameOptions): GetChunkFilenameResult | undefined {
+}: GetChunkFilenameOptions): string | undefined {
 	if (chunkForModuleCache.has(fileName)) {
 		return chunkForModuleCache.get(fileName)!;
 	}
@@ -28,16 +28,14 @@ export function getChunkFilename({
 		for (const file of filenames) {
 			for (const originalSourceFilename of originalSourceFilenames) {
 				if (originalSourceFilename === file) {
-					const returnValue = {fileName: chunkFilename};
-					chunkForModuleCache.set(fileName, returnValue);
-					return returnValue;
+					chunkForModuleCache.set(fileName, chunkFilename);
+					return chunkFilename;
 				}
 
 				for (const extension of [extname(file), ...supportedExtensions]) {
 					if (originalSourceFilename === setExtension(file, extension)) {
-						const returnValueWithExtension = {fileName: chunkFilename};
-						chunkForModuleCache.set(fileName, returnValueWithExtension);
-						return returnValueWithExtension;
+						chunkForModuleCache.set(fileName, chunkFilename);
+						return chunkFilename;
 					}
 				}
 			}

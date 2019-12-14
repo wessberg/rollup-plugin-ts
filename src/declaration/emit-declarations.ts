@@ -14,7 +14,7 @@ import {mergeChunksWithAmbientDependencies} from "../util/chunk/merge-chunks-wit
 import {getChunkToOriginalFileMap} from "../util/chunk/get-chunk-to-original-file-map";
 import {ensurePosix, setExtension} from "../util/path/path-util";
 import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION, ROLLUP_PLUGIN_MULTI_ENTRY} from "../constant/constant";
-import {bundleDeclarationsForChunk} from "./bundle-declarations-for-chunk-2";
+import {bundleDeclarationsForChunk} from "./bundle-declarations-for-chunk";
 import {ChunkForModuleCache} from "../service/transformer/declaration-bundler/declaration-bundler-options";
 import {
 	ReferenceCache,
@@ -160,6 +160,5 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 				fileName: emitFileDeclarationMapFilename
 			});
 		}
-		break;
 	}
 }

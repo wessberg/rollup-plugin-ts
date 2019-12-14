@@ -14,6 +14,7 @@ export type PayloadMap = {
 		| TS.SyntaxKind.ExportDeclaration
 		? {
 				moduleSpecifier: string | undefined;
+				matchingSourceFile: TS.SourceFile | undefined;
 		  }
 		: undefined;
 };

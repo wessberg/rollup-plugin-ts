@@ -7,11 +7,7 @@ import {ChunkToOriginalFileMap} from "../../../util/chunk/get-chunk-to-original-
 import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "./transformers/reference/cache/reference-cache";
 import {NodeIdentifierCache} from "./transformers/trace-identifiers/trace-identifiers";
 
-export interface GetChunkFilenameResult {
-	fileName: string;
-}
-
-export type ChunkForModuleCache = Map<string, GetChunkFilenameResult | undefined>;
+export type ChunkForModuleCache = Map<string, string | undefined>;
 
 export type DeclarationTransformer = (options: SourceFileBundlerVisitorOptions) => TS.SourceFile;
 

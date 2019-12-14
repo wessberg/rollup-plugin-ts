@@ -2,22 +2,28 @@ import {DeclarationBundlerOptions, DeclarationTransformer} from "../../declarati
 import {TS} from "../../../../../type/ts";
 import {normalize} from "path";
 import {applyTransformers} from "../../util/apply-transformers";
+import {getChunkFilename} from "../../util/get-chunk-filename";
 
 export function sourceFileBundler(options: DeclarationBundlerOptions, ...transformers: DeclarationTransformer[]): TS.TransformerFactory<TS.Bundle> {
 	return context => {
 		return bundle => {
 			const updatedSourceFiles: TS.SourceFile[] = [];
 
+			// Only consider those SourceFiles that are part of the current chunk to be emitted
+			const sourceFilesForChunk = bundle.sourceFiles.filter(
+				sourceFile => getChunkFilename({...options, fileName: sourceFile.fileName}) === options.absoluteChunkFileName
+			);
+
 			// Visit only the entry SourceFile(s)
-			const entrySourceFiles = bundle.sourceFiles.filter(sourceFile => options.entryModules.includes(normalize(sourceFile.fileName)));
-			const nonEntrySourceFiles = bundle.sourceFiles.filter(sourceFile => !entrySourceFiles.includes(sourceFile));
+			const entrySourceFiles = sourceFilesForChunk.filter(sourceFile => options.entryModules.includes(normalize(sourceFile.fileName)));
+			const nonEntrySourceFiles = sourceFilesForChunk.filter(sourceFile => !entrySourceFiles.includes(sourceFile));
 
 			for (const sourceFile of entrySourceFiles) {
 				// Prepare some VisitorOptions
 				const visitorOptions = {
 					...options,
 					context,
-					otherSourceFiles: bundle.sourceFiles.filter(otherSourceFile => otherSourceFile !== sourceFile),
+					otherSourceFiles: sourceFilesForChunk.filter(otherSourceFile => otherSourceFile !== sourceFile),
 					sourceFile,
 					lexicalEnvironment: {
 						parent: undefined,

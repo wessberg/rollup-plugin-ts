@@ -9,18 +9,17 @@ export function visitImportSpecifier(options: ModuleMergerVisitorOptions<TS.Impo
 	const {node, payload, typescript, lexicalEnvironment} = options;
 	if (payload.moduleSpecifier == null) return options.childContinuation(node, undefined);
 
-	const matchingSourceFile = options.getMatchingSourceFile(payload.moduleSpecifier, options.sourceFile.fileName);
 	const contResult = options.childContinuation(node, undefined);
 
 	// If no SourceFile was resolved, preserve the ImportSpecifier as-is, unless it is already included in the chunk
-	if (matchingSourceFile == null) {
+	if (payload.matchingSourceFile == null) {
 		return options.shouldPreserveImportedSymbol(getImportedSymbolFromImportSpecifier(contResult, payload.moduleSpecifier, options))
 			? contResult
 			: undefined;
 	}
 
 	// Otherwise, prepend the nodes for the SourceFile
-	options.prependNodes(...options.includeSourceFile(matchingSourceFile));
+	options.prependNodes(...options.includeSourceFile(payload.matchingSourceFile));
 
 	// Also, depending on the kind of node that represents the defined symbol, we may need to add a VariableStatement or a TypeAliasDeclaration that declares if it is something like {Foo as Bar}
 	if (node.propertyName != null) {
