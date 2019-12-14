@@ -823,7 +823,7 @@ test("Deconflicts symbols. #15", async t => {
 		formatCode(file.code),
 		formatCode(`\
 			declare function foo(): void;
-			const enum foo$0 {
+			declare const enum foo$0 {
 					FOO = "FOO"
 			}
 			declare const baz: foo$0;
@@ -910,6 +910,49 @@ test("Deconflicts symbols. #17", async t => {
 			declare const bar: typeof foo;
 			type foo$0 = typeof bar;
 			export { foo$0 as default };
+		`)
+	);
+});
+
+test("Deconflicts symbols. #18", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+					import {Bar} from "./bar";
+					export interface Foo extends Bar {}
+					`
+			},
+			{
+				entry: false,
+				fileName: "bar.ts",
+				text: `\
+					interface Foo {
+						a: string;
+					}
+					export interface Bar extends Foo {
+					}
+					`
+			}
+		],
+		{debug: true}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		interface Foo {
+			a: string;
+		}
+		interface Bar extends Foo {
+		}
+		interface Foo$0 extends Bar {
+		}
+		export {Foo$0 as Foo};
 		`)
 	);
 });

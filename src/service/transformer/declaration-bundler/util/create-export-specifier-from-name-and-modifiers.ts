@@ -44,6 +44,20 @@ export function getImportedSymbolFromImportClauseName(
 	};
 }
 
+export function getImportedSymbolFromNamespaceImport(
+	namespaceImport: TS.NamespaceImport,
+	moduleSpecifier: string,
+	options: Omit<GetSymbolAtLocationOptions, "node">
+): ImportedSymbol {
+	return {
+		symbol: getSymbolAtLocation({...options, node: namespaceImport.name}),
+		moduleSpecifier,
+		isDefaultImport: true,
+		propertyName: namespaceImport.name.text,
+		name: namespaceImport.name.text
+	};
+}
+
 export function getExportedSymbolFromExportSpecifier(
 	specifier: TS.ExportSpecifier,
 	moduleSpecifier: string | undefined,

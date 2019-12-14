@@ -21,13 +21,13 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 			payload: undefined,
 
 			childContinuation: <U extends TS.Node>(node: U, payload: PayloadMap[U["kind"]]): ChildVisitResult<U> => {
-				visitorOptions.payload = payload;
 				return options.typescript.visitEachChild(
 					node,
 					nextNode =>
 						nodePlacementQueue.wrapVisitResult(
 							visitNode({
 								...visitorOptions,
+								payload,
 								node: nextNode
 							})
 						),
@@ -36,10 +36,10 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 			},
 
 			continuation: <U extends TS.Node>(node: U, payload: PayloadMap[U["kind"]]): VisitResult<U> => {
-				visitorOptions.payload = payload;
 				return nodePlacementQueue.wrapVisitResult(
 					visitNode({
 						...visitorOptions,
+						payload,
 						node
 					} as ModuleMergerVisitorOptions<U>)
 				) as VisitResult<U>;

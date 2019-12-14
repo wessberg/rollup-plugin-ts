@@ -112,7 +112,7 @@
 	},
 	"ava": {
 		"files": [
-			"test/deconflict.test.ts"
+			"test/declaration.test.ts"
 		],
 		"verbose": true,
 		"failFast": true,

@@ -6,6 +6,7 @@ import {visitImportDeclaration} from "./visit-import-declaration";
 import {visitImportSpecifier} from "./visit-import-specifier";
 import {visitExportSpecifier} from "./visit-export-specifier";
 import {visitImportClause} from "./visit-import-clause";
+import {visitNamespaceImport} from "./visit-namespace-import";
 
 export function visitNode<T extends TS.Node>({node, ...options}: ModuleMergerVisitorOptions<T>): VisitResult<T> {
 	if (options.typescript.isExportDeclaration(node)) {
@@ -16,6 +17,8 @@ export function visitNode<T extends TS.Node>({node, ...options}: ModuleMergerVis
 		return (visitImportTypeNode({...options, node} as ModuleMergerVisitorOptions<TS.ImportTypeNode>) as unknown) as VisitResult<T>;
 	} else if (options.typescript.isImportClause(node)) {
 		return (visitImportClause({...options, node} as ModuleMergerVisitorOptions<TS.ImportClause>) as unknown) as VisitResult<T>;
+	} else if (options.typescript.isNamespaceImport(node)) {
+		return (visitNamespaceImport({...options, node} as ModuleMergerVisitorOptions<TS.NamespaceImport>) as unknown) as VisitResult<T>;
 	} else if (options.typescript.isImportSpecifier(node)) {
 		return (visitImportSpecifier({...options, node} as ModuleMergerVisitorOptions<TS.ImportSpecifier>) as unknown) as VisitResult<T>;
 	} else if (options.typescript.isExportSpecifier(node)) {
