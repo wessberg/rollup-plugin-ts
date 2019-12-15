@@ -39,7 +39,7 @@ test("Declarations respect rewritten output paths. #1", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		declare type Foo = string;
+		type Foo = string;
 		export {Foo};
 		//# sourceMappingURL=index-rewritten.d.ts.map
 		`)

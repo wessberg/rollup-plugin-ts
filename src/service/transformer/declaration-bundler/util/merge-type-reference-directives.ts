@@ -1,6 +1,6 @@
 import {TS} from "../../../../type/ts";
 
-function formatTypeReferenceDirective(fileName: string): string {
+export function formatTypeReferenceDirective(fileName: string): string {
 	return `/// <reference types="${fileName}" />`;
 }
 

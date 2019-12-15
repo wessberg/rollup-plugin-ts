@@ -4,6 +4,8 @@ import {normalize} from "path";
 import {applyTransformers} from "../../util/apply-transformers";
 import {getChunkFilename} from "../../util/get-chunk-filename";
 import {SourceFileWithChunk} from "./source-file-bundler-visitor-options";
+import {formatLibReferenceDirective} from "../../util/merge-lib-reference-directives";
+import {formatTypeReferenceDirective} from "../../util/merge-type-reference-directives";
 
 export function sourceFileBundler(options: DeclarationBundlerOptions, ...transformers: DeclarationTransformer[]): TS.TransformerFactory<TS.Bundle> {
 	return context => {
@@ -59,7 +61,38 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 				updatedSourceFiles.push(options.typescript.updateSourceFileNode(sourceFile, [], true));
 			}
 
-			return options.typescript.updateBundle(bundle, updatedSourceFiles);
+			// Merge lib- and type reference directives.
+			const libReferenceDirectiveFileNames = new Set<string>();
+			const typeReferenceDirectiveFileNames = new Set<string>();
+			const prepends: TS.UnparsedSource[] = [];
+
+			for (const {fileName} of ((bundle as unknown) as {syntheticLibReferences: readonly TS.FileReference[]}).syntheticLibReferences) {
+				libReferenceDirectiveFileNames.add(fileName);
+			}
+
+			for (const {fileName} of ((bundle as unknown) as {syntheticTypeReferences: readonly TS.FileReference[]}).syntheticTypeReferences) {
+				typeReferenceDirectiveFileNames.add(fileName);
+			}
+
+			for (const updatedSourceFile of updatedSourceFiles) {
+				for (const {fileName} of updatedSourceFile.libReferenceDirectives) {
+					libReferenceDirectiveFileNames.add(fileName);
+				}
+
+				for (const {fileName} of updatedSourceFile.typeReferenceDirectives) {
+					typeReferenceDirectiveFileNames.add(fileName);
+				}
+			}
+
+			for (const fileName of libReferenceDirectiveFileNames) {
+				prepends.push(options.typescript.createUnparsedSourceFile(formatLibReferenceDirective(fileName)));
+			}
+
+			for (const fileName of typeReferenceDirectiveFileNames) {
+				prepends.push(options.typescript.createUnparsedSourceFile(formatTypeReferenceDirective(fileName)));
+			}
+
+			return options.typescript.updateBundle(bundle, updatedSourceFiles, prepends);
 		};
 	};
 }

@@ -1,6 +1,6 @@
 import {TS} from "../../../../type/ts";
 
-function formatLibReferenceDirective(libName: string): string {
+export function formatLibReferenceDirective(libName: string): string {
 	return `/// <reference lib="${libName}" />`;
 }
 

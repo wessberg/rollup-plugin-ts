@@ -4,29 +4,32 @@ import {generateRollupBundle} from "./setup/setup-rollup";
 // tslint:disable:no-duplicate-string
 
 test("Handles external packages. #1", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
           import {BuiltInParser} from './bar';
 					import {Bar} from "./bar";
           export interface Foo extends Bar {
             x: BuiltInParser;
           }
 					`
-		},
-		{
-			entry: false,
-			fileName: "bar.ts",
-			text: `\
+			},
+			{
+				entry: false,
+				fileName: "bar.ts",
+				text: `\
           export {BuiltInParser} from 'prettier';
 					export interface Bar {
 						a: string;
 					}
 					`
-		}
-	]);
+			}
+		],
+		{debug: true}
+	);
 	const {
 		declarations: [file]
 	} = bundle;

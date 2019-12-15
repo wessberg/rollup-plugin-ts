@@ -112,11 +112,7 @@
 	},
 	"ava": {
 		"files": [
-			"test/deconflict.test.ts",
-			"test/declaration.test.ts",
-			"test/tree-shake.test.ts",
-			"test/code-splitting.test.ts",
-			"test/export-default.test.ts"
+			"test/hook.test.ts"
 		],
 		"verbose": true,
 		"failFast": true,
