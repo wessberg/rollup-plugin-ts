@@ -4,6 +4,7 @@ import {generateIdentifierName} from "../../../util/generate-identifier-name";
 import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers";
 import {preserveSymbols} from "../../../util/clone-node-with-symbols";
 import {hasExportModifier} from "../../../util/modifier-util";
+import {getSymbolAtLocation} from "../../../util/get-symbol-at-location";
 
 export function visitFunctionExpression(options: ToExportDeclarationTransformerVisitorOptions<TS.FunctionExpression>): TS.FunctionExpression {
 	const {node, typescript, sourceFile, appendNodes} = options;
@@ -11,6 +12,7 @@ export function visitFunctionExpression(options: ToExportDeclarationTransformerV
 	if (!hasExportModifier(node, typescript)) return node;
 
 	const nameText = node.name == null ? generateIdentifierName(sourceFile.fileName, "function") : node.name.text;
+	let returnNode: TS.FunctionExpression;
 	const {exportSpecifier} = createExportSpecifierFromNameAndModifiers({...options, name: nameText, modifiers: node.modifiers});
 
 	// Append an ExportDeclaration
@@ -18,20 +20,25 @@ export function visitFunctionExpression(options: ToExportDeclarationTransformerV
 
 	// Update the name if it changed
 	if (node.name != null && nameText === node.name.text) {
-		return node;
+		returnNode = node;
+	} else {
+		returnNode = preserveSymbols(
+			typescript.updateFunctionExpression(
+				node,
+				node.modifiers,
+				node.asteriskToken,
+				typescript.createIdentifier(nameText),
+				node.typeParameters,
+				node.parameters,
+				node.type,
+				node.body
+			),
+			options
+		);
 	}
 
-	return preserveSymbols(
-		typescript.updateFunctionExpression(
-			node,
-			node.modifiers,
-			node.asteriskToken,
-			typescript.createIdentifier(nameText),
-			node.typeParameters,
-			node.parameters,
-			node.type,
-			node.body
-		),
-		options
-	);
+	const propertyName = exportSpecifier.propertyName ?? exportSpecifier.name;
+	options.nodeToOriginalSymbolMap.set(propertyName, getSymbolAtLocation({...options, node: returnNode}));
+
+	return returnNode;
 }

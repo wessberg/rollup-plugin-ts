@@ -3,6 +3,7 @@ import {TS} from "../../../../../type/ts";
 import {normalize} from "path";
 import {applyTransformers} from "../../util/apply-transformers";
 import {getChunkFilename} from "../../util/get-chunk-filename";
+import {SourceFileWithChunk} from "./source-file-bundler-visitor-options";
 
 export function sourceFileBundler(options: DeclarationBundlerOptions, ...transformers: DeclarationTransformer[]): TS.TransformerFactory<TS.Bundle> {
 	return context => {
@@ -13,6 +14,20 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 			const sourceFilesForChunk = bundle.sourceFiles.filter(
 				sourceFile => getChunkFilename({...options, fileName: sourceFile.fileName}) === options.absoluteChunkFileName
 			);
+
+			const moduleSpecifierToSourceFileMap = new Map<string, SourceFileWithChunk>();
+			bundle.sourceFiles.forEach(sourceFile => {
+				for (const statement of sourceFile.statements) {
+					if (options.typescript.isModuleDeclaration(statement)) {
+						const chunk = getChunkFilename({...options, fileName: sourceFile.fileName});
+						moduleSpecifierToSourceFileMap.set(statement.name.text, {
+							sourceFile,
+							chunk,
+							isSameChunk: chunk === options.absoluteChunkFileName
+						});
+					}
+				}
+			});
 
 			// Visit only the entry SourceFile(s)
 			const entrySourceFiles = sourceFilesForChunk.filter(sourceFile => options.entryModules.includes(normalize(sourceFile.fileName)));
@@ -31,9 +46,10 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 					},
 					includedSourceFiles: new WeakSet<TS.SourceFile>(),
 					declarationToDeconflictedBindingMap: new Map<number, string>(),
-					nodeToOriginalSymbolMap: new WeakMap<TS.Node, TS.Symbol>(),
+					nodeToOriginalSymbolMap: new Map<TS.Node, TS.Symbol>(),
 					sourceFileToExportedSymbolSet: new Map(),
-					preservedImports: new Map()
+					preservedImports: new Map(),
+					moduleSpecifierToSourceFileMap
 				};
 
 				updatedSourceFiles.push(applyTransformers({visitorOptions, transformers}));

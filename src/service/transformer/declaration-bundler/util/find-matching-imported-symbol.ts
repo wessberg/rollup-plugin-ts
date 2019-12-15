@@ -7,7 +7,7 @@ export function findMatchingImportedSymbol(importedSymbol: ImportedSymbol, impor
 
 		// If it is a NamespaceImport, a matching ImportedSymbol must have the same name
 		if ("isNamespaceImport" in importedSymbol) {
-			if ("isNamespaceImport" in otherImportedSymbol && importedSymbol.name === otherImportedSymbol.name) {
+			if ("isNamespaceImport" in otherImportedSymbol && importedSymbol.name.text === otherImportedSymbol.name.text) {
 				return otherImportedSymbol;
 			}
 		}
@@ -17,8 +17,8 @@ export function findMatchingImportedSymbol(importedSymbol: ImportedSymbol, impor
 			if (
 				"isDefaultImport" in otherImportedSymbol &&
 				importedSymbol.isDefaultImport === otherImportedSymbol.isDefaultImport &&
-				importedSymbol.name === otherImportedSymbol.name &&
-				importedSymbol.propertyName === otherImportedSymbol.propertyName
+				importedSymbol.name.text === otherImportedSymbol.name.text &&
+				importedSymbol.propertyName.text === otherImportedSymbol.propertyName.text
 			) {
 				return otherImportedSymbol;
 			}

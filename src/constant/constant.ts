@@ -26,6 +26,7 @@ export const KNOWN_EXTENSIONS = new Set([
 ] as const);
 
 export const NODE_MODULES = "node_modules";
+export const NODE_MODULES_MATCH_PATH = `/${NODE_MODULES}/`;
 export const SOURCE_MAP_COMMENT = "\n//# sourceMappingURL";
 export const TSLIB_NAME = `tslib${DECLARATION_EXTENSION}`;
 export const BABEL_RUNTIME_PREFIX_1 = "@babel/runtime/";

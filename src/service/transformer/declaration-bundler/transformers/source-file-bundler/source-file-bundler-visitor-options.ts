@@ -3,14 +3,13 @@ import {DeclarationBundlerOptions} from "../../declaration-bundler-options";
 import {LexicalEnvironment} from "../deconflicter/deconflicter-options";
 
 export interface ImportedSymbolBase {
-	symbol: TS.Symbol | undefined;
 	moduleSpecifier: string;
-	name: string;
+	name: TS.Identifier;
 }
 
 export interface NamedImportedSymbol extends ImportedSymbolBase {
 	isDefaultImport: boolean;
-	propertyName: string;
+	propertyName: TS.Identifier;
 }
 
 export interface NamespaceImportedSymbol extends ImportedSymbolBase {
@@ -19,16 +18,14 @@ export interface NamespaceImportedSymbol extends ImportedSymbolBase {
 
 export type ImportedSymbol = NamedImportedSymbol | NamespaceImportedSymbol;
 
-export interface ExportedSymbolBase {
-	symbol: TS.Symbol | undefined;
-}
+export interface ExportedSymbolBase {}
 
 export interface NamedExportedSymbol extends ExportedSymbolBase {
 	// The raw module specifier with no modifications
 	moduleSpecifier: string | undefined;
 	isDefaultExport: boolean;
-	name: string;
-	propertyName: string;
+	name: TS.Identifier;
+	propertyName: TS.Identifier;
 }
 
 export interface NamespaceExportedSymbol extends ExportedSymbolBase {
@@ -49,6 +46,12 @@ export type ExportedSymbolSet = Set<ExportedSymbol>;
  */
 export type SourceFileToExportedSymbolSet = Map<string, ExportedSymbolSet>;
 
+export interface SourceFileWithChunk {
+	sourceFile: TS.SourceFile;
+	chunk: string | undefined;
+	isSameChunk: boolean;
+}
+
 export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptions {
 	context: TS.TransformationContext;
 	sourceFile: TS.SourceFile;
@@ -61,7 +64,9 @@ export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptio
 
 	// Some nodes are completely rewritten, under which circumstances the original symbol will be lost. However, it might be relevant to refer to the original symbol.
 	// For example, for ImportTypeNodes that are replaced with an identifier, we want the Identifier to refer to the symbol of original quantifier
-	nodeToOriginalSymbolMap: WeakMap<TS.Node, TS.Symbol>;
+	nodeToOriginalSymbolMap: Map<TS.Node, TS.Symbol>;
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
 	preservedImports: Map<string, Set<ImportedSymbol>>;
+	// A Map between module specifiers and the SourceFiles they point to
+	moduleSpecifierToSourceFileMap: Map<string, SourceFileWithChunk>;
 }

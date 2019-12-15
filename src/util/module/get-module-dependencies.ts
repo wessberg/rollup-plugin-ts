@@ -3,6 +3,7 @@ import {IncrementalLanguageService} from "../../service/language-service/increme
 import {extname, normalize} from "path";
 import {SupportedExtensions} from "../get-supported-extensions/get-supported-extensions";
 import {TS} from "../../type/ts";
+import {isExternalLibrary} from "../path/path-util";
 
 export type ModuleDependencyMap = Map<string, Set<string>>;
 
@@ -34,7 +35,9 @@ export function getModuleDependencies(
 		const dependency = normalize(resolvedFileName);
 		const code = languageServiceHost.readFile(dependency);
 		if (code != null) {
-			localDependencies.add(dependency);
+			if (!isExternalLibrary(dependency)) {
+				localDependencies.add(dependency);
+			}
 
 			if (supportedExtensions.has(extname(dependency))) {
 				languageServiceHost.addFile({file: dependency, code});

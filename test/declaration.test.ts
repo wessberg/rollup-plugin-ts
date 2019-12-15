@@ -430,7 +430,7 @@ test("Flattens declarations. #11", async t => {
 	);
 });
 
-test.only("Flattens declarations. #12", async t => {
+test("Flattens declarations. #12", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{

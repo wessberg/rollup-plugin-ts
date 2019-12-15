@@ -1,7 +1,6 @@
 import {visitNode} from "./visitor/visit-node";
 import {TS} from "../../../../../type/ts";
 import {ChildVisitResult, IncludeSourceFileOptions, ModuleMergerVisitorOptions, PayloadMap, VisitResult} from "./module-merger-visitor-options";
-import {pathsAreEqual} from "../../../../../util/path/path-util";
 import {DeclarationTransformer} from "../../declaration-bundler-options";
 import {applyTransformers} from "../../util/apply-transformers";
 import {getNodePlacementQueue} from "../../util/get-node-placement-queue";
@@ -62,18 +61,9 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 				return true;
 			},
 
-			getMatchingSourceFile(moduleSpecifier: string, from: string): TS.SourceFile | undefined {
-				const resolverResult = options.resolver(moduleSpecifier, from);
-				// If no SourceFile could be resolved
-				if (resolverResult == null) return undefined;
-
-				for (const sourceFile of options.otherSourceFiles) {
-					if (pathsAreEqual(sourceFile.fileName, resolverResult.fileName)) {
-						return sourceFile;
-					}
-				}
-
-				return undefined;
+			getMatchingSourceFile(moduleSpecifier: string): TS.SourceFile | undefined {
+				const sourceFileWithChunk = options.moduleSpecifierToSourceFileMap.get(moduleSpecifier);
+				return sourceFileWithChunk == null || !sourceFileWithChunk.isSameChunk ? undefined : sourceFileWithChunk.sourceFile;
 			},
 
 			includeSourceFile(

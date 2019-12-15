@@ -13,9 +13,7 @@ export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.Name
 
 	// If no SourceFile was resolved, preserve the ImportSpecifier as-is, unless it is already included in the chunk
 	if (payload.matchingSourceFile == null) {
-		return options.shouldPreserveImportedSymbol(getImportedSymbolFromNamespaceImport(contResult, payload.moduleSpecifier, options))
-			? contResult
-			: undefined;
+		return options.shouldPreserveImportedSymbol(getImportedSymbolFromNamespaceImport(contResult, payload.moduleSpecifier)) ? contResult : undefined;
 	}
 
 	// Otherwise, prepend the nodes for the SourceFile in a namespace declaration

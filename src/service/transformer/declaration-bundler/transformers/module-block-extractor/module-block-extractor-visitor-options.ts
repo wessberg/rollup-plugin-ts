@@ -1,7 +1,7 @@
 import {TS} from "../../../../../type/ts";
-import {DeclarationBundlerOptions} from "../../declaration-bundler-options";
+import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
 
-export interface ModuleBlockExtractorVisitorOptions<T extends TS.Node> extends DeclarationBundlerOptions {
+export interface ModuleBlockExtractorVisitorOptions<T extends TS.Node> extends SourceFileBundlerVisitorOptions {
 	node: T;
 	context: TS.TransformationContext;
 

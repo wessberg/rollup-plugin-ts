@@ -1,6 +1,7 @@
 import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options";
 import {TS} from "../../../../../../type/ts";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
+import {getSymbolAtLocation} from "../../../util/get-symbol-at-location";
 
 export interface GenerateExportDeclarationsOptions extends Omit<ModuleMergerVisitorOptions<TS.ExportDeclaration>, "node"> {}
 
@@ -13,7 +14,7 @@ function generateExportDeclarations(
 	for (const symbol of exportedSymbols) {
 		// If it is a NamespaceExport, we may need to recursively add all exports for the referenced SourceFiles
 		if ("isNamespaceExport" in symbol) {
-			const matchingSourceFile = options.getMatchingSourceFile(symbol.moduleSpecifier, options.sourceFile.fileName);
+			const matchingSourceFile = options.getMatchingSourceFile(symbol.moduleSpecifier);
 
 			// If no SourceFile was matched, add the Namespace Export directly.
 			if (matchingSourceFile == null) {
@@ -25,8 +26,7 @@ function generateExportDeclarations(
 						typescript.createStringLiteral(
 							generateModuleSpecifier({
 								...options,
-								moduleSpecifier: symbol.moduleSpecifier,
-								parent: options.sourceFile.fileName
+								moduleSpecifier: symbol.moduleSpecifier
 							})
 						)
 					)
@@ -48,13 +48,9 @@ function generateExportDeclarations(
 		// Otherwise, we can just add an ExportDeclaration with an ExportSpecifier
 		else {
 			const exportSpecifier = typescript.createExportSpecifier(
-				symbol.propertyName === symbol.name ? undefined : typescript.createIdentifier(symbol.propertyName),
-				typescript.createIdentifier(symbol.name)
+				symbol.propertyName.text === symbol.name.text ? undefined : typescript.createIdentifier(symbol.propertyName.text),
+				typescript.createIdentifier(symbol.name.text)
 			);
-
-			if (symbol.symbol != null) {
-				options.nodeToOriginalSymbolMap.set(exportSpecifier.propertyName ?? exportSpecifier.name, symbol.symbol);
-			}
 
 			exportDeclarations.push(
 				typescript.createExportDeclaration(
@@ -66,22 +62,20 @@ function generateExportDeclarations(
 						: typescript.createStringLiteral(
 								generateModuleSpecifier({
 									...options,
-									moduleSpecifier: symbol.moduleSpecifier,
-									parent: options.sourceFile.fileName
+									moduleSpecifier: symbol.moduleSpecifier
 								})
 						  )
 				)
 			);
+			const propertyName = exportSpecifier.propertyName ?? exportSpecifier.name;
+			options.nodeToOriginalSymbolMap.set(propertyName, getSymbolAtLocation({...options, node: symbol.propertyName ?? symbol.name}));
 		}
 	}
 	return exportDeclarations;
 }
 
-export function visitExportDeclaration({
-	node,
-	typescript,
-	...options
-}: ModuleMergerVisitorOptions<TS.ExportDeclaration>): VisitResult<TS.ExportDeclaration> {
+export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.ExportDeclaration>): VisitResult<TS.ExportDeclaration> {
+	const {node, typescript} = options;
 	const moduleSpecifier =
 		node.moduleSpecifier == null || !typescript.isStringLiteralLike(node.moduleSpecifier) ? undefined : node.moduleSpecifier.text;
 	const updatedModuleSpecifier =
@@ -89,11 +83,10 @@ export function visitExportDeclaration({
 			? undefined
 			: generateModuleSpecifier({
 					...options,
-					moduleSpecifier,
-					parent: options.sourceFile.fileName
+					moduleSpecifier
 			  });
 
-	const matchingSourceFile = moduleSpecifier == null ? undefined : options.getMatchingSourceFile(moduleSpecifier, options.sourceFile.fileName);
+	const matchingSourceFile = moduleSpecifier == null ? undefined : options.getMatchingSourceFile(moduleSpecifier);
 
 	const payload = {
 		moduleSpecifier,

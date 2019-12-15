@@ -4,6 +4,7 @@ import {generateIdentifierName} from "../../../util/generate-identifier-name";
 import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers";
 import {preserveSymbols} from "../../../util/clone-node-with-symbols";
 import {hasExportModifier} from "../../../util/modifier-util";
+import {getSymbolAtLocation} from "../../../util/get-symbol-at-location";
 
 export function visitClassDeclaration(options: ToExportDeclarationTransformerVisitorOptions<TS.ClassDeclaration>): TS.ClassDeclaration {
 	const {node, typescript, appendNodes, sourceFile} = options;
@@ -11,6 +12,7 @@ export function visitClassDeclaration(options: ToExportDeclarationTransformerVis
 	if (!hasExportModifier(node, typescript)) return node;
 
 	const nameText = node.name == null ? generateIdentifierName(sourceFile.fileName, "class") : node.name.text;
+	let returnNode: TS.ClassDeclaration;
 
 	const {exportSpecifier} = createExportSpecifierFromNameAndModifiers({
 		...options,
@@ -23,19 +25,24 @@ export function visitClassDeclaration(options: ToExportDeclarationTransformerVis
 
 	// Update the name if it changed
 	if (node.name != null && nameText === node.name.text) {
-		return node;
+		returnNode = node;
+	} else {
+		returnNode = preserveSymbols(
+			typescript.updateClassDeclaration(
+				node,
+				node.decorators,
+				node.modifiers,
+				typescript.createIdentifier(nameText),
+				node.typeParameters,
+				node.heritageClauses,
+				node.members
+			),
+			options
+		);
 	}
 
-	return preserveSymbols(
-		typescript.updateClassDeclaration(
-			node,
-			node.decorators,
-			node.modifiers,
-			typescript.createIdentifier(nameText),
-			node.typeParameters,
-			node.heritageClauses,
-			node.members
-		),
-		options
-	);
+	const propertyName = exportSpecifier.propertyName ?? exportSpecifier.name;
+	options.nodeToOriginalSymbolMap.set(propertyName, getSymbolAtLocation({...options, node: returnNode}));
+
+	return returnNode;
 }

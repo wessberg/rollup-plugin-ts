@@ -3,4 +3,4 @@ export interface ResolverResult {
 	isExternalLibrary: boolean;
 }
 
-export type Resolver = (id: string, parent: string) => ResolverResult | undefined;
+export type Resolver = (id: string, parent: string | undefined) => ResolverResult | undefined;

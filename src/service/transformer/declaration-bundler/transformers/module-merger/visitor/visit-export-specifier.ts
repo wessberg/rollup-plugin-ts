@@ -1,8 +1,8 @@
 import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options";
 import {TS} from "../../../../../../type/ts";
 import {preserveSymbols} from "../../../util/clone-node-with-symbols";
-import {getAliasedDeclaration} from "../../../util/get-aliased-declaration";
-import {traceIdentifiers} from "../../trace-identifiers/trace-identifiers";
+import {locateExportedSymbolForSourceFile} from "../../../util/locate-exported-symbol";
+import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
 
 export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.ExportSpecifier>): VisitResult<TS.ExportSpecifier> {
 	const {node, payload, typescript} = options;
@@ -20,23 +20,47 @@ export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.Expo
 	// Now, we might be referencing the default export from the original module, in which case this should be rewritten to point to the exact identifier
 	const propertyName = contResult.propertyName ?? contResult.name;
 
-	// If it isn't, we can safely just leave the node as it is
-	if (propertyName.text !== "default") {
-		return node;
-	}
+	const exportedSymbol =
+		propertyName.text === "default"
+			? locateExportedSymbolForSourceFile({defaultExport: true}, {...options, sourceFile: payload.matchingSourceFile.fileName})
+			: locateExportedSymbolForSourceFile(
+					{defaultExport: false, name: propertyName.text},
+					{...options, sourceFile: payload.matchingSourceFile.fileName}
+			  );
 
-	// Otherwise, we'll have to rewrite it so it matches the name of the default export of the referenced module. To find out, resolve the original declaration
-	const declaration = getAliasedDeclaration({...options, node: propertyName});
+	if (exportedSymbol != null) {
+		// If the export exports a binding from another module *that points to a file that isn't part of the current chunk*,
+		// Create a new ExportDeclaration that refers to that chunk or external module
+		if (exportedSymbol.moduleSpecifier != null && options.getMatchingSourceFile(exportedSymbol.moduleSpecifier) == null) {
+			options.prependNodes(
+				typescript.createExportDeclaration(
+					undefined,
+					undefined,
+					typescript.createNamedExports([
+						typescript.createExportSpecifier(
+							propertyName.text === "default"
+								? typescript.createIdentifier("default")
+								: exportedSymbol.propertyName.text === contResult.name.text
+								? undefined
+								: typescript.createIdentifier(exportedSymbol.propertyName.text),
+							typescript.createIdentifier(contResult.name.text)
+						)
+					]),
+					typescript.createStringLiteral(
+						generateModuleSpecifier({
+							...options,
+							moduleSpecifier: exportedSymbol.moduleSpecifier
+						})
+					)
+				)
+			);
 
-	if (declaration != null) {
-		// Take the first identifier for the node
-		const [firstIdentifier] = traceIdentifiers({...options, node: declaration});
-		if (firstIdentifier != null) {
-			// Update the ExportSpecifier
+			return undefined;
+		} else if (propertyName.text === "default") {
 			return preserveSymbols(
 				typescript.updateExportSpecifier(
 					contResult,
-					firstIdentifier === contResult.name.text ? undefined : typescript.createIdentifier(firstIdentifier),
+					exportedSymbol.propertyName.text === contResult.name.text ? undefined : typescript.createIdentifier(exportedSymbol.propertyName.text),
 					typescript.createIdentifier(contResult.name.text)
 				),
 				options

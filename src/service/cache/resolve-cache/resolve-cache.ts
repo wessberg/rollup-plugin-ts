@@ -116,6 +116,7 @@ export class ResolveCache implements IResolveCache {
 		typescript
 	}: IGetResolvedIdWithCachingOptions): ExtendedResolvedModule | null {
 		let cacheResult = this.getFromCache(id, parent);
+
 		if (cacheResult != null) {
 			return cacheResult;
 		}

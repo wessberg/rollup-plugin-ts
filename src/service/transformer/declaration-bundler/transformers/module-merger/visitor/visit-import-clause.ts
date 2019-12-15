@@ -3,7 +3,8 @@ import {TS} from "../../../../../../type/ts";
 import {getImportedSymbolFromImportClauseName} from "../../../util/create-export-specifier-from-name-and-modifiers";
 import {preserveSymbols} from "../../../util/clone-node-with-symbols";
 import {createAliasedBinding} from "../../../util/create-aliased-binding";
-import {traceIdentifiers} from "../../trace-identifiers/trace-identifiers";
+import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
+import {locateExportedSymbolForSourceFile} from "../../../util/locate-exported-symbol";
 import {getAliasedDeclaration} from "../../../util/get-aliased-declaration";
 
 export function visitImportClause(options: ModuleMergerVisitorOptions<TS.ImportClause>): VisitResult<TS.ImportClause> {
@@ -20,7 +21,7 @@ export function visitImportClause(options: ModuleMergerVisitorOptions<TS.ImportC
 	// If no SourceFile was resolved, preserve the ImportClause, but potentially remove the default import
 	if (payload.matchingSourceFile == null) {
 		// If the default import should be preserved, return the continuation result
-		if (options.shouldPreserveImportedSymbol(getImportedSymbolFromImportClauseName(contResult.name, payload.moduleSpecifier, options))) {
+		if (options.shouldPreserveImportedSymbol(getImportedSymbolFromImportClauseName(contResult.name, payload.moduleSpecifier))) {
 			return contResult;
 		}
 
@@ -31,17 +32,38 @@ export function visitImportClause(options: ModuleMergerVisitorOptions<TS.ImportC
 	// Otherwise, prepend the nodes for the SourceFile
 	options.prependNodes(...options.includeSourceFile(payload.matchingSourceFile));
 
-	// Now, we might be so lucky that the name of the default import _exactly_ matches that of the default export, in which case we don't need to do anything
-	// So, let's test if the identifiers match between the binding given to the default import and the bound identifier of the imported declaration
-	const declaration = getAliasedDeclaration({...options, node: contResult.name});
+	// Now, take the default export for the referenced module
+	const defaultExportedSymbol = locateExportedSymbolForSourceFile(
+		{defaultExport: true},
+		{...options, sourceFile: payload.matchingSourceFile.fileName}
+	);
 
-	if (declaration != null) {
-		for (const identifier of traceIdentifiers({...options, node: declaration})) {
-			// If the names match exactly, do nothing
-			if (identifier === contResult.name.text) continue;
+	if (defaultExportedSymbol != null) {
+		// If the default export exports a binding from another module *that points to a file that isn't part of the current chunk*,
+		// Create a new ImportDeclaration that refers to that chunk or external module
+		if (defaultExportedSymbol.moduleSpecifier != null && options.getMatchingSourceFile(defaultExportedSymbol.moduleSpecifier) == null) {
+			options.prependNodes(
+				typescript.createImportDeclaration(
+					undefined,
+					undefined,
+					typescript.createImportClause(typescript.createIdentifier(contResult.name.text), undefined),
+					typescript.createStringLiteral(
+						generateModuleSpecifier({
+							...options,
+							moduleSpecifier: defaultExportedSymbol.moduleSpecifier
+						})
+					)
+				)
+			);
+		}
 
-			// Otherwise, alias the binding
-			options.prependNodes(createAliasedBinding(declaration, identifier, contResult.name.text, typescript));
+		// Otherwise, if the names of the ImportClause and the default export exactly matches, we don't need to do anything.
+		// If they don't, we'll need to alias it
+		else if (defaultExportedSymbol.propertyName.text !== contResult.name.text) {
+			const declaration = getAliasedDeclaration({...options, node: contResult.name});
+			options.prependNodes(
+				createAliasedBinding(declaration, defaultExportedSymbol.propertyName.text, contResult.name.text, typescript, options.typeChecker)
+			);
 		}
 	}
 

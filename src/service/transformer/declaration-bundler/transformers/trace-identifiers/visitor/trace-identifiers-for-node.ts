@@ -11,6 +11,9 @@ import {traceIdentifiersForInterfaceDeclaration} from "./trace-identifiers-for-i
 import {traceIdentifiersForTypeAliasDeclaration} from "./trace-identifiers-for-type-alias-declaration";
 import {traceIdentifiersForVariableDeclaration} from "./trace-identifiers-for-variable-declaration";
 import {TraceIdentifiersVisitorOptions} from "../trace-identifiers-visitor-options";
+import {traceIdentifiersForExportAssignment} from "./trace-identifiers-for-export-assignment";
+import {traceIdentifiersForCallExpression} from "./trace-identifiers-for-call-expression";
+import {traceIdentifiersForNewExpression} from "./trace-identifiers-for-new-expression";
 
 /**
  * Traces identifiers for the given Node, potentially generating new unique variable names for them
@@ -28,5 +31,8 @@ export function traceIdentifiersForNode({node, ...options}: TraceIdentifiersVisi
 	else if (options.typescript.isInterfaceDeclaration(node)) traceIdentifiersForInterfaceDeclaration({...options, node});
 	else if (options.typescript.isTypeAliasDeclaration(node)) traceIdentifiersForTypeAliasDeclaration({...options, node});
 	else if (options.typescript.isVariableDeclaration(node)) traceIdentifiersForVariableDeclaration({...options, node});
+	else if (options.typescript.isExportAssignment(node)) traceIdentifiersForExportAssignment({...options, node});
+	else if (options.typescript.isCallExpression(node)) traceIdentifiersForCallExpression({...options, node});
+	else if (options.typescript.isNewExpression(node)) traceIdentifiersForNewExpression({...options, node});
 	else options.childContinuation(node);
 }

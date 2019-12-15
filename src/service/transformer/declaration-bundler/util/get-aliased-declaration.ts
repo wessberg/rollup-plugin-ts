@@ -6,19 +6,7 @@ export interface GetAliasedDeclarationOptions extends SourceFileBundlerVisitorOp
 	node: TS.Expression | TS.Symbol | TS.Declaration | TS.QualifiedName | undefined;
 }
 
-/**
- * Gets the Declaration for the given Expression
- */
-export function getAliasedDeclaration(options: GetAliasedDeclarationOptions): (TS.Declaration & {id: number}) | undefined {
-	const {node, typeChecker} = options;
-	let symbol: TS.Symbol | undefined;
-	try {
-		symbol = node == null ? undefined : "valueDeclaration" in node || "declarations" in node ? node : getSymbolAtLocation({...options, node});
-	} catch {
-		// Typescript couldn't produce a symbol for the Node
-	}
-
-	if (symbol == null) return undefined;
+export function getAliasedDeclarationFromSymbol(symbol: TS.Symbol, typeChecker: TS.TypeChecker): TS.Declaration & {id: number} {
 	let valueDeclaration = symbol.valueDeclaration != null ? symbol.valueDeclaration : symbol.declarations != null ? symbol.declarations[0] : undefined;
 	try {
 		const aliasedDeclaration = typeChecker.getAliasedSymbol(symbol);
@@ -36,4 +24,24 @@ export function getAliasedDeclaration(options: GetAliasedDeclarationOptions): (T
 	} catch {}
 
 	return valueDeclaration as TS.Declaration & {id: number};
+}
+
+export function isSymbol(node: TS.Node | TS.Symbol): node is TS.Symbol {
+	return "valueDeclaration" in node || "declarations" in node;
+}
+
+/**
+ * Gets the Declaration for the given Expression
+ */
+export function getAliasedDeclaration(options: GetAliasedDeclarationOptions): (TS.Declaration & {id: number}) | undefined {
+	const {node, typeChecker} = options;
+	let symbol: TS.Symbol | undefined;
+	try {
+		symbol = node == null ? undefined : isSymbol(node) ? node : getSymbolAtLocation({...options, node});
+	} catch {
+		// Typescript couldn't produce a symbol for the Node
+	}
+
+	if (symbol == null) return undefined;
+	return getAliasedDeclarationFromSymbol(symbol, typeChecker);
 }

@@ -2,7 +2,7 @@ import {TS} from "../../../../type/ts";
 import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options";
 import {getBindingFromLexicalEnvironment, getReverseBindingFromLexicalEnvironment} from "./get-binding-from-lexical-environment";
 import {ExportedSymbol, ImportedSymbol} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
-import {getSymbolAtLocation, GetSymbolAtLocationOptions} from "./get-symbol-at-location";
+import {GetSymbolAtLocationOptions} from "./get-symbol-at-location";
 import {hasDefaultExportModifier} from "./modifier-util";
 
 export interface CreateExportSpecifierFromNameAndModifiersOptions extends Omit<GetSymbolAtLocationOptions, "node"> {
@@ -16,59 +16,39 @@ export interface CreateExportSpecifierFromNameAndModifiersResult {
 	exportedSymbol: ExportedSymbol;
 }
 
-export function getImportedSymbolFromImportSpecifier(
-	specifier: TS.ImportSpecifier,
-	moduleSpecifier: string,
-	options: Omit<GetSymbolAtLocationOptions, "node">
-): ImportedSymbol {
+export function getImportedSymbolFromImportSpecifier(specifier: TS.ImportSpecifier, moduleSpecifier: string): ImportedSymbol {
 	return {
-		symbol: getSymbolAtLocation({...options, node: specifier.propertyName ?? specifier.name}),
 		moduleSpecifier,
 		isDefaultImport: specifier.name.text === "default",
-		propertyName: specifier.propertyName != null ? specifier.propertyName.text : specifier.name.text,
-		name: specifier.name.text
+		propertyName: specifier.propertyName ?? specifier.name,
+		name: specifier.name
 	};
 }
 
-export function getImportedSymbolFromImportClauseName(
-	clauseName: TS.Identifier,
-	moduleSpecifier: string,
-	options: Omit<GetSymbolAtLocationOptions, "node">
-): ImportedSymbol {
+export function getImportedSymbolFromImportClauseName(clauseName: TS.Identifier, moduleSpecifier: string): ImportedSymbol {
 	return {
-		symbol: getSymbolAtLocation({...options, node: clauseName}),
 		moduleSpecifier,
 		isDefaultImport: true,
-		propertyName: clauseName.text,
-		name: clauseName.text
+		propertyName: clauseName,
+		name: clauseName
 	};
 }
 
-export function getImportedSymbolFromNamespaceImport(
-	namespaceImport: TS.NamespaceImport,
-	moduleSpecifier: string,
-	options: Omit<GetSymbolAtLocationOptions, "node">
-): ImportedSymbol {
+export function getImportedSymbolFromNamespaceImport(namespaceImport: TS.NamespaceImport, moduleSpecifier: string): ImportedSymbol {
 	return {
-		symbol: getSymbolAtLocation({...options, node: namespaceImport.name}),
 		moduleSpecifier,
 		isDefaultImport: true,
-		propertyName: namespaceImport.name.text,
-		name: namespaceImport.name.text
+		propertyName: namespaceImport.name,
+		name: namespaceImport.name
 	};
 }
 
-export function getExportedSymbolFromExportSpecifier(
-	specifier: TS.ExportSpecifier,
-	moduleSpecifier: string | undefined,
-	options: Omit<GetSymbolAtLocationOptions, "node">
-): ExportedSymbol {
+export function getExportedSymbolFromExportSpecifier(specifier: TS.ExportSpecifier, moduleSpecifier: string | undefined): ExportedSymbol {
 	return {
-		symbol: getSymbolAtLocation({...options, node: specifier.propertyName ?? specifier.name}),
 		moduleSpecifier,
 		isDefaultExport: specifier.name.text === "default",
-		propertyName: specifier.propertyName != null ? specifier.propertyName.text : specifier.name.text,
-		name: specifier.name.text
+		propertyName: specifier.propertyName ?? specifier.name,
+		name: specifier.name
 	};
 }
 
@@ -76,8 +56,7 @@ export function createExportSpecifierFromNameAndModifiers({
 	name,
 	lexicalEnvironment,
 	modifiers,
-	typescript,
-	...options
+	typescript
 }: CreateExportSpecifierFromNameAndModifiersOptions): CreateExportSpecifierFromNameAndModifiersResult {
 	if (hasDefaultExportModifier(modifiers, typescript)) {
 		const propertyNameText = getBindingFromLexicalEnvironment(lexicalEnvironment, name) ?? name;
@@ -89,7 +68,7 @@ export function createExportSpecifierFromNameAndModifiers({
 
 		return {
 			exportSpecifier,
-			exportedSymbol: getExportedSymbolFromExportSpecifier(exportSpecifier, undefined, {...options, typescript})
+			exportedSymbol: getExportedSymbolFromExportSpecifier(exportSpecifier, undefined)
 		};
 	} else {
 		const propertyNameText = getBindingFromLexicalEnvironment(lexicalEnvironment, name) ?? name;
@@ -101,7 +80,7 @@ export function createExportSpecifierFromNameAndModifiers({
 
 		return {
 			exportSpecifier,
-			exportedSymbol: getExportedSymbolFromExportSpecifier(exportSpecifier, undefined, {...options, typescript})
+			exportedSymbol: getExportedSymbolFromExportSpecifier(exportSpecifier, undefined)
 		};
 	}
 }

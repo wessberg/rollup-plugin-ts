@@ -21,7 +21,7 @@ export type PayloadMap = {
 
 export type VisitResult<T extends TS.Node> = T extends TS.ImportTypeNode
 	? TS.Identifier | TS.TypeQueryNode | TS.ImportTypeNode | TS.QualifiedName
-	: T extends TS.ImportDeclaration | TS.ImportSpecifier | TS.ImportClause | TS.NamespaceImport
+	: T extends TS.ImportDeclaration | TS.ImportSpecifier | TS.ExportSpecifier | TS.ImportClause | TS.NamespaceImport
 	? T | undefined
 	: T extends TS.ExportDeclaration
 	? TS.ExportDeclaration[] | TS.ExportDeclaration
@@ -42,7 +42,7 @@ export interface ModuleMergerVisitorOptions<T extends TS.Node> extends SourceFil
 	continuation<U extends TS.Node>(node: U, payload: PayloadMap[U["kind"]]): VisitResult<U>;
 	childContinuation<U extends TS.Node>(node: U, payload: PayloadMap[U["kind"]]): ChildVisitResult<U>;
 
-	getMatchingSourceFile(moduleSpecifier: string, from: string): TS.SourceFile | undefined;
+	getMatchingSourceFile(moduleSpecifier: string): TS.SourceFile | undefined;
 	shouldPreserveImportedSymbol(importedSymbol: ImportedSymbol): boolean;
 	includeSourceFile(sourceFile: TS.SourceFile, options?: Partial<IncludeSourceFileOptions>): Iterable<TS.Statement>;
 	prependNodes(...nodes: TS.Node[]): void;

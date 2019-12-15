@@ -1,13 +1,16 @@
 import {TS} from "../../../../type/ts";
 import {ensureHasDeclareModifier} from "./modifier-util";
+import {getAliasedDeclarationFromSymbol, isSymbol} from "./get-aliased-declaration";
 
 export function createAliasedBinding(
-	node: TS.Node | undefined,
+	node: TS.Node | TS.Symbol | undefined,
 	propertyName: string,
 	name: string,
-	typescript: typeof TS
+	typescript: typeof TS,
+	typeChecker: TS.TypeChecker
 ): TS.ImportDeclaration | TS.TypeAliasDeclaration | TS.VariableStatement {
-	switch (node?.kind) {
+	const declaration = node != null && isSymbol(node) ? getAliasedDeclarationFromSymbol(node, typeChecker) : node;
+	switch (declaration?.kind) {
 		case typescript.SyntaxKind.ClassDeclaration:
 		case typescript.SyntaxKind.ClassExpression:
 		case typescript.SyntaxKind.FunctionDeclaration:

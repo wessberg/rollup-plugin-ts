@@ -6,6 +6,7 @@ import {
 	DECLARATION_MAP_EXTENSION,
 	DEFAULT_LIB_NAMES,
 	KNOWN_EXTENSIONS,
+	NODE_MODULES_MATCH_PATH,
 	ROLLUP_PLUGIN_MULTI_ENTRY,
 	TSLIB_NAME
 } from "../../constant/constant";
@@ -35,7 +36,7 @@ export function getExtension(file: string): string {
  * Returns true if the given path represents an external library
  */
 export function isExternalLibrary(path: string): boolean {
-	return !path.startsWith(".") && !path.startsWith("/");
+	return (!path.startsWith(".") && !path.startsWith("/")) || path.includes(NODE_MODULES_MATCH_PATH);
 }
 
 /**

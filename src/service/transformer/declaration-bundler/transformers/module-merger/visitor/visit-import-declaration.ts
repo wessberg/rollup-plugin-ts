@@ -12,11 +12,10 @@ export function visitImportDeclaration(options: ModuleMergerVisitorOptions<TS.Im
 			? undefined
 			: generateModuleSpecifier({
 					...options,
-					moduleSpecifier,
-					parent: options.sourceFile.fileName
+					moduleSpecifier
 			  });
 
-	const matchingSourceFile = moduleSpecifier == null ? undefined : options.getMatchingSourceFile(moduleSpecifier, options.sourceFile.fileName);
+	const matchingSourceFile = moduleSpecifier == null ? undefined : options.getMatchingSourceFile(moduleSpecifier);
 
 	const payload = {
 		moduleSpecifier,

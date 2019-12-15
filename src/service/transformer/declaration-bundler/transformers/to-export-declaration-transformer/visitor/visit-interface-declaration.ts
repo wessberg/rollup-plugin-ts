@@ -2,6 +2,7 @@ import {TS} from "../../../../../../type/ts";
 import {ToExportDeclarationTransformerVisitorOptions} from "../to-export-declaration-transformer-visitor-options";
 import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers";
 import {hasExportModifier} from "../../../util/modifier-util";
+import {getSymbolAtLocation} from "../../../util/get-symbol-at-location";
 
 export function visitInterfaceDeclaration(options: ToExportDeclarationTransformerVisitorOptions<TS.InterfaceDeclaration>): TS.InterfaceDeclaration {
 	const {node, typescript, appendNodes} = options;
@@ -12,6 +13,9 @@ export function visitInterfaceDeclaration(options: ToExportDeclarationTransforme
 
 	// Append an ExportDeclaration
 	appendNodes(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([exportSpecifier]), undefined));
+
+	const propertyName = exportSpecifier.propertyName ?? exportSpecifier.name;
+	options.nodeToOriginalSymbolMap.set(propertyName, getSymbolAtLocation({...options, node: node}));
 
 	return node;
 }
