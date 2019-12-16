@@ -21,7 +21,7 @@ export function visitClassDeclaration(options: ToExportDeclarationTransformerVis
 	});
 
 	// Append an ExportDeclaration
-	appendNodes(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([exportSpecifier]), undefined));
+	appendNodes(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([exportSpecifier])));
 
 	// Update the name if it changed
 	if (node.name != null && nameText === node.name.text) {

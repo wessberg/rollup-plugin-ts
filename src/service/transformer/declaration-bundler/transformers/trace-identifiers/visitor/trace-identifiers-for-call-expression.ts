@@ -4,6 +4,4 @@ import {TraceIdentifiersVisitorOptions} from "../trace-identifiers-visitor-optio
 /**
  * Traces identifiers for the given CallExpression.
  */
-export function traceIdentifiersForCallExpression(_options: TraceIdentifiersVisitorOptions<TS.CallExpression>): void {
-	return;
-}
+export function traceIdentifiersForCallExpression(_options: TraceIdentifiersVisitorOptions<TS.CallExpression>): void {}

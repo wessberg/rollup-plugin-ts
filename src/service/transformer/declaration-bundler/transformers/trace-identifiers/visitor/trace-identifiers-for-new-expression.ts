@@ -2,8 +2,6 @@ import {TS} from "../../../../../../type/ts";
 import {TraceIdentifiersVisitorOptions} from "../trace-identifiers-visitor-options";
 
 /**
- * Traces identifiers for the given CallExpression.
+ * Traces identifiers for the given NewExpression.
  */
-export function traceIdentifiersForNewExpression(_options: TraceIdentifiersVisitorOptions<TS.NewExpression>): void {
-	return;
-}
+export function traceIdentifiersForNewExpression(_options: TraceIdentifiersVisitorOptions<TS.NewExpression>): void {}

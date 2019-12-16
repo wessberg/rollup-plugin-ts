@@ -31,7 +31,7 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 							})
 						),
 					options.context
-				) as ChildVisitResult<U>;
+				);
 			},
 
 			continuation: <U extends TS.Node>(node: U, payload: PayloadMap[U["kind"]]): VisitResult<U> => {
@@ -88,6 +88,6 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 			}
 		};
 
-		return visitorOptions.childContinuation(options.sourceFile, undefined) as TS.SourceFile;
+		return visitorOptions.childContinuation(options.sourceFile, undefined);
 	};
 }
