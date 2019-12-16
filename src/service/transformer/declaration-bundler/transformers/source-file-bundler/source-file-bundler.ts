@@ -25,7 +25,8 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 						console.log({
 							chunk,
 							origChunk: options.chunk.paths.absolute,
-							isSameChunk: chunk === options.chunk.paths.absolute
+							isSameChunk: chunk === options.chunk.paths.absolute,
+							sourceFile: sourceFile.fileName
 						});
 						moduleSpecifierToSourceFileMap.set(statement.name.text, {
 							sourceFile,
@@ -35,6 +36,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 					}
 				}
 			});
+			console.log(moduleSpecifierToSourceFileMap.keys());
 
 			// Visit only the entry SourceFile(s)
 			const entrySourceFiles = sourceFilesForChunk.filter(sourceFile => options.chunk.entryModules.includes(normalize(sourceFile.fileName)));
