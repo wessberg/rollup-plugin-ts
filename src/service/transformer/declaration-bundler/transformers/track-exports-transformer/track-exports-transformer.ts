@@ -1,17 +1,16 @@
 import {TS} from "../../../../../type/ts";
-import {ExportedSymbol, ExportedSymbolSet, SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
+import {ExportedSymbol, ExportedSymbolSet} from "../source-file-bundler/source-file-bundler-visitor-options";
 import {visitNode} from "./visitor/visit-node";
-import {TrackExportsTransformerVisitorOptions} from "./track-exports-transformer-visitor-options";
+import {TrackExportsOptions, TrackExportsTransformerVisitorOptions} from "./track-exports-transformer-visitor-options";
 
-export function trackExportsTransformer({typescript, context, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
+export function trackExportsTransformer(options: TrackExportsOptions): TS.SourceFile {
+	const {typescript} = options;
 	const exportedSymbolSet: ExportedSymbolSet = new Set();
 	options.sourceFileToExportedSymbolSet.set(options.sourceFile.fileName, exportedSymbolSet);
 
 	// Prepare some VisitorOptions
 	const visitorOptions: Omit<TrackExportsTransformerVisitorOptions<TS.Node>, "node"> = {
 		...options,
-		context,
-		typescript,
 
 		markAsExported(symbol: ExportedSymbol): void {
 			exportedSymbolSet.add(symbol);

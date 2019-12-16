@@ -6,7 +6,6 @@ import {hasExportModifier} from "../../../util/modifier-util";
 export function visitEnumDeclaration({
 	node,
 	typescript,
-	lexicalEnvironment,
 	markAsExported,
 	...options
 }: TrackExportsTransformerVisitorOptions<TS.EnumDeclaration>): TS.EnumDeclaration {
@@ -17,7 +16,6 @@ export function visitEnumDeclaration({
 		...options,
 		name: node.name.text,
 		modifiers: node.modifiers,
-		lexicalEnvironment,
 		typescript
 	});
 

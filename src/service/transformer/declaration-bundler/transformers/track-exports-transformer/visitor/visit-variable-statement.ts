@@ -10,7 +10,6 @@ export function visitVariableStatement({
 	resolver,
 	nodeIdentifierCache,
 	sourceFile,
-	lexicalEnvironment,
 	markAsExported,
 	...options
 }: TrackExportsTransformerVisitorOptions<TS.VariableStatement>): TS.VariableStatement {
@@ -24,7 +23,6 @@ export function visitVariableStatement({
 			...options,
 			name: identifier,
 			modifiers: node.modifiers,
-			lexicalEnvironment,
 			typescript
 		});
 

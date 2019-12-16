@@ -5,13 +5,13 @@ import {IncrementalLanguageService} from "../service/language-service/incrementa
 import {DeclarationBundlerOptions} from "../service/transformer/declaration-bundler/declaration-bundler-options";
 import {declarationBundler} from "../service/transformer/declaration-bundler/declaration-bundler";
 
-export interface PreBundleDeclarationsForChunkOptions extends Omit<DeclarationBundlerOptions, "typeChecker"> {
+export interface BundleDeclarationsForChunkOptions extends Omit<DeclarationBundlerOptions, "typeChecker"> {
 	cwd: string;
 	generateMap: boolean;
 	languageServiceHost: IncrementalLanguageService;
 }
 
-export function bundleDeclarationsForChunk(options: PreBundleDeclarationsForChunkOptions): SourceDescription {
+export function bundleDeclarationsForChunk(options: BundleDeclarationsForChunkOptions): SourceDescription {
 	let code = "";
 	let map: SourceMap | undefined;
 	const {outDir, ...compilationSettings} = options.languageServiceHost.getCompilationSettings();

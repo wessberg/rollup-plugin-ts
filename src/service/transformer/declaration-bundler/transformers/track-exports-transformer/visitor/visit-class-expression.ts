@@ -6,7 +6,6 @@ import {hasExportModifier} from "../../../util/modifier-util";
 export function visitClassExpression({
 	node,
 	typescript,
-	lexicalEnvironment,
 	markAsExported,
 	...options
 }: TrackExportsTransformerVisitorOptions<TS.ClassExpression>): TS.ClassExpression {
@@ -17,7 +16,6 @@ export function visitClassExpression({
 		...options,
 		name: node.name.text,
 		modifiers: node.modifiers,
-		lexicalEnvironment,
 		typescript
 	});
 

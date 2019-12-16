@@ -6,7 +6,6 @@ import {hasExportModifier} from "../../../util/modifier-util";
 export function visitModuleDeclaration({
 	node,
 	typescript,
-	lexicalEnvironment,
 	markAsExported,
 	...options
 }: TrackExportsTransformerVisitorOptions<TS.ModuleDeclaration>): TS.ModuleDeclaration {
@@ -17,7 +16,6 @@ export function visitModuleDeclaration({
 		...options,
 		name: node.name.text,
 		modifiers: node.modifiers,
-		lexicalEnvironment,
 		typescript
 	});
 
