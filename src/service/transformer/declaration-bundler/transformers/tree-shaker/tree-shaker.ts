@@ -23,6 +23,7 @@ import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-fil
 import {TS} from "../../../../../type/ts";
 import {isReferenced} from "../reference/is-referenced/is-referenced";
 import {hasExportModifier} from "../../util/modifier-util";
+import {visitExportAssignment} from "./visitor/visit-export-assignment";
 
 export function treeShaker({typescript, context, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
 	if (options.pluginOptions.debug) {
@@ -63,6 +64,8 @@ export function treeShaker({typescript, context, ...options}: SourceFileBundlerV
 			return visitModuleDeclaration({...visitorOptions, node});
 		} else if (typescript.isExportDeclaration(node)) {
 			return visitExportDeclaration({...visitorOptions, node});
+		} else if (typescript.isExportAssignment(node)) {
+			return visitExportAssignment({...visitorOptions, node});
 		} else if (typescript.isVariableStatement(node)) {
 			return visitVariableStatement({node, ...visitorOptions});
 		} else if (typescript.isVariableDeclarationList(node)) {

@@ -1,29 +1,78 @@
 import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
 import {TS} from "../../../../../type/ts";
-import {mergeImports} from "../../util/merge-imports";
-import {mergeTypeReferenceDirectives} from "../../util/merge-type-reference-directives";
-import {mergeExports} from "../../util/merge-exports";
-import {mergeLibReferenceDirectives} from "../../util/merge-lib-reference-directives";
+import {StatementMergerVisitorOptions} from "./statement-merger-visitor-options";
+import {visitNode} from "./visitor/visit-node";
+import {getMergedImportDeclarationsForModules} from "../../util/get-merged-import-declarations-for-modules";
+import {getMergedExportDeclarationsForModules} from "../../util/get-merged-export-declarations-for-modules";
 
-export function statementMerger({typescript, context, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
+export function statementMerger(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
+	const {typescript, context, sourceFile} = options;
 	if (options.pluginOptions.debug) {
 		console.log(`=== BEFORE STATEMENT MERGING === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(options.sourceFile));
 	}
 
-	const mergedStatements = mergeExports(mergeImports([...options.sourceFile.statements], typescript), typescript);
+	// Merge all of the imports
+	const mergedImports = getMergedImportDeclarationsForModules(sourceFile, typescript);
+	const mergedExports = getMergedExportDeclarationsForModules(sourceFile, typescript);
+	const includedImportedModules = new Set<string>();
+	const includedExportedModules = new Set<string | undefined>();
 
-	const result = typescript.updateSourceFileNode(
-		options.sourceFile,
-		mergedStatements.length < 1
-			? // Create an 'export {}' declaration to mark the declaration file as module-based
+	// Prepare some VisitorOptions
+	const visitorOptions: Omit<StatementMergerVisitorOptions<TS.Node>, "node"> = {
+		...options,
+
+		preserveImportedModuleIfNeeded(module: string): TS.ImportDeclaration[] | undefined {
+			if (includedImportedModules.has(module)) return undefined;
+			includedImportedModules.add(module);
+			return mergedImports.get(module);
+		},
+
+		preserveExportedModuleIfNeeded(module: string | undefined): TS.ExportDeclaration[] | undefined {
+			if (includedExportedModules.has(module)) return undefined;
+			includedExportedModules.add(module);
+			return mergedExports.get(module);
+		},
+
+		childContinuation: <U extends TS.Node>(node: U): U | undefined =>
+			typescript.visitEachChild(
+				node,
+				nextNode =>
+					visitNode({
+						...visitorOptions,
+						node: nextNode
+					}),
+				context
+			),
+
+		continuation: <U extends TS.Node>(node: U): U | undefined =>
+			visitNode({
+				...visitorOptions,
+				node
+			}) as U | undefined
+	};
+
+	let result = typescript.visitEachChild(sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
+	const importDeclarations = result.statements.filter(typescript.isImportDeclaration);
+	const exportDeclarations = result.statements.filter(
+		statement => typescript.isExportDeclaration(statement) || typescript.isExportAssignment(statement)
+	);
+	const otherStatements = result.statements.filter(
+		statement => !typescript.isImportDeclaration(statement) && !typescript.isExportDeclaration(statement) && !typescript.isExportAssignment(statement)
+	);
+	const totalStatementCount = importDeclarations.length + exportDeclarations.length + otherStatements.length;
+
+	result = typescript.updateSourceFileNode(
+		result,
+		totalStatementCount === 0
+			? // Create an 'export {}' declaration to mark the declaration file as module-based if it has no statements
 			  [typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([]))]
-			: mergedStatements,
-		options.sourceFile.isDeclarationFile,
-		options.sourceFile.referencedFiles,
-		mergeTypeReferenceDirectives(options.sourceFile),
-		options.sourceFile.hasNoDefaultLib,
-		mergeLibReferenceDirectives(options.sourceFile)
+			: [...importDeclarations, ...otherStatements, ...exportDeclarations],
+		result.isDeclarationFile,
+		result.referencedFiles,
+		result.typeReferenceDirectives,
+		result.hasNoDefaultLib,
+		result.libReferenceDirectives
 	);
 
 	if (options.pluginOptions.debug) {

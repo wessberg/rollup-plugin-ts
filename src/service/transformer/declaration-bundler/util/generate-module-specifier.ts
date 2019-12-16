@@ -6,7 +6,7 @@ export interface GenerateModuleSpecifierOptions extends SourceFileBundlerVisitor
 	moduleSpecifier: string;
 }
 
-export function generateModuleSpecifier({absoluteChunkFileName, moduleSpecifier, moduleSpecifierToSourceFileMap}: GenerateModuleSpecifierOptions) {
+export function generateModuleSpecifier({chunk, moduleSpecifier, moduleSpecifierToSourceFileMap}: GenerateModuleSpecifierOptions) {
 	const sourceFileWithChunk = moduleSpecifierToSourceFileMap.get(moduleSpecifier);
 
 	// For external libraries, preserve the module specifier as it is
@@ -14,6 +14,6 @@ export function generateModuleSpecifier({absoluteChunkFileName, moduleSpecifier,
 		return moduleSpecifier;
 	}
 
-	const relativePath = relative(dirname(absoluteChunkFileName), sourceFileWithChunk.chunk);
+	const relativePath = relative(dirname(chunk.paths.absolute), sourceFileWithChunk.chunk);
 	return ensureHasLeadingDotAndPosix(stripKnownExtension(relativePath), false);
 }

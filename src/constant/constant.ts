@@ -27,7 +27,8 @@ export const KNOWN_EXTENSIONS = new Set([
 
 export const NODE_MODULES = "node_modules";
 export const NODE_MODULES_MATCH_PATH = `/${NODE_MODULES}/`;
-export const SOURCE_MAP_COMMENT = "\n//# sourceMappingURL";
+export const SOURCE_MAP_COMMENT = "//# sourceMappingURL";
+export const SOURCE_MAP_COMMENT_REGEXP = /\/\/# sourceMappingURL=(\S*)/;
 export const TSLIB_NAME = `tslib${DECLARATION_EXTENSION}`;
 export const BABEL_RUNTIME_PREFIX_1 = "@babel/runtime/";
 export const BABEL_RUNTIME_PREFIX_2 = "babel-runtime/";

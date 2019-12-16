@@ -14,7 +14,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 
 			// Only consider those SourceFiles that are part of the current chunk to be emitted
 			const sourceFilesForChunk = bundle.sourceFiles.filter(
-				sourceFile => getChunkFilename({...options, fileName: sourceFile.fileName}) === options.absoluteChunkFileName
+				sourceFile => getChunkFilename({...options, fileName: sourceFile.fileName}) === options.chunk.paths.absolute
 			);
 
 			const moduleSpecifierToSourceFileMap = new Map<string, SourceFileWithChunk>();
@@ -25,14 +25,14 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 						moduleSpecifierToSourceFileMap.set(statement.name.text, {
 							sourceFile,
 							chunk,
-							isSameChunk: chunk === options.absoluteChunkFileName
+							isSameChunk: chunk === options.chunk.paths.absolute
 						});
 					}
 				}
 			});
 
 			// Visit only the entry SourceFile(s)
-			const entrySourceFiles = sourceFilesForChunk.filter(sourceFile => options.entryModules.includes(normalize(sourceFile.fileName)));
+			const entrySourceFiles = sourceFilesForChunk.filter(sourceFile => options.chunk.entryModules.includes(normalize(sourceFile.fileName)));
 			const nonEntrySourceFiles = sourceFilesForChunk.filter(sourceFile => !entrySourceFiles.includes(sourceFile));
 
 			for (const sourceFile of entrySourceFiles) {

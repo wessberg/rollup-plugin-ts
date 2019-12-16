@@ -1,26 +1,49 @@
 import {ensureHasLeadingDotAndPosix} from "../../../../util/path/path-util";
 import {TS} from "../../../../type/ts";
 
-const EMPTY_MODULE_SPECIFIER_TOKEN = "_#gen__empty__module__specifier";
+export type MergedExportDeclarationsMap = Map<string | undefined, TS.ExportDeclaration[]>;
 
 /**
  * Merges the exports based on the given Statements
  */
-export function mergeExports(statements: TS.Statement[], typescript: typeof TS): TS.Statement[] {
-	const exports = statements.filter(typescript.isExportDeclaration);
-	const otherStatements = statements.filter(statement => !typescript.isExportDeclaration(statement));
-	const moduleSpecifierToAliasedExportedBindings: Map<string, Map<string, Set<string>>> = new Map();
-	const exportDeclarations: Set<TS.ExportDeclaration> = new Set();
-	const reExportedSpecifiers = new Set<string>();
+export function getMergedExportDeclarationsForModules(sourceFile: TS.SourceFile, typescript: typeof TS): MergedExportDeclarationsMap {
+	const exports = sourceFile.statements.filter(typescript.isExportDeclaration);
+	const exportAssignments = sourceFile.statements.filter(typescript.isExportAssignment);
+
+	const moduleToExportDeclarations: MergedExportDeclarationsMap = new Map();
+	const moduleSpecifierToAliasedExportedBindings: Map<string | undefined, Map<string, Set<string>>> = new Map();
+	const reExportedSpecifiers = new Set<string | undefined>();
+
+	for (const exportAssignment of exportAssignments) {
+		let aliasedExportedBindings = moduleSpecifierToAliasedExportedBindings.get(undefined);
+
+		if (aliasedExportedBindings == null) {
+			aliasedExportedBindings = new Map();
+			moduleSpecifierToAliasedExportedBindings.set(undefined, aliasedExportedBindings);
+		}
+
+		// If the Expression isn't an identifier, skip this ExportAssignment
+		if (!typescript.isIdentifier(exportAssignment.expression)) {
+			continue;
+		}
+
+		const propertyName = exportAssignment.expression.text;
+		const alias = "default";
+		let setForExportedBinding = aliasedExportedBindings.get(propertyName);
+		if (setForExportedBinding == null) {
+			setForExportedBinding = new Set();
+			aliasedExportedBindings.set(propertyName, setForExportedBinding);
+		}
+		setForExportedBinding.add(alias);
+	}
 
 	for (const exportDeclaration of exports) {
 		// If the ModuleSpecifier is given and it isn't a string literal, leave it as it is
 		if (exportDeclaration.moduleSpecifier != null && !typescript.isStringLiteralLike(exportDeclaration.moduleSpecifier)) {
-			exportDeclarations.add(exportDeclaration);
 			continue;
 		}
 
-		const specifierText = exportDeclaration.moduleSpecifier == null ? EMPTY_MODULE_SPECIFIER_TOKEN : exportDeclaration.moduleSpecifier.text;
+		const specifierText = exportDeclaration.moduleSpecifier?.text;
 
 		let aliasedExportedBindings = moduleSpecifierToAliasedExportedBindings.get(specifierText);
 
@@ -47,7 +70,13 @@ export function mergeExports(statements: TS.Statement[], typescript: typeof TS):
 			// Don't include the same clause twice
 			if (reExportedSpecifiers.has(specifierText)) continue;
 			reExportedSpecifiers.add(specifierText);
-			exportDeclarations.add(exportDeclaration);
+
+			let exportDeclarationsForModule = moduleToExportDeclarations.get(specifierText);
+			if (exportDeclarationsForModule == null) {
+				exportDeclarationsForModule = [];
+				moduleToExportDeclarations.set(specifierText, exportDeclarationsForModule);
+			}
+			exportDeclarationsForModule.push(exportDeclaration);
 		}
 	}
 
@@ -71,15 +100,20 @@ export function mergeExports(statements: TS.Statement[], typescript: typeof TS):
 			}
 		}
 
-		exportDeclarations.add(
+		let exportDeclarationsForModule = moduleToExportDeclarations.get(specifier);
+		if (exportDeclarationsForModule == null) {
+			exportDeclarationsForModule = [];
+			moduleToExportDeclarations.set(specifier, exportDeclarationsForModule);
+		}
+		exportDeclarationsForModule.push(
 			typescript.createExportDeclaration(
 				undefined,
 				undefined,
 				typescript.createNamedExports(exportSpecifiers),
-				specifier === EMPTY_MODULE_SPECIFIER_TOKEN ? undefined : typescript.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
+				specifier == null ? undefined : typescript.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
 			)
 		);
 	}
 
-	return [...otherStatements, ...exportDeclarations];
+	return moduleToExportDeclarations;
 }

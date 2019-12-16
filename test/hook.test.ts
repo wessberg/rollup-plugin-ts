@@ -23,12 +23,13 @@ test("Declarations respect rewritten output paths. #1", async t => {
 			}
 		],
 		{
+			debug: true,
 			tsconfig: {
 				declarationMap: true,
 				declarationDir: "./foobarbaz"
 			},
 			hook: {
-				outputPath: path => path.replace("index.d.ts", "index-rewritten.d.ts")
+				outputPath: path => path.replace("index.d.ts", "some-other-dir/hey/there/index-rewritten.d.ts")
 			}
 		}
 	);

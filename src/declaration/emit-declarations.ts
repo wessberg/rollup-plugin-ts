@@ -1,9 +1,9 @@
 import {Resolver} from "../util/resolve-id/resolver";
 import {SupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
 import {FileSystem} from "../util/file-system/file-system";
-import {PluginContext, OutputBundle, OutputOptions} from "rollup";
+import {OutputBundle, OutputOptions, PluginContext} from "rollup";
 import {TS} from "../type/ts";
-import {normalize, join, dirname, relative, parse} from "path";
+import {dirname, join, normalize, relative, basename} from "path";
 import {IncrementalLanguageService} from "../service/language-service/incremental-language-service";
 import {TypescriptPluginOptions} from "../plugin/i-typescript-plugin-options";
 import {ModuleDependencyMap} from "../util/module/get-module-dependencies";
@@ -38,12 +38,36 @@ export interface EmitDeclarationsOptions {
 	canEmitForFile(id: string): boolean;
 }
 
+export interface PreparePathsOptions {
+	fileName: string;
+	relativeOutDir: string;
+	absoluteOutDir: string;
+}
+
+export interface PreparePathsResult {
+	fileName: string;
+	relative: string;
+	absolute: string;
+}
+
+function preparePaths({relativeOutDir, absoluteOutDir, fileName}: PreparePathsOptions): PreparePathsResult {
+	const absolutePath = join(absoluteOutDir, fileName);
+	const relativePath = join(relativeOutDir, fileName);
+
+	return {
+		fileName,
+		absolute: absolutePath,
+		relative: relativePath
+	};
+}
+
 export function emitDeclarations(options: EmitDeclarationsOptions) {
 	const {typescript} = options.pluginOptions;
 	const chunks = Object.values(options.bundle).filter(isOutputChunk);
 
 	const relativeDeclarationOutDir = normalize(getDeclarationOutDir(options.cwd, options.compilerOptions, options.outputOptions));
 	const absoluteDeclarationOutDir = join(options.cwd, relativeDeclarationOutDir);
+
 	const relativeOutDir = getOutDir(options.cwd, options.outputOptions);
 	const absoluteOutDir = join(options.cwd, relativeOutDir);
 	const generateMap = Boolean(options.compilerOptions.declarationMap);
@@ -69,32 +93,54 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 	};
 
 	for (const chunk of mergeChunksResult.mergedChunks) {
-		// Prepare file names
-		const relativeChunkFileName = normalize(chunk.fileName);
-		const absoluteChunkFileName = join(absoluteOutDir, chunk.fileName);
-		const declarationFilename = setExtension(chunk.fileName, DECLARATION_EXTENSION);
-		const declarationMapFilename = setExtension(chunk.fileName, DECLARATION_MAP_EXTENSION);
-		const absoluteDeclarationFilename = join(absoluteDeclarationOutDir, declarationFilename);
-		const absoluteDeclarationMapFilename = join(absoluteDeclarationOutDir, declarationMapFilename);
-		const relativeDeclarationMapDirname = join(relativeDeclarationOutDir, dirname(declarationMapFilename));
-		const absoluteDeclarationMapDirname = join(absoluteDeclarationOutDir, dirname(declarationMapFilename));
+		const chunkPaths = preparePaths({
+			fileName: normalize(chunk.fileName),
+			relativeOutDir: getOutDir(options.cwd, options.outputOptions),
+			absoluteOutDir: join(options.cwd, relativeOutDir)
+		});
 
-		const augmentedAbsoluteDeclarationFileName = options.pluginOptions.hook.outputPath?.(absoluteDeclarationFilename, "declaration");
-		const rewrittenAbsoluteDeclarationFilename = augmentedAbsoluteDeclarationFileName ?? absoluteDeclarationFilename;
-		const augmentedAbsoluteDeclarationMapFileName = generateMap
-			? options.pluginOptions.hook.outputPath?.(absoluteDeclarationMapFilename, "declarationMap")
-			: undefined;
-		const rewrittenAbsoluteDeclarationMapFilename = augmentedAbsoluteDeclarationMapFileName ?? absoluteDeclarationMapFilename;
-		const rewrittenDeclarationFilename =
-			rewrittenAbsoluteDeclarationFilename === absoluteDeclarationFilename ? declarationFilename : parse(rewrittenAbsoluteDeclarationFilename).base;
-		const rewrittenDeclarationMapFilename =
-			rewrittenAbsoluteDeclarationMapFilename === absoluteDeclarationMapFilename
-				? declarationMapFilename
-				: parse(rewrittenAbsoluteDeclarationMapFilename).base;
+		let declarationPaths = preparePaths({
+			fileName: setExtension(chunk.fileName, DECLARATION_EXTENSION),
+			relativeOutDir: relativeDeclarationOutDir,
+			absoluteOutDir: absoluteDeclarationOutDir
+		});
+
+		let declarationMapPaths = preparePaths({
+			fileName: setExtension(chunk.fileName, DECLARATION_MAP_EXTENSION),
+			relativeOutDir: relativeDeclarationOutDir,
+			absoluteOutDir: absoluteDeclarationOutDir
+		});
+
+		// Rewrite the declaration paths
+		if (options.pluginOptions.hook.outputPath != null) {
+			const declarationResult = options.pluginOptions.hook.outputPath(declarationPaths.absolute, "declaration");
+			const declarationMapResult = options.pluginOptions.hook.outputPath(declarationMapPaths.absolute, "declarationMap");
+
+			if (declarationResult != null) {
+				declarationPaths = preparePaths({
+					fileName: basename(declarationResult),
+					relativeOutDir: relative(options.cwd, dirname(declarationResult)),
+					absoluteOutDir: dirname(declarationResult)
+				});
+			}
+
+			if (declarationMapResult != null) {
+				declarationMapPaths = {
+					// Don't allow diverging from the declaration paths.
+					// The two files must be placed together
+					...declarationPaths,
+					fileName: basename(declarationMapResult),
+					relative: join(dirname(declarationPaths.relative), basename(declarationMapResult)),
+					absolute: join(dirname(declarationPaths.absolute), basename(declarationMapResult))
+				};
+			}
+		}
 
 		// We'll need to work with POSIX paths for now
-		let emitFileDeclarationFilename = ensurePosix(join(relative(relativeOutDir, relativeDeclarationOutDir), rewrittenDeclarationFilename));
-		let emitFileDeclarationMapFilename = ensurePosix(join(relative(relativeOutDir, relativeDeclarationOutDir), rewrittenDeclarationMapFilename));
+		let emitFileDeclarationFilename = ensurePosix(join(relative(relativeOutDir, dirname(declarationPaths.relative)), declarationPaths.fileName));
+		let emitFileDeclarationMapFilename = ensurePosix(
+			join(relative(relativeOutDir, dirname(declarationMapPaths.relative)), declarationMapPaths.fileName)
+		);
 
 		// Rollup does not allow emitting files outside of the root of the whatever 'dist' directory that has been provided.
 		while (emitFileDeclarationFilename.startsWith("../") || emitFileDeclarationFilename.startsWith("..\\")) {
@@ -126,23 +172,14 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 
 		const bundleResult = bundleDeclarationsForChunk({
 			...sharedOptions,
-			isEntryChunk: chunk.isEntry,
-			absoluteChunkFileName,
-			absoluteDeclarationFilename,
-			absoluteDeclarationMapFilename,
-			augmentedAbsoluteDeclarationFileName,
-			augmentedAbsoluteDeclarationMapFileName,
-			declarationFilename,
-			relativeDeclarationMapDirname,
-			absoluteDeclarationMapDirname,
-			declarationMapFilename,
-			entryModules,
-			modules,
-			relativeChunkFileName,
-			rewrittenAbsoluteDeclarationFilename,
-			rewrittenAbsoluteDeclarationMapFilename,
-			rewrittenDeclarationFilename,
-			rewrittenDeclarationMapFilename
+			chunk: {
+				paths: chunkPaths,
+				isEntry: chunk.isEntry,
+				modules,
+				entryModules
+			},
+			declarationPaths,
+			declarationMapPaths
 		});
 
 		// Now, add the declarations as an asset

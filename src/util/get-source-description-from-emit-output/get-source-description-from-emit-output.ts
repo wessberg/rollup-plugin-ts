@@ -14,7 +14,7 @@ export function getSourceDescriptionFromEmitOutput(output: TS.EmitOutput): Sourc
 	const map = output.outputFiles.find(isMapOutputFile);
 
 	// Remove the SourceMap comment from the code if it is given. Rollup is the decider of whether or not to emit SourceMaps and if they should be inlined
-	const inlinedSourcemapIndex = code.text.indexOf(SOURCE_MAP_COMMENT);
+	const inlinedSourcemapIndex = code.text.indexOf(`\n${SOURCE_MAP_COMMENT}`);
 
 	if (inlinedSourcemapIndex >= 0) {
 		code.text = code.text.slice(0, inlinedSourcemapIndex);

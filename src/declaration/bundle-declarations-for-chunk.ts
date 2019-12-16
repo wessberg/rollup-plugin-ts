@@ -14,12 +14,13 @@ export interface PreBundleDeclarationsForChunkOptions extends Omit<DeclarationBu
 export function bundleDeclarationsForChunk(options: PreBundleDeclarationsForChunkOptions): SourceDescription {
 	let code = "";
 	let map: SourceMap | undefined;
+	const {outDir, ...compilationSettings} = options.languageServiceHost.getCompilationSettings();
 
 	const program = options.typescript.createProgram({
-		rootNames: options.modules,
+		rootNames: options.chunk.modules,
 		options: {
-			...options.languageServiceHost.getCompilationSettings(),
-			outFile: setExtension(options.declarationFilename, JS_EXTENSION),
+			...compilationSettings,
+			outFile: setExtension(options.declarationPaths.relative, JS_EXTENSION),
 			module: options.typescript.ModuleKind.System,
 			emitDeclarationOnly: true
 		},
@@ -45,8 +46,13 @@ export function bundleDeclarationsForChunk(options: PreBundleDeclarationsForChun
 		})
 	);
 
+	if (options.pluginOptions.debug && map != null) {
+		console.log(`=== MAP === (${options.chunk.paths.absolute})`);
+		console.log(map);
+	}
+
 	return {
 		code,
-		map
+		...(map == null ? {} : {map: JSON.stringify(map)})
 	};
 }
