@@ -39,7 +39,7 @@ test("Declaration bundling supports code splitting. #1", async t => {
         	`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {declarations} = bundle;
 
@@ -121,7 +121,7 @@ test("Declaration bundling supports code splitting. #2", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {declarations} = bundle;
 
@@ -189,7 +189,7 @@ test("Declaration bundling supports code splitting. #3", async t => {
 			`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {declarations} = bundle;
 

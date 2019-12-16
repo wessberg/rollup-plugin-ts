@@ -14,7 +14,7 @@ test("Merges identical statements correctly. #1", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -150,7 +150,7 @@ test("Merges identical statements correctly. #4", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 
 	const {

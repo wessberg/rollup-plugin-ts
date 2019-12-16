@@ -128,7 +128,6 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 				declarationMapPaths = {
 					// Don't allow diverging from the declaration paths.
 					// The two files must be placed together
-					...declarationPaths,
 					fileName: basename(declarationMapResult),
 					relative: join(dirname(declarationPaths.relative), basename(declarationMapResult)),
 					absolute: join(dirname(declarationPaths.absolute), basename(declarationMapResult))

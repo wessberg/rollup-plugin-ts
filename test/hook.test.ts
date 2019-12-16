@@ -23,7 +23,7 @@ test("Declarations respect rewritten output paths. #1", async t => {
 			}
 		],
 		{
-			debug: true,
+			debug: false,
 			tsconfig: {
 				declarationMap: true,
 				declarationDir: "./foobarbaz"

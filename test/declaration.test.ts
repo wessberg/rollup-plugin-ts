@@ -142,7 +142,7 @@ test("Flattens declarations. #4", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -180,7 +180,7 @@ test("Flattens declarations. #5", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -325,7 +325,7 @@ test("Flattens declarations. #9", async t => {
 			}
 		],
 		{
-			debug: true,
+			debug: false,
 			transpileOnly: true,
 			tsconfig: {
 				paths: {
@@ -449,7 +449,7 @@ test("Flattens declarations. #12", async t => {
 			}
 		],
 		{
-			debug: true,
+			debug: false,
 			transpileOnly: true,
 			tsconfig: {
 				paths: {
@@ -522,7 +522,7 @@ test("Flattens declarations. #14", async t => {
 			`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]

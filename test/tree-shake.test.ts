@@ -15,7 +15,7 @@ test("Tree-shakes correctly. #1", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -30,7 +30,7 @@ test("Tree-shakes correctly. #1", async t => {
 	);
 });
 
-test("Tree-shakes correctly. #2", async t => {
+test.only("Tree-shakes correctly. #2", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -49,7 +49,7 @@ test("Tree-shakes correctly. #2", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -94,7 +94,7 @@ test("Tree-shakes correctly. #3", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -131,7 +131,7 @@ test("Tree-shakes correctly. #4", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -163,7 +163,7 @@ test("Tree-shakes correctly. #5", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]

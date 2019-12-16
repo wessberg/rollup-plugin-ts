@@ -21,7 +21,7 @@ test("Handles default export assignments. #1", async t => {
 				`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -56,7 +56,7 @@ test("Handles default export assignments. #2", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -94,7 +94,7 @@ test("Handles default export assignments. #3", async t => {
             `
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -130,7 +130,7 @@ test("Handles default export assignments. #4", async t => {
 				export default function foo (): string {return "";} `
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -166,7 +166,7 @@ test("Handles default export assignments. #5", async t => {
 				`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -205,7 +205,7 @@ test("Handles default export assignments. #6", async t => {
 				`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -269,7 +269,7 @@ test("Handles default export assignments. #8", async t => {
         	`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -306,7 +306,7 @@ test("Handles default exports inside ExportSpecifiers. #1", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]

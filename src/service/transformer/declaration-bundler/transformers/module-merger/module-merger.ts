@@ -63,6 +63,10 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 
 			getMatchingSourceFile(moduleSpecifier: string): TS.SourceFile | undefined {
 				const sourceFileWithChunk = options.moduleSpecifierToSourceFileMap.get(moduleSpecifier);
+				console.log({
+					moduleSpecifier: moduleSpecifier,
+					fileName: sourceFileWithChunk?.sourceFile.fileName
+				});
 				return sourceFileWithChunk == null || !sourceFileWithChunk.isSameChunk ? undefined : sourceFileWithChunk.sourceFile;
 			},
 

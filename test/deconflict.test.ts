@@ -22,7 +22,7 @@ test("Deconflicts symbols. #1", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -71,7 +71,7 @@ test("Deconflicts symbols. #2", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -135,7 +135,7 @@ test("Deconflicts symbols. #3", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -196,7 +196,7 @@ test("Deconflicts symbols. #4", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -245,7 +245,7 @@ test("Deconflicts symbols. #5", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -299,7 +299,7 @@ test("Deconflicts symbols. #6", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -350,7 +350,7 @@ test("Deconflicts symbols. #7", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -395,7 +395,7 @@ test("Deconflicts symbols. #8", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -454,7 +454,7 @@ test("Deconflicts symbols. #9", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -510,7 +510,7 @@ test("Deconflicts symbols. #10", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -574,7 +574,7 @@ test("Deconflicts symbols. #11", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -623,7 +623,7 @@ test("Deconflicts symbols. #12", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -690,7 +690,7 @@ test("Deconflicts symbols. #13", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -757,7 +757,7 @@ test("Deconflicts symbols. #14", async t => {
 			`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -813,7 +813,7 @@ test("Deconflicts symbols. #15", async t => {
 			`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -859,7 +859,7 @@ test("Deconflicts symbols. #16", async t => {
 			`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -897,7 +897,7 @@ test("Deconflicts symbols. #17", async t => {
 			`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
@@ -937,7 +937,7 @@ test("Deconflicts symbols. #18", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]

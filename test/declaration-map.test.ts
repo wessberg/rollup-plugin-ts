@@ -25,7 +25,7 @@ test("Declaration maps correctly maps input sources. #1", async t => {
 			}
 		],
 		{
-			debug: true,
+			debug: false,
 			dir: "dist",
 			tsconfig: {declarationMap: true}
 		}
@@ -64,7 +64,7 @@ test("Declaration maps correctly maps input sources. #2", async t => {
 			}
 		],
 		{
-			debug: true,
+			debug: false,
 			tsconfig: {declarationMap: true, declarationDir: "./foobarbaz"}
 		}
 	);
@@ -102,7 +102,7 @@ test("Declaration maps respect rewritten output paths. #1", async t => {
 			}
 		],
 		{
-			debug: true,
+			debug: false,
 			tsconfig: {
 				declarationMap: true,
 				declarationDir: "./foobarbaz"
@@ -153,7 +153,7 @@ test("Declaration maps respect rewritten output paths. #2", async t => {
 			}
 		],
 		{
-			debug: true,
+			debug: false,
 			tsconfig: {
 				declarationMap: true
 			},
