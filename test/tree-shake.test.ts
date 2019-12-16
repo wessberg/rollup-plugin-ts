@@ -63,7 +63,7 @@ test("Tree-shakes correctly. #2", async t => {
 	);
 });
 
-test.only("Tree-shakes correctly. #3", async t => {
+test("Tree-shakes correctly. #3", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{

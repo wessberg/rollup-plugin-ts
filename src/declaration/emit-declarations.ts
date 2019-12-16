@@ -72,8 +72,6 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 	const absoluteOutDir = join(options.cwd, relativeOutDir);
 	const generateMap = Boolean(options.compilerOptions.declarationMap);
 	const mergeChunksResult = mergeChunksWithAmbientDependencies(chunks, options.moduleDependencyMap);
-	console.log(options.moduleDependencyMap);
-	console.log(mergeChunksResult);
 	const chunkToOriginalFileMap = getChunkToOriginalFileMap(absoluteOutDir, mergeChunksResult);
 	const sourceFileToNodeToReferencedIdentifiersCache: SourceFileToNodeToReferencedIdentifiersCache = new Map();
 	const nodeIdentifierCache: NodeIdentifierCache = new Map();
