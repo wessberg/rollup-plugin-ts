@@ -36,7 +36,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 					}
 				}
 			});
-			console.log(moduleSpecifierToSourceFileMap.keys());
+			console.log(moduleSpecifierToSourceFileMap.keys(), options.chunkToOriginalFileMap);
 
 			// Visit only the entry SourceFile(s)
 			const entrySourceFiles = sourceFilesForChunk.filter(sourceFile => options.chunk.entryModules.includes(normalize(sourceFile.fileName)));

@@ -20,27 +20,28 @@ export function getChunkFilename({
 	fileName,
 	supportedExtensions
 }: GetChunkFilenameOptions): string | undefined {
-	if (chunkForModuleCache.has(fileName)) {
-		return chunkForModuleCache.get(fileName)!;
+	const normalizedFileName = normalize(fileName);
+	if (chunkForModuleCache.has(normalizedFileName)) {
+		return chunkForModuleCache.get(normalizedFileName)!;
 	}
 	for (const [chunkFilename, originalSourceFilenames] of chunkToOriginalFileMap) {
-		const filenames = [normalize(fileName), join(fileName, "/index")];
+		const filenames = [normalizedFileName, join(fileName, "/index")];
 		for (const file of filenames) {
 			for (const originalSourceFilename of originalSourceFilenames) {
 				if (originalSourceFilename === file) {
-					chunkForModuleCache.set(fileName, chunkFilename);
+					chunkForModuleCache.set(normalizedFileName, chunkFilename);
 					return chunkFilename;
 				}
 
 				for (const extension of [extname(file), ...supportedExtensions]) {
 					if (originalSourceFilename === setExtension(file, extension)) {
-						chunkForModuleCache.set(fileName, chunkFilename);
+						chunkForModuleCache.set(normalizedFileName, chunkFilename);
 						return chunkFilename;
 					}
 				}
 			}
 		}
 	}
-	chunkForModuleCache.set(fileName, undefined);
+	chunkForModuleCache.set(normalizedFileName, undefined);
 	return undefined;
 }
