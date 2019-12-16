@@ -7,6 +7,8 @@ import {getNodePlacementQueue} from "../../util/get-node-placement-queue";
 import {ImportedSymbol} from "../source-file-bundler/source-file-bundler-visitor-options";
 import {findMatchingImportedSymbol} from "../../util/find-matching-imported-symbol";
 import {cloneNodeWithSymbols} from "../../util/clone-node-with-symbols";
+import {ensureNoExportModifierTransformer} from "../ensure-no-export-modifier-transformer/ensure-no-export-modifier-transformer";
+import {noExportDeclarationTransformer} from "../no-export-declaration-transformer/no-export-declaration-transformer";
 
 export function moduleMerger(...transformers: DeclarationTransformer[]): DeclarationTransformer {
 	return options => {
@@ -68,11 +70,24 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 
 			includeSourceFile(
 				sourceFile: TS.SourceFile,
-				{allowDuplicate = false, transformers: extraTransformers = [], ...otherOptions}: Partial<IncludeSourceFileOptions> = {}
+				{allowDuplicate = false, allowExports = false, transformers: extraTransformers = [], ...otherOptions}: Partial<IncludeSourceFileOptions> = {}
 			): Iterable<TS.Statement> {
 				// Never include the same SourceFile twice
 				if (options.includedSourceFiles.has(sourceFile) && !allowDuplicate) return [];
 				options.includedSourceFiles.add(sourceFile);
+
+				const combinedTransformers = [
+					...transformers,
+					...(allowExports
+						? []
+						: [
+								// Removes 'export' modifiers from Nodes
+								ensureNoExportModifierTransformer,
+								// Removes ExportDeclarations and ExportAssignments
+								noExportDeclarationTransformer
+						  ]),
+					...extraTransformers
+				];
 
 				const transformedSourceFile = applyTransformers({
 					visitorOptions: {
@@ -80,7 +95,7 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 						...otherOptions,
 						sourceFile
 					},
-					transformers: [moduleMerger(...transformers, ...extraTransformers), ...transformers, ...extraTransformers]
+					transformers: [moduleMerger(...combinedTransformers), ...combinedTransformers]
 				});
 
 				// Keep track of the original symbols which will be lost when the nodes are cloned
@@ -88,6 +103,23 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 			}
 		};
 
-		return visitorOptions.childContinuation(options.sourceFile, undefined);
+		const result = visitorOptions.childContinuation(options.sourceFile, undefined);
+
+		// There may be prepended or appended nodes that hasn't been added yet. Do so!
+		const [missingPrependNodes, missingAppendNodes] = nodePlacementQueue.flush();
+		if (missingPrependNodes.length > 0 || missingAppendNodes.length > 0) {
+			return options.typescript.updateSourceFileNode(
+				result,
+				[...(missingPrependNodes as TS.Statement[]), ...result.statements, ...(missingAppendNodes as TS.Statement[])],
+				result.isDeclarationFile,
+				result.referencedFiles,
+				result.typeReferenceDirectives,
+				result.hasNoDefaultLib,
+				result.libReferenceDirectives
+			);
+		}
+
+		// Otherwise, return the result as it is
+		return result;
 	};
 }

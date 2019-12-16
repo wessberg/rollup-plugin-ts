@@ -107,8 +107,27 @@ export async function generateRollupBundle(
 		input = entryFiles[0].fileName;
 	} else {
 		input = {};
+
+		// Ensure no conflicting chunk names
+		let seenNames = new Set<string>();
 		for (const entryFile of entryFiles) {
-			input[parse(entryFile.fileName).name] = entryFile.fileName;
+			let candidateName = parse(entryFile.fileName).name;
+			let offset = 0;
+			if (!seenNames.has(candidateName)) {
+				seenNames.add(candidateName);
+			} else {
+				candidateName = `${candidateName}-${++offset}`;
+				while (true) {
+					if (seenNames.has(candidateName)) {
+						candidateName = `${candidateName.slice(0, candidateName.length - 2)}-${++offset}`;
+					} else {
+						seenNames.add(candidateName);
+						break;
+					}
+				}
+			}
+
+			input[candidateName] = entryFile.fileName;
 		}
 	}
 

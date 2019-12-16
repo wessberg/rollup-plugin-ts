@@ -231,3 +231,56 @@ test("Declaration bundling supports code splitting. #3", async t => {
 		`)
 	);
 });
+
+test.skip("Declaration bundling supports code splitting. #4", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "src/api.ts",
+				text: `\
+				export {Foo} from "./foo";
+			`
+			},
+			{
+				entry: true,
+				fileName: "src/cli/cli.ts",
+				text: `\
+				import "../foo";
+			`
+			},
+			{
+				entry: false,
+				fileName: "src/foo.ts",
+				text: `\
+				export type Foo = string;
+			`
+			}
+		],
+		{debug: true}
+	);
+
+	const {declarations} = bundle;
+	console.log(declarations.map(d => d.fileName));
+
+	const apiFile = declarations.find(file => file.fileName.includes("api.d.ts"));
+	const cliFile = declarations.find(file => file.fileName.includes("cli.d.ts"));
+
+	t.true(apiFile != null);
+	t.true(cliFile != null);
+
+	t.deepEqual(
+		formatCode(apiFile!.code),
+		formatCode(`\
+			export { Foo } from "./cli";
+		`)
+	);
+
+	t.deepEqual(
+		formatCode(cliFile!.code),
+		formatCode(`\
+			type Foo = string;
+			export {Foo};
+		`)
+	);
+});

@@ -21,6 +21,7 @@ export function getModuleDependencies(
 	visited = new Set<string>()
 ): Set<string> {
 	visited.add(file);
+
 	if (cache.has(file)) {
 		return cache.get(file)!;
 	}
@@ -101,6 +102,7 @@ export function getModuleDependencies(
 		dependencies.add(nextFile);
 	}
 
-	cache.set(file, dependencies);
+	// Clone
+	cache.set(file, new Set(dependencies));
 	return dependencies;
 }
