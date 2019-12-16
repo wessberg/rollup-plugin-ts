@@ -203,19 +203,19 @@ test("Declaration bundling supports code splitting. #3", async t => {
 	t.deepEqual(
 		formatCode(aFile!.code),
 		formatCode(`\
-			import Shared from "./shared-db4fbf25";
+			import Shared from "./${stripKnownExtension(sharedFile!.fileName)}";
 			declare class Foo extends Shared {
 			}
 			export { Foo };
 			export * from "./shared-db4fbf25";
-			export { default as Shared } from "./shared-db4fbf25";
+			export { default as Shared } from "./${stripKnownExtension(sharedFile!.fileName)}";
 		`)
 	);
 
 	t.deepEqual(
 		formatCode(bFile!.code),
 		formatCode(`\
-			import Shared from "./shared-db4fbf25";
+			import Shared from "./${stripKnownExtension(sharedFile!.fileName)}";
 			declare class Bar extends Shared {
 			}
 			export { Bar };
