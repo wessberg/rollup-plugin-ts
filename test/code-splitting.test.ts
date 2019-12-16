@@ -207,7 +207,7 @@ test("Declaration bundling supports code splitting. #3", async t => {
 			declare class Foo extends Shared {
 			}
 			export { Foo };
-			export * from "./shared-db4fbf25";
+			export * from "./${stripKnownExtension(sharedFile!.fileName)}";
 			export { default as Shared } from "./${stripKnownExtension(sharedFile!.fileName)}";
 		`)
 	);
