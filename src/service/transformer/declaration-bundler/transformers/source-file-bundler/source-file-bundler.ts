@@ -22,6 +22,11 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 				for (const statement of sourceFile.statements) {
 					if (options.typescript.isModuleDeclaration(statement)) {
 						const chunk = getChunkFilename({...options, fileName: sourceFile.fileName});
+						console.log({
+							chunk,
+							origChunk: options.chunk.paths.absolute,
+							isSameChunk: chunk === options.chunk.paths.absolute
+						});
 						moduleSpecifierToSourceFileMap.set(statement.name.text, {
 							sourceFile,
 							chunk,
