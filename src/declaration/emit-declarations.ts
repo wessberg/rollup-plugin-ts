@@ -67,7 +67,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		.filter(isOutputChunk)
 		.map(normalizeChunk);
 
-	const relativeDeclarationOutDir = normalize(getDeclarationOutDir(options.cwd, options.compilerOptions, options.outputOptions));
+	const relativeDeclarationOutDir = getDeclarationOutDir(options.cwd, options.compilerOptions, options.outputOptions);
 	const absoluteDeclarationOutDir = join(options.cwd, relativeDeclarationOutDir);
 
 	const relativeOutDir = getOutDir(options.cwd, options.outputOptions);

@@ -325,7 +325,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 					const transpilationResult = await transformAsync(sourceDescription.code, {
 						...babelConfig(file),
 						filename: file,
-						filenameRelative: nativeNormalize(ensureRelative(cwd, file)),
+						filenameRelative: ensureRelative(cwd, file),
 						inputSourceMap: typeof sourceDescription.map === "string" ? JSON.parse(sourceDescription.map) : sourceDescription.map
 					});
 

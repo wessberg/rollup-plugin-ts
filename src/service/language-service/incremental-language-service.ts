@@ -293,7 +293,7 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 	 * Gets all directories within the given directory path
 	 */
 	getDirectories(directoryName: string): string[] {
-		return this.options.fileSystem.getDirectories(nativeNormalize(directoryName));
+		return this.options.fileSystem.getDirectories(nativeNormalize(directoryName)).map(normalize);
 	}
 
 	/**
