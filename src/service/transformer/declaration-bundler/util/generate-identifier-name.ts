@@ -1,5 +1,4 @@
-import {stripKnownExtension} from "../../../../util/path/path-util";
-import {basename} from "path";
+import {basename, stripKnownExtension} from "../../../../util/path/path-util";
 import {camelCase} from "@wessberg/stringutil";
 
 export type GenerateIdentifierNameHint = "class" | "namespace" | "function";

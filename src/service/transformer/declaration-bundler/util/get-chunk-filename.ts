@@ -1,5 +1,4 @@
-import {setExtension} from "../../../../util/path/path-util";
-import {extname, join, normalize} from "path";
+import {extname, join, setExtension} from "../../../../util/path/path-util";
 import {SupportedExtensions} from "../../../../util/get-supported-extensions/get-supported-extensions";
 import {ChunkToOriginalFileMap} from "../../../../util/chunk/get-chunk-to-original-file-map";
 import {ChunkForModuleCache} from "../declaration-bundler-options";
@@ -20,28 +19,27 @@ export function getChunkFilename({
 	fileName,
 	supportedExtensions
 }: GetChunkFilenameOptions): string | undefined {
-	const normalizedFileName = normalize(fileName);
-	if (chunkForModuleCache.has(normalizedFileName)) {
-		return chunkForModuleCache.get(normalizedFileName)!;
+	if (chunkForModuleCache.has(fileName)) {
+		return chunkForModuleCache.get(fileName)!;
 	}
 	for (const [chunkFilename, originalSourceFilenames] of chunkToOriginalFileMap) {
-		const filenames = [normalizedFileName, join(fileName, "/index")];
+		const filenames = [fileName, join(fileName, "/index")];
 		for (const file of filenames) {
 			for (const originalSourceFilename of originalSourceFilenames) {
 				if (originalSourceFilename === file) {
-					chunkForModuleCache.set(normalizedFileName, chunkFilename);
+					chunkForModuleCache.set(fileName, chunkFilename);
 					return chunkFilename;
 				}
 
 				for (const extension of [extname(file), ...supportedExtensions]) {
 					if (originalSourceFilename === setExtension(file, extension)) {
-						chunkForModuleCache.set(normalizedFileName, chunkFilename);
+						chunkForModuleCache.set(fileName, chunkFilename);
 						return chunkFilename;
 					}
 				}
 			}
 		}
 	}
-	chunkForModuleCache.set(normalizedFileName, undefined);
+	chunkForModuleCache.set(fileName, undefined);
 	return undefined;
 }

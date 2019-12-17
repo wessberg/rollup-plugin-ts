@@ -1,5 +1,4 @@
-import {dirname, relative} from "path";
-import {ensureHasLeadingDotAndPosix, stripKnownExtension} from "../../../../util/path/path-util";
+import {dirname, ensureHasLeadingDotAndPosix, relative, stripKnownExtension} from "../../../../util/path/path-util";
 import {SourceFileBundlerVisitorOptions} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
 
 export interface GenerateModuleSpecifierOptions extends SourceFileBundlerVisitorOptions {

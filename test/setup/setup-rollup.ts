@@ -1,4 +1,3 @@
-import {dirname, isAbsolute, join, normalize, parse} from "path";
 import * as TSModule from "typescript";
 import {rollup, RollupOptions, RollupOutput} from "rollup";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
@@ -6,6 +5,7 @@ import {HookRecord, InputCompilerOptions, TypescriptPluginOptions} from "../../s
 import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION} from "../../src/constant/constant";
 import {getRealFileSystem} from "../../src/util/file-system/file-system";
 import {TS} from "../../src/type/ts";
+import {isAbsolute, nativeDirname, nativeJoin, nativeNormalize, parse} from "../../src/util/path/path-util";
 
 // tslint:disable:no-any
 
@@ -69,9 +69,9 @@ export async function generateRollupBundle(
 				  }
 				: file
 		)
-		.map(file => ({...file, fileName: join(cwd, file.fileName)}));
+		.map(file => ({...file, fileName: nativeJoin(cwd, file.fileName)}));
 
-	const directories = new Set(files.map(file => normalize(dirname(file.fileName))));
+	const directories = new Set(files.map(file => nativeNormalize(nativeDirname(file.fileName))));
 
 	const entryFiles = files.filter(file => file.entry);
 	if (entryFiles.length === 0) {
@@ -79,8 +79,8 @@ export async function generateRollupBundle(
 	}
 
 	const resolveId = (fileName: string, parent: string | undefined): string | undefined => {
-		const absolute = isAbsolute(fileName) ? fileName : join(parent == null ? "" : dirname(parent), fileName);
-		const filenames = [normalize(absolute), join(absolute, "/index")];
+		const absolute = isAbsolute(fileName) ? fileName : nativeJoin(parent == null ? "" : nativeDirname(parent), fileName);
+		const filenames = [nativeNormalize(absolute), nativeJoin(absolute, "/index")];
 		for (const filename of filenames) {
 			for (const ext of EXTENSIONS) {
 				const withExtension = `${filename}${ext}`;
@@ -94,7 +94,7 @@ export async function generateRollupBundle(
 	};
 
 	const load = (id: string): string | null => {
-		const normalized = normalize(id);
+		const normalized = nativeNormalize(id);
 		const matchedFile = files.find(file => file.fileName === normalized);
 		return matchedFile == null ? null : matchedFile.text;
 	};
@@ -158,27 +158,27 @@ export async function generateRollupBundle(
 					...getRealFileSystem(typescript),
 					useCaseSensitiveFileNames: true,
 					readFile: fileName => {
-						const normalized = normalize(fileName);
-						const absoluteFileName = isAbsolute(normalized) ? normalized : join(cwd, normalized);
+						const normalized = nativeNormalize(fileName);
+						const absoluteFileName = isAbsolute(normalized) ? normalized : nativeJoin(cwd, normalized);
 						const file = files.find(currentFile => currentFile.fileName === absoluteFileName);
 						if (file != null) return file.text;
 						return typescript.sys.readFile(absoluteFileName);
 					},
 					fileExists: fileName => {
-						const normalized = normalize(fileName);
-						const absoluteFileName = isAbsolute(normalized) ? normalized : join(cwd, normalized);
+						const normalized = nativeNormalize(fileName);
+						const absoluteFileName = isAbsolute(normalized) ? normalized : nativeJoin(cwd, normalized);
 						if (files.some(file => file.fileName === absoluteFileName)) {
 							return true;
 						}
 						return typescript.sys.fileExists(absoluteFileName);
 					},
 					directoryExists: dirName => {
-						const normalized = normalize(dirName);
+						const normalized = nativeNormalize(dirName);
 						if (directories.has(normalized)) return true;
 						return typescript.sys.directoryExists(normalized);
 					},
 					realpath(path: string): string {
-						return normalize(path);
+						return nativeNormalize(path);
 					}
 				}
 			}),

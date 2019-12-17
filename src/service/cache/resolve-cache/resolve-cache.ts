@@ -1,8 +1,8 @@
 import {IGetResolvedIdWithCachingOptions} from "./i-get-resolved-id-with-caching-options";
 import {ExtendedResolvedModule, IResolveCache} from "./i-resolve-cache";
-import {ensureAbsolute, setExtension} from "../../../util/path/path-util";
+import {ensureAbsolute, normalize, nativeNormalize, setExtension} from "../../../util/path/path-util";
 import {sync} from "find-up";
-import {normalize} from "path";
+
 import {DECLARATION_EXTENSION, JS_EXTENSION} from "../../../constant/constant";
 import {FileSystem} from "../../../util/file-system/file-system";
 import {TS} from "../../../type/ts";
@@ -80,13 +80,14 @@ export class ResolveCache implements IResolveCache {
 			return cacheResult.resolvedFileName;
 		}
 		for (const resolvedPath of [
-			sync(normalize(`node_modules/${setExtension(path, JS_EXTENSION)}`), {cwd}),
-			sync(normalize(`node_modules/${path}/index.js`), {cwd})
+			sync(nativeNormalize(`node_modules/${setExtension(path, JS_EXTENSION)}`), {cwd}),
+			sync(nativeNormalize(`node_modules/${path}/index.js`), {cwd})
 		]) {
 			if (resolvedPath != null) {
+				const normalizedResolvedPath = normalize(resolvedPath);
 				this.setInCache(
 					{
-						resolvedFileName: resolvedPath,
+						resolvedFileName: normalizedResolvedPath,
 						resolvedAmbientFileName: undefined,
 						isExternalLibraryImport: false,
 						extension: typescript.Extension.Js,
@@ -95,7 +96,7 @@ export class ResolveCache implements IResolveCache {
 					path,
 					cwd
 				);
-				return resolvedPath;
+				return normalizedResolvedPath;
 			}
 		}
 
@@ -147,7 +148,7 @@ export class ResolveCache implements IResolveCache {
 					for (const extension of supportedExtensions) {
 						const candidate = normalize(setExtension(resolvedModule.resolvedAmbientFileName, extension));
 
-						if (this.options.fileSystem.fileExists(candidate)) {
+						if (this.options.fileSystem.fileExists(nativeNormalize(candidate))) {
 							resolvedModule.resolvedFileName = candidate;
 							break;
 						}
@@ -157,7 +158,7 @@ export class ResolveCache implements IResolveCache {
 				resolvedModule.resolvedAmbientFileName = undefined;
 				const candidate = normalize(setExtension(resolvedModule.resolvedFileName, DECLARATION_EXTENSION));
 
-				if (this.options.fileSystem.fileExists(candidate)) {
+				if (this.options.fileSystem.fileExists(nativeNormalize(candidate))) {
 					resolvedModule.resolvedAmbientFileName = candidate;
 				}
 			}

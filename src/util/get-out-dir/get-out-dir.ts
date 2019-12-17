@@ -1,6 +1,5 @@
 import {OutputOptions} from "rollup";
-import {dirname, join} from "path";
-import {ensureRelative} from "../path/path-util";
+import {dirname, ensureRelative, join} from "../path/path-util";
 import {generateRandomHash} from "../hash/generate-random-hash";
 
 /**

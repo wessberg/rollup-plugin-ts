@@ -1,5 +1,5 @@
 import {OutputChunk} from "rollup";
-import {normalize} from "path";
+import {normalize} from "../path/path-util";
 
 export interface NormalizedChunk {
 	fileName: string;
@@ -7,7 +7,7 @@ export interface NormalizedChunk {
 	modules: string[];
 }
 
-export function normalizeChunk(chunk: OutputChunk) {
+export function normalizeChunk(chunk: OutputChunk): NormalizedChunk {
 	return {
 		fileName: normalize(chunk.fileName),
 		isEntry: chunk.isEntry,

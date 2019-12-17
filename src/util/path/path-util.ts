@@ -1,4 +1,4 @@
-import {extname, isAbsolute, join, normalize, relative} from "path";
+import {extname, isAbsolute, join, relative, dirname, basename, normalize, parse, ParsedPath} from "path";
 import {
 	BABEL_RUNTIME_PREFIX_1,
 	BABEL_RUNTIME_PREFIX_2,
@@ -12,8 +12,32 @@ import {
 } from "../../constant/constant";
 import slash from "slash";
 
-export function pathsAreEqual(...paths: string[]): boolean {
-	return new Set(paths.map(normalize)).size < 2;
+function _relative(from: string, to: string): string {
+	return ensurePosix(relative(from, to));
+}
+
+function _join(...paths: string[]): string {
+	return ensurePosix(join(...paths));
+}
+
+function _normalize(p: string): string {
+	return ensurePosix(p);
+}
+
+function _dirname(p: string): string {
+	return ensurePosix(dirname(p));
+}
+
+function _basename(p: string): string {
+	return ensurePosix(basename(p));
+}
+
+function _extname(p: string): string {
+	return extname(p);
+}
+
+function _parse(path: string): ParsedPath {
+	return parse(path);
 }
 
 /**
@@ -21,6 +45,23 @@ export function pathsAreEqual(...paths: string[]): boolean {
  */
 export function ensurePosix(path: string): string {
 	return slash(path);
+}
+
+export function nativeNormalize(path: string): string {
+	// Converts to either POSIX or native Windows file paths
+	return normalize(path);
+}
+
+export function nativeDirname(path: string): string {
+	return dirname(path);
+}
+
+export function nativeJoin(...paths: string[]): string {
+	return join(...paths);
+}
+
+export function _isAbsolute(path: string): boolean {
+	return isAbsolute(path);
 }
 
 /**
@@ -124,7 +165,7 @@ export function stripKnownExtension(file: string): string {
  * Sets the given extension for the given file
  */
 export function setExtension(file: string, extension: string): string {
-	return normalize(`${stripKnownExtension(file)}${extension}`);
+	return _normalize(`${stripKnownExtension(file)}${extension}`);
 }
 
 /**
@@ -144,12 +185,12 @@ export function ensureHasLeadingDotAndPosix(path: string, externalGuard: boolean
  */
 export function ensureRelative(root: string, path: string): string {
 	// If the path is already relative, simply return it
-	if (!isAbsolute(path)) {
-		return path;
+	if (!_isAbsolute(path)) {
+		return _normalize(path);
 	}
 
 	// Otherwise, construct a relative path from the root
-	return relative(root, path);
+	return _relative(root, path);
 }
 
 /**
@@ -157,10 +198,21 @@ export function ensureRelative(root: string, path: string): string {
  */
 export function ensureAbsolute(root: string, path: string): string {
 	// If the path is already absolute, simply return it
-	if (isAbsolute(path)) {
-		return path;
+	if (_isAbsolute(path)) {
+		return _normalize(path);
 	}
 
 	// Otherwise, construct an absolute path from the root
-	return join(root, path);
+	return _join(root, path);
 }
+
+export {
+	_relative as relative,
+	_join as join,
+	_normalize as normalize,
+	_dirname as dirname,
+	_basename as basename,
+	_extname as extname,
+	_isAbsolute as isAbsolute,
+	_parse as parse
+};

@@ -1,6 +1,5 @@
 import {DeclarationBundlerOptions, DeclarationTransformer} from "../../declaration-bundler-options";
 import {TS} from "../../../../../type/ts";
-import {normalize} from "path";
 import {applyTransformers} from "../../util/apply-transformers";
 import {getChunkFilename} from "../../util/get-chunk-filename";
 import {SourceFileWithChunk} from "./source-file-bundler-visitor-options";
@@ -32,7 +31,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 			});
 
 			// Visit only the entry SourceFile(s)
-			const entrySourceFiles = sourceFilesForChunk.filter(sourceFile => options.chunk.entryModules.includes(normalize(sourceFile.fileName)));
+			const entrySourceFiles = sourceFilesForChunk.filter(sourceFile => options.chunk.entryModules.includes(sourceFile.fileName));
 			const nonEntrySourceFiles = sourceFilesForChunk.filter(sourceFile => !entrySourceFiles.includes(sourceFile));
 
 			for (const sourceFile of entrySourceFiles) {

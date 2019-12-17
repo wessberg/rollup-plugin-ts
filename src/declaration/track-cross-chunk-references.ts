@@ -7,8 +7,9 @@ import {
 import {SourceFileToImportedSymbolSet} from "../service/transformer/declaration-bundler/transformers/track-imports-transformer/track-imports-transformer-visitor-options";
 import {trackImportsTransformer} from "../service/transformer/declaration-bundler/transformers/track-imports-transformer/track-imports-transformer";
 import {NormalizedChunk} from "../util/chunk/normalize-chunk";
-import {extname, normalize} from "path";
+
 import {SupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
+import {extname} from "../util/path/path-util";
 
 export type ModuleDependencyMap = Map<string, Set<string>>;
 
@@ -66,14 +67,13 @@ function handleModule(options: HandleModuleOptions): void {
 			const resolved = options.resolver(exportedSymbol.moduleSpecifier, sourceFile.fileName);
 			if (resolved == null) continue;
 
-			const dependency = normalize(resolved.fileName);
-			const code = options.languageServiceHost.readFile(dependency);
+			const code = options.languageServiceHost.readFile(resolved.fileName);
 			if (code != null) {
-				dependencies.add(dependency);
+				dependencies.add(resolved.fileName);
 
-				if (options.supportedExtensions.has(extname(dependency))) {
-					options.languageServiceHost.addFile({file: dependency, code});
-					handleModule({...options, module: dependency});
+				if (options.supportedExtensions.has(extname(resolved.fileName))) {
+					options.languageServiceHost.addFile({file: resolved.fileName, code});
+					handleModule({...options, module: resolved.fileName});
 				}
 			}
 		}

@@ -1,5 +1,5 @@
 import {IBabelConfigItem} from "../../plugin/i-babel-options";
-import {isBabelPluginTransformRuntime, isBabelPresetEnv, isYearlyBabelPreset} from "../path/path-util";
+import {isBabelPluginTransformRuntime, isBabelPresetEnv, isYearlyBabelPreset, nativeNormalize} from "../path/path-util";
 import {
 	BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES,
 	BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES,
@@ -102,7 +102,7 @@ export function getBabelConfig({
 			  {
 					cwd,
 					root: cwd,
-					...(resolvedConfig != null ? {configFile: resolvedConfig.path} : {babelrc: true})
+					...(resolvedConfig != null ? {configFile: nativeNormalize(resolvedConfig.path)} : {babelrc: true})
 			  }
 	);
 

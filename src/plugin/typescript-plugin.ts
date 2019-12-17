@@ -7,7 +7,7 @@ import {IEmitCache} from "../service/cache/emit-cache/i-emit-cache";
 import {EmitCache} from "../service/cache/emit-cache/emit-cache";
 import {emitDiagnosticsThroughRollup} from "../util/diagnostic/emit-diagnostics-through-rollup";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
-import {ensureRelative, getExtension, isBabelHelper, isRollupPluginMultiEntry, isTslib} from "../util/path/path-util";
+import {ensureRelative, getExtension, isBabelHelper, isRollupPluginMultiEntry, isTslib, nativeNormalize} from "../util/path/path-util";
 import {ModuleResolutionHost} from "../service/module-resolution-host/module-resolution-host";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
 import {TypescriptPluginOptions} from "./i-typescript-plugin-options";
@@ -325,7 +325,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 					const transpilationResult = await transformAsync(sourceDescription.code, {
 						...babelConfig(file),
 						filename: file,
-						filenameRelative: ensureRelative(cwd, file),
+						filenameRelative: nativeNormalize(ensureRelative(cwd, file)),
 						inputSourceMap: typeof sourceDescription.map === "string" ? JSON.parse(sourceDescription.map) : sourceDescription.map
 					});
 
@@ -349,7 +349,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			if (isTslib(id)) {
 				const tslibPath = resolveCache.findHelperFromNodeModules(typescript, "tslib/tslib.es6.js", cwd);
 				if (tslibPath != null) {
-					return tslibPath;
+					return nativeNormalize(tslibPath);
 				}
 			}
 
@@ -357,12 +357,12 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			else if (isBabelHelper(id)) {
 				const babelHelperPath = resolveCache.findHelperFromNodeModules(typescript, id, cwd);
 				if (babelHelperPath != null) {
-					return babelHelperPath;
+					return nativeNormalize(babelHelperPath);
 				}
 			}
 
 			const resolveResult = resolver(id, parent);
-			return resolveResult == null ? null : resolveResult.fileName;
+			return resolveResult == null ? null : nativeNormalize(resolveResult.fileName);
 		},
 
 		/**

@@ -1,11 +1,10 @@
-import {join} from "path";
 import {getNewLineCharacter} from "../../util/get-new-line-character/get-new-line-character";
 import {ILanguageServiceOptions} from "./i-language-service-options";
 import {IFile, IFileInput} from "./i-file";
 import {getScriptKindFromPath} from "../../util/get-script-kind-from-path/get-script-kind-from-path";
 import {sync} from "find-up";
 import {DEFAULT_LIB_NAMES} from "../../constant/constant";
-import {ensureAbsolute, isInternalFile} from "../../util/path/path-util";
+import {ensureAbsolute, isInternalFile, join, normalize, nativeNormalize} from "../../util/path/path-util";
 import {CustomTransformersFunction} from "../../util/merge-transformers/i-custom-transformer-options";
 import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
 import {resolveId} from "../../util/resolve-id/resolve-id";
@@ -128,14 +127,14 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 		if (this.files.has(fileName)) return true;
 
 		// Otherwise, check if it exists on disk
-		return this.options.fileSystem.fileExists(fileName);
+		return this.options.fileSystem.fileExists(nativeNormalize(fileName));
 	}
 
 	/**
 	 * Gets the current directory
 	 */
 	getCurrentDirectory(): string {
-		return this.options.cwd;
+		return normalize(this.options.cwd);
 	}
 
 	/**
@@ -147,7 +146,7 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 		if (result != null) return result.code;
 
 		// Otherwise, try to properly resolve the file
-		return this.options.fileSystem.readFile(fileName, encoding);
+		return this.options.fileSystem.readFile(nativeNormalize(fileName), encoding);
 	}
 
 	resolveModuleNames(moduleNames: string[], containingFile: string): (TS.ResolvedModuleFull | undefined)[] {
@@ -185,14 +184,14 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 		include?: ReadonlyArray<string>,
 		depth?: number
 	): string[] {
-		return this.options.fileSystem.readDirectory(path, extensions, exclude, include, depth);
+		return this.options.fileSystem.readDirectory(nativeNormalize(path), extensions, exclude, include, depth).map(normalize);
 	}
 
 	/**
 	 * Gets the real path for the given path. Meant to resolve symlinks
 	 */
 	realpath(path: string): string {
-		return this.options.fileSystem.realpath(path);
+		return normalize(this.options.fileSystem.realpath(nativeNormalize(path)));
 	}
 
 	/**
@@ -294,14 +293,14 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 	 * Gets all directories within the given directory path
 	 */
 	getDirectories(directoryName: string): string[] {
-		return this.options.fileSystem.getDirectories(directoryName);
+		return this.options.fileSystem.getDirectories(nativeNormalize(directoryName));
 	}
 
 	/**
 	 * Returns true if the given directory exists
 	 */
 	directoryExists(directoryName: string): boolean {
-		return this.options.fileSystem.directoryExists(directoryName);
+		return this.options.fileSystem.directoryExists(nativeNormalize(directoryName));
 	}
 
 	/**
@@ -312,7 +311,7 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 			if (this.LIB_DIRECTORY == null) return;
 
 			const path = join(this.LIB_DIRECTORY, libName);
-			const code = this.options.fileSystem.readFile(path);
+			const code = this.options.fileSystem.readFile(nativeNormalize(path));
 			if (code == null) return;
 
 			this.addFile(
@@ -330,7 +329,7 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 	 */
 	private addDefaultFileNames(): void {
 		this.options.parsedCommandLine.fileNames.forEach(file => {
-			const code = this.options.fileSystem.readFile(ensureAbsolute(this.options.cwd, file));
+			const code = this.options.fileSystem.readFile(nativeNormalize(ensureAbsolute(this.options.cwd, file)));
 			if (code != null) {
 				this.addFile(
 					{
@@ -351,7 +350,7 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 			const absoluteFileName = DEFAULT_LIB_NAMES.has(fileName) ? fileName : ensureAbsolute(this.options.cwd, fileName);
 
 			// If the file exists on disk, add it
-			const code = this.options.fileSystem.readFile(absoluteFileName);
+			const code = this.options.fileSystem.readFile(nativeNormalize(absoluteFileName));
 			if (code != null) {
 				this.addFile({file: absoluteFileName, code}, isInternalFile(absoluteFileName));
 				return this.files.get(absoluteFileName)!;

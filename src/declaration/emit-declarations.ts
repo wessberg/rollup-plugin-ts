@@ -3,7 +3,7 @@ import {SupportedExtensions} from "../util/get-supported-extensions/get-supporte
 import {FileSystem} from "../util/file-system/file-system";
 import {OutputBundle, OutputOptions, PluginContext} from "rollup";
 import {TS} from "../type/ts";
-import {basename, dirname, join, normalize, relative} from "path";
+
 import {IncrementalLanguageService} from "../service/language-service/incremental-language-service";
 import {TypescriptPluginOptions} from "../plugin/i-typescript-plugin-options";
 import {isOutputChunk} from "../util/is-output-chunk/is-output-chunk";
@@ -11,7 +11,7 @@ import {getDeclarationOutDir} from "../util/get-declaration-out-dir/get-declarat
 import {getOutDir} from "../util/get-out-dir/get-out-dir";
 import {mergeChunksWithAmbientDependencies} from "../util/chunk/merge-chunks-with-ambient-dependencies";
 import {getChunkToOriginalFileMap} from "../util/chunk/get-chunk-to-original-file-map";
-import {ensurePosix, setExtension} from "../util/path/path-util";
+import {basename, dirname, join, nativeNormalize, normalize, relative, setExtension} from "../util/path/path-util";
 import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION, ROLLUP_PLUGIN_MULTI_ENTRY} from "../constant/constant";
 import {bundleDeclarationsForChunk} from "./bundle-declarations-for-chunk";
 import {ChunkForModuleCache} from "../service/transformer/declaration-bundler/declaration-bundler-options";
@@ -88,6 +88,8 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 
 	const mergeChunksResult = mergeChunksWithAmbientDependencies(chunks, trackCrossChunkReferencesResult.moduleDependencyMap);
 	const chunkToOriginalFileMap = getChunkToOriginalFileMap(absoluteOutDir, mergeChunksResult);
+	console.log(chunks);
+	console.log(chunkToOriginalFileMap);
 
 	const sharedOptions = {
 		...options,
@@ -145,11 +147,8 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 			}
 		}
 
-		// We'll need to work with POSIX paths for now
-		let emitFileDeclarationFilename = ensurePosix(join(relative(relativeOutDir, dirname(declarationPaths.relative)), declarationPaths.fileName));
-		let emitFileDeclarationMapFilename = ensurePosix(
-			join(relative(relativeOutDir, dirname(declarationMapPaths.relative)), declarationMapPaths.fileName)
-		);
+		let emitFileDeclarationFilename = join(relative(relativeOutDir, dirname(declarationPaths.relative)), declarationPaths.fileName);
+		let emitFileDeclarationMapFilename = join(relative(relativeOutDir, dirname(declarationMapPaths.relative)), declarationMapPaths.fileName);
 
 		// Rollup does not allow emitting files outside of the root of the whatever 'dist' directory that has been provided.
 		while (emitFileDeclarationFilename.startsWith("../") || emitFileDeclarationFilename.startsWith("..\\")) {
@@ -159,9 +158,17 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 			emitFileDeclarationMapFilename = emitFileDeclarationMapFilename.slice("../".length);
 		}
 
-		// Now, make sure to normalize the file names again
-		emitFileDeclarationFilename = normalize(emitFileDeclarationFilename);
-		emitFileDeclarationMapFilename = normalize(emitFileDeclarationMapFilename);
+		// Convert the filenames to names that respects the OS-specific filename conventing (POSIX or Windows-style)
+		emitFileDeclarationFilename = nativeNormalize(emitFileDeclarationFilename);
+		emitFileDeclarationMapFilename = nativeNormalize(emitFileDeclarationMapFilename);
+
+		console.log({
+			chunkPaths,
+			declarationPaths,
+			declarationMapPaths,
+			emitFileDeclarationFilename,
+			emitFileDeclarationMapFilename
+		});
 
 		const rawLocalModuleNames = chunk.modules;
 		const modules = rawLocalModuleNames.filter(options.canEmitForFile);

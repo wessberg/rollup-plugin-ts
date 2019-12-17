@@ -1,5 +1,5 @@
 import {MergeChunksWithAmbientDependenciesResult} from "./merge-chunks-with-ambient-dependencies";
-import {join} from "path";
+import {join} from "../path/path-util";
 
 export type ChunkToOriginalFileMap = Map<string, string[]>;
 

@@ -1,7 +1,6 @@
 import {BABEL_CONFIG_JS_FILENAME} from "../../constant/constant";
-import {join} from "path";
 import {FindBabelConfigOptions} from "./find-babel-config-options";
-import {ensureAbsolute} from "../path/path-util";
+import {ensureAbsolute, join, nativeJoin, normalize} from "../path/path-util";
 import {FindBabelConfigResult} from "./find-babel-config-result";
 import {IBabelInputOptions} from "../../plugin/i-babel-options";
 // @ts-ignore
@@ -63,12 +62,12 @@ export function findBabelConfig({babelConfig, cwd}: FindBabelConfigOptions): Fin
 	}
 
 	// If no config have been resolved, it might be possible to resolve a .babelrc or .babelrc.js file
-	const pkgData = findPackageData(join(cwd, "package.json"));
+	const pkgData = findPackageData(nativeJoin(cwd, "package.json"));
 	const relativeConfigResult = findRelativeConfig(pkgData, process.env.NODE_ENV) as {config: {filepath: string} | null} | null;
 	if (relativeConfigResult != null && relativeConfigResult.config != null) {
 		return {
 			kind: "relative",
-			path: relativeConfigResult.config.filepath
+			path: normalize(relativeConfigResult.config.filepath)
 		};
 	}
 
