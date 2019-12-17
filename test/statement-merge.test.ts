@@ -110,7 +110,7 @@ test("Merges identical statements correctly. #3", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 
 	const {declarations} = bundle;

@@ -1,4 +1,4 @@
-import {ImportedSymbol} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
+import {ImportedSymbol} from "../transformers/track-imports-transformer/track-imports-transformer-visitor-options";
 
 export function findMatchingImportedSymbol(importedSymbol: ImportedSymbol, importedSymbols: Iterable<ImportedSymbol>): ImportedSymbol | undefined {
 	for (const otherImportedSymbol of importedSymbols) {

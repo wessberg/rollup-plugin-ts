@@ -68,29 +68,32 @@ test("Flattens declarations. #2", async t => {
 });
 
 test("Flattens declarations. #3", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
 					export * from "./bar";
 					`
-		},
-		{
-			entry: false,
-			fileName: "bar.ts",
-			text: `\
+			},
+			{
+				entry: false,
+				fileName: "bar.ts",
+				text: `\
 					export * from "./baz";
 					`
-		},
-		{
-			entry: false,
-			fileName: "baz.ts",
-			text: `\
+			},
+			{
+				entry: false,
+				fileName: "baz.ts",
+				text: `\
 					export interface Foo {}
 					`
-		}
-	]);
+			}
+		],
+		{debug: true}
+	);
 	const {
 		declarations: [file]
 	} = bundle;

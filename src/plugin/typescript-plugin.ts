@@ -32,7 +32,6 @@ import {GetParsedCommandLineResult} from "../util/get-parsed-command-line/get-pa
 import {takeBrowserslistOrComputeBasedOnCompilerOptions} from "../util/take-browserslist-or-compute-based-on-compiler-options/take-browserslist-or-compute-based-on-compiler-options";
 import {matchAll} from "@wessberg/stringutil";
 import {Resolver} from "../util/resolve-id/resolver";
-import {getModuleDependencies, ModuleDependencyMap} from "../util/module/get-module-dependencies";
 import {emitDeclarations} from "../declaration/emit-declarations";
 import {TS} from "../type/ts";
 
@@ -103,18 +102,10 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	 */
 	const emitCache: IEmitCache = new EmitCache();
 
-	const moduleDependencyCache = new Map<string, Set<string>>();
-
 	/**
 	 * The ResolveCache to use
 	 */
 	const resolveCache: IResolveCache = new ResolveCache({fileSystem});
-
-	/**
-	 * A Map between file names and the Set of absolute paths they depend on. Not all will be part of Rollup's chunk modules (specifically, emit-less ones won't be).
-	 * This is going to be important in the declaration bundling and tree-shaking phase since this information would otherwise be lost.
-	 */
-	const moduleDependencyMap: ModuleDependencyMap = new Map();
 
 	/**
 	 * The filter function to use
@@ -160,8 +151,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			rollupInputOptions = options;
 
 			// Clear resolve-related caches
-			moduleDependencyMap.clear();
-			moduleDependencyCache.clear();
 			resolveCache.clear();
 
 			// Make sure we have a proper ParsedCommandLine to work with
@@ -309,22 +298,10 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 						if (transformedFiles.has(file)) {
 							// Remove the file from the resolve cache, now that it has changed.
 							resolveCache.delete(file);
-							moduleDependencyCache.delete(file);
 						}
 
 						// Add the file to the LanguageServiceHost
 						languageServiceHost.addFile({file, code});
-						moduleDependencyMap.set(
-							file,
-							getModuleDependencies({
-								resolver: ambientResolver,
-								languageServiceHost,
-								typescript,
-								file,
-								supportedExtensions: SUPPORTED_EXTENSIONS,
-								cache: moduleDependencyCache
-							})
-						);
 
 						// Get some EmitOutput, optionally from the cache if the file contents are unchanged
 						const emitOutput = emitCache.get({fileName: file, languageService});
@@ -426,8 +403,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 					languageServiceHost,
 					compilerOptions: parsedCommandLineResult.parsedCommandLine.options,
 					multiEntryFileNames: MULTI_ENTRY_FILE_NAMES,
-					canEmitForFile,
-					moduleDependencyMap
+					canEmitForFile
 				});
 			}
 

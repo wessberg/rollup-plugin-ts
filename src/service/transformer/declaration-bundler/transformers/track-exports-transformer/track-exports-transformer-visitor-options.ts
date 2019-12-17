@@ -1,7 +1,34 @@
 import {TS} from "../../../../../type/ts";
-import {ExportedSymbol, SourceFileToExportedSymbolSet} from "../source-file-bundler/source-file-bundler-visitor-options";
 import {NodeIdentifierCache} from "../trace-identifiers/trace-identifiers";
 import {Resolver} from "../../../../../util/resolve-id/resolver";
+
+export interface ExportedSymbolBase {}
+
+export interface NamedExportedSymbol extends ExportedSymbolBase {
+	// The raw module specifier with no modifications
+	moduleSpecifier: string | undefined;
+	isDefaultExport: boolean;
+	name: TS.Identifier;
+	propertyName: TS.Identifier;
+}
+
+export interface NamespaceExportedSymbol extends ExportedSymbolBase {
+	// The raw module specifier with no modifications
+	moduleSpecifier: string;
+	isNamespaceExport: true;
+}
+
+export type ExportedSymbol = NamedExportedSymbol | NamespaceExportedSymbol;
+
+/**
+ * A Set of exported symbols and data about them
+ */
+export type ExportedSymbolSet = Set<ExportedSymbol>;
+
+/**
+ * A Map between source files and their ExportedSymbolMaps
+ */
+export type SourceFileToExportedSymbolSet = Map<string, ExportedSymbolSet>;
 
 export interface TrackExportsOptions {
 	typescript: typeof TS;

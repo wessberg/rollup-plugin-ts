@@ -1,9 +1,9 @@
 import {
 	NamedExportedSymbol,
 	NamespaceExportedSymbol,
-	SourceFileToExportedSymbolSet,
-	SourceFileWithChunk
-} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
+	SourceFileToExportedSymbolSet
+} from "../transformers/track-exports-transformer/track-exports-transformer-visitor-options";
+import {SourceFileWithChunk} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
 
 export interface LocateExportedSymbolContext {
 	sourceFile: string;

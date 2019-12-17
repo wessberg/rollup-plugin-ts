@@ -8,9 +8,9 @@ export function visitEnumDeclaration({
 	typescript,
 	markAsExported,
 	...options
-}: TrackExportsTransformerVisitorOptions<TS.EnumDeclaration>): TS.EnumDeclaration {
+}: TrackExportsTransformerVisitorOptions<TS.EnumDeclaration>): void {
 	// If the node has no export modifier, leave it as it is
-	if (!hasExportModifier(node, typescript)) return node;
+	if (!hasExportModifier(node, typescript)) return;
 
 	const {exportedSymbol} = createExportSpecifierFromNameAndModifiers({
 		...options,
@@ -21,6 +21,4 @@ export function visitEnumDeclaration({
 
 	// Also mark the node as exported so that we can track it later
 	markAsExported(exportedSymbol);
-
-	return node;
 }

@@ -1,23 +1,23 @@
 import {TS} from "../../../../../type/ts";
 import {visitNode} from "./visitor/visit-node";
 import {
-	ExportedSymbol,
-	ExportedSymbolSet,
-	TrackExportsOptions,
-	TrackExportsTransformerVisitorOptions
-} from "./track-exports-transformer-visitor-options";
+	ImportedSymbol,
+	ImportedSymbolSet,
+	TrackImportsOptions,
+	TrackImportsTransformerVisitorOptions
+} from "./track-imports-transformer-visitor-options";
 
-export function trackExportsTransformer(options: TrackExportsOptions): TS.SourceFile {
+export function trackImportsTransformer(options: TrackImportsOptions): TS.SourceFile {
 	const {typescript} = options;
-	const exportedSymbolSet: ExportedSymbolSet = new Set();
-	options.sourceFileToExportedSymbolSet.set(options.sourceFile.fileName, exportedSymbolSet);
+	const importedSymbolSet: ImportedSymbolSet = new Set();
+	options.sourceFileToImportedSymbolSet.set(options.sourceFile.fileName, importedSymbolSet);
 
 	// Prepare some VisitorOptions
-	const visitorOptions: Omit<TrackExportsTransformerVisitorOptions<TS.Node>, "node"> = {
+	const visitorOptions: Omit<TrackImportsTransformerVisitorOptions<TS.Node>, "node"> = {
 		...options,
 
-		markAsExported(symbol: ExportedSymbol): void {
-			exportedSymbolSet.add(symbol);
+		markAsImported(symbol: ImportedSymbol): void {
+			importedSymbolSet.add(symbol);
 		},
 
 		childContinuation: <U extends TS.Node>(node: U): void =>

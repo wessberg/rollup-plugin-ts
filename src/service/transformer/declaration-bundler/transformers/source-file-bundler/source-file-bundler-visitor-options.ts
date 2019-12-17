@@ -1,50 +1,8 @@
 import {TS} from "../../../../../type/ts";
 import {DeclarationBundlerOptions} from "../../declaration-bundler-options";
 import {LexicalEnvironment} from "../deconflicter/deconflicter-options";
-
-export interface ImportedSymbolBase {
-	moduleSpecifier: string;
-	name: TS.Identifier;
-}
-
-export interface NamedImportedSymbol extends ImportedSymbolBase {
-	isDefaultImport: boolean;
-	propertyName: TS.Identifier;
-}
-
-export interface NamespaceImportedSymbol extends ImportedSymbolBase {
-	isNamespaceImport: true;
-}
-
-export type ImportedSymbol = NamedImportedSymbol | NamespaceImportedSymbol;
-
-export interface ExportedSymbolBase {}
-
-export interface NamedExportedSymbol extends ExportedSymbolBase {
-	// The raw module specifier with no modifications
-	moduleSpecifier: string | undefined;
-	isDefaultExport: boolean;
-	name: TS.Identifier;
-	propertyName: TS.Identifier;
-}
-
-export interface NamespaceExportedSymbol extends ExportedSymbolBase {
-	// The raw module specifier with no modifications
-	moduleSpecifier: string;
-	isNamespaceExport: true;
-}
-
-export type ExportedSymbol = NamedExportedSymbol | NamespaceExportedSymbol;
-
-/**
- * A Set of exported symbols and data about them
- */
-export type ExportedSymbolSet = Set<ExportedSymbol>;
-
-/**
- * A Map between source files and their ExportedSymbolMaps
- */
-export type SourceFileToExportedSymbolSet = Map<string, ExportedSymbolSet>;
+import {SourceFileToExportedSymbolSet} from "../track-exports-transformer/track-exports-transformer-visitor-options";
+import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options";
 
 export interface SourceFileWithChunk {
 	sourceFile: TS.SourceFile;

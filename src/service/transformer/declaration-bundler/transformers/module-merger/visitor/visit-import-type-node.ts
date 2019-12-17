@@ -1,11 +1,9 @@
 import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options";
 import {TS} from "../../../../../../type/ts";
-import {stripKnownExtension} from "../../../../../../util/path/path-util";
-import {basename} from "path";
-import {camelCase} from "@wessberg/stringutil";
 import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifier-transformer/ensure-no-declare-modifier-transformer";
 import {ensureHasDeclareModifier} from "../../../util/modifier-util";
+import {generateIdentifierName} from "../../../util/generate-identifier-name";
 
 export function visitImportTypeNode({
 	node,
@@ -37,7 +35,7 @@ export function visitImportTypeNode({
 	// If the node has no qualifier, it imports the entire module as a namespace.
 	if (node.qualifier == null) {
 		// Generate a name for it
-		const namespaceName = `${camelCase(stripKnownExtension(basename(matchingSourceFile.fileName)))}NS`;
+		const namespaceName = generateIdentifierName(matchingSourceFile.fileName, "namespace");
 		const innerContent = options.typescript.createIdentifier(namespaceName);
 
 		options.prependNodes(

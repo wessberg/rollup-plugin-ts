@@ -15,7 +15,7 @@ test("Handles circular, self-referencing exports. #1", async t => {
 			}
 		],
 		{
-			debug: true
+			debug: false
 		}
 	);
 	const {
@@ -50,7 +50,7 @@ test("Handles circular, self-referencing exports. #2", async t => {
 			}
 		],
 		{
-			debug: true
+			debug: false
 		}
 	);
 	const {

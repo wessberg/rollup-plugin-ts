@@ -1,4 +1,3 @@
-import {SourceFileBundlerVisitorOptions, SourceFileToExportedSymbolSet} from "./transformers/source-file-bundler/source-file-bundler-visitor-options";
 import {TS} from "../../../type/ts";
 import {Resolver} from "../../../util/resolve-id/resolver";
 import {TypescriptPluginOptions} from "../../../plugin/i-typescript-plugin-options";
@@ -7,6 +6,9 @@ import {ChunkToOriginalFileMap} from "../../../util/chunk/get-chunk-to-original-
 import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "./transformers/reference/cache/reference-cache";
 import {NodeIdentifierCache} from "./transformers/trace-identifiers/trace-identifiers";
 import {PreparePathsResult} from "../../../declaration/emit-declarations";
+import {SourceFileToExportedSymbolSet} from "./transformers/track-exports-transformer/track-exports-transformer-visitor-options";
+import {SourceFileBundlerVisitorOptions} from "./transformers/source-file-bundler/source-file-bundler-visitor-options";
+import {SourceFileToImportedSymbolSet} from "./transformers/track-imports-transformer/track-imports-transformer-visitor-options";
 
 export type ChunkForModuleCache = Map<string, string | undefined>;
 
@@ -44,6 +46,7 @@ export interface DeclarationBundlerOptions {
 	chunkToOriginalFileMap: ChunkToOriginalFileMap;
 
 	sourceFileToNodeToReferencedIdentifiersCache: SourceFileToNodeToReferencedIdentifiersCache;
+	sourceFileToImportedSymbolSet: SourceFileToImportedSymbolSet;
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
 
 	// Whether or not multiple chunks will be emitted

@@ -257,7 +257,7 @@ test.skip("Declaration bundling supports code splitting. #4", async t => {
 			`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 
 	const {declarations} = bundle;

@@ -8,9 +8,9 @@ export function visitModuleDeclaration({
 	typescript,
 	markAsExported,
 	...options
-}: TrackExportsTransformerVisitorOptions<TS.ModuleDeclaration>): TS.ModuleDeclaration {
+}: TrackExportsTransformerVisitorOptions<TS.ModuleDeclaration>): void {
 	// If the node has no export modifier, leave it as it is
-	if (!hasExportModifier(node, typescript)) return node;
+	if (!hasExportModifier(node, typescript)) return;
 
 	const {exportedSymbol} = createExportSpecifierFromNameAndModifiers({
 		...options,
@@ -21,6 +21,4 @@ export function visitModuleDeclaration({
 
 	// Also mark the node as exported so that we can track it later
 	markAsExported(exportedSymbol);
-
-	return node;
 }

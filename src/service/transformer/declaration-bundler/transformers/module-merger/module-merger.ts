@@ -4,9 +4,9 @@ import {ChildVisitResult, IncludeSourceFileOptions, ModuleMergerVisitorOptions, 
 import {DeclarationTransformer} from "../../declaration-bundler-options";
 import {applyTransformers} from "../../util/apply-transformers";
 import {getNodePlacementQueue} from "../../util/get-node-placement-queue";
-import {ImportedSymbol} from "../source-file-bundler/source-file-bundler-visitor-options";
 import {findMatchingImportedSymbol} from "../../util/find-matching-imported-symbol";
 import {cloneNodeWithSymbols} from "../../util/clone-node-with-symbols";
+import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options";
 
 export function moduleMerger(...transformers: DeclarationTransformer[]): DeclarationTransformer {
 	return options => {

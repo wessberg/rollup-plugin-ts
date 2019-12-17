@@ -8,9 +8,9 @@ export function visitFunctionExpression({
 	typescript,
 	markAsExported,
 	...options
-}: TrackExportsTransformerVisitorOptions<TS.FunctionExpression>): TS.FunctionExpression {
+}: TrackExportsTransformerVisitorOptions<TS.FunctionExpression>): void {
 	// If the node has no export modifier, leave it as it is
-	if (!hasExportModifier(node, typescript) || node.name == null) return node;
+	if (!hasExportModifier(node, typescript) || node.name == null) return;
 
 	const {exportedSymbol} = createExportSpecifierFromNameAndModifiers({
 		...options,
@@ -21,6 +21,4 @@ export function visitFunctionExpression({
 
 	// Also mark the node as exported so that we can track it later
 	markAsExported(exportedSymbol);
-
-	return node;
 }

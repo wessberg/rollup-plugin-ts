@@ -6,7 +6,6 @@ import {TS} from "../type/ts";
 import {basename, dirname, join, normalize, relative} from "path";
 import {IncrementalLanguageService} from "../service/language-service/incremental-language-service";
 import {TypescriptPluginOptions} from "../plugin/i-typescript-plugin-options";
-import {ModuleDependencyMap} from "../util/module/get-module-dependencies";
 import {isOutputChunk} from "../util/is-output-chunk/is-output-chunk";
 import {getDeclarationOutDir} from "../util/get-declaration-out-dir/get-declaration-out-dir";
 import {getOutDir} from "../util/get-out-dir/get-out-dir";
@@ -22,6 +21,7 @@ import {
 } from "../service/transformer/declaration-bundler/transformers/reference/cache/reference-cache";
 import {NodeIdentifierCache} from "../service/transformer/declaration-bundler/transformers/trace-identifiers/trace-identifiers";
 import {trackCrossChunkReferences} from "./track-cross-chunk-references";
+import {normalizeChunk} from "../util/chunk/normalize-chunk";
 
 export interface EmitDeclarationsOptions {
 	resolver: Resolver;
@@ -34,7 +34,6 @@ export interface EmitDeclarationsOptions {
 	languageServiceHost: IncrementalLanguageService;
 	pluginOptions: TypescriptPluginOptions;
 	outputOptions: OutputOptions;
-	moduleDependencyMap: ModuleDependencyMap;
 	multiEntryFileNames: Set<string> | undefined;
 	canEmitForFile(id: string): boolean;
 }
@@ -64,7 +63,9 @@ function preparePaths({relativeOutDir, absoluteOutDir, fileName}: PreparePathsOp
 
 export function emitDeclarations(options: EmitDeclarationsOptions) {
 	const {typescript} = options.pluginOptions;
-	const chunks = Object.values(options.bundle).filter(isOutputChunk);
+	const chunks = Object.values(options.bundle)
+		.filter(isOutputChunk)
+		.map(normalizeChunk);
 
 	const relativeDeclarationOutDir = normalize(getDeclarationOutDir(options.cwd, options.compilerOptions, options.outputOptions));
 	const absoluteDeclarationOutDir = join(options.cwd, relativeDeclarationOutDir);
@@ -72,13 +73,21 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 	const relativeOutDir = getOutDir(options.cwd, options.outputOptions);
 	const absoluteOutDir = join(options.cwd, relativeOutDir);
 	const generateMap = Boolean(options.compilerOptions.declarationMap);
-	const mergeChunksResult = mergeChunksWithAmbientDependencies(chunks, options.moduleDependencyMap);
-	const chunkToOriginalFileMap = getChunkToOriginalFileMap(absoluteOutDir, mergeChunksResult);
 	const sourceFileToNodeToReferencedIdentifiersCache: SourceFileToNodeToReferencedIdentifiersCache = new Map();
 	const nodeIdentifierCache: NodeIdentifierCache = new Map();
 	const chunkForModuleCache: ChunkForModuleCache = new Map();
 	const referenceCache: ReferenceCache = new Map();
 	const printer = typescript.createPrinter({newLine: options.compilerOptions.newLine});
+
+	const trackCrossChunkReferencesResult = trackCrossChunkReferences({
+		...options,
+		typescript,
+		nodeIdentifierCache,
+		chunks
+	});
+
+	const mergeChunksResult = mergeChunksWithAmbientDependencies(chunks, trackCrossChunkReferencesResult.moduleDependencyMap);
+	const chunkToOriginalFileMap = getChunkToOriginalFileMap(absoluteOutDir, mergeChunksResult);
 
 	const sharedOptions = {
 		...options,
@@ -92,13 +101,6 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		sourceFileToNodeToReferencedIdentifiersCache,
 		isMultiChunk: mergeChunksResult.mergedChunks.length > 1
 	};
-
-	const sourceFileToExportedSymbolSet = trackCrossChunkReferences({
-		...sharedOptions,
-		chunks: mergeChunksResult.mergedChunks
-	});
-
-	console.log(sourceFileToExportedSymbolSet);
 
 	for (const chunk of mergeChunksResult.mergedChunks) {
 		const chunkPaths = preparePaths({
@@ -179,7 +181,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 
 		const bundleResult = bundleDeclarationsForChunk({
 			...sharedOptions,
-			sourceFileToExportedSymbolSet,
+			...trackCrossChunkReferencesResult,
 			chunk: {
 				paths: chunkPaths,
 				isEntry: chunk.isEntry,

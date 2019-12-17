@@ -1,20 +1,13 @@
-import {OutputChunk} from "rollup";
-import {normalize} from "path";
-import {ModuleDependencyMap} from "../module/get-module-dependencies";
-
-export interface MergedChunk {
-	modules: string[];
-	fileName: string;
-	isEntry: boolean;
-}
+import {NormalizedChunk} from "./normalize-chunk";
+import {ModuleDependencyMap} from "../../declaration/track-cross-chunk-references";
 
 export interface MergeChunksWithAmbientDependenciesResult {
-	mergedChunks: MergedChunk[];
+	mergedChunks: NormalizedChunk[];
 	ambientModules: Set<string>;
 }
 
-function getChunksWithModule(moduleName: string, chunks: Iterable<MergedChunk>): Set<MergedChunk> {
-	const chunksWithModule = new Set<MergedChunk>();
+function getChunksWithModule(moduleName: string, chunks: Iterable<NormalizedChunk>): Set<NormalizedChunk> {
+	const chunksWithModule = new Set<NormalizedChunk>();
 	// Test how many chunks include the module
 	for (const chunk of chunks) {
 		if (chunk.modules.includes(moduleName)) {
@@ -25,7 +18,7 @@ function getChunksWithModule(moduleName: string, chunks: Iterable<MergedChunk>):
 	return chunksWithModule;
 }
 
-function splitAmbientModule(moduleName: string, chunks: Iterable<MergedChunk>): void {
+function splitAmbientModule(moduleName: string, chunks: Iterable<NormalizedChunk>): void {
 	const chunksWithModule = getChunksWithModule(moduleName, chunks);
 
 	// Not more than 1 chunk can contain the module.
@@ -48,7 +41,7 @@ function splitAmbientModule(moduleName: string, chunks: Iterable<MergedChunk>): 
 	}
 }
 
-function splitAmbientModules(chunks: MergedChunk[], ambientModules: Set<string>) {
+function splitAmbientModules(chunks: NormalizedChunk[], ambientModules: Set<string>) {
 	for (const chunk of chunks) {
 		for (const module of chunk.modules) {
 			if (ambientModules.has(module)) {
@@ -70,23 +63,11 @@ function splitAmbientModules(chunks: MergedChunk[], ambientModules: Set<string>)
 }
 
 export function mergeChunksWithAmbientDependencies(
-	chunks: OutputChunk[],
-	moduleDependencyMap: ModuleDependencyMap
+	chunks: NormalizedChunk[],
+	...moduleDependencyMaps: ModuleDependencyMap[]
 ): MergeChunksWithAmbientDependenciesResult {
 	const ambientModules = new Set<string>();
-	const chunkLength = chunks.length;
-	const mergedChunks: MergedChunk[] = Array(chunkLength);
-
-	// First normalize the chunks
-	for (let i = 0; i < chunkLength; i++) {
-		const chunk = chunks[i];
-		const modules = Object.keys(chunk.modules).map(normalize);
-		mergedChunks[i] = {
-			fileName: normalize(chunk.fileName),
-			isEntry: chunk.isEntry,
-			modules
-		};
-	}
+	const mergedChunks: NormalizedChunk[] = JSON.parse(JSON.stringify(chunks));
 
 	// Find ambient chunks that will be placed inside of shared chunks
 
@@ -97,27 +78,30 @@ export function mergeChunksWithAmbientDependencies(
 		}
 	}
 
-	for (const modules of moduleDependencyMap.values()) {
-		for (const module of modules) {
-			if (!allRollupChunkModules.has(module)) {
-				ambientModules.add(module);
+	for (const moduleDependencyMap of moduleDependencyMaps) {
+		for (const modules of moduleDependencyMap.values()) {
+			for (const module of modules) {
+				if (!allRollupChunkModules.has(module)) {
+					ambientModules.add(module);
+				}
+			}
+		}
+
+		for (const [entry, moduleDependencies] of moduleDependencyMap.entries()) {
+			for (let i = 0; i < mergedChunks.length; i++) {
+				const chunk = mergedChunks[i];
+				const entryIndex = chunk.modules.indexOf(entry);
+				if (entryIndex < 0) continue;
+
+				for (const dependency of [...moduleDependencies]
+					.reverse()
+					.filter(moduleDependency => ambientModules.has(moduleDependency) && !chunk.modules.includes(moduleDependency))) {
+					chunk.modules.splice(entryIndex, 0, dependency);
+				}
 			}
 		}
 	}
 
-	for (const [entry, moduleDependencies] of moduleDependencyMap.entries()) {
-		for (let i = 0; i < mergedChunks.length; i++) {
-			const chunk = mergedChunks[i];
-			const entryIndex = chunk.modules.indexOf(entry);
-			if (entryIndex < 0) continue;
-
-			for (const dependency of [...moduleDependencies]
-				.reverse()
-				.filter(moduleDependency => ambientModules.has(moduleDependency) && !chunk.modules.includes(moduleDependency))) {
-				chunk.modules.splice(entryIndex, 0, dependency);
-			}
-		}
-	}
 	splitAmbientModules(mergedChunks, ambientModules);
 	return {
 		mergedChunks,

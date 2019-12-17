@@ -12,7 +12,7 @@ import {visitTypeAliasDeclaration} from "./visit-type-alias-declaration";
 import {visitExportDeclaration} from "./visit-export-declaration";
 import {visitExportAssignment} from "./visit-export-assignment";
 
-export function visitNode({node, ...options}: TrackExportsTransformerVisitorOptions<TS.Node>): TS.Node {
+export function visitNode({node, ...options}: TrackExportsTransformerVisitorOptions<TS.Node>): void {
 	if (options.typescript.isClassDeclaration(node)) {
 		return visitClassDeclaration({...options, node});
 	} else if (options.typescript.isClassExpression(node)) {
@@ -35,8 +35,5 @@ export function visitNode({node, ...options}: TrackExportsTransformerVisitorOpti
 		return visitExportDeclaration({...options, node});
 	} else if (options.typescript.isExportAssignment(node)) {
 		return visitExportAssignment({...options, node});
-	} else {
-		// Only consider root-level statements here
-		return node;
 	}
 }

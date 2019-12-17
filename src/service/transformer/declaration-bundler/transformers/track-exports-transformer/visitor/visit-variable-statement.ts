@@ -12,9 +12,9 @@ export function visitVariableStatement({
 	sourceFile,
 	markAsExported,
 	...options
-}: TrackExportsTransformerVisitorOptions<TS.VariableStatement>): TS.VariableStatement {
+}: TrackExportsTransformerVisitorOptions<TS.VariableStatement>): void {
 	// If the node has no export modifier, leave it as it is
-	if (!hasExportModifier(node, typescript)) return node;
+	if (!hasExportModifier(node, typescript)) return;
 
 	const identifiers = traceIdentifiers({node, resolver, sourceFile, nodeIdentifierCache, typescript});
 
@@ -29,6 +29,4 @@ export function visitVariableStatement({
 		// Also mark the node as exported so that we can track it later
 		markAsExported(exportedSymbol);
 	}
-
-	return node;
 }

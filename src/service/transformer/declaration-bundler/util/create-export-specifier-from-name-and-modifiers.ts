@@ -1,6 +1,7 @@
 import {TS} from "../../../../type/ts";
-import {ExportedSymbol, ImportedSymbol} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
 import {hasDefaultExportModifier} from "./modifier-util";
+import {ExportedSymbol} from "../transformers/track-exports-transformer/track-exports-transformer-visitor-options";
+import {ImportedSymbol} from "../transformers/track-imports-transformer/track-imports-transformer-visitor-options";
 
 export interface CreateExportSpecifierFromNameAndModifiersOptions {
 	name: string;

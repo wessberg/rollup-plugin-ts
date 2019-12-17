@@ -1,8 +1,9 @@
-import {ImportedSymbol, SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
 import {TS} from "../../../../../type/ts";
 import {DeclarationTransformer} from "../../declaration-bundler-options";
 import {LexicalEnvironment} from "../deconflicter/deconflicter-options";
 import {NodePlacementQueue} from "../../util/get-node-placement-queue";
+import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options";
+import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
 
 export type PayloadMap = {
 	[Key in TS.SyntaxKind]: Key extends
