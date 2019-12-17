@@ -26,10 +26,10 @@ function getIdentifiers({node, ...rest}: GetIdentifiersWithCacheOptions, identif
 	traceIdentifiersForNode({
 		...rest,
 		node,
-		continuation: nextNode => traceIdentifiers({...rest, node: nextNode}, identifiers),
+		continuation: nextNode => getIdentifiers({...rest, node: nextNode}, identifiers),
 		childContinuation: nextNode =>
 			rest.typescript.forEachChild(nextNode, nextNextNode => {
-				traceIdentifiers({...rest, node: nextNextNode}, identifiers);
+				getIdentifiers({...rest, node: nextNextNode}, identifiers);
 			}),
 		addIdentifier(name: string): void {
 			identifiers.add(name);

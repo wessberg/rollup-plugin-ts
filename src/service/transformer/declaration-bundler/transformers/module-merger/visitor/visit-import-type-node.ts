@@ -17,7 +17,7 @@ export function visitImportTypeNode({
 		!options.typescript.isLiteralTypeNode(node.argument) || !options.typescript.isStringLiteralLike(node.argument.literal)
 			? undefined
 			: node.argument.literal.text;
-	const matchingSourceFile = moduleSpecifier == null ? undefined : options.getMatchingSourceFile(moduleSpecifier);
+	const matchingSourceFile = moduleSpecifier == null ? undefined : options.getMatchingSourceFile(moduleSpecifier, options.sourceFile);
 	const payload = {
 		moduleSpecifier,
 		matchingSourceFile

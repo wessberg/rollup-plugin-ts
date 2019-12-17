@@ -12,24 +12,27 @@ function generateExportDeclarations(
 	const {sourceFile, sourceFileToExportedSymbolSet, typescript} = options;
 	const exportedSymbols = sourceFileToExportedSymbolSet.get(sourceFile.fileName) ?? [];
 	for (const symbol of exportedSymbols) {
+		const matchingSourceFile = symbol.moduleSpecifier == null ? undefined : options.getMatchingSourceFile(symbol.moduleSpecifier, sourceFile);
+		const generatedModuleSpecifier =
+			symbol.moduleSpecifier == null
+				? undefined
+				: generateModuleSpecifier({
+						...options,
+						moduleSpecifier: symbol.moduleSpecifier
+				  });
+
 		// If it is a NamespaceExport, we may need to recursively add all exports for the referenced SourceFiles
 		if ("isNamespaceExport" in symbol) {
-			const matchingSourceFile = options.getMatchingSourceFile(symbol.moduleSpecifier);
+			// If the generated moduleSpecifier is null, that's because it is a self-reference, in which case the 'export *' declaration must be skipped
+			// in favor of all other named export bindings that will included anyway
+			if (generatedModuleSpecifier == null) {
+				continue;
+			}
 
 			// If no SourceFile was matched, add the Namespace Export directly.
 			if (matchingSourceFile == null) {
 				exportDeclarations.push(
-					typescript.createExportDeclaration(
-						undefined,
-						undefined,
-						undefined,
-						typescript.createStringLiteral(
-							generateModuleSpecifier({
-								...options,
-								moduleSpecifier: symbol.moduleSpecifier
-							})
-						)
-					)
+					typescript.createExportDeclaration(undefined, undefined, undefined, typescript.createStringLiteral(generatedModuleSpecifier))
 				);
 			}
 
@@ -57,14 +60,9 @@ function generateExportDeclarations(
 					undefined,
 					undefined,
 					typescript.createNamedExports([exportSpecifier]),
-					symbol.moduleSpecifier == null
+					symbol.moduleSpecifier == null || generatedModuleSpecifier == null || matchingSourceFile != null
 						? undefined
-						: typescript.createStringLiteral(
-								generateModuleSpecifier({
-									...options,
-									moduleSpecifier: symbol.moduleSpecifier
-								})
-						  )
+						: typescript.createStringLiteral(generatedModuleSpecifier)
 				)
 			);
 			const propertyName = exportSpecifier.propertyName ?? exportSpecifier.name;
@@ -86,7 +84,7 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 					moduleSpecifier
 			  });
 
-	const matchingSourceFile = moduleSpecifier == null ? undefined : options.getMatchingSourceFile(moduleSpecifier);
+	const matchingSourceFile = moduleSpecifier == null ? undefined : options.getMatchingSourceFile(moduleSpecifier, options.sourceFile);
 
 	const payload = {
 		moduleSpecifier,

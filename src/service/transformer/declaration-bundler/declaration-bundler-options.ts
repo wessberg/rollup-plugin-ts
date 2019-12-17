@@ -1,4 +1,4 @@
-import {SourceFileBundlerVisitorOptions} from "./transformers/source-file-bundler/source-file-bundler-visitor-options";
+import {SourceFileBundlerVisitorOptions, SourceFileToExportedSymbolSet} from "./transformers/source-file-bundler/source-file-bundler-visitor-options";
 import {TS} from "../../../type/ts";
 import {Resolver} from "../../../util/resolve-id/resolver";
 import {TypescriptPluginOptions} from "../../../plugin/i-typescript-plugin-options";
@@ -44,6 +44,7 @@ export interface DeclarationBundlerOptions {
 	chunkToOriginalFileMap: ChunkToOriginalFileMap;
 
 	sourceFileToNodeToReferencedIdentifiersCache: SourceFileToNodeToReferencedIdentifiersCache;
+	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
 
 	// Whether or not multiple chunks will be emitted
 	isMultiChunk: boolean;

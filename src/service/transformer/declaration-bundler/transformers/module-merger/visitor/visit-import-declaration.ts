@@ -15,7 +15,7 @@ export function visitImportDeclaration(options: ModuleMergerVisitorOptions<TS.Im
 					moduleSpecifier
 			  });
 
-	const matchingSourceFile = moduleSpecifier == null ? undefined : options.getMatchingSourceFile(moduleSpecifier);
+	const matchingSourceFile = moduleSpecifier == null ? undefined : options.getMatchingSourceFile(moduleSpecifier, options.sourceFile);
 
 	const payload = {
 		moduleSpecifier,

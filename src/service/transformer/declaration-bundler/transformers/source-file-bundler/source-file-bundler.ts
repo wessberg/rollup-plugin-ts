@@ -49,7 +49,6 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 					includedSourceFiles: new WeakSet<TS.SourceFile>(),
 					declarationToDeconflictedBindingMap: new Map<number, string>(),
 					nodeToOriginalSymbolMap: new Map<TS.Node, TS.Symbol>(),
-					sourceFileToExportedSymbolSet: new Map(),
 					preservedImports: new Map(),
 					moduleSpecifierToSourceFileMap
 				};

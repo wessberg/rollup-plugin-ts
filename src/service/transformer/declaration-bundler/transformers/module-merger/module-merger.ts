@@ -7,8 +7,6 @@ import {getNodePlacementQueue} from "../../util/get-node-placement-queue";
 import {ImportedSymbol} from "../source-file-bundler/source-file-bundler-visitor-options";
 import {findMatchingImportedSymbol} from "../../util/find-matching-imported-symbol";
 import {cloneNodeWithSymbols} from "../../util/clone-node-with-symbols";
-import {ensureNoExportModifierTransformer} from "../ensure-no-export-modifier-transformer/ensure-no-export-modifier-transformer";
-import {noExportDeclarationTransformer} from "../no-export-declaration-transformer/no-export-declaration-transformer";
 
 export function moduleMerger(...transformers: DeclarationTransformer[]): DeclarationTransformer {
 	return options => {
@@ -63,31 +61,20 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 				return true;
 			},
 
-			getMatchingSourceFile(moduleSpecifier: string): TS.SourceFile | undefined {
+			getMatchingSourceFile(moduleSpecifier: string, from: TS.SourceFile): TS.SourceFile | undefined {
 				const sourceFileWithChunk = options.moduleSpecifierToSourceFileMap.get(moduleSpecifier);
-				return sourceFileWithChunk == null || !sourceFileWithChunk.isSameChunk ? undefined : sourceFileWithChunk.sourceFile;
+				return sourceFileWithChunk == null || sourceFileWithChunk.sourceFile === from || !sourceFileWithChunk.isSameChunk
+					? undefined
+					: sourceFileWithChunk.sourceFile;
 			},
 
 			includeSourceFile(
 				sourceFile: TS.SourceFile,
-				{allowDuplicate = false, allowExports = false, transformers: extraTransformers = [], ...otherOptions}: Partial<IncludeSourceFileOptions> = {}
+				{allowDuplicate = false, transformers: extraTransformers = [], ...otherOptions}: Partial<IncludeSourceFileOptions> = {}
 			): Iterable<TS.Statement> {
 				// Never include the same SourceFile twice
 				if (options.includedSourceFiles.has(sourceFile) && !allowDuplicate) return [];
 				options.includedSourceFiles.add(sourceFile);
-
-				const combinedTransformers = [
-					...transformers,
-					...(allowExports
-						? []
-						: [
-								// Removes 'export' modifiers from Nodes
-								ensureNoExportModifierTransformer,
-								// Removes ExportDeclarations and ExportAssignments
-								noExportDeclarationTransformer
-						  ]),
-					...extraTransformers
-				];
 
 				const transformedSourceFile = applyTransformers({
 					visitorOptions: {
@@ -95,7 +82,7 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 						...otherOptions,
 						sourceFile
 					},
-					transformers: [moduleMerger(...combinedTransformers), ...combinedTransformers]
+					transformers: [moduleMerger(...transformers, ...extraTransformers), ...transformers, ...extraTransformers]
 				});
 
 				// Keep track of the original symbols which will be lost when the nodes are cloned

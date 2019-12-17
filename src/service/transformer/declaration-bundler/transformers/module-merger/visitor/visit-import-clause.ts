@@ -41,18 +41,24 @@ export function visitImportClause(options: ModuleMergerVisitorOptions<TS.ImportC
 	if (defaultExportedSymbol != null) {
 		// If the default export exports a binding from another module *that points to a file that isn't part of the current chunk*,
 		// Create a new ImportDeclaration that refers to that chunk or external module
-		if (defaultExportedSymbol.moduleSpecifier != null && options.getMatchingSourceFile(defaultExportedSymbol.moduleSpecifier) == null) {
+		const generatedModuleSpecifier =
+			defaultExportedSymbol.moduleSpecifier == null
+				? undefined
+				: generateModuleSpecifier({
+						...options,
+						moduleSpecifier: defaultExportedSymbol.moduleSpecifier
+				  });
+		if (
+			defaultExportedSymbol.moduleSpecifier != null &&
+			generatedModuleSpecifier != null &&
+			options.getMatchingSourceFile(defaultExportedSymbol.moduleSpecifier, payload.matchingSourceFile) == null
+		) {
 			options.prependNodes(
 				typescript.createImportDeclaration(
 					undefined,
 					undefined,
 					typescript.createImportClause(typescript.createIdentifier(contResult.name.text), undefined),
-					typescript.createStringLiteral(
-						generateModuleSpecifier({
-							...options,
-							moduleSpecifier: defaultExportedSymbol.moduleSpecifier
-						})
-					)
+					typescript.createStringLiteral(generatedModuleSpecifier)
 				)
 			);
 		}

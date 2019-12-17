@@ -31,7 +31,6 @@ export type ChildVisitResult<T extends TS.Node> = T;
 
 export interface IncludeSourceFileOptions {
 	allowDuplicate: boolean;
-	allowExports: boolean;
 	lexicalEnvironment: LexicalEnvironment;
 	transformers: DeclarationTransformer[];
 }
@@ -43,7 +42,7 @@ export interface ModuleMergerVisitorOptions<T extends TS.Node> extends SourceFil
 	continuation<U extends TS.Node>(node: U, payload: PayloadMap[U["kind"]]): VisitResult<U>;
 	childContinuation<U extends TS.Node>(node: U, payload: PayloadMap[U["kind"]]): ChildVisitResult<U>;
 
-	getMatchingSourceFile(moduleSpecifier: string): TS.SourceFile | undefined;
+	getMatchingSourceFile(moduleSpecifier: string, from: TS.SourceFile): TS.SourceFile | undefined;
 	shouldPreserveImportedSymbol(importedSymbol: ImportedSymbol): boolean;
 	includeSourceFile(sourceFile: TS.SourceFile, options?: Partial<IncludeSourceFileOptions>): Iterable<TS.Statement>;
 	prependNodes(...nodes: TS.Node[]): void;

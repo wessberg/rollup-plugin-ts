@@ -78,37 +78,40 @@ test("Merges identical statements correctly. #2", async t => {
 });
 
 test("Merges identical statements correctly. #3", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
 					export * from "./bar";
 					export * from "./baz";
 					`
-		},
-		{
-			entry: false,
-			fileName: "bar.ts",
-			text: `\
+			},
+			{
+				entry: false,
+				fileName: "bar.ts",
+				text: `\
 					export {foo as bar} from "./a";
 					`
-		},
-		{
-			entry: false,
-			fileName: "baz.ts",
-			text: `\
+			},
+			{
+				entry: false,
+				fileName: "baz.ts",
+				text: `\
 					export {foo as bar} from "./a";
 					`
-		},
-		{
-			entry: true,
-			fileName: "a.ts",
-			text: `\
+			},
+			{
+				entry: true,
+				fileName: "a.ts",
+				text: `\
 					export const foo = 2;
 					`
-		}
-	]);
+			}
+		],
+		{debug: true}
+	);
 
 	const {declarations} = bundle;
 

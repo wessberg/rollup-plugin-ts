@@ -33,7 +33,18 @@ export function visitImportSpecifier(options: ModuleMergerVisitorOptions<TS.Impo
 	if (exportedSymbol != null) {
 		// If the export exports a binding from another module *that points to a file that isn't part of the current chunk*,
 		// Create a new ImportDeclaration that refers to that chunk or external module
-		if (exportedSymbol.moduleSpecifier != null && options.getMatchingSourceFile(exportedSymbol.moduleSpecifier) == null) {
+		const generatedModuleSpecifier =
+			exportedSymbol.moduleSpecifier == null
+				? undefined
+				: generateModuleSpecifier({
+						...options,
+						moduleSpecifier: exportedSymbol.moduleSpecifier
+				  });
+		if (
+			exportedSymbol.moduleSpecifier != null &&
+			generatedModuleSpecifier != null &&
+			options.getMatchingSourceFile(exportedSymbol.moduleSpecifier, payload.matchingSourceFile) == null
+		) {
 			options.prependNodes(
 				typescript.createImportDeclaration(
 					undefined,
@@ -51,12 +62,7 @@ export function visitImportSpecifier(options: ModuleMergerVisitorOptions<TS.Impo
 							)
 						])
 					),
-					typescript.createStringLiteral(
-						generateModuleSpecifier({
-							...options,
-							moduleSpecifier: exportedSymbol.moduleSpecifier
-						})
-					)
+					typescript.createStringLiteral(generatedModuleSpecifier)
 				)
 			);
 		} else if (contResult.propertyName != null) {

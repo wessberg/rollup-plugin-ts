@@ -10,6 +10,7 @@ import {statementMerger} from "./transformers/statement-merger/statement-merger"
 import {toExportDeclarationTransformer} from "./transformers/to-export-declaration-transformer/to-export-declaration-transformer";
 import {ensureNoExportModifierTransformer} from "./transformers/ensure-no-export-modifier-transformer/ensure-no-export-modifier-transformer";
 import {trackExportsTransformer} from "./transformers/track-exports-transformer/track-exports-transformer";
+import {noExportDeclarationTransformer} from "./transformers/no-export-declaration-transformer/no-export-declaration-transformer";
 
 /**
  * Bundles declarations
@@ -28,6 +29,10 @@ export function declarationBundler(options: DeclarationBundlerOptions): TS.Custo
 					moduleBlockExtractor,
 					// Tracks export modifiers and ExportDeclarations
 					trackExportsTransformer,
+					// Removes 'export' modifiers from Nodes
+					ensureNoExportModifierTransformer,
+					// Removes ExportDeclarations and ExportAssignments
+					noExportDeclarationTransformer,
 					// Ensure that nodes that require it have the 'declare' modifier
 					ensureDeclareModifierTransformer
 				),

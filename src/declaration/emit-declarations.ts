@@ -3,7 +3,7 @@ import {SupportedExtensions} from "../util/get-supported-extensions/get-supporte
 import {FileSystem} from "../util/file-system/file-system";
 import {OutputBundle, OutputOptions, PluginContext} from "rollup";
 import {TS} from "../type/ts";
-import {dirname, join, normalize, relative, basename} from "path";
+import {basename, dirname, join, normalize, relative} from "path";
 import {IncrementalLanguageService} from "../service/language-service/incremental-language-service";
 import {TypescriptPluginOptions} from "../plugin/i-typescript-plugin-options";
 import {ModuleDependencyMap} from "../util/module/get-module-dependencies";
@@ -21,6 +21,7 @@ import {
 	SourceFileToNodeToReferencedIdentifiersCache
 } from "../service/transformer/declaration-bundler/transformers/reference/cache/reference-cache";
 import {NodeIdentifierCache} from "../service/transformer/declaration-bundler/transformers/trace-identifiers/trace-identifiers";
+import {trackCrossChunkReferences} from "./track-cross-chunk-references";
 
 export interface EmitDeclarationsOptions {
 	resolver: Resolver;
@@ -91,6 +92,13 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		sourceFileToNodeToReferencedIdentifiersCache,
 		isMultiChunk: mergeChunksResult.mergedChunks.length > 1
 	};
+
+	const sourceFileToExportedSymbolSet = trackCrossChunkReferences({
+		...sharedOptions,
+		chunks: mergeChunksResult.mergedChunks
+	});
+
+	console.log(sourceFileToExportedSymbolSet);
 
 	for (const chunk of mergeChunksResult.mergedChunks) {
 		const chunkPaths = preparePaths({
@@ -171,6 +179,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 
 		const bundleResult = bundleDeclarationsForChunk({
 			...sharedOptions,
+			sourceFileToExportedSymbolSet,
 			chunk: {
 				paths: chunkPaths,
 				isEntry: chunk.isEntry,

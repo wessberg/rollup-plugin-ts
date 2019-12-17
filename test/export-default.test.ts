@@ -306,7 +306,7 @@ test("Handles default exports inside ExportSpecifiers. #1", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{debug: true}
 	);
 	const {
 		declarations: [file]

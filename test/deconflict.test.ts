@@ -690,7 +690,7 @@ test("Deconflicts symbols. #13", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{debug: true}
 	);
 	const {
 		declarations: [file]
