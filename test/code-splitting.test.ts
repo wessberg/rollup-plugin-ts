@@ -83,7 +83,7 @@ test("Declaration bundling supports code splitting. #1", async t => {
 	);
 });
 
-test.only("Declaration bundling supports code splitting. #2", async t => {
+test("Declaration bundling supports code splitting. #2", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -232,7 +232,7 @@ test("Declaration bundling supports code splitting. #3", async t => {
 	);
 });
 
-test("Declaration bundling supports code splitting. #4", async t => {
+test.skip("Declaration bundling supports code splitting. #4", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{
