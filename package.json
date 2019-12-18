@@ -112,7 +112,7 @@
 	},
 	"ava": {
 		"files": [
-			"test/**.test.ts"
+			"test/code-splitting.test.ts"
 		],
 		"verbose": true,
 		"failFast": true,

@@ -4,19 +4,24 @@ import {Resolver} from "../../../../../util/resolve-id/resolver";
 
 export interface ImportedSymbolBase {
 	moduleSpecifier: string;
-	name: TS.Identifier;
 }
 
 export interface NamedImportedSymbol extends ImportedSymbolBase {
 	isDefaultImport: boolean;
+	name: TS.Identifier;
 	propertyName: TS.Identifier;
 }
 
 export interface NamespaceImportedSymbol extends ImportedSymbolBase {
 	isNamespaceImport: true;
+	name: TS.Identifier;
 }
 
-export type ImportedSymbol = NamedImportedSymbol | NamespaceImportedSymbol;
+export interface ClauseLessImportedSymbol extends ImportedSymbolBase {
+	isClauseLessImport: true;
+}
+
+export type ImportedSymbol = NamedImportedSymbol | NamespaceImportedSymbol | ClauseLessImportedSymbol;
 
 /**
  * A Set of imported symbols and data about them

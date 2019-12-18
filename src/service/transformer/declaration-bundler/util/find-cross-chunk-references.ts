@@ -22,9 +22,13 @@ export interface FindCrossChunkReferencesOptions {
 }
 
 export function findCrossChunkReferences(options: FindCrossChunkReferencesOptions): ImportedSymbol | ExportedSymbol[] {
-	const {from, sourceFileToExportedSymbolSet, moduleSpecifierToSourceFileMap} = options;
+	const {from, sourceFileToImportedSymbolSet, sourceFileToExportedSymbolSet, moduleSpecifierToSourceFileMap} = options;
 	const currentChunk = getChunkFilename({...options, fileName: from.fileName});
 	if (currentChunk == null) return [];
+	console.log({
+		sourceFileToImportedSymbolSet,
+		sourceFileToExportedSymbolSet
+	});
 
 	for (const [otherSourceFile, exportedSymbols] of sourceFileToExportedSymbolSet.entries()) {
 		const otherSourceFileChunk = getChunkFilename({...options, fileName: otherSourceFile});
@@ -41,7 +45,7 @@ export function findCrossChunkReferences(options: FindCrossChunkReferencesOption
 			console.log("match!");
 			console.log({
 				exportedSymbol,
-				otherChunk: matchingSourceFileChunk,
+				otherSourceFileChunk,
 				currentChunk
 			});
 		}

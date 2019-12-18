@@ -10,6 +10,10 @@ export function findMatchingImportedSymbol(importedSymbol: ImportedSymbol, impor
 			if ("isNamespaceImport" in otherImportedSymbol && importedSymbol.name.text === otherImportedSymbol.name.text) {
 				return otherImportedSymbol;
 			}
+		} else if ("isClauseLessImport" in importedSymbol) {
+			if ("isClauseLessImport" in otherImportedSymbol) {
+				return otherImportedSymbol;
+			}
 		}
 
 		// Otherwise, their names, property names, and default import values must be equal
