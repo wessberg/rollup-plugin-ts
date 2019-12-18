@@ -6,11 +6,9 @@ import {ChunkToOriginalFileMap} from "../../../util/chunk/get-chunk-to-original-
 import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "./transformers/reference/cache/reference-cache";
 import {NodeIdentifierCache} from "./transformers/trace-identifiers/trace-identifiers";
 import {PreparePathsResult} from "../../../declaration/emit-declarations";
-import {SourceFileToExportedSymbolSet} from "./transformers/track-exports-transformer/track-exports-transformer-visitor-options";
+import {SourceFileToExportedSymbolSet} from "../cross-chunk-reference-tracker/transformers/track-exports-transformer/track-exports-transformer-visitor-options";
 import {SourceFileBundlerVisitorOptions} from "./transformers/source-file-bundler/source-file-bundler-visitor-options";
-import {SourceFileToImportedSymbolSet} from "./transformers/track-imports-transformer/track-imports-transformer-visitor-options";
-
-export type ChunkForModuleCache = Map<string, string | undefined>;
+import {SourceFileToImportedSymbolSet} from "../cross-chunk-reference-tracker/transformers/track-imports-transformer/track-imports-transformer-visitor-options";
 
 export type DeclarationTransformer = (options: SourceFileBundlerVisitorOptions) => TS.SourceFile;
 
@@ -20,6 +18,8 @@ export interface ChunkOptions {
 	entryModules: string[];
 	isEntry: boolean;
 }
+
+export type ModuleSpecifierToSourceFileMap = Map<string, TS.SourceFile>;
 
 export interface DeclarationBundlerOptions {
 	typescript: typeof TS;
@@ -33,9 +33,6 @@ export interface DeclarationBundlerOptions {
 	// A cache map between nodes and whether or not they are referenced
 	referenceCache: ReferenceCache;
 
-	// A cache between module names and the chunks that contain them
-	chunkForModuleCache: ChunkForModuleCache;
-
 	// A function that can resolve bare module specifiers
 	resolver: Resolver;
 	printer: TS.Printer;
@@ -48,6 +45,8 @@ export interface DeclarationBundlerOptions {
 	sourceFileToNodeToReferencedIdentifiersCache: SourceFileToNodeToReferencedIdentifiersCache;
 	sourceFileToImportedSymbolSet: SourceFileToImportedSymbolSet;
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
+	// A Map between module specifiers and the SourceFiles they point to
+	moduleSpecifierToSourceFileMap: ModuleSpecifierToSourceFileMap;
 
 	// Whether or not multiple chunks will be emitted
 	isMultiChunk: boolean;

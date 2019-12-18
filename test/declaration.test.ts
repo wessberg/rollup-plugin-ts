@@ -92,7 +92,7 @@ test("Flattens declarations. #3", async t => {
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]

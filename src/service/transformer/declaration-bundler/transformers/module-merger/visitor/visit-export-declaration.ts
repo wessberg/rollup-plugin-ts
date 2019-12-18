@@ -23,21 +23,17 @@ function generateExportDeclarations(
 
 		// If it is a NamespaceExport, we may need to recursively add all exports for the referenced SourceFiles
 		if ("isNamespaceExport" in symbol) {
+			// If no SourceFile was matched, add the Namespace Export directly.
 			// If the generated moduleSpecifier is null, that's because it is a self-reference, in which case the 'export *' declaration must be skipped
 			// in favor of all other named export bindings that will included anyway
-			if (generatedModuleSpecifier == null) {
-				continue;
-			}
-
-			// If no SourceFile was matched, add the Namespace Export directly.
-			if (matchingSourceFile == null) {
+			if (matchingSourceFile == null && generatedModuleSpecifier != null) {
 				exportDeclarations.push(
 					typescript.createExportDeclaration(undefined, undefined, undefined, typescript.createStringLiteral(generatedModuleSpecifier))
 				);
 			}
 
 			// Otherwise, recursively add all exports for the reexported module
-			else {
+			else if (matchingSourceFile != null) {
 				generateExportDeclarations(
 					{
 						...options,

@@ -1,8 +1,8 @@
 import {TS} from "../../../../../type/ts";
-import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
 import {visitNode} from "./visitor/visit-node";
+import {ModuleBlockExtractorOptions} from "./module-block-extractor-options";
 
-export function moduleBlockExtractor({typescript, context, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
+export function moduleBlockExtractor({typescript, context, ...options}: ModuleBlockExtractorOptions): TS.SourceFile {
 	if (options.pluginOptions.debug) {
 		console.log(`=== BEFORE EXTRACTING MODULE BLOCKS === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(options.sourceFile));

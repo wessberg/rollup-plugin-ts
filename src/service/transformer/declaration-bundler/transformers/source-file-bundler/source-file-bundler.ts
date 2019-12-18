@@ -2,7 +2,7 @@ import {DeclarationBundlerOptions, DeclarationTransformer} from "../../declarati
 import {TS} from "../../../../../type/ts";
 import {applyTransformers} from "../../util/apply-transformers";
 import {getChunkFilename} from "../../util/get-chunk-filename";
-import {SourceFileWithChunk} from "./source-file-bundler-visitor-options";
+import {SourceFileBundlerVisitorOptions} from "./source-file-bundler-visitor-options";
 import {formatLibReferenceDirective} from "../../util/merge-lib-reference-directives";
 import {formatTypeReferenceDirective} from "../../util/merge-type-reference-directives";
 
@@ -16,30 +16,18 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 				sourceFile => getChunkFilename({...options, fileName: sourceFile.fileName}) === options.chunk.paths.absolute
 			);
 
-			const moduleSpecifierToSourceFileMap = new Map<string, SourceFileWithChunk>();
-			bundle.sourceFiles.forEach(sourceFile => {
-				for (const statement of sourceFile.statements) {
-					if (options.typescript.isModuleDeclaration(statement)) {
-						const chunk = getChunkFilename({...options, fileName: sourceFile.fileName});
-						moduleSpecifierToSourceFileMap.set(statement.name.text, {
-							sourceFile,
-							chunk,
-							isSameChunk: chunk === options.chunk.paths.absolute
-						});
-					}
-				}
-			});
-
 			// Visit only the entry SourceFile(s)
 			const entrySourceFiles = sourceFilesForChunk.filter(sourceFile => options.chunk.entryModules.includes(sourceFile.fileName));
 			const nonEntrySourceFiles = sourceFilesForChunk.filter(sourceFile => !entrySourceFiles.includes(sourceFile));
 
-			for (const sourceFile of entrySourceFiles) {
+			for (let i = 0; i < entrySourceFiles.length; i++) {
+				const sourceFile = entrySourceFiles[i];
 				// Prepare some VisitorOptions
-				const visitorOptions = {
+				const visitorOptions: SourceFileBundlerVisitorOptions = {
 					...options,
 					context,
 					otherSourceFiles: sourceFilesForChunk.filter(otherSourceFile => otherSourceFile !== sourceFile),
+					isLastSourceFileForChunk: i === entrySourceFiles.length - 1,
 					sourceFile,
 					lexicalEnvironment: {
 						parent: undefined,
@@ -48,8 +36,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 					includedSourceFiles: new WeakSet<TS.SourceFile>(),
 					declarationToDeconflictedBindingMap: new Map<number, string>(),
 					nodeToOriginalSymbolMap: new Map<TS.Node, TS.Symbol>(),
-					preservedImports: new Map(),
-					moduleSpecifierToSourceFileMap
+					preservedImports: new Map()
 				};
 
 				updatedSourceFiles.push(applyTransformers({visitorOptions, transformers}));

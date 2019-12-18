@@ -1,14 +1,8 @@
 import {TS} from "../../../../../type/ts";
 import {DeclarationBundlerOptions} from "../../declaration-bundler-options";
 import {LexicalEnvironment} from "../deconflicter/deconflicter-options";
-import {SourceFileToExportedSymbolSet} from "../track-exports-transformer/track-exports-transformer-visitor-options";
-import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options";
-
-export interface SourceFileWithChunk {
-	sourceFile: TS.SourceFile;
-	chunk: string | undefined;
-	isSameChunk: boolean;
-}
+import {SourceFileToExportedSymbolSet} from "../../../cross-chunk-reference-tracker/transformers/track-exports-transformer/track-exports-transformer-visitor-options";
+import {ImportedSymbol} from "../../../cross-chunk-reference-tracker/transformers/track-imports-transformer/track-imports-transformer-visitor-options";
 
 export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptions {
 	context: TS.TransformationContext;
@@ -16,6 +10,7 @@ export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptio
 	otherSourceFiles: TS.SourceFile[];
 	lexicalEnvironment: LexicalEnvironment;
 	includedSourceFiles: WeakSet<TS.SourceFile>;
+	isLastSourceFileForChunk: boolean;
 
 	// Declarations are represented by IDs which are mapped a string, indicating the deconflicted names for them
 	declarationToDeconflictedBindingMap: Map<number, string>;
@@ -25,6 +20,4 @@ export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptio
 	nodeToOriginalSymbolMap: Map<TS.Node, TS.Symbol>;
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
 	preservedImports: Map<string, Set<ImportedSymbol>>;
-	// A Map between module specifiers and the SourceFiles they point to
-	moduleSpecifierToSourceFileMap: Map<string, SourceFileWithChunk>;
 }

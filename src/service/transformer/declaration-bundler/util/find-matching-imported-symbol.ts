@@ -1,4 +1,4 @@
-import {ImportedSymbol} from "../transformers/track-imports-transformer/track-imports-transformer-visitor-options";
+import {ImportedSymbol} from "../../cross-chunk-reference-tracker/transformers/track-imports-transformer/track-imports-transformer-visitor-options";
 
 export function findMatchingImportedSymbol(importedSymbol: ImportedSymbol, importedSymbols: Iterable<ImportedSymbol>): ImportedSymbol | undefined {
 	for (const otherImportedSymbol of importedSymbols) {

@@ -14,7 +14,6 @@ import {getChunkToOriginalFileMap} from "../util/chunk/get-chunk-to-original-fil
 import {basename, dirname, join, nativeNormalize, normalize, relative, setExtension} from "../util/path/path-util";
 import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION, ROLLUP_PLUGIN_MULTI_ENTRY} from "../constant/constant";
 import {bundleDeclarationsForChunk} from "./bundle-declarations-for-chunk";
-import {ChunkForModuleCache} from "../service/transformer/declaration-bundler/declaration-bundler-options";
 import {
 	ReferenceCache,
 	SourceFileToNodeToReferencedIdentifiersCache
@@ -75,29 +74,27 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 	const generateMap = Boolean(options.compilerOptions.declarationMap);
 	const sourceFileToNodeToReferencedIdentifiersCache: SourceFileToNodeToReferencedIdentifiersCache = new Map();
 	const nodeIdentifierCache: NodeIdentifierCache = new Map();
-	const chunkForModuleCache: ChunkForModuleCache = new Map();
 	const referenceCache: ReferenceCache = new Map();
 	const printer = typescript.createPrinter({newLine: options.compilerOptions.newLine});
 
 	const trackCrossChunkReferencesResult = trackCrossChunkReferences({
 		...options,
 		typescript,
+		printer,
 		nodeIdentifierCache,
 		chunks
 	});
 
 	const mergeChunksResult = mergeChunksWithAmbientDependencies(chunks, trackCrossChunkReferencesResult.moduleDependencyMap);
 	const chunkToOriginalFileMap = getChunkToOriginalFileMap(absoluteOutDir, mergeChunksResult);
-	console.log(chunks);
-	console.log(chunkToOriginalFileMap);
 
 	const sharedOptions = {
 		...options,
+		...trackCrossChunkReferencesResult,
 		typescript,
 		chunkToOriginalFileMap,
 		generateMap,
 		nodeIdentifierCache,
-		chunkForModuleCache,
 		printer,
 		referenceCache,
 		sourceFileToNodeToReferencedIdentifiersCache,
@@ -162,14 +159,6 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		emitFileDeclarationFilename = nativeNormalize(emitFileDeclarationFilename);
 		emitFileDeclarationMapFilename = nativeNormalize(emitFileDeclarationMapFilename);
 
-		console.log({
-			chunkPaths,
-			declarationPaths,
-			declarationMapPaths,
-			emitFileDeclarationFilename,
-			emitFileDeclarationMapFilename
-		});
-
 		const rawLocalModuleNames = chunk.modules;
 		const modules = rawLocalModuleNames.filter(options.canEmitForFile);
 		const rawEntryFileName = rawLocalModuleNames.slice(-1)[0];
@@ -188,7 +177,6 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 
 		const bundleResult = bundleDeclarationsForChunk({
 			...sharedOptions,
-			...trackCrossChunkReferencesResult,
 			chunk: {
 				paths: chunkPaths,
 				isEntry: chunk.isEntry,

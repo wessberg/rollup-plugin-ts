@@ -1,5 +1,5 @@
 import {TS} from "../../../../../type/ts";
-import {NodeIdentifierCache} from "../trace-identifiers/trace-identifiers";
+import {NodeIdentifierCache} from "../../../declaration-bundler/transformers/trace-identifiers/trace-identifiers";
 import {Resolver} from "../../../../../util/resolve-id/resolver";
 
 export interface ImportedSymbolBase {

@@ -1,8 +1,8 @@
 import {TS} from "../../../../../../type/ts";
 import {TrackExportsTransformerVisitorOptions} from "../track-exports-transformer-visitor-options";
-import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers";
-import {hasExportModifier} from "../../../util/modifier-util";
-import {traceIdentifiers} from "../../trace-identifiers/trace-identifiers";
+import {createExportSpecifierFromNameAndModifiers} from "../../../../declaration-bundler/util/create-export-specifier-from-name-and-modifiers";
+import {hasExportModifier} from "../../../../declaration-bundler/util/modifier-util";
+import {traceIdentifiers} from "../../../../declaration-bundler/transformers/trace-identifiers/trace-identifiers";
 
 export function visitVariableStatement({
 	node,

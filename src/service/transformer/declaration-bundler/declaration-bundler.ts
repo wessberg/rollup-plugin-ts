@@ -4,12 +4,11 @@ import {sourceFileBundler} from "./transformers/source-file-bundler/source-file-
 import {moduleMerger} from "./transformers/module-merger/module-merger";
 import {deconflicter} from "./transformers/deconflicter/deconflicter";
 import {ensureDeclareModifierTransformer} from "./transformers/ensure-declare-modifier-transformer/ensure-declare-modifier-transformer";
-import {moduleBlockExtractor} from "./transformers/module-block-extractor/module-block-extractor";
+import {moduleBlockExtractor} from "../common/transformers/module-block-extractor/module-block-extractor";
 import {treeShaker} from "./transformers/tree-shaker/tree-shaker";
 import {statementMerger} from "./transformers/statement-merger/statement-merger";
 import {toExportDeclarationTransformer} from "./transformers/to-export-declaration-transformer/to-export-declaration-transformer";
 import {ensureNoExportModifierTransformer} from "./transformers/ensure-no-export-modifier-transformer/ensure-no-export-modifier-transformer";
-import {trackExportsTransformer} from "./transformers/track-exports-transformer/track-exports-transformer";
 import {noExportDeclarationTransformer} from "./transformers/no-export-declaration-transformer/no-export-declaration-transformer";
 
 /**
@@ -27,8 +26,6 @@ export function declarationBundler(options: DeclarationBundlerOptions): TS.Custo
 				moduleMerger(
 					// Merge modules inside the entry module(s),
 					moduleBlockExtractor,
-					// Tracks export modifiers and ExportDeclarations
-					trackExportsTransformer,
 					// Removes 'export' modifiers from Nodes
 					ensureNoExportModifierTransformer,
 					// Removes ExportDeclarations and ExportAssignments
@@ -36,9 +33,6 @@ export function declarationBundler(options: DeclarationBundlerOptions): TS.Custo
 					// Ensure that nodes that require it have the 'declare' modifier
 					ensureDeclareModifierTransformer
 				),
-
-				// Tracks export modifiers and ExportDeclarations
-				trackExportsTransformer,
 
 				// Generate ExportDeclarations where 'export' modifiers are otherwise being used
 				toExportDeclarationTransformer,

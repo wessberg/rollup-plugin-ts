@@ -1,14 +1,14 @@
 import {TS} from "../../../../../../type/ts";
 import {TrackExportsTransformerVisitorOptions} from "../track-exports-transformer-visitor-options";
-import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers";
-import {hasExportModifier} from "../../../util/modifier-util";
+import {createExportSpecifierFromNameAndModifiers} from "../../../../declaration-bundler/util/create-export-specifier-from-name-and-modifiers";
+import {hasExportModifier} from "../../../../declaration-bundler/util/modifier-util";
 
-export function visitInterfaceDeclaration({
+export function visitEnumDeclaration({
 	node,
 	typescript,
 	markAsExported,
 	...options
-}: TrackExportsTransformerVisitorOptions<TS.InterfaceDeclaration>): void {
+}: TrackExportsTransformerVisitorOptions<TS.EnumDeclaration>): void {
 	// If the node has no export modifier, leave it as it is
 	if (!hasExportModifier(node, typescript)) return;
 

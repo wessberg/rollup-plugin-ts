@@ -2,13 +2,13 @@ import {
 	NamedExportedSymbol,
 	NamespaceExportedSymbol,
 	SourceFileToExportedSymbolSet
-} from "../transformers/track-exports-transformer/track-exports-transformer-visitor-options";
-import {SourceFileWithChunk} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
+} from "../../cross-chunk-reference-tracker/transformers/track-exports-transformer/track-exports-transformer-visitor-options";
+import {ModuleSpecifierToSourceFileMap} from "../declaration-bundler-options";
 
 export interface LocateExportedSymbolContext {
 	sourceFile: string;
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
-	moduleSpecifierToSourceFileMap: Map<string, SourceFileWithChunk>;
+	moduleSpecifierToSourceFileMap: ModuleSpecifierToSourceFileMap;
 }
 
 export interface LocateExportedSymbolOptionsBase {
@@ -93,13 +93,9 @@ export function locateExportedSymbolForSourceFile(
 			for (const namespaceExport of exportedSymbolsArr.filter(
 				(exportedSymbol): exportedSymbol is NamespaceExportedSymbol => "isNamespaceExport" in exportedSymbol
 			)) {
-				const sourceFileWithChunk = context.moduleSpecifierToSourceFileMap.get(namespaceExport.moduleSpecifier);
-				if (sourceFileWithChunk != null && !seenSourceFiles.has(sourceFileWithChunk.sourceFile.fileName)) {
-					const recursiveResult = locateExportedSymbolForSourceFile(
-						options,
-						{...context, sourceFile: sourceFileWithChunk.sourceFile.fileName},
-						seenSourceFiles
-					);
+				const sourceFile = context.moduleSpecifierToSourceFileMap.get(namespaceExport.moduleSpecifier);
+				if (sourceFile != null && !seenSourceFiles.has(sourceFile.fileName)) {
+					const recursiveResult = locateExportedSymbolForSourceFile(options, {...context, sourceFile: sourceFile.fileName}, seenSourceFiles);
 					if (recursiveResult != null) return recursiveResult;
 				}
 			}
