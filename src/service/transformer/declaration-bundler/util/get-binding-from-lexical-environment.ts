@@ -9,16 +9,3 @@ export function getBindingFromLexicalEnvironment(lexicalEnvironment: LexicalEnvi
 		return undefined;
 	}
 }
-
-export function getReverseBindingFromLexicalEnvironment(lexicalEnvironment: LexicalEnvironment, value: string): string | undefined {
-	for (const [key, boundValue] of lexicalEnvironment.bindings) {
-		if (boundValue === value) {
-			return key;
-		}
-	}
-	if (lexicalEnvironment.parent != null) {
-		return getReverseBindingFromLexicalEnvironment(lexicalEnvironment.parent, value);
-	} else {
-		return undefined;
-	}
-}

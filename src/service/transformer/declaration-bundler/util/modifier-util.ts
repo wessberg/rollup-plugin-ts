@@ -10,13 +10,6 @@ export function hasExportModifier(node: TS.Node, typescript: typeof TS): boolean
 }
 
 /**
- * Returns true if the given node has a Const keyword in front of it
- */
-export function hasConstModifier(node: TS.Node, typescript: typeof TS): boolean {
-	return node.modifiers != null && node.modifiers.some(modifier => isConstModifier(modifier, typescript));
-}
-
-/**
  * Returns true if the given node has an Declare keyword in front of it
  */
 export function hasDeclareModifier(node: TS.Node, typescript: typeof TS): boolean {
@@ -57,16 +50,6 @@ export function isDeclareModifier(node: TS.Modifier, typescript: typeof TS): boo
 export function removeExportModifier(modifiers: Modifiers | undefined, typescript: typeof TS): TS.Modifier[] | undefined {
 	if (modifiers == null) return modifiers;
 	return modifiers.filter(modifier => !isExportModifier(modifier, typescript) && !isDefaultModifier(modifier, typescript));
-}
-
-/**
- * Removes an export and/or declare modifier from the given ModifiersArray
- */
-export function removeExportAndDeclareModifiers(modifiers: Modifiers | undefined, typescript: typeof TS): TS.Modifier[] | undefined {
-	if (modifiers == null) return modifiers;
-	return modifiers.filter(
-		modifier => !isExportModifier(modifier, typescript) && !isDefaultModifier(modifier, typescript) && !isDeclareModifier(modifier, typescript)
-	);
 }
 
 /**

@@ -21,6 +21,7 @@ import {
 import {NodeIdentifierCache} from "../service/transformer/declaration-bundler/transformers/trace-identifiers/trace-identifiers";
 import {trackCrossChunkReferences} from "./track-cross-chunk-references";
 import {normalizeChunk} from "../util/chunk/normalize-chunk";
+import {shouldDebugEmit} from "../util/is-debug/should-debug";
 
 export interface EmitDeclarationsOptions {
 	resolver: Resolver;
@@ -77,16 +78,44 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 	const referenceCache: ReferenceCache = new Map();
 	const printer = typescript.createPrinter({newLine: options.compilerOptions.newLine});
 
+	let virtualOutFile = preparePaths({
+		fileName: setExtension("index.js", DECLARATION_EXTENSION),
+		relativeOutDir: relativeDeclarationOutDir,
+		absoluteOutDir: absoluteDeclarationOutDir
+	});
+
+	// Rewrite the virtual out file if a hook is provided
+	if (options.pluginOptions.hook.outputPath != null) {
+		const result = options.pluginOptions.hook.outputPath(virtualOutFile.absolute, "declaration");
+
+		if (result != null) {
+			virtualOutFile = preparePaths({
+				fileName: basename(result),
+				relativeOutDir: relative(options.cwd, dirname(result)),
+				absoluteOutDir: dirname(result)
+			});
+		}
+	}
+
 	const trackCrossChunkReferencesResult = trackCrossChunkReferences({
 		...options,
 		typescript,
 		printer,
 		nodeIdentifierCache,
-		chunks
+		chunks,
+		virtualOutFile
 	});
 
-	const mergeChunksResult = mergeChunksWithAmbientDependencies(chunks, trackCrossChunkReferencesResult.moduleDependencyMap);
-	const chunkToOriginalFileMap = getChunkToOriginalFileMap(absoluteOutDir, mergeChunksResult);
+	const mergedChunks = mergeChunksWithAmbientDependencies(chunks, trackCrossChunkReferencesResult.moduleDependencyMap, options.languageServiceHost);
+	const chunkToOriginalFileMap = getChunkToOriginalFileMap(absoluteOutDir, mergedChunks);
+
+	const allModules = new Set<string>();
+
+	for (const chunk of mergedChunks) {
+		for (const module of chunk.modules) {
+			allModules.add(module);
+		}
+	}
 
 	const sharedOptions = {
 		...options,
@@ -98,10 +127,10 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		printer,
 		referenceCache,
 		sourceFileToNodeToReferencedIdentifiersCache,
-		isMultiChunk: mergeChunksResult.mergedChunks.length > 1
+		isMultiChunk: mergedChunks.length > 1
 	};
 
-	for (const chunk of mergeChunksResult.mergedChunks) {
+	for (const chunk of mergedChunks) {
 		const chunkPaths = preparePaths({
 			fileName: normalize(chunk.fileName),
 			relativeOutDir: getOutDir(options.cwd, options.outputOptions),
@@ -178,14 +207,20 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		const bundleResult = bundleDeclarationsForChunk({
 			...sharedOptions,
 			chunk: {
+				allModules,
 				paths: chunkPaths,
 				isEntry: chunk.isEntry,
-				modules,
-				entryModules
+				modules: new Set(modules),
+				entryModules: new Set(entryModules)
 			},
 			declarationPaths,
 			declarationMapPaths
 		});
+
+		if (shouldDebugEmit(options.pluginOptions.debug, emitFileDeclarationFilename, bundleResult.code, "declaration")) {
+			console.log(`=== Emitting ${emitFileDeclarationFilename} ===`);
+			console.log(bundleResult.code);
+		}
 
 		// Now, add the declarations as an asset
 		options.pluginContext.emitFile({
@@ -196,6 +231,11 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 
 		// If there is a SourceMap for the declarations, add that asset too
 		if (bundleResult.map != null) {
+			if (shouldDebugEmit(options.pluginOptions.debug, emitFileDeclarationMapFilename, bundleResult.map.toString(), "declarationMap")) {
+				console.log(`=== Emitting ${emitFileDeclarationMapFilename} ===`);
+				console.log(bundleResult.map);
+			}
+
 			options.pluginContext.emitFile({
 				type: "asset",
 				source: bundleResult.map.toString(),

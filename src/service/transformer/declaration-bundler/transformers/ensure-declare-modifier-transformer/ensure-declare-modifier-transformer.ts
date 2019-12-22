@@ -1,9 +1,10 @@
 import {TS} from "../../../../../type/ts";
 import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
 import {visitNode} from "./visitor/visit-node";
+import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
 
 export function ensureDeclareModifierTransformer({typescript, context, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
-	if (options.pluginOptions.debug) {
+	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
 		console.log(`=== BEFORE ENSURING DECLARE MODIFIERS === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(options.sourceFile));
 	}
@@ -34,7 +35,7 @@ export function ensureDeclareModifierTransformer({typescript, context, ...option
 
 	const result = typescript.visitEachChild(options.sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
 
-	if (options.pluginOptions.debug) {
+	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
 		console.log(`=== AFTER ENSURING DECLARE MODIFIERS === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(result));
 	}

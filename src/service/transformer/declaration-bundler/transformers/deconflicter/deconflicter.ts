@@ -29,6 +29,7 @@ import {deconflictTypeParameterDeclaration} from "./visitor/deconflict-type-para
 import {deconflictVariableDeclaration} from "./visitor/deconflict-variable-declaration";
 import {ContinuationOptions} from "./deconflicter-options";
 import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
+import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
 
 /**
  * Deconflicts the given Node. Everything but LValues will be updated here
@@ -98,7 +99,7 @@ function deconflictNode({node, ...options}: DeconflicterVisitorOptions<TS.Node>)
  * Deconflicts local bindings
  */
 export function deconflicter({typescript, context, lexicalEnvironment, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
-	if (options.pluginOptions.debug) {
+	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
 		console.log(`=== BEFORE DECONFLICTING === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(options.sourceFile));
 	}
@@ -131,7 +132,7 @@ export function deconflicter({typescript, context, lexicalEnvironment, ...option
 
 	const result = typescript.visitEachChild(options.sourceFile, nextNode => visitorOptions.continuation(nextNode, {lexicalEnvironment}), context);
 
-	if (options.pluginOptions.debug) {
+	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
 		console.log(`=== AFTER DECONFLICTING === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(result));
 	}

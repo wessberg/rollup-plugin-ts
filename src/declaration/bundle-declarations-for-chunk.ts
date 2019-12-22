@@ -17,7 +17,7 @@ export function bundleDeclarationsForChunk(options: BundleDeclarationsForChunkOp
 	const {outDir, ...compilationSettings} = options.languageServiceHost.getCompilationSettings();
 
 	const program = options.typescript.createProgram({
-		rootNames: options.chunk.modules,
+		rootNames: [...options.chunk.allModules],
 		options: {
 			...compilationSettings,
 			outFile: setExtension(options.declarationPaths.relative, JS_EXTENSION),
@@ -45,11 +45,6 @@ export function bundleDeclarationsForChunk(options: BundleDeclarationsForChunkOp
 			typeChecker
 		})
 	);
-
-	if (options.pluginOptions.debug && map != null) {
-		console.log(`=== MAP === (${options.chunk.paths.absolute})`);
-		console.log(map);
-	}
 
 	return {
 		code,

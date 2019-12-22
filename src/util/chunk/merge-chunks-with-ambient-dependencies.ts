@@ -1,110 +1,102 @@
 import {NormalizedChunk} from "./normalize-chunk";
 import {ModuleDependencyMap} from "../../declaration/track-cross-chunk-references";
+import {getChunkForModule} from "../../service/transformer/declaration-bundler/util/get-chunk-filename";
+import {basename, stripKnownExtension} from "../path/path-util";
+import {generateRandomHash} from "../hash/generate-random-hash";
+import {IncrementalLanguageService} from "../../service/language-service/incremental-language-service";
 
 export interface MergeChunksWithAmbientDependenciesResult {
 	mergedChunks: NormalizedChunk[];
 	ambientModules: Set<string>;
 }
 
-function getChunksWithModule(moduleName: string, chunks: Iterable<NormalizedChunk>): Set<NormalizedChunk> {
-	const chunksWithModule = new Set<NormalizedChunk>();
-	// Test how many chunks include the module
-	for (const chunk of chunks) {
-		if (chunk.modules.includes(moduleName)) {
-			chunksWithModule.add(chunk);
-		}
-	}
-
-	return chunksWithModule;
+function createCommonChunk(module: string, code: string): NormalizedChunk {
+	return {
+		fileName: `${stripKnownExtension(basename(module))}-${generateRandomHash({key: code})}.js`,
+		modules: [module],
+		isEntry: false
+	};
 }
 
-function splitAmbientModule(moduleName: string, chunks: Iterable<NormalizedChunk>): void {
-	const chunksWithModule = getChunksWithModule(moduleName, chunks);
+function ensureChunkForModule(module: string, code: string, chunks: NormalizedChunk[], moduleDependencyMap: ModuleDependencyMap): NormalizedChunk {
+	let chunk = getChunkForModule(module, chunks);
+	const [firstChunk] = chunks;
 
-	// Not more than 1 chunk can contain the module.
-	// We'll have to move it over to another chunk that is common
-	// between the two, if there is any.
-	if (chunksWithModule.size > 1) {
-		for (const chunk of chunksWithModule) {
-			if (chunk.isEntry) {
-				chunk.modules.splice(chunk.modules.indexOf(moduleName), 1);
-				return splitAmbientModule(moduleName, chunks);
+	if (chunk == null) {
+		if (chunks.length === 1) {
+			firstChunk.modules.unshift(module);
+			return firstChunk;
+		} else {
+			// Find all modules that refer to this module.
+			const referencingModules = [...moduleDependencyMap.entries()]
+				.filter(([, dependencies]) => dependencies.has(module))
+				.map(([otherModule]) => otherModule);
+			// Find all chunks for the referencing modules
+			const [firstReferencingChunk, ...otherReferencingChunks] = new Set(
+				referencingModules.map(referencingModule => getChunkForModule(referencingModule, chunks))
+			);
+
+			// If only 1 chunk is matched, use that one
+			if (firstReferencingChunk != null && otherReferencingChunks.length === 0) {
+				firstReferencingChunk.modules.unshift(module);
+				return firstReferencingChunk;
+			}
+
+			// Otherwise, create a new chunk
+			else {
+				chunk = createCommonChunk(module, code);
+				chunks.push(chunk);
+				return chunk;
 			}
 		}
-
-		// If we came this far, none of the chunks are entry chunks, but still the module is scattered across them.
-		// In these cases, leave the module inside the first chunk
-		const [, ...otherChunks] = chunksWithModule;
-		for (const chunk of otherChunks) {
-			chunk.modules.splice(chunk.modules.indexOf(moduleName), 1);
-		}
-	}
-}
-
-function splitAmbientModules(chunks: NormalizedChunk[], ambientModules: Set<string>) {
-	for (const chunk of chunks) {
-		for (const module of chunk.modules) {
-			if (ambientModules.has(module)) {
-				splitAmbientModule(module, chunks);
-				const chunksWithModule = getChunksWithModule(module, chunks);
-
-				if (chunksWithModule.size < 1) {
-					throw new RangeError(`Expected module: '${module}' to exist within a chunk, but was found under none`);
-				} else if (chunksWithModule.size !== 1) {
-					throw new RangeError(
-						`Expected module: '${module}' to exist within only chunk, but was found under chunks: ${[...chunksWithModule]
-							.map(c => `'${c.fileName}'`)
-							.join(",")}`
-					);
-				}
-			}
-		}
+	} else {
+		return chunk;
 	}
 }
 
 export function mergeChunksWithAmbientDependencies(
 	chunks: NormalizedChunk[],
-	...moduleDependencyMaps: ModuleDependencyMap[]
-): MergeChunksWithAmbientDependenciesResult {
-	const ambientModules = new Set<string>();
-	const mergedChunks: NormalizedChunk[] = JSON.parse(JSON.stringify(chunks));
+	moduleDependencyMap: ModuleDependencyMap,
+	languageServiceHost: IncrementalLanguageService
+): NormalizedChunk[] {
+	const clonedChunks = JSON.parse(JSON.stringify(chunks)) as NormalizedChunk[];
+	const dependencyToModulesMap: Map<string, Set<string>> = new Map();
 
-	// Find ambient chunks that will be placed inside of shared chunks
-
-	const allRollupChunkModules = new Set<string>();
-	for (const chunk of mergedChunks) {
-		for (const module of chunk.modules) {
-			allRollupChunkModules.add(module);
+	for (const [module, dependencies] of moduleDependencyMap.entries()) {
+		for (const dependency of dependencies) {
+			let modulesForDependency = dependencyToModulesMap.get(dependency);
+			if (modulesForDependency == null) {
+				modulesForDependency = new Set();
+				dependencyToModulesMap.set(dependency, modulesForDependency);
+			}
+			modulesForDependency.add(module);
 		}
 	}
 
-	for (const moduleDependencyMap of moduleDependencyMaps) {
-		for (const modules of moduleDependencyMap.values()) {
-			for (const module of modules) {
-				if (!allRollupChunkModules.has(module)) {
-					ambientModules.add(module);
-				}
-			}
-		}
+	for (const [dependency, modulesForDependency] of dependencyToModulesMap.entries()) {
+		const chunkWithDependency = ensureChunkForModule(
+			dependency,
+			languageServiceHost.getSourceFile(dependency)!.text,
+			clonedChunks,
+			moduleDependencyMap
+		);
 
-		for (const [entry, moduleDependencies] of moduleDependencyMap.entries()) {
-			for (let i = 0; i < mergedChunks.length; i++) {
-				const chunk = mergedChunks[i];
-				const entryIndex = chunk.modules.indexOf(entry);
-				if (entryIndex < 0) continue;
+		const chunksForModulesForDependency = new Set<NormalizedChunk>(
+			[...modulesForDependency].map(
+				moduleForDependency =>
+					ensureChunkForModule(moduleForDependency, languageServiceHost.getSourceFile(dependency)!.text, clonedChunks, moduleDependencyMap)!
+			)
+		);
 
-				for (const dependency of [...moduleDependencies]
-					.reverse()
-					.filter(moduleDependency => ambientModules.has(moduleDependency) && !chunk.modules.includes(moduleDependency))) {
-					chunk.modules.splice(entryIndex, 0, dependency);
-				}
+		// If the modules that refer to the dependency are divided across multiple chunks, and one of those chunks contain the dependency,
+		// move it into its own chunk
+		if (chunksForModulesForDependency.size > 1) {
+			const containingChunk = [...chunksForModulesForDependency].find(chunkForModuleDependency => chunkForModuleDependency === chunkWithDependency);
+			if (containingChunk != null) {
+				containingChunk.modules.splice(containingChunk.modules.indexOf(dependency), 1);
+				clonedChunks.push(createCommonChunk(dependency, languageServiceHost.getSourceFile(dependency)!.text));
 			}
 		}
 	}
-
-	splitAmbientModules(mergedChunks, ambientModules);
-	return {
-		mergedChunks,
-		ambientModules
-	};
+	return clonedChunks;
 }

@@ -4,10 +4,11 @@ import {StatementMergerVisitorOptions} from "./statement-merger-visitor-options"
 import {visitNode} from "./visitor/visit-node";
 import {getMergedImportDeclarationsForModules} from "../../util/get-merged-import-declarations-for-modules";
 import {getMergedExportDeclarationsForModules} from "../../util/get-merged-export-declarations-for-modules";
+import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
 
 export function statementMerger(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
 	const {typescript, context, sourceFile} = options;
-	if (options.pluginOptions.debug) {
+	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
 		console.log(`=== BEFORE STATEMENT MERGING === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(options.sourceFile));
 	}
@@ -75,7 +76,7 @@ export function statementMerger(options: SourceFileBundlerVisitorOptions): TS.So
 		result.libReferenceDirectives
 	);
 
-	if (options.pluginOptions.debug) {
+	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
 		console.log(`=== AFTER STATEMENT MERGING === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(result));
 	}

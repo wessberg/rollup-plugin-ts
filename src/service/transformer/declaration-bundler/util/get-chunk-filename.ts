@@ -1,11 +1,22 @@
 import {extname, join, setExtension} from "../../../../util/path/path-util";
 import {SupportedExtensions} from "../../../../util/get-supported-extensions/get-supported-extensions";
 import {ChunkToOriginalFileMap} from "../../../../util/chunk/get-chunk-to-original-file-map";
+import {NormalizedChunk} from "../../../../util/chunk/normalize-chunk";
 
 export interface GetChunkFilenameOptions {
 	fileName: string;
 	supportedExtensions: SupportedExtensions;
 	chunkToOriginalFileMap: ChunkToOriginalFileMap;
+}
+
+export function getChunkForModule(module: string, chunks: NormalizedChunk[]): NormalizedChunk | undefined {
+	for (const chunk of chunks) {
+		if (chunk.modules.includes(module)) {
+			return chunk;
+		}
+	}
+
+	return undefined;
 }
 
 /**

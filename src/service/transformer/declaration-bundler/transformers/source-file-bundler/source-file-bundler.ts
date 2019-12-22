@@ -3,8 +3,8 @@ import {TS} from "../../../../../type/ts";
 import {applyTransformers} from "../../util/apply-transformers";
 import {getChunkFilename} from "../../util/get-chunk-filename";
 import {SourceFileBundlerVisitorOptions} from "./source-file-bundler-visitor-options";
-import {formatLibReferenceDirective} from "../../util/merge-lib-reference-directives";
-import {formatTypeReferenceDirective} from "../../util/merge-type-reference-directives";
+import {formatLibReferenceDirective} from "../../util/format-lib-reference-directive";
+import {formatTypeReferenceDirective} from "../../util/format-type-reference-directive";
 
 export function sourceFileBundler(options: DeclarationBundlerOptions, ...transformers: DeclarationTransformer[]): TS.TransformerFactory<TS.Bundle> {
 	return context => {
@@ -17,7 +17,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 			);
 
 			// Visit only the entry SourceFile(s)
-			const entrySourceFiles = sourceFilesForChunk.filter(sourceFile => options.chunk.entryModules.includes(sourceFile.fileName));
+			const entrySourceFiles = sourceFilesForChunk.filter(sourceFile => options.chunk.entryModules.has(sourceFile.fileName));
 			const nonEntrySourceFiles = sourceFilesForChunk.filter(sourceFile => !entrySourceFiles.includes(sourceFile));
 
 			for (let i = 0; i < entrySourceFiles.length; i++) {
@@ -27,7 +27,6 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 					...options,
 					context,
 					otherSourceFiles: sourceFilesForChunk.filter(otherSourceFile => otherSourceFile !== sourceFile),
-					isLastSourceFileForChunk: i === entrySourceFiles.length - 1,
 					sourceFile,
 					lexicalEnvironment: {
 						parent: undefined,

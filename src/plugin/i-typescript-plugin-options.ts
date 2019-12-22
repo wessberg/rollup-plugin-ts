@@ -5,6 +5,23 @@ import {TS} from "../type/ts";
 
 export type Transpiler = "typescript" | "babel";
 
+export interface DebugTransformerData {
+	kind: "transformer";
+	fileName: string;
+	text: string;
+}
+
+export interface DebugEmitData {
+	kind: "emit";
+	fileName: string;
+	text: string;
+	fileKind: OutputPathKind;
+}
+
+export type DebugData = DebugTransformerData | DebugEmitData;
+
+export type DebugOptionCallback = (data: DebugData) => boolean;
+
 export interface IBrowserslistPathConfig {
 	path: string;
 }
@@ -57,7 +74,7 @@ export interface ITypescriptPluginBaseOptions {
 	transpileOnly?: boolean;
 	fileSystem: FileSystem;
 	hook: Partial<HookRecord>;
-	debug: boolean;
+	debug: boolean | DebugOptionCallback;
 	typescript: typeof TS;
 }
 

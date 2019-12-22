@@ -1,11 +1,11 @@
-import {MergeChunksWithAmbientDependenciesResult} from "./merge-chunks-with-ambient-dependencies";
 import {join} from "../path/path-util";
+import {NormalizedChunk} from "./normalize-chunk";
 
 export type ChunkToOriginalFileMap = Map<string, string[]>;
 
-export function getChunkToOriginalFileMap(outDir: string, {mergedChunks}: MergeChunksWithAmbientDependenciesResult): ChunkToOriginalFileMap {
+export function getChunkToOriginalFileMap(outDir: string, chunks: NormalizedChunk[]): ChunkToOriginalFileMap {
 	return new Map(
-		mergedChunks.map(chunk => {
+		chunks.map(chunk => {
 			return [join(outDir, chunk.fileName), chunk.modules];
 		})
 	);

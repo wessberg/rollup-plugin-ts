@@ -3,9 +3,10 @@ import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-fil
 import {visitNode} from "./visitor/visit-node";
 import {getNodePlacementQueue} from "../../util/get-node-placement-queue";
 import {NoExportDeclarationTransformerVisitorOptions} from "./no-export-declaration-transformer-visitor-options";
+import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
 
 export function noExportDeclarationTransformer({typescript, context, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
-	if (options.pluginOptions.debug) {
+	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
 		console.log(`=== BEFORE REMOVING EXPORT DECLARATIONS === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(options.sourceFile));
 	}
@@ -43,7 +44,7 @@ export function noExportDeclarationTransformer({typescript, context, ...options}
 
 	const result = typescript.visitEachChild(options.sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
 
-	if (options.pluginOptions.debug) {
+	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
 		console.log(`=== AFTER REMOVING EXPORT DECLARATIONS === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(result));
 	}

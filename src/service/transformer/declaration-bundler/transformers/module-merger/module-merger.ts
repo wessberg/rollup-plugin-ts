@@ -7,7 +7,6 @@ import {getNodePlacementQueue} from "../../util/get-node-placement-queue";
 import {findMatchingImportedSymbol} from "../../util/find-matching-imported-symbol";
 import {cloneNodeWithSymbols} from "../../util/clone-node-with-symbols";
 import {ImportedSymbol} from "../../../cross-chunk-reference-tracker/transformers/track-imports-transformer/track-imports-transformer-visitor-options";
-import {findCrossChunkReferences} from "../../util/find-cross-chunk-references";
 import {getChunkFilename} from "../../util/get-chunk-filename";
 
 export function moduleMerger(...transformers: DeclarationTransformer[]): DeclarationTransformer {
@@ -93,10 +92,6 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 		};
 
 		const result = visitorOptions.childContinuation(options.sourceFile, undefined);
-
-		if (options.isLastSourceFileForChunk) {
-			findCrossChunkReferences({...options, from: result});
-		}
 
 		// There may be prepended or appended nodes that hasn't been added yet. Do so!
 		const [missingPrependNodes, missingAppendNodes] = nodePlacementQueue.flush();

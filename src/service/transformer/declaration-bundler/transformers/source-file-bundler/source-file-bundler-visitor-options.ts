@@ -10,7 +10,6 @@ export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptio
 	otherSourceFiles: TS.SourceFile[];
 	lexicalEnvironment: LexicalEnvironment;
 	includedSourceFiles: WeakSet<TS.SourceFile>;
-	isLastSourceFileForChunk: boolean;
 
 	// Declarations are represented by IDs which are mapped a string, indicating the deconflicted names for them
 	declarationToDeconflictedBindingMap: Map<number, string>;

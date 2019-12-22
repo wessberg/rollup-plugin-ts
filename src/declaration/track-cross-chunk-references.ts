@@ -7,17 +7,19 @@ import {SourceFileToImportedSymbolSet} from "../service/transformer/cross-chunk-
 import {NormalizedChunk} from "../util/chunk/normalize-chunk";
 
 import {SupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
-import {join} from "../util/path/path-util";
-import {generateRandomHash} from "../util/hash/generate-random-hash";
+import {setExtension} from "../util/path/path-util";
 import {crossChunkReferenceTracker} from "../service/transformer/cross-chunk-reference-tracker/cross-chunk-reference-tracker";
 import {TypescriptPluginOptions} from "../plugin/i-typescript-plugin-options";
 import {TS} from "../type/ts";
 import {ModuleSpecifierToSourceFileMap} from "../service/transformer/declaration-bundler/declaration-bundler-options";
+import {PreparePathsResult} from "./emit-declarations";
+import {JS_EXTENSION} from "../constant/constant";
 
 export type ModuleDependencyMap = Map<string, Set<string>>;
 
 export interface TrackCrossChunkReferencesOptions extends Omit<TrackExportsOptions, "sourceFile" | "sourceFileToExportedSymbolSet"> {
 	chunks: NormalizedChunk[];
+	virtualOutFile: PreparePathsResult;
 	languageServiceHost: IncrementalLanguageService;
 	supportedExtensions: SupportedExtensions;
 	pluginOptions: TypescriptPluginOptions;
@@ -65,9 +67,7 @@ function getModuleDependencies(options: GetModuleDependenciesOptions): Set<strin
 
 		if (resolved == null) continue;
 		dependencies.add(resolved.fileName);
-		for (const deepDependency of getModuleDependencies({...options, module: resolved.fileName})) {
-			dependencies.add(deepDependency);
-		}
+		getModuleDependencies({...options, module: resolved.fileName});
 	}
 	return dependencies;
 }
@@ -94,7 +94,7 @@ export function trackCrossChunkReferences(options: TrackCrossChunkReferencesOpti
 			...compilationSettings,
 			declarationMap: false,
 			declaration: true,
-			outFile: join(generateRandomHash(), "index.js"),
+			outFile: setExtension(options.virtualOutFile.relative, JS_EXTENSION),
 			module: options.typescript.ModuleKind.System,
 			emitDeclarationOnly: true
 		},

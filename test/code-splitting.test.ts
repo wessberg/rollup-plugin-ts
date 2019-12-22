@@ -232,7 +232,7 @@ test("Declaration bundling supports code splitting. #3", async t => {
 	);
 });
 
-test.only("Declaration bundling supports code splitting. #4", async t => {
+test("Declaration bundling supports code splitting. #4", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -247,6 +247,7 @@ test.only("Declaration bundling supports code splitting. #4", async t => {
 				fileName: "src/cli/cli.ts",
 				text: `\
 				import "../foo";
+				console.log(true);
 			`
 			},
 			{
@@ -257,26 +258,35 @@ test.only("Declaration bundling supports code splitting. #4", async t => {
 			`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 
 	const {declarations} = bundle;
 
 	const apiFile = declarations.find(file => file.fileName.includes("api.d.ts"));
 	const cliFile = declarations.find(file => file.fileName.includes("cli.d.ts"));
+	const fooFile = declarations.find(file => file.fileName.startsWith("foo-"));
 
 	t.true(apiFile != null);
 	t.true(cliFile != null);
+	t.true(fooFile != null);
 
 	t.deepEqual(
 		formatCode(apiFile!.code),
 		formatCode(`\
-			export { Foo } from "./cli";
+			export { Foo } from "./${stripKnownExtension(fooFile!.fileName)}";
 		`)
 	);
 
 	t.deepEqual(
 		formatCode(cliFile!.code),
+		formatCode(`\
+			export {};
+		`)
+	);
+
+	t.deepEqual(
+		formatCode(fooFile!.code),
 		formatCode(`\
 			type Foo = string;
 			export {Foo};

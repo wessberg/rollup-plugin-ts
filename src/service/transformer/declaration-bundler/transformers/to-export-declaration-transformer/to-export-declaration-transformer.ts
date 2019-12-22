@@ -3,9 +3,10 @@ import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-fil
 import {visitNode} from "./visitor/visit-node";
 import {getNodePlacementQueue} from "../../util/get-node-placement-queue";
 import {ToExportDeclarationTransformerVisitorOptions} from "./to-export-declaration-transformer-visitor-options";
+import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
 
 export function toExportDeclarationTransformer({typescript, context, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
-	if (options.pluginOptions.debug) {
+	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
 		console.log(`=== BEFORE CONVERTING EXPORT MODIFIERS TO EXPORT DECLARATIONS === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(options.sourceFile));
 	}
@@ -57,7 +58,7 @@ export function toExportDeclarationTransformer({typescript, context, ...options}
 		);
 	}
 
-	if (options.pluginOptions.debug) {
+	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
 		console.log(`=== AFTER CONVERTING EXPORT MODIFIERS TO EXPORT DECLARATIONS === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(result));
 	}

@@ -1,9 +1,10 @@
 import {TS} from "../../../../../type/ts";
 import {visitNode} from "./visitor/visit-node";
 import {ModuleBlockExtractorOptions} from "./module-block-extractor-options";
+import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
 
 export function moduleBlockExtractor({typescript, context, ...options}: ModuleBlockExtractorOptions): TS.SourceFile {
-	if (options.pluginOptions.debug) {
+	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
 		console.log(`=== BEFORE EXTRACTING MODULE BLOCKS === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(options.sourceFile));
 	}
@@ -34,7 +35,7 @@ export function moduleBlockExtractor({typescript, context, ...options}: ModuleBl
 
 	const result = typescript.visitEachChild(options.sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
 
-	if (options.pluginOptions.debug) {
+	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
 		console.log(`=== AFTER EXTRACTING MODULE BLOCKS === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(result));
 	}

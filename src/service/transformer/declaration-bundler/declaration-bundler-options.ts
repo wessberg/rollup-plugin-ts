@@ -14,8 +14,9 @@ export type DeclarationTransformer = (options: SourceFileBundlerVisitorOptions) 
 
 export interface ChunkOptions {
 	paths: PreparePathsResult;
-	modules: string[];
-	entryModules: string[];
+	modules: Set<string>;
+	entryModules: Set<string>;
+	allModules: Set<string>;
 	isEntry: boolean;
 }
 
