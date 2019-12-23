@@ -120,6 +120,12 @@ export class ResolveCache implements IResolveCache {
 			}
 		}
 
+		// As a last resort, try Node.js's resolution algorith.
+		// Useful when installed through pnpm.
+		try {
+			return require.resolve(path);
+		} catch (_) {}
+
 		return undefined;
 	}
 
