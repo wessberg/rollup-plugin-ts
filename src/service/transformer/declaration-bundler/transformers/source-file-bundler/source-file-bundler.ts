@@ -10,6 +10,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 	return context => {
 		return bundle => {
 			const updatedSourceFiles: TS.SourceFile[] = [];
+			const entryModulesArr = [...options.chunk.entryModules];
 
 			// Only consider those SourceFiles that are part of the current chunk to be emitted
 			const sourceFilesForChunk = bundle.sourceFiles.filter(
@@ -17,31 +18,34 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 			);
 
 			// Visit only the entry SourceFile(s)
-			const entrySourceFiles = sourceFilesForChunk.filter(sourceFile => options.chunk.entryModules.has(sourceFile.fileName));
+			const entrySourceFiles = sourceFilesForChunk
+				.filter(sourceFile => options.chunk.entryModules.has(sourceFile.fileName))
+				.sort((a, b) => (entryModulesArr.indexOf(a.fileName) < entryModulesArr.indexOf(b.fileName) ? -1 : 1));
+
 			const nonEntrySourceFiles = sourceFilesForChunk.filter(sourceFile => !entrySourceFiles.includes(sourceFile));
 
-			for (let i = 0; i < entrySourceFiles.length; i++) {
-				const sourceFile = entrySourceFiles[i];
-				// Prepare some VisitorOptions
-				const visitorOptions: SourceFileBundlerVisitorOptions = {
-					...options,
-					context,
-					otherSourceFiles: sourceFilesForChunk.filter(otherSourceFile => otherSourceFile !== sourceFile),
-					sourceFile,
-					lexicalEnvironment: {
-						parent: undefined,
-						bindings: new Map()
-					},
-					includedSourceFiles: new WeakSet<TS.SourceFile>(),
-					declarationToDeconflictedBindingMap: new Map<number, string>(),
-					nodeToOriginalSymbolMap: new Map<TS.Node, TS.Symbol>(),
-					preservedImports: new Map()
-				};
+			const [firstEntrySourceFile] = entrySourceFiles;
+			const otherEntrySourceFilesForChunk = entrySourceFiles.filter(entrySourceFile => entrySourceFile !== firstEntrySourceFile);
 
-				updatedSourceFiles.push(applyTransformers({visitorOptions, transformers}));
-			}
+			// Prepare some VisitorOptions
+			const visitorOptions: SourceFileBundlerVisitorOptions = {
+				...options,
+				context,
+				otherEntrySourceFilesForChunk,
+				sourceFile: firstEntrySourceFile,
+				lexicalEnvironment: {
+					parent: undefined,
+					bindings: new Map()
+				},
+				includedSourceFiles: new Set<string>([firstEntrySourceFile.fileName]),
+				declarationToDeconflictedBindingMap: new Map<number, string>(),
+				nodeToOriginalSymbolMap: new Map<TS.Node, TS.Symbol>(),
+				preservedImports: new Map()
+			};
 
-			for (const sourceFile of nonEntrySourceFiles) {
+			updatedSourceFiles.push(applyTransformers({visitorOptions, transformers}));
+
+			for (const sourceFile of [...otherEntrySourceFilesForChunk, ...nonEntrySourceFiles]) {
 				updatedSourceFiles.push(options.typescript.updateSourceFileNode(sourceFile, [], true));
 			}
 
@@ -54,10 +58,6 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 				libReferenceDirectiveFileNames.add(fileName);
 			}
 
-			for (const {fileName} of ((bundle as unknown) as {syntheticTypeReferences: readonly TS.FileReference[]}).syntheticTypeReferences) {
-				typeReferenceDirectiveFileNames.add(fileName);
-			}
-
 			for (const updatedSourceFile of updatedSourceFiles) {
 				for (const {fileName} of updatedSourceFile.libReferenceDirectives) {
 					libReferenceDirectiveFileNames.add(fileName);
@@ -65,6 +65,10 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 
 				for (const {fileName} of updatedSourceFile.typeReferenceDirectives) {
 					typeReferenceDirectiveFileNames.add(fileName);
+				}
+
+				for (const typeReferenceModule of options.sourceFileToTypeReferencesSet.get(updatedSourceFile.fileName) ?? new Set<string>()) {
+					typeReferenceDirectiveFileNames.add(typeReferenceModule);
 				}
 			}
 

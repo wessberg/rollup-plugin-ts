@@ -22,6 +22,7 @@ import {NodeIdentifierCache} from "../service/transformer/declaration-bundler/tr
 import {trackCrossChunkReferences} from "./track-cross-chunk-references";
 import {normalizeChunk} from "../util/chunk/normalize-chunk";
 import {shouldDebugEmit} from "../util/is-debug/should-debug";
+import {getTypeRoots} from "../service/transformer/declaration-bundler/util/get-type-roots";
 
 export interface EmitDeclarationsOptions {
 	resolver: Resolver;
@@ -127,7 +128,9 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		printer,
 		referenceCache,
 		sourceFileToNodeToReferencedIdentifiersCache,
-		isMultiChunk: mergedChunks.length > 1
+		isMultiChunk: mergedChunks.length > 1,
+		typeRoots: getTypeRoots({compilerOptions: options.compilerOptions, cwd: options.cwd}),
+		sourceFileToTypeReferencesSet: new Map()
 	};
 
 	for (const chunk of mergedChunks) {
@@ -191,7 +194,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		const rawLocalModuleNames = chunk.modules;
 		const modules = rawLocalModuleNames.filter(options.canEmitForFile);
 		const rawEntryFileName = rawLocalModuleNames.slice(-1)[0];
-		let entryModules = [modules.slice(-1)[0]];
+		let entryModules = chunk.isEntry ? [modules.slice(-1)[0]] : [...modules].reverse();
 
 		// If the entry filename is equal to the ROLLUP_PLUGIN_MULTI_ENTRY constant,
 		// the entry is a combination of one or more of the local module names.

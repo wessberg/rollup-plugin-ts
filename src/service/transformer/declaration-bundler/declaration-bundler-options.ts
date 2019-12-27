@@ -25,6 +25,8 @@ export type ModuleSpecifierToSourceFileMap = Map<string, TS.SourceFile>;
 export interface DeclarationBundlerOptions {
 	typescript: typeof TS;
 	typeChecker: TS.TypeChecker;
+	compilerOptions: TS.CompilerOptions;
+	typeRoots: Set<string>;
 	chunk: ChunkOptions;
 	declarationPaths: PreparePathsResult;
 	declarationMapPaths: PreparePathsResult;
@@ -48,6 +50,7 @@ export interface DeclarationBundlerOptions {
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
 	// A Map between module specifiers and the SourceFiles they point to
 	moduleSpecifierToSourceFileMap: ModuleSpecifierToSourceFileMap;
+	sourceFileToTypeReferencesSet: Map<string, Set<string>>;
 
 	// Whether or not multiple chunks will be emitted
 	isMultiChunk: boolean;

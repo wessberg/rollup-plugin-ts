@@ -155,7 +155,7 @@ test("Declaration bundling supports code splitting. #2", async t => {
 					private level;
 					constructor(level: LogLevel);
 			}
-			export { Logger };
+			export { LogLevel, Logger };
 		`)
 	);
 });

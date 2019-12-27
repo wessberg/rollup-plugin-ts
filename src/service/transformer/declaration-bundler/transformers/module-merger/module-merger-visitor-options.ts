@@ -32,6 +32,7 @@ export type ChildVisitResult<T extends TS.Node> = T;
 
 export interface IncludeSourceFileOptions {
 	allowDuplicate: boolean;
+	allowExports: boolean;
 	lexicalEnvironment: LexicalEnvironment;
 	transformers: DeclarationTransformer[];
 }

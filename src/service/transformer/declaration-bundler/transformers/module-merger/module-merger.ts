@@ -8,6 +8,8 @@ import {findMatchingImportedSymbol} from "../../util/find-matching-imported-symb
 import {cloneNodeWithSymbols} from "../../util/clone-node-with-symbols";
 import {ImportedSymbol} from "../../../cross-chunk-reference-tracker/transformers/track-imports-transformer/track-imports-transformer-visitor-options";
 import {getChunkFilename} from "../../util/get-chunk-filename";
+import {ensureNoExportModifierTransformer} from "../ensure-no-export-modifier-transformer/ensure-no-export-modifier-transformer";
+import {noExportDeclarationTransformer} from "../no-export-declaration-transformer/no-export-declaration-transformer";
 
 export function moduleMerger(...transformers: DeclarationTransformer[]): DeclarationTransformer {
 	return options => {
@@ -71,19 +73,38 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 
 			includeSourceFile(
 				sourceFile: TS.SourceFile,
-				{allowDuplicate = false, transformers: extraTransformers = [], ...otherOptions}: Partial<IncludeSourceFileOptions> = {}
+				{
+					allowDuplicate = false,
+					allowExports = options.otherEntrySourceFilesForChunk.some(
+						otherEntrySourceFileForChunk => otherEntrySourceFileForChunk.fileName === sourceFile.fileName
+					),
+					transformers: extraTransformers = [],
+					...otherOptions
+				}: Partial<IncludeSourceFileOptions> = {}
 			): Iterable<TS.Statement> {
 				// Never include the same SourceFile twice
-				if (options.includedSourceFiles.has(sourceFile) && !allowDuplicate) return [];
-				options.includedSourceFiles.add(sourceFile);
+				if (options.includedSourceFiles.has(sourceFile.fileName) && !allowDuplicate) return [];
+				options.includedSourceFiles.add(sourceFile.fileName);
+
+				const allTransformers = allowExports
+					? [...transformers, ...extraTransformers]
+					: [
+							...transformers,
+							// Removes 'export' modifiers from Nodes
+							ensureNoExportModifierTransformer,
+							// Removes ExportDeclarations and ExportAssignments
+							noExportDeclarationTransformer,
+							...extraTransformers
+					  ];
 
 				const transformedSourceFile = applyTransformers({
 					visitorOptions: {
 						...visitorOptions,
 						...otherOptions,
-						sourceFile
+						sourceFile,
+						otherEntrySourceFilesForChunk: []
 					},
-					transformers: [moduleMerger(...transformers, ...extraTransformers), ...transformers, ...extraTransformers]
+					transformers: [moduleMerger(...allTransformers), ...allTransformers]
 				});
 
 				// Keep track of the original symbols which will be lost when the nodes are cloned
@@ -91,7 +112,7 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 			}
 		};
 
-		const result = visitorOptions.childContinuation(options.sourceFile, undefined);
+		const result = visitorOptions.continuation(options.sourceFile, undefined);
 
 		// There may be prepended or appended nodes that hasn't been added yet. Do so!
 		const [missingPrependNodes, missingAppendNodes] = nodePlacementQueue.flush();

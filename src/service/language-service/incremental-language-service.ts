@@ -64,6 +64,15 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 	}
 
 	/**
+	 * Gets all SourceFiles
+	 */
+	getSourceFiles(): readonly TS.SourceFile[] {
+		const program = this.options.languageService().getProgram();
+		if (program == null) return [];
+		return program.getSourceFiles();
+	}
+
+	/**
 	 * Gets all diagnostics reported of transformers for the given filename
 	 */
 	getTransformerDiagnostics(fileName?: string): ReadonlyArray<IExtendedDiagnostic> {

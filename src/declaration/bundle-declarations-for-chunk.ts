@@ -15,6 +15,7 @@ export function bundleDeclarationsForChunk(options: BundleDeclarationsForChunkOp
 	let code = "";
 	let map: SourceMap | undefined;
 	const {outDir, ...compilationSettings} = options.languageServiceHost.getCompilationSettings();
+	options.languageServiceHost.getSourceFiles();
 
 	const program = options.typescript.createProgram({
 		rootNames: [...options.chunk.allModules],
@@ -42,6 +43,7 @@ export function bundleDeclarationsForChunk(options: BundleDeclarationsForChunkOp
 		true,
 		declarationBundler({
 			...options,
+			compilerOptions: program.getCompilerOptions(),
 			typeChecker
 		})
 	);

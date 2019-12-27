@@ -9,7 +9,7 @@ import {treeShaker} from "./transformers/tree-shaker/tree-shaker";
 import {statementMerger} from "./transformers/statement-merger/statement-merger";
 import {toExportDeclarationTransformer} from "./transformers/to-export-declaration-transformer/to-export-declaration-transformer";
 import {ensureNoExportModifierTransformer} from "./transformers/ensure-no-export-modifier-transformer/ensure-no-export-modifier-transformer";
-import {noExportDeclarationTransformer} from "./transformers/no-export-declaration-transformer/no-export-declaration-transformer";
+import {typeReferenceCollector} from "./transformers/type-reference-collector/type-reference-collector";
 
 /**
  * Bundles declarations
@@ -26,10 +26,6 @@ export function declarationBundler(options: DeclarationBundlerOptions): TS.Custo
 				moduleMerger(
 					// Merge modules inside the entry module(s),
 					moduleBlockExtractor,
-					// Removes 'export' modifiers from Nodes
-					ensureNoExportModifierTransformer,
-					// Removes ExportDeclarations and ExportAssignments
-					noExportDeclarationTransformer,
 					// Ensure that nodes that require it have the 'declare' modifier
 					ensureDeclareModifierTransformer
 				),
@@ -50,7 +46,10 @@ export function declarationBundler(options: DeclarationBundlerOptions): TS.Custo
 				treeShaker,
 
 				// Merge related statements
-				statementMerger
+				statementMerger,
+
+				// Collects type references
+				typeReferenceCollector
 			)
 		]
 	};

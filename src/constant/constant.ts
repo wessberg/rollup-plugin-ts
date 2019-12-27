@@ -25,6 +25,7 @@ export const KNOWN_EXTENSIONS = new Set([
 	MJSX_EXTENSION
 ] as const);
 
+export const DEFAULT_TYPES_ROOT = "@types";
 export const NODE_MODULES = "node_modules";
 export const NODE_MODULES_MATCH_PATH = `/${NODE_MODULES}/`;
 export const SOURCE_MAP_COMMENT = "//# sourceMappingURL";

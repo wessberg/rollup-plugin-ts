@@ -7,9 +7,12 @@ import {visitImportSpecifier} from "./visit-import-specifier";
 import {visitExportSpecifier} from "./visit-export-specifier";
 import {visitImportClause} from "./visit-import-clause";
 import {visitNamespaceImport} from "./visit-namespace-import";
+import {visitSourceFile} from "./visit-source-file";
 
 export function visitNode<T extends TS.Node>({node, ...options}: ModuleMergerVisitorOptions<T>): VisitResult<T> {
-	if (options.typescript.isExportDeclaration(node)) {
+	if (options.typescript.isSourceFile(node)) {
+		return (visitSourceFile({...options, node} as ModuleMergerVisitorOptions<TS.SourceFile>) as unknown) as VisitResult<T>;
+	} else if (options.typescript.isExportDeclaration(node)) {
 		return (visitExportDeclaration({...options, node} as ModuleMergerVisitorOptions<TS.ExportDeclaration>) as unknown) as VisitResult<T>;
 	} else if (options.typescript.isImportDeclaration(node)) {
 		return (visitImportDeclaration({...options, node} as ModuleMergerVisitorOptions<TS.ImportDeclaration>) as unknown) as VisitResult<T>;

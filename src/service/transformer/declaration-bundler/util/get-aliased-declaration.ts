@@ -3,7 +3,7 @@ import {SourceFileBundlerVisitorOptions} from "../transformers/source-file-bundl
 import {getSymbolAtLocation} from "./get-symbol-at-location";
 
 export interface GetAliasedDeclarationOptions extends SourceFileBundlerVisitorOptions {
-	node: TS.Expression | TS.Symbol | TS.Declaration | TS.QualifiedName | undefined;
+	node: TS.Expression | TS.Symbol | TS.Declaration | TS.QualifiedName | TS.TypeNode | undefined;
 }
 
 export function getAliasedDeclarationFromSymbol(symbol: TS.Symbol, typeChecker: TS.TypeChecker): TS.Declaration & {id: number} {

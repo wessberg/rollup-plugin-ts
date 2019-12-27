@@ -7,9 +7,9 @@ import {ImportedSymbol} from "../../../cross-chunk-reference-tracker/transformer
 export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptions {
 	context: TS.TransformationContext;
 	sourceFile: TS.SourceFile;
-	otherSourceFiles: TS.SourceFile[];
+	otherEntrySourceFilesForChunk: TS.SourceFile[];
 	lexicalEnvironment: LexicalEnvironment;
-	includedSourceFiles: WeakSet<TS.SourceFile>;
+	includedSourceFiles: Set<string>;
 
 	// Declarations are represented by IDs which are mapped a string, indicating the deconflicted names for them
 	declarationToDeconflictedBindingMap: Map<number, string>;

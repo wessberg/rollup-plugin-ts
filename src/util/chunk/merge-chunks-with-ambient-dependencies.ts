@@ -33,7 +33,7 @@ function ensureChunkForModule(module: string, code: string, chunks: NormalizedCh
 				.map(([otherModule]) => otherModule);
 			// Find all chunks for the referencing modules
 			const [firstReferencingChunk, ...otherReferencingChunks] = new Set(
-				referencingModules.map(referencingModule => getChunkForModule(referencingModule, chunks))
+				referencingModules.map(referencingModule => getChunkForModule(referencingModule, chunks)).filter(chunkOrUndefined => chunkOrUndefined != null)
 			);
 
 			// If only 1 chunk is matched, use that one
