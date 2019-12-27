@@ -543,6 +543,134 @@ test("Flattens declarations. #14", async t => {
 	);
 });
 
+test("Flattens declarations. #15", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+        import { Item } from './items';
+				export class B {
+					items: Item[];
+				}
+			`
+			},
+			{
+				entry: false,
+				fileName: "items/item.ts",
+				text: `\
+        export interface Item {
+					id: string;
+				}
+			`
+			},
+			{
+				entry: false,
+				fileName: "items/index.ts",
+				text: `\
+        export * from "./item";
+			`
+			}
+		],
+		{debug: false}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			interface Item {
+					id: string;
+			}
+			declare class B {
+					items: Item[];
+			}
+			export { B };
+		`)
+	);
+});
+
+test("Flattens declarations. #16", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+        import {X} from "./x"
+				export const y = new X
+			`
+			},
+			{
+				entry: false,
+				fileName: "x.ts",
+				text: `\
+        declare class X {}
+				export {X}
+			`
+			}
+		],
+		{
+			debug: false,
+			rollupOptions: {
+				external(id) {
+					return /\bx\b/.test(id);
+				}
+			}
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare class X {
+		}
+		declare const y: X;
+		export { y };
+
+		`)
+	);
+});
+
+test("Flattens declarations. #17", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+        export function foo (arg: number): number;
+				export function foo (arg: string): string;
+				export function foo (arg: number|string): number|string {
+					return arg;
+				}
+			`
+			}
+		],
+		{
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare function foo(arg: number): number;
+		declare function foo(arg: string): string;
+		export { foo };
+		`)
+	);
+});
+
 test("A file with no exports generates a .d.ts file with an 'export {}' declaration to mark it as a module. #1", async t => {
 	const bundle = await generateRollupBundle([
 		{

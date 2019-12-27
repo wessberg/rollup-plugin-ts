@@ -17,11 +17,6 @@ export function getTypeReferenceModuleFromFileName({
 		if (!fileName.includes(typeRoot)) continue;
 		const typeModule = dirname(fileName.slice(typeRoot.length + 1));
 
-		console.log({
-			fileName,
-			typeModule,
-			sliced: fileName.slice(typeRoot.length + 1)
-		});
 		if (typeModuleReferenceIsAllowed({compilerOptions, typeModule})) {
 			return typeModule;
 		}

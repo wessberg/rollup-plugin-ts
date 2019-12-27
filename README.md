@@ -399,6 +399,16 @@ ts({
 });
 ```
 
+### Passing a specific TypeScript version
+
+You can use pass a specific TypeScript to use as an option. This may be useful if you are using different TypeScript versions across packages inside a monorepo and you want to use a specific one with `rollup-plugin-ts`:
+
+```typescript
+ts({
+	typescript: specialTypescriptVersion
+});
+```
+
 ## Hooks
 
 `rollup-plugin-ts` provides a few hooks that allow you to hook into and augment the internal behavior of the plugin.
@@ -486,6 +496,12 @@ Use this property to overwrite whatever is considered the root directory. The de
 Type: `string`
 
 Use this property to overwrite from where to search for the `node_modules/typescript/lib` directory. The default value is `cwd`.
+
+#### `typescript`
+
+Type: `typeof import("typescript")`
+
+Use this property to pass a specific version of TypeScript to use.
 
 #### `transformers`
 

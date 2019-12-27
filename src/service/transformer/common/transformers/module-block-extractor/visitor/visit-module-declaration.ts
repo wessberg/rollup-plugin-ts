@@ -3,9 +3,9 @@ import {TS} from "../../../../../../type/ts";
 
 export function visitModuleDeclaration({node, typescript}: ModuleBlockExtractorVisitorOptions<TS.ModuleDeclaration>): TS.VisitResult<TS.Node> {
 	if (node.body == null) return undefined;
-	if (typescript.isModuleBlock(node.body)) {
+	if (typescript.isModuleBlock(node.body) && typescript.isStringLiteralLike(node.name)) {
 		return [...node.body.statements];
 	}
 
-	return node.body;
+	return node;
 }

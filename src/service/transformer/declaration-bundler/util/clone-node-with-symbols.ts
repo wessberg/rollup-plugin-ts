@@ -41,7 +41,7 @@ export function preserveSymbols<T extends TS.Node>(newNode: T, options: CloneSym
 }
 
 export function cloneNodeWithSymbols<T extends TS.Node>(options: CloneSymbolsOptions<T>): T {
-	const clonedNode = cloneNode(options.node);
+	const clonedNode = cloneNode(options.node, {typescript: options.typescript});
 
 	preserveSymbols(clonedNode, options);
 

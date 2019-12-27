@@ -7,7 +7,7 @@ import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
 
 export function toExportDeclarationTransformer({typescript, context, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
 	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== BEFORE CONVERTING EXPORT MODIFIERS TO EXPORT DECLARATIONS === (${options.sourceFile.fileName})`);
+		console.log(`=== BEFORE ADDING EXPORT DECLARATIONS === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(options.sourceFile));
 	}
 
@@ -59,7 +59,7 @@ export function toExportDeclarationTransformer({typescript, context, ...options}
 	}
 
 	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== AFTER CONVERTING EXPORT MODIFIERS TO EXPORT DECLARATIONS === (${options.sourceFile.fileName})`);
+		console.log(`=== AFTER ADDING EXPORT DECLARATIONS === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(result));
 	}
 

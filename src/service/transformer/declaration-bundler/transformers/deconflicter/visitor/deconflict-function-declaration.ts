@@ -8,6 +8,7 @@ import {generateUniqueBinding} from "../../../util/generate-unique-binding";
 import {ContinuationOptions} from "../deconflicter-options";
 import {getIdForNode} from "../../../util/get-id-for-node";
 import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {getAliasedDeclaration} from "../../../util/get-aliased-declaration";
 
 /**
  * Deconflicts the given FunctionDeclaration.
@@ -18,7 +19,12 @@ export function deconflictFunctionDeclaration(options: DeconflicterVisitorOption
 
 	if (node.name != null) {
 		const id = getIdForNode(options);
-		if (isIdentifierFree(lexicalEnvironment, node.name.text)) {
+		const originalDeclaration = getAliasedDeclaration({...options, node});
+		// There may be multiple functions with the same name if they are overloaded
+		const assumeOverload =
+			originalDeclaration != null && "body" in originalDeclaration && ((originalDeclaration as unknown) as {body: TS.Block | undefined}).body == null;
+
+		if (assumeOverload || isIdentifierFree(lexicalEnvironment, node.name.text)) {
 			nameContResult = node.name;
 			if (id != null) declarationToDeconflictedBindingMap.set(id, node.name.text);
 

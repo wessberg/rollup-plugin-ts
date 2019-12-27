@@ -1,4 +1,5 @@
 {
+	"include": ["src/**/*.*"],
 	"extends": "@wessberg/ts-config",
 	"compilerOptions": {
 		"module": "commonjs",

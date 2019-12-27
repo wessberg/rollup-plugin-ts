@@ -177,3 +177,34 @@ test("Tree-shakes correctly. #5", async t => {
 		`)
 	);
 });
+
+test("Tree-shakes correctly. #6", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+					declare global {
+							interface Window {
+									foo: string:
+							}
+					}`
+			}
+		],
+		{debug: false, transpileOnly: true}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare global {
+				interface Window {
+						foo: string;
+				}
+		}
+		`)
+	);
+});

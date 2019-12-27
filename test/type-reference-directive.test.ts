@@ -76,7 +76,7 @@ test("Detects type reference directives and respects tree-shaking and code-split
 					`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]
