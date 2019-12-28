@@ -120,7 +120,7 @@
 	},
 	"ava": {
 		"files": [
-			"test/custom-typescript-version.test.ts"
+			"test/**.test.ts"
 		],
 		"verbose": true,
 		"failFast": true,

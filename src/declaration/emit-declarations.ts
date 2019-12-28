@@ -129,7 +129,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		referenceCache,
 		sourceFileToNodeToReferencedIdentifiersCache,
 		isMultiChunk: mergedChunks.length > 1,
-		typeRoots: getTypeRoots({compilerOptions: options.compilerOptions, cwd: options.cwd}),
+		typeRoots: options.languageServiceHost.getTypeRoots(),
 		sourceFileToTypeReferencesSet: new Map()
 	};
 

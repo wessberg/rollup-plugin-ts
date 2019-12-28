@@ -34,6 +34,10 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 		this.transformers = options.transformers;
 	}
 
+	getTypeRoots() {
+		return new Set(this.options.typescript.getEffectiveTypeRoots(this.getCompilationSettings(), this));
+	}
+
 	/**
 	 * Writes a file. Will simply put it in the emittedFiles Map
 	 */
