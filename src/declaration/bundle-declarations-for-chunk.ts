@@ -15,7 +15,6 @@ export function bundleDeclarationsForChunk(options: BundleDeclarationsForChunkOp
 	let code = "";
 	let map: SourceMap | undefined;
 	const {outDir, ...compilationSettings} = options.languageServiceHost.getCompilationSettings();
-	options.languageServiceHost.getSourceFiles();
 
 	const program = options.typescript.createProgram({
 		rootNames: [...options.chunk.allModules],
@@ -32,7 +31,7 @@ export function bundleDeclarationsForChunk(options: BundleDeclarationsForChunkOp
 
 	program.emit(
 		undefined,
-		(file, data) => {
+		(file: string, data: string) => {
 			if (file.endsWith(DECLARATION_MAP_EXTENSION)) {
 				map = JSON.parse(data);
 			} else {
@@ -45,7 +44,10 @@ export function bundleDeclarationsForChunk(options: BundleDeclarationsForChunkOp
 			...options,
 			compilerOptions: program.getCompilerOptions(),
 			typeChecker
-		})
+		}),
+		// There is an additional hidden undocumented argument that can be provided that ensures that declarations will be emitted, no matter what
+		// @ts-ignore
+		true
 	);
 
 	return {

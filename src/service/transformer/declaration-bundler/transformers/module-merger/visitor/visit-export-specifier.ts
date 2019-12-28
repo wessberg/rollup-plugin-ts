@@ -36,6 +36,7 @@ export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.Expo
 				? undefined
 				: generateModuleSpecifier({
 						...options,
+						from: payload.matchingSourceFile.fileName,
 						moduleSpecifier: exportedSymbol.moduleSpecifier
 				  });
 		if (

@@ -18,6 +18,7 @@ function generateExportDeclarations(
 				? undefined
 				: generateModuleSpecifier({
 						...options,
+						from: sourceFile.fileName,
 						moduleSpecifier: symbol.moduleSpecifier
 				  });
 
@@ -77,6 +78,7 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 			? undefined
 			: generateModuleSpecifier({
 					...options,
+					from: options.sourceFile.fileName,
 					moduleSpecifier
 			  });
 

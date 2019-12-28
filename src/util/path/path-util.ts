@@ -1,10 +1,9 @@
-import {extname, isAbsolute, join, relative, dirname, basename, normalize, parse, ParsedPath} from "path";
+import {basename, dirname, extname, isAbsolute, join, normalize, parse, ParsedPath, relative} from "path";
 import {
 	BABEL_RUNTIME_PREFIX_1,
 	BABEL_RUNTIME_PREFIX_2,
 	DECLARATION_EXTENSION,
 	DECLARATION_MAP_EXTENSION,
-	DEFAULT_LIB_NAMES,
 	KNOWN_EXTENSIONS,
 	NODE_MODULES_MATCH_PATH,
 	ROLLUP_PLUGIN_MULTI_ENTRY,
@@ -38,6 +37,10 @@ function _extname(p: string): string {
 
 function _parse(path: string): ParsedPath {
 	return parse(path);
+}
+
+export function isTypeScriptLib(path: string): boolean {
+	return path.startsWith(`lib.`) && path.endsWith(DECLARATION_EXTENSION);
 }
 
 /**
@@ -84,7 +87,7 @@ export function isExternalLibrary(path: string): boolean {
  * Returns true if the given path represents an internal Typescript file
  */
 export function isInternalFile(path: string): boolean {
-	return DEFAULT_LIB_NAMES.has(path) || path.toLowerCase().endsWith(TSLIB_NAME);
+	return isTypeScriptLib(path) || path.toLowerCase().endsWith(TSLIB_NAME);
 }
 
 /**

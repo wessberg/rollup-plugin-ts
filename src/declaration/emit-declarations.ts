@@ -225,6 +225,10 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 			console.log(bundleResult.code);
 		}
 
+		if (options.pluginContext.emitFile == null) {
+			throw new RangeError(`The installed version of Rollup is unsupported. You need to use v1.27.14 or newer to support this plugin`);
+		}
+
 		// Now, add the declarations as an asset
 		options.pluginContext.emitFile({
 			type: "asset",

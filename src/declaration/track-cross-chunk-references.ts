@@ -14,6 +14,7 @@ import {TS} from "../type/ts";
 import {ModuleSpecifierToSourceFileMap} from "../service/transformer/declaration-bundler/declaration-bundler-options";
 import {PreparePathsResult} from "./emit-declarations";
 import {JS_EXTENSION} from "../constant/constant";
+import {resolveSourceFileFromModuleSpecifier} from "../service/transformer/declaration-bundler/util/resolve-source-file-from-module-specifier";
 
 export type ModuleDependencyMap = Map<string, Set<string>>;
 
@@ -39,18 +40,12 @@ export interface GetModuleDependenciesOptions extends TrackCrossChunkReferencesO
 	moduleSpecifierToSourceFileMap: ModuleSpecifierToSourceFileMap;
 	moduleDependencyMap: ModuleDependencyMap;
 	module: string;
+	sourceFiles: TS.SourceFile[];
 	seenModules: Map<string, Set<string>>;
 }
 
 function getModuleDependencies(options: GetModuleDependenciesOptions): Set<string> {
-	const {
-		module,
-		seenModules,
-		moduleDependencyMap,
-		sourceFileToImportedSymbolSet,
-		sourceFileToExportedSymbolSet,
-		moduleSpecifierToSourceFileMap
-	} = options;
+	const {module, seenModules, moduleDependencyMap, sourceFileToImportedSymbolSet, sourceFileToExportedSymbolSet} = options;
 	if (seenModules.has(module)) return seenModules.get(module)!;
 	const dependencies = new Set<string>();
 	seenModules.set(module, dependencies);
@@ -58,7 +53,11 @@ function getModuleDependencies(options: GetModuleDependenciesOptions): Set<strin
 	moduleDependencyMap.set(module, dependencies);
 	for (const crossReferenceSymbol of [...(sourceFileToExportedSymbolSet.get(module) ?? []), ...(sourceFileToImportedSymbolSet.get(module) ?? [])]) {
 		if (crossReferenceSymbol.moduleSpecifier == null) continue;
-		let resolved: {fileName: string} | undefined = moduleSpecifierToSourceFileMap.get(crossReferenceSymbol.moduleSpecifier);
+		let resolved: {fileName: string} | undefined = resolveSourceFileFromModuleSpecifier({
+			...options,
+			moduleSpecifier: crossReferenceSymbol.moduleSpecifier,
+			from: module
+		});
 
 		// If that wasn't possible, try to resolve the module relative to the current module
 		if (resolved == null) {
@@ -119,9 +118,11 @@ export function trackCrossChunkReferences(options: TrackCrossChunkReferencesOpti
 		})
 	);
 
+	const sourceFiles = [...program.getSourceFiles()];
 	for (const module of new Set([...sourceFileToImportedSymbolSet.keys(), ...sourceFileToExportedSymbolSet.keys()])) {
 		getModuleDependencies({
 			...options,
+			sourceFiles,
 			module,
 			moduleDependencyMap,
 			sourceFileToExportedSymbolSet,

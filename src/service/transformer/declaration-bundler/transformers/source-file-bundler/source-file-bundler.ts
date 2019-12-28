@@ -32,6 +32,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 				...options,
 				context,
 				otherEntrySourceFilesForChunk,
+				sourceFiles: [...bundle.sourceFiles],
 				sourceFile: firstEntrySourceFile,
 				lexicalEnvironment: {
 					parent: undefined,
@@ -53,9 +54,12 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 			const libReferenceDirectiveFileNames = new Set<string>();
 			const typeReferenceDirectiveFileNames = new Set<string>();
 			const prepends: TS.UnparsedSource[] = [];
+			const bundleWithSyntheticLibReferences = (bundle as unknown) as {syntheticLibReferences?: readonly TS.FileReference[]};
 
-			for (const {fileName} of ((bundle as unknown) as {syntheticLibReferences: readonly TS.FileReference[]}).syntheticLibReferences) {
-				libReferenceDirectiveFileNames.add(fileName);
+			if (bundleWithSyntheticLibReferences.syntheticLibReferences != null) {
+				for (const {fileName} of bundleWithSyntheticLibReferences.syntheticLibReferences) {
+					libReferenceDirectiveFileNames.add(fileName);
+				}
 			}
 
 			for (const updatedSourceFile of updatedSourceFiles) {
@@ -79,7 +83,6 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 			for (const fileName of typeReferenceDirectiveFileNames) {
 				prepends.push(options.typescript.createUnparsedSourceFile(formatTypeReferenceDirective(fileName)));
 			}
-
 			return options.typescript.updateBundle(bundle, updatedSourceFiles, prepends);
 		};
 	};

@@ -2,9 +2,7 @@ import {getNewLineCharacter} from "../../util/get-new-line-character/get-new-lin
 import {ILanguageServiceOptions} from "./i-language-service-options";
 import {IFile, IFileInput} from "./i-file";
 import {getScriptKindFromPath} from "../../util/get-script-kind-from-path/get-script-kind-from-path";
-import {sync} from "find-up";
-import {DEFAULT_LIB_NAMES} from "../../constant/constant";
-import {ensureAbsolute, isInternalFile, join, normalize, nativeNormalize} from "../../util/path/path-util";
+import {dirname, ensureAbsolute, isInternalFile, isTypeScriptLib, join, nativeNormalize, normalize} from "../../util/path/path-util";
 import {CustomTransformersFunction} from "../../util/merge-transformers/i-custom-transformer-options";
 import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
 import {resolveId} from "../../util/resolve-id/resolve-id";
@@ -17,19 +15,9 @@ import {TS} from "../../type/ts";
  */
 export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.CompilerHost {
 	/**
-	 * A Map between filenames and emitted code
-	 */
-	emittedFiles: Map<string, string> = new Map();
-
-	/**
 	 * The Set of all files that has been added manually via the public API
 	 */
 	publicFiles: Set<string> = new Set();
-
-	/**
-	 * The nearest Typescript Lib directory from the given cwd
-	 */
-	private readonly LIB_DIRECTORY = sync("node_modules/typescript/lib", {cwd: this.options.resolveTypescriptLibFrom, type: "directory"});
 
 	/**
 	 * A Map between file names and their IFiles
@@ -42,7 +30,6 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 	private readonly transformers: CustomTransformersFunction | undefined;
 
 	constructor(private readonly options: ILanguageServiceOptions) {
-		this.addDefaultLibs();
 		this.addDefaultFileNames();
 		this.transformers = options.transformers;
 	}
@@ -50,9 +37,7 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 	/**
 	 * Writes a file. Will simply put it in the emittedFiles Map
 	 */
-	writeFile(fileName: string, data: string): void {
-		this.emittedFiles.set(fileName, data);
-	}
+	writeFile(): void {}
 
 	/**
 	 * Gets a SourceFile from the given fileName
@@ -203,6 +188,10 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 		return normalize(this.options.fileSystem.realpath(nativeNormalize(path)));
 	}
 
+	getDefaultLibLocation(): string {
+		return dirname(this.options.typescript.getDefaultLibFilePath(this.getCompilationSettings()));
+	}
+
 	/**
 	 * Gets the default lib file name based on the given CompilerOptions
 	 */
@@ -313,36 +302,17 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 	}
 
 	/**
-	 * Adds all default lib files to the LanguageService
-	 */
-	private addDefaultLibs(): void {
-		DEFAULT_LIB_NAMES.forEach(libName => {
-			if (this.LIB_DIRECTORY == null) return;
-
-			const path = join(this.LIB_DIRECTORY, libName);
-			const code = this.options.fileSystem.readFile(nativeNormalize(path));
-			if (code == null) return;
-
-			this.addFile(
-				{
-					file: libName,
-					code
-				},
-				true
-			);
-		});
-	}
-
-	/**
 	 * Adds all default declaration files to the LanguageService
 	 */
 	private addDefaultFileNames(): void {
 		this.options.parsedCommandLine.fileNames.forEach(file => {
+			if (!this.options.filter(normalize(ensureAbsolute(this.options.cwd, file)))) return;
+
 			const code = this.options.fileSystem.readFile(nativeNormalize(ensureAbsolute(this.options.cwd, file)));
 			if (code != null) {
 				this.addFile(
 					{
-						file: file,
+						file,
 						code
 					},
 					true
@@ -351,12 +321,26 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 		});
 	}
 
+	private assertHasLib(libName: string): IFile {
+		// If the file exists on disk, add it
+		const code = this.options.fileSystem.readFile(nativeNormalize(join(this.getDefaultLibLocation(), libName)));
+		if (code != null) {
+			this.addFile({file: libName, code}, true);
+			return this.files.get(libName)!;
+		} else {
+			throw new ReferenceError(`Could not resolve built-in lib: '${libName}'`);
+		}
+	}
+
 	/**
 	 * Asserts that the given file name exists within the LanguageServiceHost
 	 */
 	private assertHasFileName(fileName: string): IFile {
 		if (!this.files.has(fileName)) {
-			const absoluteFileName = DEFAULT_LIB_NAMES.has(fileName) ? fileName : ensureAbsolute(this.options.cwd, fileName);
+			if (isTypeScriptLib(fileName)) {
+				return this.assertHasLib(fileName);
+			}
+			const absoluteFileName = isTypeScriptLib(fileName) ? fileName : ensureAbsolute(this.options.cwd, fileName);
 
 			// If the file exists on disk, add it
 			const code = this.options.fileSystem.readFile(nativeNormalize(absoluteFileName));

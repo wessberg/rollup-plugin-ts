@@ -1,16 +1,15 @@
 import {dirname, ensureHasLeadingDotAndPosix, relative, stripKnownExtension} from "../../../../util/path/path-util";
 import {getChunkFilename, GetChunkFilenameOptions} from "./get-chunk-filename";
-import {ChunkOptions, ModuleSpecifierToSourceFileMap} from "../declaration-bundler-options";
+import {ChunkOptions} from "../declaration-bundler-options";
+import {resolveSourceFileFromModuleSpecifier, ResolveSourceFileFromModuleSpecifierOptions} from "./resolve-source-file-from-module-specifier";
 
-export interface GenerateModuleSpecifierOptions extends Omit<GetChunkFilenameOptions, "fileName"> {
-	moduleSpecifier: string;
-	moduleSpecifierToSourceFileMap: ModuleSpecifierToSourceFileMap;
+export interface GenerateModuleSpecifierOptions extends Omit<GetChunkFilenameOptions, "fileName">, ResolveSourceFileFromModuleSpecifierOptions {
 	chunk: ChunkOptions;
 }
 
 export function generateModuleSpecifier(options: GenerateModuleSpecifierOptions): string | undefined {
-	const {chunk, moduleSpecifier, moduleSpecifierToSourceFileMap} = options;
-	const sourceFileWithChunk = moduleSpecifierToSourceFileMap.get(moduleSpecifier);
+	const {chunk, moduleSpecifier} = options;
+	const sourceFileWithChunk = resolveSourceFileFromModuleSpecifier(options);
 
 	if (sourceFileWithChunk == null) {
 		return moduleSpecifier;

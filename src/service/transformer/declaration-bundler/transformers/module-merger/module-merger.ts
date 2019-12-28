@@ -10,9 +10,16 @@ import {ImportedSymbol} from "../../../cross-chunk-reference-tracker/transformer
 import {getChunkFilename} from "../../util/get-chunk-filename";
 import {ensureNoExportModifierTransformer} from "../ensure-no-export-modifier-transformer/ensure-no-export-modifier-transformer";
 import {noExportDeclarationTransformer} from "../no-export-declaration-transformer/no-export-declaration-transformer";
+import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {resolveSourceFileFromModuleSpecifier} from "../../util/resolve-source-file-from-module-specifier";
 
 export function moduleMerger(...transformers: DeclarationTransformer[]): DeclarationTransformer {
 	return options => {
+		if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
+			console.log(`=== BEFORE MERGING MODULES === (${options.sourceFile.fileName})`);
+			console.log(options.printer.printFile(options.sourceFile));
+		}
+
 		const nodePlacementQueue = getNodePlacementQueue({typescript: options.typescript});
 
 		// Prepare some VisitorOptions
@@ -65,7 +72,8 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 			},
 
 			getMatchingSourceFile(moduleSpecifier: string, from: TS.SourceFile): TS.SourceFile | undefined {
-				const sourceFile = options.moduleSpecifierToSourceFileMap.get(moduleSpecifier);
+				const sourceFile = resolveSourceFileFromModuleSpecifier({...options, moduleSpecifier, from: from.fileName});
+
 				const chunkForSourceFile = sourceFile == null ? undefined : getChunkFilename({...options, fileName: sourceFile.fileName});
 				const isSameChunk = sourceFile != null && chunkForSourceFile != null && chunkForSourceFile === options.chunk.paths.absolute;
 				return sourceFile === from || !isSameChunk ? undefined : sourceFile;
@@ -126,6 +134,11 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 				result.hasNoDefaultLib,
 				result.libReferenceDirectives
 			);
+		}
+
+		if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
+			console.log(`=== AFTER MERGING MODULES === (${options.sourceFile.fileName})`);
+			console.log(options.printer.printFile(result));
 		}
 
 		// Otherwise, return the result as it is

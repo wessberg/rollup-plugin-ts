@@ -67,7 +67,6 @@ export interface ITypescriptPluginBaseOptions {
 		| TsConfigResolverWithFileName;
 	browserslist?: false | string[] | string | BrowserslistConfig;
 	cwd: string;
-	resolveTypescriptLibFrom: string;
 	transformers?: (TS.CustomTransformers | CustomTransformersFunction)[] | TS.CustomTransformers | CustomTransformersFunction;
 	include: string[] | string;
 	exclude: string[] | string;

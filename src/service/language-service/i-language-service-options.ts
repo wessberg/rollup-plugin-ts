@@ -8,15 +8,15 @@ import {SupportedExtensions} from "../../util/get-supported-extensions/get-suppo
 import {TS} from "../../type/ts";
 
 export interface ILanguageServiceOptions {
+	languageService(): TS.LanguageService;
+	filter(id: string): boolean;
 	parsedCommandLine: TS.ParsedCommandLine;
 	cwd: TypescriptPluginOptions["cwd"];
 	typescript: typeof TS;
-	resolveTypescriptLibFrom: TypescriptPluginOptions["resolveTypescriptLibFrom"];
 	transformers?: CustomTransformersFunction;
 	emitCache: IEmitCache;
 	resolveCache: IResolveCache;
 	rollupInputOptions: InputOptions;
 	supportedExtensions: SupportedExtensions;
-	languageService(): TS.LanguageService;
 	fileSystem: FileSystem;
 }

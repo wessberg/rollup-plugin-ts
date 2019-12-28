@@ -87,7 +87,6 @@ In comparison with the [official plugin](https://github.com/rollup/rollup-plugin
   - [`tsconfig`](#tsconfig)
   - [`browserslist`](#browserslist)
   - [`cwd`](#cwd)
-  - [`resolveTypescriptLibFrom`](#resolvetypescriptlibfrom)
   - [`transformers`](#transformers)
   - [`include`](#include)
   - [`exclude`](#exclude)
@@ -490,12 +489,6 @@ See [this section](#combining-typescript-with-a-browserslist) for details on the
 Type: `string`
 
 Use this property to overwrite whatever is considered the root directory. The default value is `process.cwd()`.
-
-#### `resolveTypescriptLibFrom`
-
-Type: `string`
-
-Use this property to overwrite from where to search for the `node_modules/typescript/lib` directory. The default value is `cwd`.
 
 #### `typescript`
 

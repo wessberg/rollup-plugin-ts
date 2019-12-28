@@ -6,6 +6,7 @@ import {ImportedSymbol} from "../../../cross-chunk-reference-tracker/transformer
 
 export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptions {
 	context: TS.TransformationContext;
+	sourceFiles: TS.SourceFile[];
 	sourceFile: TS.SourceFile;
 	otherEntrySourceFilesForChunk: TS.SourceFile[];
 	lexicalEnvironment: LexicalEnvironment;

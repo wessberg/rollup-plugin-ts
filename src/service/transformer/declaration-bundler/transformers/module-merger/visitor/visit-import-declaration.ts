@@ -12,6 +12,7 @@ export function visitImportDeclaration(options: ModuleMergerVisitorOptions<TS.Im
 			? undefined
 			: generateModuleSpecifier({
 					...options,
+					from: options.sourceFile.fileName,
 					moduleSpecifier
 			  });
 

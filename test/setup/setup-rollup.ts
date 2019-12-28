@@ -36,7 +36,7 @@ export interface GenerateRollupBundleOptions {
 	tsconfig: Partial<InputCompilerOptions>;
 	typescript: typeof TS;
 	transpileOnly: boolean;
-	debug: boolean;
+	debug: TypescriptPluginOptions["debug"];
 	hook: Partial<HookRecord>;
 	transpiler: TypescriptPluginOptions["transpiler"];
 }
@@ -145,11 +145,11 @@ export async function generateRollupBundle(
 				transpileOnly,
 				debug,
 				typescript,
+				exclude: ["dist/**/*.*"],
 				tsconfig: {
 					target: "esnext",
 					declaration: true,
 					moduleResolution: "node",
-					allowJs: true,
 					baseUrl: ".",
 					...tsconfig
 				},
