@@ -22,7 +22,6 @@ import {NodeIdentifierCache} from "../service/transformer/declaration-bundler/tr
 import {trackCrossChunkReferences} from "./track-cross-chunk-references";
 import {normalizeChunk} from "../util/chunk/normalize-chunk";
 import {shouldDebugEmit} from "../util/is-debug/should-debug";
-import {getTypeRoots} from "../service/transformer/declaration-bundler/util/get-type-roots";
 
 export interface EmitDeclarationsOptions {
 	resolver: Resolver;

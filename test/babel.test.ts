@@ -18,6 +18,7 @@ test("Can handle 'babel' as the transpiler. #1", async t => {
 				],
 				{
 					transpiler: "babel",
+
 					tsconfig: {
 						target: "es5"
 					}
