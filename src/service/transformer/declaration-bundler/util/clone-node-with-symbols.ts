@@ -5,7 +5,7 @@ import {cloneNode} from "@wessberg/ts-clone-node";
 import {isTypescriptNode} from "./is-typescript-node";
 
 export interface CloneSymbolsOptions<T extends TS.Node>
-	extends Pick<SourceFileBundlerVisitorOptions, "nodeToOriginalSymbolMap" | "typescript" | "typeChecker"> {
+	extends Pick<SourceFileBundlerVisitorOptions, "nodeToOriginalSymbolMap" | "nodeToOriginalNodeMap" | "typescript" | "typeChecker"> {
 	node: T;
 }
 
@@ -29,6 +29,7 @@ export function preserveSymbols<T extends TS.Node>(newNode: T, options: CloneSym
 				const symbol = getSymbolAtLocation({...options, node: currentValue});
 
 				if (symbol != null) {
+					options.nodeToOriginalNodeMap.set(currentNewNodeProperty, currentValue);
 					options.nodeToOriginalSymbolMap.set(currentNewNodeProperty, symbol);
 				}
 
@@ -36,6 +37,7 @@ export function preserveSymbols<T extends TS.Node>(newNode: T, options: CloneSym
 			}
 		}
 	}
+	options.nodeToOriginalNodeMap.set(newNode, options.node);
 	options.nodeToOriginalSymbolMap.set(newNode, getSymbolAtLocation(options));
 	return newNode;
 }

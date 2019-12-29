@@ -67,5 +67,6 @@ export function visitImportTypeNode({
 	}
 
 	if (symbol != null) nodeToOriginalSymbolMap.set(returnNode, symbol);
+	options.nodeToOriginalNodeMap.set(returnNode, node);
 	return returnNode;
 }

@@ -26,6 +26,7 @@ export interface DeclarationBundlerOptions {
 	typescript: typeof TS;
 	typeChecker: TS.TypeChecker;
 	compilerOptions: TS.CompilerOptions;
+	languageService: TS.LanguageService;
 	typeRoots: Set<string>;
 	chunk: ChunkOptions;
 	declarationPaths: PreparePathsResult;

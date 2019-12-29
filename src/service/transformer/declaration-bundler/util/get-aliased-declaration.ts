@@ -6,28 +6,45 @@ export interface GetAliasedDeclarationOptions extends SourceFileBundlerVisitorOp
 	node: TS.Expression | TS.Symbol | TS.Declaration | TS.QualifiedName | TS.TypeNode | undefined;
 }
 
-export function getAliasedDeclarationFromSymbol(symbol: TS.Symbol, typeChecker: TS.TypeChecker): TS.Declaration & {id: number} {
+export function getDeclarationFromSymbol(symbol: TS.Symbol): (TS.Declaration & {id: number}) | undefined {
 	let valueDeclaration = symbol.valueDeclaration != null ? symbol.valueDeclaration : symbol.declarations != null ? symbol.declarations[0] : undefined;
+	return valueDeclaration as TS.Declaration & {id: number};
+}
+
+export function getAliasedDeclarationFromSymbol(symbol: TS.Symbol, typeChecker: TS.TypeChecker): (TS.Declaration & {id: number}) | undefined {
+	let valueDeclaration = getDeclarationFromSymbol(symbol);
 	try {
 		const aliasedDeclaration = typeChecker.getAliasedSymbol(symbol);
 		if (
 			aliasedDeclaration != null &&
 			(aliasedDeclaration.valueDeclaration != null || (aliasedDeclaration.declarations != null && aliasedDeclaration.declarations.length > 0))
 		) {
-			valueDeclaration =
-				aliasedDeclaration.valueDeclaration != null
-					? aliasedDeclaration.valueDeclaration
-					: symbol.declarations != null
-					? aliasedDeclaration.declarations[0]
-					: undefined;
+			valueDeclaration = (aliasedDeclaration.valueDeclaration != null
+				? aliasedDeclaration.valueDeclaration
+				: symbol.declarations != null
+				? aliasedDeclaration.declarations[0]
+				: undefined) as (TS.Declaration & {id: number}) | undefined;
 		}
 	} catch {}
 
-	return valueDeclaration as TS.Declaration & {id: number};
+	return valueDeclaration;
 }
 
 export function isSymbol(node: TS.Node | TS.Symbol): node is TS.Symbol {
 	return "valueDeclaration" in node || "declarations" in node;
+}
+
+export function getDeclaration(options: GetAliasedDeclarationOptions): (TS.Declaration & {id: number}) | undefined {
+	const {node} = options;
+	let symbol: TS.Symbol | undefined;
+	try {
+		symbol = node == null ? undefined : isSymbol(node) ? node : getSymbolAtLocation({...options, node});
+	} catch {
+		// Typescript couldn't produce a symbol for the Node
+	}
+
+	if (symbol == null) return undefined;
+	return getDeclarationFromSymbol(symbol);
 }
 
 /**

@@ -32,6 +32,7 @@ export interface EmitDeclarationsOptions {
 	cwd: string;
 	compilerOptions: TS.CompilerOptions;
 	languageServiceHost: IncrementalLanguageService;
+	languageService: TS.LanguageService;
 	pluginOptions: TypescriptPluginOptions;
 	outputOptions: OutputOptions;
 	multiEntryFileNames: Set<string> | undefined;

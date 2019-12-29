@@ -407,6 +407,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 					cwd,
 					outputOptions,
 					pluginOptions,
+					languageService,
 					languageServiceHost,
 					compilerOptions: parsedCommandLineResult.parsedCommandLine.options,
 					multiEntryFileNames: MULTI_ENTRY_FILE_NAMES,

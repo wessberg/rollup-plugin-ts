@@ -18,6 +18,7 @@ export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptio
 	// Some nodes are completely rewritten, under which circumstances the original symbol will be lost. However, it might be relevant to refer to the original symbol.
 	// For example, for ImportTypeNodes that are replaced with an identifier, we want the Identifier to refer to the symbol of original quantifier
 	nodeToOriginalSymbolMap: Map<TS.Node, TS.Symbol>;
+	nodeToOriginalNodeMap: Map<TS.Node, TS.Node>;
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
 	preservedImports: Map<string, Set<ImportedSymbol>>;
 }

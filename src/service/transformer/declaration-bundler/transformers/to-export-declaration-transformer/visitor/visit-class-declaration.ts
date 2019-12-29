@@ -43,6 +43,7 @@ export function visitClassDeclaration(options: ToExportDeclarationTransformerVis
 
 	const propertyName = exportSpecifier.propertyName ?? exportSpecifier.name;
 	options.nodeToOriginalSymbolMap.set(propertyName, getSymbolAtLocation({...options, node: returnNode}));
+	options.nodeToOriginalNodeMap.set(returnNode, node);
 
 	return returnNode;
 }
