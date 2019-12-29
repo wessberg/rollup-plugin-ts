@@ -205,6 +205,7 @@ test("Tree-shakes correctly. #6", async t => {
 						foo: string;
 				}
 		}
+		export {};
 		`)
 	);
 });

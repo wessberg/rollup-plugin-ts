@@ -12,5 +12,4 @@ export interface IResolveCache {
 	clear(): void;
 	setInCache(result: ExtendedResolvedModule | null, id: string, parent: string): ExtendedResolvedModule | null;
 	get(options: IGetResolvedIdWithCachingOptions): ExtendedResolvedModule | null;
-	findHelperFromNodeModules(typescript: typeof TS, path: string, cwd: string): string | undefined;
 }

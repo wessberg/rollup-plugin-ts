@@ -101,13 +101,17 @@ export function isTslib(path: string): boolean {
  * Returns true if the given path represents a Babel helper
  */
 export function isBabelHelper(path: string): boolean {
-	return isBabelEsmHelper(path) || isBabelCjsHelper(path);
+	return includesBabelEsmHelper(path) || isBabelCjsHelper(path);
+}
+
+export function isBabelRegeneratorRuntime(path: string): boolean {
+	return path.includes(`${BABEL_RUNTIME_PREFIX_1}regenerator`) || path.includes(`${BABEL_RUNTIME_PREFIX_2}regenerator`);
 }
 
 /**
  * Returns true if the given path represents a Babel ESM helper
  */
-export function isBabelEsmHelper(path: string): boolean {
+export function includesBabelEsmHelper(path: string): boolean {
 	return path.includes(`${BABEL_RUNTIME_PREFIX_1}helpers/esm`) || path.includes(`${BABEL_RUNTIME_PREFIX_2}helpers/esm`);
 }
 
@@ -115,7 +119,7 @@ export function isBabelEsmHelper(path: string): boolean {
  * Returns true if the given path represents a Babel CJS helper
  */
 export function isBabelCjsHelper(path: string): boolean {
-	return !isBabelEsmHelper(path) && (path.includes(`${BABEL_RUNTIME_PREFIX_1}helpers`) || path.includes(`${BABEL_RUNTIME_PREFIX_2}helpers`));
+	return !includesBabelEsmHelper(path) && (path.includes(`${BABEL_RUNTIME_PREFIX_1}helpers`) || path.includes(`${BABEL_RUNTIME_PREFIX_2}helpers`));
 }
 
 /**

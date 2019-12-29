@@ -88,8 +88,7 @@ export function getBabelConfig({
 	cwd,
 	forcedOptions = {},
 	defaultOptions = {},
-	browserslist,
-	rollupInputOptions
+	browserslist
 }: GetBabelConfigOptions): GetBabelConfigResult {
 	const resolvedConfig = findBabelConfig({cwd, babelConfig});
 
@@ -165,7 +164,7 @@ export function getBabelConfig({
 						plugin.file.request,
 						{
 							...(plugin.options == null ? {} : plugin.options),
-							...FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS(rollupInputOptions)
+							...FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS
 						}
 					],
 					{type: "plugin", dirname: cwd}

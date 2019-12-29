@@ -33,6 +33,7 @@ export interface GenerateRollupBundleResult {
 export interface GenerateRollupBundleOptions {
 	dir: string;
 	rollupOptions: Partial<RollupOptions>;
+	format: "esm" | "cjs";
 	tsconfig: Partial<InputCompilerOptions>;
 	typescript: typeof TS;
 	transpileOnly: boolean;
@@ -50,6 +51,7 @@ export async function generateRollupBundle(
 		rollupOptions = {},
 		transpiler = "typescript",
 		tsconfig = {},
+		format = "esm",
 		dir,
 		transpileOnly = false,
 		typescript = TSModule,
@@ -188,7 +190,7 @@ export async function generateRollupBundle(
 
 	const bundle = await result.generate({
 		dir,
-		format: "esm",
+		format,
 		sourcemap: true
 	});
 

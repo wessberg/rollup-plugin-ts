@@ -113,7 +113,7 @@ test("Supports multiple TypeScript versions. #1", async t => {
 				}
 			],
 			{
-				debug: data => data.kind === "emit",
+				debug: false,
 				typescript: (TS as unknown) as typeof import("typescript")
 			}
 		);

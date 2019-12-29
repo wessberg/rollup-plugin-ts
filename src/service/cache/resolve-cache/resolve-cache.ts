@@ -1,7 +1,6 @@
 import {IGetResolvedIdWithCachingOptions} from "./i-get-resolved-id-with-caching-options";
 import {ExtendedResolvedModule, IResolveCache} from "./i-resolve-cache";
-import {ensureAbsolute, normalize, nativeNormalize, setExtension} from "../../../util/path/path-util";
-import {sync} from "find-up";
+import {ensureAbsolute, isTslib, nativeNormalize, normalize, setExtension} from "../../../util/path/path-util";
 
 import {DECLARATION_EXTENSION, JS_EXTENSION} from "../../../constant/constant";
 import {FileSystem} from "../../../util/file-system/file-system";
@@ -72,38 +71,6 @@ export class ResolveCache implements IResolveCache {
 	}
 
 	/**
-	 * Finds the given helper inside node_modules (or at least attempts to)
-	 */
-	findHelperFromNodeModules(typescript: typeof TS, path: string, cwd: string): string | undefined {
-		let cacheResult = this.getFromCache(path, cwd);
-		if (cacheResult != null) {
-			return cacheResult.resolvedFileName;
-		}
-		for (const resolvedPath of [
-			sync(nativeNormalize(`node_modules/${setExtension(path, JS_EXTENSION)}`), {cwd}),
-			sync(nativeNormalize(`node_modules/${path}/index.js`), {cwd})
-		]) {
-			if (resolvedPath != null) {
-				const normalizedResolvedPath = normalize(resolvedPath);
-				this.setInCache(
-					{
-						resolvedFileName: normalizedResolvedPath,
-						resolvedAmbientFileName: undefined,
-						isExternalLibraryImport: false,
-						extension: typescript.Extension.Js,
-						packageId: undefined
-					},
-					path,
-					cwd
-				);
-				return normalizedResolvedPath;
-			}
-		}
-
-		return undefined;
-	}
-
-	/**
 	 * Gets a cached module result for the given file from the given parent and returns it if it exists already.
 	 * If not, it will compute it, update the cache, and then return it
 	 */
@@ -142,8 +109,16 @@ export class ResolveCache implements IResolveCache {
 				resolvedModule.resolvedFileName = undefined;
 				resolvedModule.extension = DECLARATION_EXTENSION as TS.Extension;
 
+				if (isTslib(id)) {
+					const candidate = normalize(setExtension(resolvedModule.resolvedAmbientFileName, `.es6${JS_EXTENSION}`));
+
+					if (this.options.fileSystem.fileExists(nativeNormalize(candidate))) {
+						resolvedModule.resolvedFileName = candidate;
+					}
+				}
+
 				// Don't go and attempt to resolve sources for external libraries
-				if (resolvedModule.isExternalLibraryImport == null || !resolvedModule.isExternalLibraryImport) {
+				else if (resolvedModule.isExternalLibraryImport == null || !resolvedModule.isExternalLibraryImport) {
 					// Try to determine the resolved file name.
 					for (const extension of supportedExtensions) {
 						const candidate = normalize(setExtension(resolvedModule.resolvedAmbientFileName, extension));

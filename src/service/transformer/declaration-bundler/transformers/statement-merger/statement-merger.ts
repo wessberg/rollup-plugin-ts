@@ -61,14 +61,19 @@ export function statementMerger(options: SourceFileBundlerVisitorOptions): TS.So
 	const otherStatements = result.statements.filter(
 		statement => !typescript.isImportDeclaration(statement) && !typescript.isExportDeclaration(statement) && !typescript.isExportAssignment(statement)
 	);
-	const totalStatementCount = importDeclarations.length + exportDeclarations.length + otherStatements.length;
+	const importExportCount = importDeclarations.length + exportDeclarations.length;
 
 	result = typescript.updateSourceFileNode(
 		result,
-		totalStatementCount === 0
-			? // Create an 'export {}' declaration to mark the declaration file as module-based if it has no statements
-			  [typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([]))]
-			: [...importDeclarations, ...otherStatements, ...exportDeclarations],
+		[
+			...importDeclarations,
+			...otherStatements,
+			...exportDeclarations,
+			...(importExportCount === 0
+				? // Create an 'export {}' declaration to mark the declaration file as module-based if it has no imports or exports
+				  [typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([]))]
+				: [])
+		],
 		result.isDeclarationFile,
 		result.referencedFiles,
 		result.typeReferenceDirectives,

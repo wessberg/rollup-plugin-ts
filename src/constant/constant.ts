@@ -1,5 +1,3 @@
-import {InputOptions} from "rollup";
-
 export const SOURCE_MAP_EXTENSION = ".map";
 export const TS_EXTENSION = ".ts";
 export const TSX_EXTENSION = ".tsx";
@@ -36,7 +34,8 @@ export const BABEL_CONFIG_JS_FILENAME = "babel.config.js";
 
 export const REGENERATOR_RUNTIME_NAME_1 = `${BABEL_RUNTIME_PREFIX_1}regenerator/index.js`;
 export const REGENERATOR_RUNTIME_NAME_2 = `${BABEL_RUNTIME_PREFIX_2}regenerator/index.js`;
-export const BABEL_EXAMPLE_HELPERS = [`${BABEL_RUNTIME_PREFIX_1}helpers/esm/typeof.js`, `${BABEL_RUNTIME_PREFIX_2}helpers/esm/typeof.js`];
+export const BABEL_REQUIRE_RUNTIME_HELPER_REGEXP_1 = new RegExp(`(require\\(["'\`])(${BABEL_RUNTIME_PREFIX_1}helpers/esm/[^"'\`]*)["'\`]\\)`);
+export const BABEL_REQUIRE_RUNTIME_HELPER_REGEXP_2 = new RegExp(`(require\\(["'\`])(${BABEL_RUNTIME_PREFIX_2}helpers/esm/[^"'\`]*)["'\`]\\)`);
 
 export const BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES = [];
 
@@ -77,29 +76,10 @@ export const FORCED_BABEL_YEARLY_PRESET_OPTIONS = {
 	...FORCED_BABEL_PRESET_ENV_OPTIONS
 };
 
-export const FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS = (rollupInputOptions: InputOptions) => {
-	let forceESModules: boolean = true;
-
-	// Only apply the forceESModules option if @babel helpers aren't treated as external.
-	if (
-		BABEL_EXAMPLE_HELPERS.some(helper => {
-			if (typeof rollupInputOptions.external === "function") {
-				return rollupInputOptions.external(helper, "", true) === true;
-			} else if (Array.isArray(rollupInputOptions.external)) {
-				return rollupInputOptions.external.includes(helper);
-			} else {
-				return false;
-			}
-		})
-	) {
-		forceESModules = false;
-	}
-
-	return {
-		helpers: true,
-		regenerator: true,
-		...(forceESModules ? {useESModules: true} : {})
-	};
+export const FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS = {
+	helpers: true,
+	regenerator: true,
+	useESModules: true
 };
 
 export const ROLLUP_PLUGIN_MULTI_ENTRY = "\0rollup-plugin-multi-entry:entry-point";

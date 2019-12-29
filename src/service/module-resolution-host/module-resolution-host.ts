@@ -1,4 +1,4 @@
-import {getExtension} from "../../util/path/path-util";
+import {getExtension, isBabelHelper, isBabelRegeneratorRuntime, isTslib} from "../../util/path/path-util";
 import {IModuleResolutionHostOptions} from "./i-module-resolution-host-options";
 import {TS} from "../../type/ts";
 
@@ -12,7 +12,10 @@ export class ModuleResolutionHost implements TS.ModuleResolutionHost {
 	 * Returns true if the given file exists
 	 */
 	fileExists(fileName: string): boolean {
-		return this.options.extensions.has(getExtension(fileName)) && this.options.languageServiceHost.fileExists(fileName);
+		return (
+			(isBabelHelper(fileName) || isBabelRegeneratorRuntime(fileName) || isTslib(fileName) || this.options.extensions.has(getExtension(fileName))) &&
+			this.options.languageServiceHost.fileExists(fileName)
+		);
 	}
 
 	/**

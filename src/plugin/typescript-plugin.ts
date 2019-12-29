@@ -7,7 +7,7 @@ import {IEmitCache} from "../service/cache/emit-cache/i-emit-cache";
 import {EmitCache} from "../service/cache/emit-cache/emit-cache";
 import {emitDiagnosticsThroughRollup} from "../util/diagnostic/emit-diagnostics-through-rollup";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
-import {ensureRelative, getExtension, isBabelHelper, isRollupPluginMultiEntry, isTslib, nativeNormalize} from "../util/path/path-util";
+import {ensureRelative, getExtension, isBabelHelper, isRollupPluginMultiEntry, nativeNormalize} from "../util/path/path-util";
 import {ModuleResolutionHost} from "../service/module-resolution-host/module-resolution-host";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
 import {TypescriptPluginOptions} from "./i-typescript-plugin-options";
@@ -34,6 +34,7 @@ import {matchAll} from "@wessberg/stringutil";
 import {Resolver} from "../util/resolve-id/resolver";
 import {emitDeclarations} from "../declaration/emit-declarations";
 import {TS} from "../type/ts";
+import {replaceBabelEsmHelpers} from "../util/replace-babel-esm-helpers/replace-babel-esm-helpers";
 
 /**
  * The name of the Rollup plugin
@@ -255,14 +256,36 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * Will also apply any minification via Babel if a minification plugin or preset has been provided,
 		 * and if Babel is the chosen transpiler. Otherwise, it will simply do nothing
 		 */
-		async renderChunk(this: PluginContext, code: string, chunk: RenderedChunk): Promise<{code: string; map: SourceMap} | null> {
-			// Don't proceed if there is no minification config
-			if (!hasBabelMinifyOptions || babelMinifyConfig == null) return null;
+		async renderChunk(
+			this: PluginContext,
+			code: string,
+			chunk: RenderedChunk,
+			outputOptions: OutputOptions
+		): Promise<{code: string; map: SourceMap} | null> {
+			let updatedSourceDescription: {code: string; map: SourceMap} | undefined;
 
-			const transpilationResult = await transformAsync(code, {
+			// When targeting CommonJS and using babel as a transpiler, we may need to rewrite forced ESM paths for preserved external helpers to paths that are compatible with CommonJS.
+			if (pluginOptions.transpiler === "babel" && (outputOptions.format === "cjs" || outputOptions.format === "commonjs")) {
+				updatedSourceDescription = replaceBabelEsmHelpers(code, chunk.fileName);
+			}
+
+			// Don't proceed if there is no minification config
+			if (!hasBabelMinifyOptions || babelMinifyConfig == null) {
+				return updatedSourceDescription == null ? null : updatedSourceDescription;
+			}
+
+			const updatedCode = updatedSourceDescription != null ? updatedSourceDescription.code : code;
+			const updatedMap = updatedSourceDescription != null ? updatedSourceDescription.map : undefined;
+
+			const transpilationResult = await transformAsync(updatedCode, {
 				...babelMinifyConfig(chunk.fileName),
 				filename: chunk.fileName,
-				filenameRelative: ensureRelative(cwd, chunk.fileName)
+				filenameRelative: ensureRelative(cwd, chunk.fileName),
+				...(updatedMap == null
+					? {}
+					: {
+							inputSourceMap: updatedMap
+					  })
 			});
 
 			// Return the results
@@ -301,7 +324,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 						}
 
 						// Add the file to the LanguageServiceHost
-						languageServiceHost.addFile({file, code});
+						languageServiceHost.addFileAsModule({file, code});
 
 						// Get some EmitOutput, optionally from the cache if the file contents are unchanged
 						const emitOutput = emitCache.get({fileName: file, languageService});
@@ -344,22 +367,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		resolveId(this: PluginContext, id: string, parent: string | undefined): string | null {
 			// Don't proceed if there is no parent (in which case this is an entry module)
 			if (parent == null) return null;
-
-			// Handle tslib differently
-			if (isTslib(id)) {
-				const tslibPath = resolveCache.findHelperFromNodeModules(typescript, "tslib/tslib.es6.js", cwd);
-				if (tslibPath != null) {
-					return nativeNormalize(tslibPath);
-				}
-			}
-
-			// Handle Babel helpers differently
-			else if (isBabelHelper(id)) {
-				const babelHelperPath = resolveCache.findHelperFromNodeModules(typescript, id, cwd);
-				if (babelHelperPath != null) {
-					return nativeNormalize(babelHelperPath);
-				}
-			}
 
 			const resolveResult = resolver(id, parent);
 			return resolveResult == null ? null : nativeNormalize(resolveResult.fileName);
