@@ -22,7 +22,7 @@ export function getForcedBabelOptions({cwd}: IGetForcedBabelOptionsOptions): IGe
 		sourceType: "module",
 		plugins: [
 			// Needed to make babel understand dynamic imports
-			"@babel/plugin-syntax-dynamic-import"
+			require.resolve("@babel/plugin-syntax-dynamic-import")
 		]
 	};
 }

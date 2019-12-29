@@ -16,7 +16,7 @@ export function getDefaultBabelOptions({browserslist}: IGetDefaultBabelOptionsOp
 				? []
 				: [
 						[
-							"@babel/preset-env",
+							require.resolve("@babel/preset-env"),
 							{
 								...FORCED_BABEL_PRESET_ENV_OPTIONS,
 								// Loose breaks things such as spreading an iterable that isn't an array
@@ -37,15 +37,15 @@ export function getDefaultBabelOptions({browserslist}: IGetDefaultBabelOptionsOp
 			...(includePresetEnv
 				? []
 				: [
-						"@babel/plugin-proposal-object-rest-spread",
-						"@babel/plugin-proposal-async-generator-functions",
-						"@babel/plugin-proposal-optional-catch-binding",
-						"@babel/plugin-proposal-unicode-property-regex",
-						"@babel/plugin-proposal-json-strings"
+						require.resolve("@babel/plugin-proposal-object-rest-spread"),
+						require.resolve("@babel/plugin-proposal-async-generator-functions"),
+						require.resolve("@babel/plugin-proposal-optional-catch-binding"),
+						require.resolve("@babel/plugin-proposal-unicode-property-regex"),
+						require.resolve("@babel/plugin-proposal-json-strings")
 				  ]),
 			// Force the use of helpers (e.g. the runtime). But *don't* apply polyfills.
 			[
-				"@babel/plugin-transform-runtime",
+				require.resolve("@babel/plugin-transform-runtime"),
 				{
 					...FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS,
 					corejs: false
