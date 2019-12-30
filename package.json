@@ -125,7 +125,7 @@
 	},
 	"ava": {
 		"files": [
-			"test/helpers.test.ts"
+			"test/**.test.ts"
 		],
 		"verbose": true,
 		"failFast": true,

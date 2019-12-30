@@ -118,8 +118,6 @@ test.only("Will use the proper @babel/runtime/helpers/esm helpers when format is
 		}
 	} = bundle;
 
-	console.log(file.code);
-
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
