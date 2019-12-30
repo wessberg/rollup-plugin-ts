@@ -93,7 +93,7 @@ test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM.
 	);
 });
 
-test.only("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #2", async t => {
+test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #2", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{
