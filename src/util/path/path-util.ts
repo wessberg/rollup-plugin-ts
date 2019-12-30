@@ -96,9 +96,9 @@ export function isInternalFile(path: string): boolean {
 export function isTslib(path: string): boolean {
 	return (
 		path === "tslib" ||
-		normalize(path).endsWith(`/tslib/${TSLIB_NAME}`) ||
-		normalize(path).endsWith("/tslib/tslib.es6.js") ||
-		normalize(path).endsWith("/tslib/tslib.js")
+		_normalize(path).endsWith(`/tslib/${TSLIB_NAME}`) ||
+		_normalize(path).endsWith("/tslib/tslib.es6.js") ||
+		_normalize(path).endsWith("/tslib/tslib.js")
 	);
 }
 
@@ -110,14 +110,14 @@ export function isBabelHelper(path: string): boolean {
 }
 
 export function isBabelRegeneratorRuntime(path: string): boolean {
-	return normalize(path).includes(`${BABEL_RUNTIME_PREFIX_1}regenerator`) || normalize(path).includes(`${BABEL_RUNTIME_PREFIX_2}regenerator`);
+	return _normalize(path).includes(`${BABEL_RUNTIME_PREFIX_1}regenerator`) || _normalize(path).includes(`${BABEL_RUNTIME_PREFIX_2}regenerator`);
 }
 
 /**
  * Returns true if the given path represents a Babel ESM helper
  */
 export function includesBabelEsmHelper(path: string): boolean {
-	return normalize(path).includes(`${BABEL_RUNTIME_PREFIX_1}helpers/esm`) || normalize(path).includes(`${BABEL_RUNTIME_PREFIX_2}helpers/esm`);
+	return _normalize(path).includes(`${BABEL_RUNTIME_PREFIX_1}helpers/esm`) || _normalize(path).includes(`${BABEL_RUNTIME_PREFIX_2}helpers/esm`);
 }
 
 /**
@@ -126,7 +126,7 @@ export function includesBabelEsmHelper(path: string): boolean {
 export function isBabelCjsHelper(path: string): boolean {
 	return (
 		!includesBabelEsmHelper(path) &&
-		(normalize(path).includes(`${BABEL_RUNTIME_PREFIX_1}helpers`) || normalize(path).includes(`${BABEL_RUNTIME_PREFIX_2}helpers`))
+		(_normalize(path).includes(`${BABEL_RUNTIME_PREFIX_1}helpers`) || _normalize(path).includes(`${BABEL_RUNTIME_PREFIX_2}helpers`))
 	);
 }
 
@@ -134,28 +134,28 @@ export function isBabelCjsHelper(path: string): boolean {
  * Returns true if the given path represents @babel/preset-env
  */
 export function isBabelPresetEnv(path: string): boolean {
-	return normalize(path).includes("@babel/preset-env") || normalize(path).includes("babel-preset-env");
+	return _normalize(path).includes("@babel/preset-env") || _normalize(path).includes("babel-preset-env");
 }
 
 /**
  * Returns true if the given path represents the entry point for rollup-plugin-multi-entry
  */
 export function isRollupPluginMultiEntry(path: string): boolean {
-	return normalize(path) === ROLLUP_PLUGIN_MULTI_ENTRY;
+	return _normalize(path) === ROLLUP_PLUGIN_MULTI_ENTRY;
 }
 
 /**
  * Returns true if the given path represents @babel/preset-es[2015|2016|2017]
  */
 export function isYearlyBabelPreset(path: string): boolean {
-	return normalize(path).includes("@babel/preset-es") || normalize(path).includes("babel-preset-es");
+	return _normalize(path).includes("@babel/preset-es") || _normalize(path).includes("babel-preset-es");
 }
 
 /**
  * Returns true if the given path represents @babel/plugin-transform-runtime
  */
 export function isBabelPluginTransformRuntime(path: string): boolean {
-	return normalize(path).includes("@babel/plugin-transform-runtime") || normalize(path).includes("babel-plugin-transform-runtime");
+	return _normalize(path).includes("@babel/plugin-transform-runtime") || _normalize(path).includes("babel-plugin-transform-runtime");
 }
 
 /**
