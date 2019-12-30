@@ -74,12 +74,7 @@ export function mergeChunksWithAmbientDependencies(
 	}
 
 	for (const [dependency, modulesForDependency] of dependencyToModulesMap.entries()) {
-		const chunkWithDependency = ensureChunkForModule(
-			dependency,
-			languageServiceHost.getSourceFile(dependency)!.text,
-			clonedChunks,
-			moduleDependencyMap
-		);
+		const chunkWithDependency = ensureChunkForModule(dependency, languageServiceHost.files.get(dependency)!.code, clonedChunks, moduleDependencyMap);
 
 		const chunksForModulesForDependency = new Set<NormalizedChunk>(
 			[...modulesForDependency].map(moduleForDependency =>

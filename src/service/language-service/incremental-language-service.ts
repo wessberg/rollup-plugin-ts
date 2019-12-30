@@ -23,7 +23,7 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 	/**
 	 * A Map between file names and their IFiles
 	 */
-	private readonly files: Map<string, IFile> = new Map();
+	readonly files: Map<string, IFile> = new Map();
 
 	private readonly printer: TS.Printer;
 
