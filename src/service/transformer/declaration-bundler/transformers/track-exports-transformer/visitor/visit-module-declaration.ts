@@ -1,16 +1,19 @@
 import {TS} from "../../../../../../type/ts";
 import {TrackExportsTransformerVisitorOptions} from "../track-exports-transformer-visitor-options";
-import {createExportSpecifierFromNameAndModifiers} from "../../../../declaration-bundler/util/create-export-specifier-from-name-and-modifiers";
-import {hasExportModifier} from "../../../../declaration-bundler/util/modifier-util";
+import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers";
+import {hasExportModifier} from "../../../util/modifier-util";
 
-export function visitClassExpression({
+export function visitModuleDeclaration({
 	node,
 	typescript,
 	markAsExported,
 	...options
-}: TrackExportsTransformerVisitorOptions<TS.ClassExpression>): void {
+}: TrackExportsTransformerVisitorOptions<TS.ModuleDeclaration>): void {
 	// If the node has no export modifier, leave it as it is
-	if (!hasExportModifier(node, typescript) || node.name == null) return;
+	if (!hasExportModifier(node, typescript)) {
+		if (node.body != null) return options.childContinuation(node.body);
+		else return;
+	}
 
 	const {exportedSymbol} = createExportSpecifierFromNameAndModifiers({
 		...options,

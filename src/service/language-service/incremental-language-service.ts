@@ -8,6 +8,7 @@ import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
 import {resolveId} from "../../util/resolve-id/resolve-id";
 import {TS} from "../../type/ts";
 import {ensureModuleTransformer} from "../transformer/ensure-module/ensure-module-transformer";
+import {generateSourceFile} from "../../util/generate-source-file/generate-source-file";
 
 // tslint:disable:no-any
 
@@ -89,13 +90,7 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 	 * Adds as file, but ensures that it is a module before adding it
 	 */
 	addFileAsModule(file: IFileInput, internal: boolean = false): void {
-		const sourceFile = this.options.typescript.createSourceFile(
-			file.file,
-			file.code,
-			this.options.parsedCommandLine.options.target ?? this.options.typescript.ScriptTarget.ES3,
-			true,
-			getScriptKindFromPath(file.file, this.options.typescript)
-		);
+		const sourceFile = generateSourceFile({...this.options, ...file, compilerOptions: this.getCompilationSettings()});
 		const code = ensureModuleTransformer({sourceFile, printer: this.printer, typescript: this.options.typescript});
 		this.addFile({...file, code}, internal);
 	}

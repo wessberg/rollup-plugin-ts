@@ -1,6 +1,5 @@
 import {TS} from "../../../../../type/ts";
-import {NodeIdentifierCache} from "../../../declaration-bundler/transformers/trace-identifiers/trace-identifiers";
-import {Resolver} from "../../../../../util/resolve-id/resolver";
+import {DeclarationBundlerOptions} from "../../declaration-bundler-options";
 
 export interface ImportedSymbolBase {
 	moduleSpecifier: string;
@@ -33,12 +32,8 @@ export type ImportedSymbolSet = Set<ImportedSymbol>;
  */
 export type SourceFileToImportedSymbolSet = Map<string, ImportedSymbolSet>;
 
-export interface TrackImportsOptions {
-	typescript: typeof TS;
+export interface TrackImportsOptions extends DeclarationBundlerOptions {
 	sourceFile: TS.SourceFile;
-	sourceFileToImportedSymbolSet: SourceFileToImportedSymbolSet;
-	nodeIdentifierCache: NodeIdentifierCache;
-	resolver: Resolver;
 }
 
 export interface TrackImportsTransformerVisitorOptions<T extends TS.Node> extends TrackImportsOptions {

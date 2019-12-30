@@ -2,7 +2,7 @@ import {
 	NamedExportedSymbol,
 	NamespaceExportedSymbol,
 	SourceFileToExportedSymbolSet
-} from "../../cross-chunk-reference-tracker/transformers/track-exports-transformer/track-exports-transformer-visitor-options";
+} from "../transformers/track-exports-transformer/track-exports-transformer-visitor-options";
 import {ModuleSpecifierToSourceFileMap} from "../declaration-bundler-options";
 
 export interface LocateExportedSymbolContext {

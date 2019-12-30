@@ -1,7 +1,7 @@
 import {TS} from "../../../../type/ts";
 import {hasDefaultExportModifier} from "./modifier-util";
-import {ExportedSymbol} from "../../cross-chunk-reference-tracker/transformers/track-exports-transformer/track-exports-transformer-visitor-options";
-import {ImportedSymbol} from "../../cross-chunk-reference-tracker/transformers/track-imports-transformer/track-imports-transformer-visitor-options";
+import {ExportedSymbol} from "../transformers/track-exports-transformer/track-exports-transformer-visitor-options";
+import {ImportedSymbol} from "../transformers/track-imports-transformer/track-imports-transformer-visitor-options";
 
 export interface CreateExportSpecifierFromNameAndModifiersOptions {
 	name: string;

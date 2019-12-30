@@ -1,8 +1,8 @@
 import {TS} from "../../../../../type/ts";
 import {DeclarationBundlerOptions} from "../../declaration-bundler-options";
 import {LexicalEnvironment} from "../deconflicter/deconflicter-options";
-import {SourceFileToExportedSymbolSet} from "../../../cross-chunk-reference-tracker/transformers/track-exports-transformer/track-exports-transformer-visitor-options";
-import {ImportedSymbol} from "../../../cross-chunk-reference-tracker/transformers/track-imports-transformer/track-imports-transformer-visitor-options";
+import {SourceFileToExportedSymbolSet} from "../track-exports-transformer/track-exports-transformer-visitor-options";
+import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options";
 
 export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptions {
 	context: TS.TransformationContext;

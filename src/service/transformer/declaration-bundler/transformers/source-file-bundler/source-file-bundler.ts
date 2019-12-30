@@ -5,10 +5,16 @@ import {getChunkFilename} from "../../util/get-chunk-filename";
 import {SourceFileBundlerVisitorOptions} from "./source-file-bundler-visitor-options";
 import {formatLibReferenceDirective} from "../../util/format-lib-reference-directive";
 import {formatTypeReferenceDirective} from "../../util/format-type-reference-directive";
+import {isUninitializedDeclarationBundlerOptions} from "../../util/assert-declaration-bundler-options";
+import {initializeDeclarationBundlerOptions} from "./initialize-declaration-bundler-options";
 
 export function sourceFileBundler(options: DeclarationBundlerOptions, ...transformers: DeclarationTransformer[]): TS.TransformerFactory<TS.Bundle> {
 	return context => {
 		return bundle => {
+			if (isUninitializedDeclarationBundlerOptions(options)) {
+				initializeDeclarationBundlerOptions(options, [...bundle.sourceFiles]);
+			}
+
 			const updatedSourceFiles: TS.SourceFile[] = [];
 			const entryModulesArr = [...options.chunk.entryModules];
 

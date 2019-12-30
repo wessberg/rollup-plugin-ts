@@ -1,16 +1,16 @@
 import {TS} from "../../../../../../type/ts";
 import {TrackExportsTransformerVisitorOptions} from "../track-exports-transformer-visitor-options";
-import {createExportSpecifierFromNameAndModifiers} from "../../../../declaration-bundler/util/create-export-specifier-from-name-and-modifiers";
-import {hasExportModifier} from "../../../../declaration-bundler/util/modifier-util";
+import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers";
+import {hasExportModifier} from "../../../util/modifier-util";
 
-export function visitFunctionDeclaration({
+export function visitTypeAliasDeclaration({
 	node,
 	typescript,
 	markAsExported,
 	...options
-}: TrackExportsTransformerVisitorOptions<TS.FunctionDeclaration>): void {
+}: TrackExportsTransformerVisitorOptions<TS.TypeAliasDeclaration>): void {
 	// If the node has no export modifier, leave it as it is
-	if (!hasExportModifier(node, typescript) || node.name == null) return;
+	if (!hasExportModifier(node, typescript)) return;
 
 	const {exportedSymbol} = createExportSpecifierFromNameAndModifiers({
 		...options,

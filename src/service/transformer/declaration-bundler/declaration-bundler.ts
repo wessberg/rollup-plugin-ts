@@ -4,7 +4,7 @@ import {sourceFileBundler} from "./transformers/source-file-bundler/source-file-
 import {moduleMerger} from "./transformers/module-merger/module-merger";
 import {deconflicter} from "./transformers/deconflicter/deconflicter";
 import {ensureDeclareModifierTransformer} from "./transformers/ensure-declare-modifier-transformer/ensure-declare-modifier-transformer";
-import {moduleBlockExtractor} from "../common/transformers/module-block-extractor/module-block-extractor";
+import {moduleBlockExtractor} from "./transformers/module-block-extractor/module-block-extractor";
 import {treeShaker} from "./transformers/tree-shaker/tree-shaker";
 import {statementMerger} from "./transformers/statement-merger/statement-merger";
 import {toExportDeclarationTransformer} from "./transformers/to-export-declaration-transformer/to-export-declaration-transformer";

@@ -6,7 +6,7 @@ import {applyTransformers} from "../../util/apply-transformers";
 import {getNodePlacementQueue} from "../../util/get-node-placement-queue";
 import {findMatchingImportedSymbol} from "../../util/find-matching-imported-symbol";
 import {cloneNodeWithSymbols} from "../../util/clone-node-with-symbols";
-import {ImportedSymbol} from "../../../cross-chunk-reference-tracker/transformers/track-imports-transformer/track-imports-transformer-visitor-options";
+import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options";
 import {getChunkFilename} from "../../util/get-chunk-filename";
 import {ensureNoExportModifierTransformer} from "../ensure-no-export-modifier-transformer/ensure-no-export-modifier-transformer";
 import {noExportDeclarationTransformer} from "../no-export-declaration-transformer/no-export-declaration-transformer";

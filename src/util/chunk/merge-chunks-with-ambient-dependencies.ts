@@ -1,9 +1,9 @@
 import {NormalizedChunk} from "./normalize-chunk";
-import {ModuleDependencyMap} from "../../declaration/track-cross-chunk-references";
 import {getChunkForModule} from "../../service/transformer/declaration-bundler/util/get-chunk-filename";
 import {basename, stripKnownExtension} from "../path/path-util";
 import {generateRandomHash} from "../hash/generate-random-hash";
 import {IncrementalLanguageService} from "../../service/language-service/incremental-language-service";
+import {ModuleDependencyMap} from "../../service/transformer/declaration-bundler/declaration-bundler-options";
 
 export interface MergeChunksWithAmbientDependenciesResult {
 	mergedChunks: NormalizedChunk[];
@@ -59,7 +59,6 @@ export function mergeChunksWithAmbientDependencies(
 	moduleDependencyMap: ModuleDependencyMap,
 	languageServiceHost: IncrementalLanguageService
 ): NormalizedChunk[] {
-	const clonedChunks = JSON.parse(JSON.stringify(chunks)) as NormalizedChunk[];
 	const dependencyToModulesMap: Map<string, Set<string>> = new Map();
 
 	for (const [module, dependencies] of moduleDependencyMap.entries()) {
@@ -74,11 +73,11 @@ export function mergeChunksWithAmbientDependencies(
 	}
 
 	for (const [dependency, modulesForDependency] of dependencyToModulesMap.entries()) {
-		const chunkWithDependency = ensureChunkForModule(dependency, languageServiceHost.files.get(dependency)!.code, clonedChunks, moduleDependencyMap);
+		const chunkWithDependency = ensureChunkForModule(dependency, languageServiceHost.files.get(dependency)!.code, chunks, moduleDependencyMap);
 
 		const chunksForModulesForDependency = new Set<NormalizedChunk>(
 			[...modulesForDependency].map(moduleForDependency =>
-				ensureChunkForModule(moduleForDependency, languageServiceHost.getSourceFile(dependency)!.text, clonedChunks, moduleDependencyMap)
+				ensureChunkForModule(moduleForDependency, languageServiceHost.files.get(dependency)!.code, chunks, moduleDependencyMap)
 			)
 		);
 
@@ -88,9 +87,9 @@ export function mergeChunksWithAmbientDependencies(
 			const containingChunk = [...chunksForModulesForDependency].find(chunkForModuleDependency => chunkForModuleDependency === chunkWithDependency);
 			if (containingChunk != null) {
 				containingChunk.modules.splice(containingChunk.modules.indexOf(dependency), 1);
-				clonedChunks.push(createCommonChunk(dependency, languageServiceHost.getSourceFile(dependency)!.text));
+				chunks.push(createCommonChunk(dependency, languageServiceHost.getSourceFile(dependency)!.text));
 			}
 		}
 	}
-	return clonedChunks;
+	return chunks;
 }

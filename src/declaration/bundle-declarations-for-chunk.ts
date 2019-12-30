@@ -1,41 +1,29 @@
 import {SourceDescription, SourceMap} from "rollup";
-import {setExtension} from "../util/path/path-util";
-import {DECLARATION_MAP_EXTENSION, JS_EXTENSION} from "../constant/constant";
-import {IncrementalLanguageService} from "../service/language-service/incremental-language-service";
-import {DeclarationBundlerOptions} from "../service/transformer/declaration-bundler/declaration-bundler-options";
+import {DECLARATION_MAP_EXTENSION, SOURCE_MAP_COMMENT, SOURCE_MAP_COMMENT_REGEXP} from "../constant/constant";
 import {declarationBundler} from "../service/transformer/declaration-bundler/declaration-bundler";
+import {DeclarationBundlerOptions} from "../service/transformer/declaration-bundler/declaration-bundler-options";
+import {TS} from "../type/ts";
 
 export interface BundleDeclarationsForChunkOptions extends Omit<DeclarationBundlerOptions, "typeChecker"> {
 	cwd: string;
 	generateMap: boolean;
-	languageServiceHost: IncrementalLanguageService;
+	program: TS.Program;
+	typeChecker: TS.TypeChecker;
 }
 
 export function bundleDeclarationsForChunk(options: BundleDeclarationsForChunkOptions): SourceDescription {
 	let code = "";
 	let map: SourceMap | undefined;
-	const {outDir, ...compilationSettings} = options.languageServiceHost.getCompilationSettings();
-
-	const program = options.typescript.createProgram({
-		rootNames: [...options.chunk.allModules],
-		options: {
-			...compilationSettings,
-			outFile: setExtension(options.declarationPaths.relative, JS_EXTENSION),
-			module: options.typescript.ModuleKind.System,
-			emitDeclarationOnly: true
-		},
-		host: options.languageServiceHost
-	});
-
-	const typeChecker = program.getTypeChecker();
+	const {program, typeChecker} = options;
 
 	program.emit(
 		undefined,
 		(file: string, data: string) => {
 			if (file.endsWith(DECLARATION_MAP_EXTENSION)) {
-				map = JSON.parse(data);
+				map = JSON.parse(data) as SourceMap;
+				map.file = options.declarationPaths.fileName;
 			} else {
-				code += data;
+				code += data.replace(SOURCE_MAP_COMMENT_REGEXP, `${SOURCE_MAP_COMMENT}=${options.declarationMapPaths.fileName}`);
 			}
 		},
 		undefined,

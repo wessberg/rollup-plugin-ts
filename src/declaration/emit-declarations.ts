@@ -9,22 +9,21 @@ import {TypescriptPluginOptions} from "../plugin/i-typescript-plugin-options";
 import {isOutputChunk} from "../util/is-output-chunk/is-output-chunk";
 import {getDeclarationOutDir} from "../util/get-declaration-out-dir/get-declaration-out-dir";
 import {getOutDir} from "../util/get-out-dir/get-out-dir";
-import {mergeChunksWithAmbientDependencies} from "../util/chunk/merge-chunks-with-ambient-dependencies";
-import {getChunkToOriginalFileMap} from "../util/chunk/get-chunk-to-original-file-map";
 import {basename, dirname, join, nativeNormalize, normalize, relative, setExtension} from "../util/path/path-util";
-import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION, ROLLUP_PLUGIN_MULTI_ENTRY} from "../constant/constant";
+import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION, JS_EXTENSION, ROLLUP_PLUGIN_MULTI_ENTRY} from "../constant/constant";
 import {bundleDeclarationsForChunk} from "./bundle-declarations-for-chunk";
 import {
 	ReferenceCache,
 	SourceFileToNodeToReferencedIdentifiersCache
 } from "../service/transformer/declaration-bundler/transformers/reference/cache/reference-cache";
 import {NodeIdentifierCache} from "../service/transformer/declaration-bundler/transformers/trace-identifiers/trace-identifiers";
-import {trackCrossChunkReferences} from "./track-cross-chunk-references";
 import {normalizeChunk} from "../util/chunk/normalize-chunk";
 import {shouldDebugEmit} from "../util/is-debug/should-debug";
+import {IEmitCache} from "../service/cache/emit-cache/i-emit-cache";
 
 export interface EmitDeclarationsOptions {
 	resolver: Resolver;
+	emitCache: IEmitCache;
 	supportedExtensions: SupportedExtensions;
 	fileSystem: FileSystem;
 	pluginContext: PluginContext;
@@ -72,7 +71,6 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 	const absoluteDeclarationOutDir = join(options.cwd, relativeDeclarationOutDir);
 
 	const relativeOutDir = getOutDir(options.cwd, options.outputOptions);
-	const absoluteOutDir = join(options.cwd, relativeOutDir);
 	const generateMap = Boolean(options.compilerOptions.declarationMap);
 	const sourceFileToNodeToReferencedIdentifiersCache: SourceFileToNodeToReferencedIdentifiersCache = new Map();
 	const nodeIdentifierCache: NodeIdentifierCache = new Map();
@@ -98,18 +96,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		}
 	}
 
-	const trackCrossChunkReferencesResult = trackCrossChunkReferences({
-		...options,
-		typescript,
-		printer,
-		nodeIdentifierCache,
-		chunks,
-		virtualOutFile
-	});
-
-	const mergedChunks = mergeChunksWithAmbientDependencies(chunks, trackCrossChunkReferencesResult.moduleDependencyMap, options.languageServiceHost);
-	const chunkToOriginalFileMap = getChunkToOriginalFileMap(absoluteOutDir, mergedChunks);
-
+	const mergedChunks = [...chunks];
 	const allModules = new Set<string>();
 
 	for (const chunk of mergedChunks) {
@@ -118,19 +105,37 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		}
 	}
 
+	const program = typescript.createProgram({
+		rootNames: [...allModules],
+		options: {
+			...options.compilerOptions,
+			outFile: setExtension(virtualOutFile.relative, JS_EXTENSION),
+			module: typescript.ModuleKind.System,
+			emitDeclarationOnly: true
+		},
+		host: options.languageServiceHost
+	});
+
+	const typeChecker = program.getTypeChecker();
+
 	const sharedOptions = {
 		...options,
-		...trackCrossChunkReferencesResult,
+		program,
+		typeChecker,
 		typescript,
-		chunkToOriginalFileMap,
 		generateMap,
 		nodeIdentifierCache,
 		printer,
 		referenceCache,
 		sourceFileToNodeToReferencedIdentifiersCache,
-		isMultiChunk: mergedChunks.length > 1,
+		chunks: mergedChunks,
 		typeRoots: options.languageServiceHost.getTypeRoots(),
-		sourceFileToTypeReferencesSet: new Map()
+		sourceFileToTypeReferencesSet: new Map(),
+		moduleSpecifierToSourceFileMap: new Map(),
+		chunkToOriginalFileMap: new Map(),
+		sourceFileToImportedSymbolSet: new Map(),
+		sourceFileToExportedSymbolSet: new Map(),
+		moduleDependencyMap: new Map()
 	};
 
 	for (const chunk of mergedChunks) {
@@ -210,7 +215,6 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		const bundleResult = bundleDeclarationsForChunk({
 			...sharedOptions,
 			chunk: {
-				allModules,
 				paths: chunkPaths,
 				isEntry: chunk.isEntry,
 				modules: new Set(modules),

@@ -2,21 +2,22 @@ import {TS} from "../../../type/ts";
 import {Resolver} from "../../../util/resolve-id/resolver";
 import {TypescriptPluginOptions} from "../../../plugin/i-typescript-plugin-options";
 import {SupportedExtensions} from "../../../util/get-supported-extensions/get-supported-extensions";
-import {ChunkToOriginalFileMap} from "../../../util/chunk/get-chunk-to-original-file-map";
 import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "./transformers/reference/cache/reference-cache";
 import {NodeIdentifierCache} from "./transformers/trace-identifiers/trace-identifiers";
 import {PreparePathsResult} from "../../../declaration/emit-declarations";
-import {SourceFileToExportedSymbolSet} from "../cross-chunk-reference-tracker/transformers/track-exports-transformer/track-exports-transformer-visitor-options";
+import {SourceFileToExportedSymbolSet} from "./transformers/track-exports-transformer/track-exports-transformer-visitor-options";
 import {SourceFileBundlerVisitorOptions} from "./transformers/source-file-bundler/source-file-bundler-visitor-options";
-import {SourceFileToImportedSymbolSet} from "../cross-chunk-reference-tracker/transformers/track-imports-transformer/track-imports-transformer-visitor-options";
+import {SourceFileToImportedSymbolSet} from "./transformers/track-imports-transformer/track-imports-transformer-visitor-options";
+import {NormalizedChunk} from "../../../util/chunk/normalize-chunk";
+import {IncrementalLanguageService} from "../../language-service/incremental-language-service";
 
+export type ModuleDependencyMap = Map<string, Set<string>>;
 export type DeclarationTransformer = (options: SourceFileBundlerVisitorOptions) => TS.SourceFile;
 
 export interface ChunkOptions {
 	paths: PreparePathsResult;
 	modules: Set<string>;
 	entryModules: Set<string>;
-	allModules: Set<string>;
 	isEntry: boolean;
 }
 
@@ -27,8 +28,10 @@ export interface DeclarationBundlerOptions {
 	typeChecker: TS.TypeChecker;
 	compilerOptions: TS.CompilerOptions;
 	languageService: TS.LanguageService;
+	languageServiceHost: IncrementalLanguageService;
 	typeRoots: Set<string>;
 	chunk: ChunkOptions;
+	chunks: NormalizedChunk[];
 	declarationPaths: PreparePathsResult;
 	declarationMapPaths: PreparePathsResult;
 
@@ -44,15 +47,14 @@ export interface DeclarationBundlerOptions {
 	pluginOptions: TypescriptPluginOptions;
 
 	supportedExtensions: SupportedExtensions;
-	chunkToOriginalFileMap: ChunkToOriginalFileMap;
 
 	sourceFileToNodeToReferencedIdentifiersCache: SourceFileToNodeToReferencedIdentifiersCache;
+	sourceFileToTypeReferencesSet: Map<string, Set<string>>;
+
+	chunkToOriginalFileMap: Map<string, string[]>;
 	sourceFileToImportedSymbolSet: SourceFileToImportedSymbolSet;
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
 	// A Map between module specifiers and the SourceFiles they point to
 	moduleSpecifierToSourceFileMap: ModuleSpecifierToSourceFileMap;
-	sourceFileToTypeReferencesSet: Map<string, Set<string>>;
-
-	// Whether or not multiple chunks will be emitted
-	isMultiChunk: boolean;
+	moduleDependencyMap: ModuleDependencyMap;
 }

@@ -4,7 +4,7 @@ import {
 	getImportedSymbolFromImportClauseName,
 	getImportedSymbolFromImportSpecifier,
 	getImportedSymbolFromNamespaceImport
-} from "../../../../declaration-bundler/util/create-export-specifier-from-name-and-modifiers";
+} from "../../../util/create-export-specifier-from-name-and-modifiers";
 
 export function visitImportDeclaration({node, typescript, markAsImported}: TrackImportsTransformerVisitorOptions<TS.ImportDeclaration>): void {
 	if (!typescript.isStringLiteralLike(node.moduleSpecifier)) return;

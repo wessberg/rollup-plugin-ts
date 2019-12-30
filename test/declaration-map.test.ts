@@ -8,7 +8,7 @@ test("Declaration maps correctly maps input sources. #1", async t => {
 		[
 			{
 				entry: true,
-				fileName: "src/index.ts",
+				fileName: "src/main.ts",
 				text: `\
 					import {Foo, Bar} from "./foo";
 					export {Foo};
@@ -31,13 +31,27 @@ test("Declaration maps correctly maps input sources. #1", async t => {
 		}
 	);
 	const {
-		declarationMaps: [file]
+		declarationMaps: [map],
+		declarations: [file]
 	} = bundle;
+
 	t.deepEqual(
-		formatCode(file.code, "json"),
+		formatCode(file.code),
 		formatCode(
 			`\
-		{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../src/index.ts", "../src/foo.ts"],"names":[],"mappings":";;AACK,OAAO,YAAK,CAAC"}
+		declare const Foo = "Hello, World!";
+		declare const Bar = 2;
+		export { Foo, Bar };
+		//# sourceMappingURL=main.d.ts.map
+		`
+		)
+	);
+
+	t.deepEqual(
+		formatCode(map.code, "json"),
+		formatCode(
+			`\
+		{"version":3,"file":"main.d.ts","sourceRoot":"","sources":["../src/main.ts", "../src/foo.ts"],"names":[],"mappings":";;AACK,OAAO,YAAK,CAAC"}
 		`,
 			"json"
 		)

@@ -5,6 +5,7 @@ import {visitNode} from "./visitor/visit-node";
 import {getMergedImportDeclarationsForModules} from "../../util/get-merged-import-declarations-for-modules";
 import {getMergedExportDeclarationsForModules} from "../../util/get-merged-export-declarations-for-modules";
 import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {hasExportModifier} from "../../util/modifier-util";
 
 export function statementMerger(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
 	const {typescript, context, sourceFile} = options;
@@ -58,10 +59,12 @@ export function statementMerger(options: SourceFileBundlerVisitorOptions): TS.So
 	const exportDeclarations = result.statements.filter(
 		statement => typescript.isExportDeclaration(statement) || typescript.isExportAssignment(statement)
 	);
+	const statementsWithExportModifier = result.statements.filter(statement => hasExportModifier(statement, typescript));
+
 	const otherStatements = result.statements.filter(
 		statement => !typescript.isImportDeclaration(statement) && !typescript.isExportDeclaration(statement) && !typescript.isExportAssignment(statement)
 	);
-	const importExportCount = importDeclarations.length + exportDeclarations.length;
+	const importExportCount = importDeclarations.length + exportDeclarations.length + statementsWithExportModifier.length;
 
 	result = typescript.updateSourceFileNode(
 		result,

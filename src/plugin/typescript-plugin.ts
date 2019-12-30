@@ -403,6 +403,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			if (Boolean(parsedCommandLineResult.parsedCommandLine.options.declaration)) {
 				emitDeclarations({
 					bundle,
+					emitCache,
 					fileSystem,
 					pluginContext: this,
 					supportedExtensions: SUPPORTED_EXTENSIONS,
