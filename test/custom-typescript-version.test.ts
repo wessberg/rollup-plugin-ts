@@ -165,7 +165,7 @@ test("Supports multiple TypeScript versions. #1", async t => {
 			type DefaultAsyncActionCreatorWithMeta<Success = DefaultActionPayloadType, Meta = DefaultActionMetaType> = AsyncActionCreatorWithMeta<void, Success, Error, Meta> & {
 					foo: string;
 			};
-			declare const tryCatchDispatch: (dispatch: (action: Action<unknown, unknown>) => void) => <Success, Meta>(actionCreator: DefaultAsyncActionCreatorWithMeta<Success, Meta>) => any;
+			declare const tryCatchDispatch: (dispatch: (action: Action<unknown, unknown>) => void) => <Success, Meta>(actionCreator: DefaultAsyncActionCreatorWithMeta<Success, Meta>) => Promise<void>;
 			export { tryCatchDispatch };
 		`),
 			`Did not produce correct output for TypeScript ${version}`

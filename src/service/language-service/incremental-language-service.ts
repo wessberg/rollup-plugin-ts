@@ -346,10 +346,12 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 
 	private assertHasLib(libName: string): IFile {
 		// If the file exists on disk, add it
-		const code = this.options.fileSystem.readFile(nativeNormalize(join(this.getDefaultLibLocation(), libName)));
+		const absolutePath = join(this.getDefaultLibLocation(), libName);
+		const code = this.options.fileSystem.readFile(nativeNormalize(absolutePath));
 		if (code != null) {
 			this.addFile({file: libName, code}, true);
-			return this.files.get(libName)!;
+			this.addFile({file: absolutePath, code}, true);
+			return this.files.get(absolutePath)!;
 		} else {
 			throw new ReferenceError(`Could not resolve built-in lib: '${libName}'`);
 		}
@@ -363,7 +365,7 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 			if (isTypeScriptLib(fileName)) {
 				return this.assertHasLib(fileName);
 			}
-			const absoluteFileName = isTypeScriptLib(fileName) ? fileName : ensureAbsolute(this.options.cwd, fileName);
+			const absoluteFileName = ensureAbsolute(this.options.cwd, fileName);
 
 			// If the file exists on disk, add it
 			const code = this.options.fileSystem.readFile(nativeNormalize(absoluteFileName));

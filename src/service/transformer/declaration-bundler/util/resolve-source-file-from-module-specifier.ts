@@ -17,7 +17,7 @@ export function resolveSourceFileFromModuleSpecifier({
 	resolver,
 	sourceFiles
 }: ResolveSourceFileFromModuleSpecifierOptions): TS.SourceFile | undefined {
-	const sourceFile = moduleSpecifierToSourceFileMap.get(moduleSpecifier);
+	const sourceFile = moduleSpecifierToSourceFileMap.get(moduleSpecifier) ?? moduleSpecifierToSourceFileMap.get(`${moduleSpecifier}/index`);
 	if (sourceFile != null) return sourceFile;
 
 	if (moduleSpecifier.startsWith(".")) {

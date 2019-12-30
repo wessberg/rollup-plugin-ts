@@ -4,13 +4,11 @@ import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifier-transformer/ensure-no-declare-modifier-transformer";
 import {ensureHasDeclareModifier} from "../../../util/modifier-util";
 import {generateIdentifierName} from "../../../util/generate-identifier-name";
+import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
+import {preserveSymbols} from "../../../util/clone-node-with-symbols";
 
-export function visitImportTypeNode({
-	node,
-	typeChecker,
-	nodeToOriginalSymbolMap,
-	...options
-}: ModuleMergerVisitorOptions<TS.ImportTypeNode>): VisitResult<TS.ImportTypeNode> {
+export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.ImportTypeNode>): VisitResult<TS.ImportTypeNode> {
+	const {node, typeChecker, nodeToOriginalSymbolMap} = options;
 	const moduleSpecifier =
 		!options.typescript.isLiteralTypeNode(node.argument) || !options.typescript.isStringLiteralLike(node.argument.literal)
 			? undefined
@@ -27,7 +25,26 @@ export function visitImportTypeNode({
 
 	// If no SourceFile was resolved, preserve the export as it is.
 	if (matchingSourceFile == null) {
-		return contResult;
+		const generatedModuleSpecifier =
+			moduleSpecifier == null
+				? undefined
+				: generateModuleSpecifier({
+						...options,
+						from: options.sourceFile.fileName,
+						moduleSpecifier
+				  });
+		return generatedModuleSpecifier == null
+			? contResult
+			: preserveSymbols(
+					options.typescript.updateImportTypeNode(
+						contResult,
+						options.typescript.createLiteralTypeNode(options.typescript.createStringLiteral(generatedModuleSpecifier)),
+						contResult.qualifier,
+						contResult.typeArguments,
+						contResult.isTypeOf
+					),
+					options
+			  );
 	}
 
 	const symbol = typeChecker.getSymbolAtLocation(node.qualifier ?? node);
