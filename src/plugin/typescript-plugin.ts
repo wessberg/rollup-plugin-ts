@@ -302,7 +302,9 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// If this file represents ROLLUP_PLUGIN_MULTI_ENTRY, we need to parse its' contents to understand which files it aliases.
 			// Following that, there's nothing more to do
 			if (isRollupPluginMultiEntry(file)) {
-				MULTI_ENTRY_FILE_NAMES = new Set(matchAll(code, /(import|export)\s*(\*\s*from\s*)?["'`]([^"'`]*)["'`]/).map(([, , , path]) => path));
+				MULTI_ENTRY_FILE_NAMES = new Set(
+					matchAll(code, /(import|export)\s*(\*\s*from\s*)?["'`]([^"'`]*)["'`]/).map(([, , , path]) => normalize(path))
+				);
 				return undefined;
 			}
 
