@@ -111,7 +111,8 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	/**
 	 * The filter function to use
 	 */
-	const filter: (id: string) => boolean = createFilter(include, exclude);
+	const internalFilter: (id: string) => boolean = createFilter(include, exclude);
+	const filter = (id: string): boolean => internalFilter(id) || internalFilter(normalize(id)) || internalFilter(nativeNormalize(id));
 
 	/**
 	 * The Set of all transformed files.
@@ -299,9 +300,10 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * Transforms the given code and file
 		 */
 		async transform(this: PluginContext, code: string, file: string): Promise<TransformSourceDescription | undefined> {
+			const normalizedFile = normalize(file);
 			// If this file represents ROLLUP_PLUGIN_MULTI_ENTRY, we need to parse its' contents to understand which files it aliases.
 			// Following that, there's nothing more to do
-			if (isRollupPluginMultiEntry(file)) {
+			if (isRollupPluginMultiEntry(normalizedFile)) {
 				MULTI_ENTRY_FILE_NAMES = new Set(
 					matchAll(code, /(import|export)\s*(\*\s*from\s*)?["'`]([^"'`]*)["'`]/).map(([, , , path]) => normalize(path))
 				);
@@ -309,27 +311,27 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			}
 
 			// Skip the file if it doesn't match the filter or if the helper cannot be transformed
-			if (!filter(file) || isBabelHelper(file)) {
+			if (!filter(normalizedFile) || isBabelHelper(normalizedFile)) {
 				return undefined;
 			}
 
 			// Only pass the file through Typescript if it's extension is supported. Otherwise, if we're going to continue on with Babel,
 			// Mock a SourceDescription. Otherwise, return bind undefined
-			let sourceDescription = !canEmitForFile(file)
+			let sourceDescription = !canEmitForFile(normalizedFile)
 				? babelConfig != null
 					? {code, map: undefined}
 					: undefined
 				: (() => {
-						if (transformedFiles.has(file)) {
+						if (transformedFiles.has(normalizedFile)) {
 							// Remove the file from the resolve cache, now that it has changed.
-							resolveCache.delete(file);
+							resolveCache.delete(normalizedFile);
 						}
 
 						// Add the file to the LanguageServiceHost
-						languageServiceHost.addFileAsModule({file, code});
+						languageServiceHost.addFileAsModule({file: normalizedFile, code});
 
 						// Get some EmitOutput, optionally from the cache if the file contents are unchanged
-						const emitOutput = emitCache.get({fileName: file, languageService});
+						const emitOutput = emitCache.get({fileName: normalizedFile, languageService});
 
 						// Return the emit output results to Rollup
 						return getSourceDescriptionFromEmitOutput(emitOutput);
@@ -339,7 +341,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			if (sourceDescription == null) {
 				return undefined;
 			} else {
-				transformedFiles.add(file);
+				transformedFiles.add(normalizedFile);
 				// If Babel shouldn't be used, simply return the emitted results
 				if (babelConfig == null) {
 					return sourceDescription;
@@ -348,9 +350,9 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				// Otherwise, pass it on to Babel to perform the rest of the transpilation steps
 				else {
 					const transpilationResult = await transformAsync(sourceDescription.code, {
-						...babelConfig(file),
-						filename: file,
-						filenameRelative: ensureRelative(cwd, file),
+						...babelConfig(normalizedFile),
+						filename: normalizedFile,
+						filenameRelative: ensureRelative(cwd, normalizedFile),
 						inputSourceMap: typeof sourceDescription.map === "string" ? JSON.parse(sourceDescription.map) : sourceDescription.map
 					});
 
