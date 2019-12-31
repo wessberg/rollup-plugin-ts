@@ -38,6 +38,7 @@ export interface TrackImportsOptions extends DeclarationBundlerOptions {
 
 export interface TrackImportsTransformerVisitorOptions<T extends TS.Node> extends TrackImportsOptions {
 	node: T;
+	shouldDeepTraverse: boolean;
 
 	childContinuation<U extends TS.Node>(node: U): void;
 	continuation<U extends TS.Node>(node: U): void;

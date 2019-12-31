@@ -1,4 +1,4 @@
-import Chalk from "chalk";
+import chalk from "chalk";
 
 export interface Benchmark {
 	finish(): void;
@@ -15,7 +15,7 @@ export function benchmark(message: string): Benchmark {
 		.getSeconds()
 		.toString()
 		.padStart(2, "0")})`;
-	const leadingMessage = `${Chalk.gray(currentDateTime)}`;
+	const leadingMessage = `${chalk.gray(currentDateTime)}`;
 	const uniqueMessage = `${leadingMessage}${message}`;
 	console.time(uniqueMessage);
 
