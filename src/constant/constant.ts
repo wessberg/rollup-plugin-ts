@@ -1,5 +1,3 @@
-import {InputOptions} from "rollup";
-
 export const SOURCE_MAP_EXTENSION = ".map";
 export const TS_EXTENSION = ".ts";
 export const TSX_EXTENSION = ".tsx";
@@ -25,8 +23,11 @@ export const KNOWN_EXTENSIONS = new Set([
 	MJSX_EXTENSION
 ] as const);
 
+export const DEFAULT_TYPES_ROOT = "@types";
 export const NODE_MODULES = "node_modules";
-export const SOURCE_MAP_COMMENT = "\n//# sourceMappingURL";
+export const NODE_MODULES_MATCH_PATH = `/${NODE_MODULES}/`;
+export const SOURCE_MAP_COMMENT = "//# sourceMappingURL";
+export const SOURCE_MAP_COMMENT_REGEXP = /\/\/# sourceMappingURL=(\S*)/;
 export const TSLIB_NAME = `tslib${DECLARATION_EXTENSION}`;
 export const BABEL_RUNTIME_PREFIX_1 = "@babel/runtime/";
 export const BABEL_RUNTIME_PREFIX_2 = "babel-runtime/";
@@ -34,7 +35,8 @@ export const BABEL_CONFIG_JS_FILENAME = "babel.config.js";
 
 export const REGENERATOR_RUNTIME_NAME_1 = `${BABEL_RUNTIME_PREFIX_1}regenerator/index.js`;
 export const REGENERATOR_RUNTIME_NAME_2 = `${BABEL_RUNTIME_PREFIX_2}regenerator/index.js`;
-export const BABEL_EXAMPLE_HELPERS = [`${BABEL_RUNTIME_PREFIX_1}helpers/esm/typeof.js`, `${BABEL_RUNTIME_PREFIX_2}helpers/esm/typeof.js`];
+export const BABEL_REQUIRE_RUNTIME_HELPER_REGEXP_1 = new RegExp(`(require\\(["'\`])(${BABEL_RUNTIME_PREFIX_1}helpers/esm/[^"'\`]*)["'\`]\\)`);
+export const BABEL_REQUIRE_RUNTIME_HELPER_REGEXP_2 = new RegExp(`(require\\(["'\`])(${BABEL_RUNTIME_PREFIX_2}helpers/esm/[^"'\`]*)["'\`]\\)`);
 
 export const BABEL_CHUNK_BLACKLIST_PRESET_NAMES = [];
 
@@ -75,91 +77,10 @@ export const FORCED_BABEL_YEARLY_PRESET_OPTIONS = {
 	...FORCED_BABEL_PRESET_ENV_OPTIONS
 };
 
-export const FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS = (rollupInputOptions: InputOptions) => {
-	let forceESModules: boolean = true;
-
-	// Only apply the forceESModules option if @babel helpers aren't treated as external.
-	if (
-		BABEL_EXAMPLE_HELPERS.some(helper => {
-			if (typeof rollupInputOptions.external === "function") {
-				return rollupInputOptions.external(helper, "", true) === true;
-			} else if (Array.isArray(rollupInputOptions.external)) {
-				return rollupInputOptions.external.includes(helper);
-			} else {
-				return false;
-			}
-		})
-	) {
-		forceESModules = false;
-	}
-
-	return {
-		helpers: true,
-		regenerator: true,
-		...(forceESModules ? {useESModules: true} : {})
-	};
+export const FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS = {
+	helpers: true,
+	regenerator: true,
+	useESModules: true
 };
 
-export const MAIN_FIELDS = ["module", "es2015", "esm2015", "jsnext:main", "main"];
-
-export const MAIN_FIELDS_BROWSER = ["browser", "module", "es2015", "esm2015", "jsnext:main", "main"];
-
 export const ROLLUP_PLUGIN_MULTI_ENTRY = "\0rollup-plugin-multi-entry:entry-point";
-
-export const DEFAULT_LIB_NAMES: Set<string> = new Set([
-	"lib.d.ts",
-	"lib.dom.d.ts",
-	"lib.dom.iterable.d.ts",
-	"lib.es5.d.ts",
-	"lib.es6.d.ts",
-	"lib.es2015.collection.d.ts",
-	"lib.es2015.core.d.ts",
-	"lib.es2015.d.ts",
-	"lib.es2015.generator.d.ts",
-	"lib.es2015.iterable.d.ts",
-	"lib.es2015.promise.d.ts",
-	"lib.es2015.proxy.d.ts",
-	"lib.es2015.reflect.d.ts",
-	"lib.es2015.symbol.d.ts",
-	`lib.es2015.symbol.wellknown.d.ts`,
-	"lib.es2016.array.include.d.ts",
-	"lib.es2016.d.ts",
-	"lib.es2016.full.d.ts",
-	"lib.es2017.d.ts",
-	"lib.es2017.full.d.ts",
-	"lib.es2017.intl.d.ts",
-	"lib.es2017.object.d.ts",
-	"lib.es2017.sharedmemory.d.ts",
-	"lib.es2017.string.d.ts",
-	"lib.es2017.typedarrays.d.ts",
-	"lib.es2018.d.ts",
-	"lib.es2018.full.d.ts",
-	"lib.es2018.intl.d.ts",
-	"lib.es2018.promise.d.ts",
-	"lib.es2018.regexp.d.ts",
-	"lib.es2018.asynciterable.d.ts",
-	"lib.es2018.asyncgenerator.d.ts",
-	"lib.es2019.array.d.ts",
-	"lib.es2019.d.ts",
-	"lib.es2019.full.d.ts",
-	"lib.es2019.string.d.ts",
-	"lib.es2019.object.d.ts",
-	"lib.es2019.symbol.d.ts",
-	"lib.es2020.d.ts",
-	"lib.es2020.full.d.ts",
-	"lib.es2020.string.d.ts",
-	"lib.es2020.symbol.wellknown.d.ts",
-	"lib.esnext.asynciterable.d.ts",
-	"lib.esnext.array.d.ts",
-	"lib.esnext.d.ts",
-	"lib.esnext.bigint.d.ts",
-	"lib.esnext.full.d.ts",
-	"lib.esnext.intl.d.ts",
-	"lib.esnext.symbol.d.ts",
-	"lib.scripthost.d.ts",
-	"lib.webworker.d.ts",
-	"lib.webworker.importscripts.d.ts"
-]);
-
-export const DEBUG =
-	process.env.ROLLUP_PLUGIN_TS_DEBUG === "true" || process.env.ROLLUP_PLUGIN_TS_DEBUG === "" || process.env.ROLLUP_PLUGIN_TS_DEBUG === "1";

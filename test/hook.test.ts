@@ -23,12 +23,13 @@ test("Declarations respect rewritten output paths. #1", async t => {
 			}
 		],
 		{
+			debug: false,
 			tsconfig: {
 				declarationMap: true,
 				declarationDir: "./foobarbaz"
 			},
 			hook: {
-				outputPath: path => path.replace("index.d.ts", "index-rewritten.d.ts")
+				outputPath: path => path.replace("index.d.ts", "some-other-dir/hey/there/index-rewritten.d.ts")
 			}
 		}
 	);
@@ -39,7 +40,7 @@ test("Declarations respect rewritten output paths. #1", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		declare type Foo = string;
+		type Foo = string;
 		export {Foo};
 		//# sourceMappingURL=index-rewritten.d.ts.map
 		`)

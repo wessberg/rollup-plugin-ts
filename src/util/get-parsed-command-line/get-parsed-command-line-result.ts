@@ -1,6 +1,6 @@
-import {CompilerOptions, ParsedCommandLine} from "typescript";
+import {TS} from "../../type/ts";
 
 export interface GetParsedCommandLineResult {
-	parsedCommandLine: ParsedCommandLine;
-	originalCompilerOptions: CompilerOptions;
+	parsedCommandLine: TS.ParsedCommandLine;
+	originalCompilerOptions: TS.CompilerOptions;
 }

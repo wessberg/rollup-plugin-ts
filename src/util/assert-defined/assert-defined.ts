@@ -3,8 +3,3 @@ export function assertDefined<T>(item: T | undefined | null, message: string): a
 		throw new ReferenceError(message);
 	}
 }
-
-export function ensureDefined<T>(item: T | undefined | null, message: string): T {
-	assertDefined(item, message);
-	return item;
-}

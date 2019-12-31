@@ -1,23 +1,21 @@
-import {ScriptKind} from "typescript";
-import {JS_EXTENSION, TS_EXTENSION, TSX_EXTENSION, JSX_EXTENSION, JSON_EXTENSION} from "../../constant/constant";
+import {JS_EXTENSION, JSON_EXTENSION, JSX_EXTENSION, TS_EXTENSION, TSX_EXTENSION} from "../../constant/constant";
+import {TS} from "../../type/ts";
 
 /**
  * Gets a ScriptKind from the given path
- * @param {string} path
- * @returns {ScriptKind}
  */
-export function getScriptKindFromPath(path: string): ScriptKind {
+export function getScriptKindFromPath(path: string, typescript: typeof TS): TS.ScriptKind {
 	if (path.endsWith(JS_EXTENSION)) {
-		return ScriptKind.JS;
+		return typescript.ScriptKind.JS;
 	} else if (path.endsWith(TS_EXTENSION)) {
-		return ScriptKind.TS;
+		return typescript.ScriptKind.TS;
 	} else if (path.endsWith(TSX_EXTENSION)) {
-		return ScriptKind.TSX;
+		return typescript.ScriptKind.TSX;
 	} else if (path.endsWith(JSX_EXTENSION)) {
-		return ScriptKind.JSX;
+		return typescript.ScriptKind.JSX;
 	} else if (path.endsWith(JSON_EXTENSION)) {
-		return ScriptKind.JSON;
+		return typescript.ScriptKind.JSON;
 	} else {
-		return ScriptKind.Unknown;
+		return typescript.ScriptKind.Unknown;
 	}
 }

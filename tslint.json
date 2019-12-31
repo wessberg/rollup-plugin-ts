@@ -2,9 +2,5 @@
 	"extends": "./node_modules/@wessberg/ts-config/tslint.json",
 	"linterOptions": {
 		"exclude": ["test-app/**"]
-	},
-	"rules": {
-		"no-redundant-jsdoc": false,
-		"member-access": [true]
 	}
 }

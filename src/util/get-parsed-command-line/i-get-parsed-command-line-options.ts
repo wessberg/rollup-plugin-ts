@@ -1,10 +1,11 @@
 import {TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options";
-import {CompilerOptions} from "typescript";
 import {FileSystem} from "../file-system/file-system";
+import {TS} from "../../type/ts";
 
 export interface IGetParsedCommandLineOptions {
 	cwd: string;
 	tsconfig?: TypescriptPluginOptions["tsconfig"];
-	forcedCompilerOptions?: CompilerOptions;
+	forcedCompilerOptions?: TS.CompilerOptions;
 	fileSystem: FileSystem;
+	typescript: typeof TS;
 }

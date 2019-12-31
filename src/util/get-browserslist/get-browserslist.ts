@@ -1,6 +1,6 @@
 import {IGetBrowserslistOptions} from "./i-get-browserslist-options";
 import {normalizeBrowserslist} from "@wessberg/browserslist-generator";
-import {ensureAbsolute} from "../path/path-util";
+import {ensureAbsolute, nativeNormalize} from "../path/path-util";
 // @ts-ignore
 import {findConfig, readConfig} from "browserslist";
 import {IBrowserslistPathConfig, IBrowserslistQueryConfig} from "../../plugin/i-typescript-plugin-options";
@@ -8,8 +8,6 @@ import {ensureArray} from "../ensure-array/ensure-array";
 
 /**
  * Returns true if the given browserslist is raw input for a Browserslist
- * @param {IGetBrowserslistOptions["browserslist"]} browserslist
- * @returns {boolean}
  */
 function isBrowserslistInput(browserslist: IGetBrowserslistOptions["browserslist"]): browserslist is string[] | string {
 	return typeof browserslist === "string" || Array.isArray(browserslist);
@@ -17,8 +15,6 @@ function isBrowserslistInput(browserslist: IGetBrowserslistOptions["browserslist
 
 /**
  * Returns true if the given browserslist is an IBrowserslistQueryConfig
- * @param {IGetBrowserslistOptions["browserslist"]} browserslist
- * @returns {boolean}
  */
 function isBrowserslistQueryConfig(browserslist: IGetBrowserslistOptions["browserslist"]): browserslist is IBrowserslistQueryConfig {
 	return (
@@ -28,8 +24,6 @@ function isBrowserslistQueryConfig(browserslist: IGetBrowserslistOptions["browse
 
 /**
  * Returns true if the given browserslist is an IBrowserslistPathConfig
- * @param {IGetBrowserslistOptions["browserslist"]} browserslist
- * @returns {boolean}
  */
 function isBrowserslistPathConfig(browserslist: IGetBrowserslistOptions["browserslist"]): browserslist is IBrowserslistPathConfig {
 	return browserslist != null && !isBrowserslistInput(browserslist) && browserslist !== false && "path" in browserslist && browserslist.path != null;
@@ -37,8 +31,6 @@ function isBrowserslistPathConfig(browserslist: IGetBrowserslistOptions["browser
 
 /**
  * Gets a Browserslist based on the given options
- * @param {IGetBrowserslistOptions} options
- * @returns {string[]?}
  */
 export function getBrowserslist({browserslist, cwd, fileSystem}: IGetBrowserslistOptions): string[] | undefined {
 	// If a Browserslist is provided directly from the options, use that
@@ -62,7 +54,7 @@ export function getBrowserslist({browserslist, cwd, fileSystem}: IGetBrowserslis
 		else if (isBrowserslistPathConfig(browserslist)) {
 			const browserslistPath = ensureAbsolute(cwd, browserslist.path);
 			const errorMessage = `The given path for a Browserslist: '${browserslistPath}' could not be resolved from '${cwd}'`;
-			if (!fileSystem.fileExists(browserslistPath)) {
+			if (!fileSystem.fileExists(nativeNormalize(browserslistPath))) {
 				throw new ReferenceError(errorMessage);
 			} else {
 				// Read the config

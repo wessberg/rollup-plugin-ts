@@ -1,17 +1,25 @@
 import {IGetDiagnosticsOptions} from "./i-get-diagnostics-options";
-import {DiagnosticCategory, flattenDiagnosticMessageText, formatDiagnosticsWithColorAndContext, getPreEmitDiagnostics, Diagnostic} from "typescript";
 import {RollupError, RollupWarning} from "rollup";
 import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
+import {TS} from "../../type/ts";
 
 /**
  * Gets diagnostics for the given fileName
- * @param {IGetDiagnosticsOptions} options
  */
-export function emitDiagnosticsThroughRollup({languageService, languageServiceHost, context, pluginOptions}: IGetDiagnosticsOptions): void {
+export function emitDiagnosticsThroughRollup({
+	languageService,
+	languageServiceHost,
+	context,
+	pluginOptions,
+	typescript
+}: IGetDiagnosticsOptions): void {
 	const program = languageService.getProgram();
 	if (program == null) return;
 
-	let diagnostics: readonly Diagnostic[] | undefined = [...getPreEmitDiagnostics(program), ...languageServiceHost.getTransformerDiagnostics()];
+	let diagnostics: readonly TS.Diagnostic[] | undefined = [
+		...typescript.getPreEmitDiagnostics(program),
+		...languageServiceHost.getTransformerDiagnostics()
+	];
 
 	// If there is a hook for diagnostics, call it assign the result of calling it to the local variable 'diagnostics'
 	if (pluginOptions.hook.diagnostics != null) {
@@ -22,12 +30,12 @@ export function emitDiagnosticsThroughRollup({languageService, languageServiceHo
 	if (diagnostics == null) return;
 
 	diagnostics.forEach((diagnostic: IExtendedDiagnostic) => {
-		const message = flattenDiagnosticMessageText(diagnostic.messageText, "\n");
+		const message = typescript.flattenDiagnosticMessageText(diagnostic.messageText, "\n");
 		const position =
 			diagnostic.start == null || diagnostic.file == null ? undefined : diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
 
 		// Color-format the diagnostics
-		const colorFormatted = formatDiagnosticsWithColorAndContext([diagnostic], languageServiceHost);
+		const colorFormatted = typescript.formatDiagnosticsWithColorAndContext([diagnostic], languageServiceHost);
 
 		// Provide a normalized error code
 		const code = `${diagnostic.scope == null ? "TS" : diagnostic.scope}${diagnostic.code}`;
@@ -45,7 +53,7 @@ export function emitDiagnosticsThroughRollup({languageService, languageServiceHo
 		}
 
 		switch (diagnostic.category) {
-			case DiagnosticCategory.Error:
+			case typescript.DiagnosticCategory.Error:
 				context.error(
 					{
 						frame,
@@ -69,9 +77,9 @@ export function emitDiagnosticsThroughRollup({languageService, languageServiceHo
 				);
 				break;
 
-			case DiagnosticCategory.Warning:
-			case DiagnosticCategory.Message:
-			case DiagnosticCategory.Suggestion:
+			case typescript.DiagnosticCategory.Warning:
+			case typescript.DiagnosticCategory.Message:
+			case typescript.DiagnosticCategory.Suggestion:
 				context.warn(
 					{
 						frame,

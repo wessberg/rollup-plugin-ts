@@ -1,33 +1,33 @@
+import * as TSModule from "typescript";
 import {TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options";
-import {REAL_FILE_SYSTEM} from "../file-system/file-system";
+import {getRealFileSystem} from "../file-system/file-system";
+import {normalize} from "../path/path-util";
 
 /**
  * Gets normalized PluginOptions based on the given ones
- * @param {Partial<TypescriptPluginOptions>} options
- * @returns {TypescriptPluginOptions}
  */
 export function getPluginOptions(options: Partial<TypescriptPluginOptions>): TypescriptPluginOptions {
 	// Destructure the options and provide defaults
 	const {
 		browserslist,
 		transpiler = "typescript",
-		cwd = process.cwd(),
-		resolveTypescriptLibFrom = cwd,
+		typescript = TSModule,
+		cwd = normalize(process.cwd()),
 		tsconfig,
 		transformers,
 		include = [],
 		exclude = [],
 		transpileOnly = false,
 		debug = false,
-		fileSystem = REAL_FILE_SYSTEM,
+		fileSystem = getRealFileSystem(typescript),
 		hook = {}
 	} = options;
 
 	// These options will be used no matter what
 	const baseOptions = {
+		typescript,
 		browserslist,
-		cwd,
-		resolveTypescriptLibFrom,
+		cwd: normalize(cwd),
 		exclude,
 		include,
 		transformers,

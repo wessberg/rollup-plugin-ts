@@ -1,7 +1,7 @@
-import {LanguageService} from "typescript";
+import {TS} from "../../../type/ts";
 
 export interface IGetEmitOutputWithCachingOptions {
-	languageService: LanguageService;
+	languageService: TS.LanguageService;
 	fileName: string;
 	dtsOnly?: boolean;
 }

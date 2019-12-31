@@ -78,6 +78,7 @@ In comparison with the [official plugin](https://github.com/rollup/rollup-plugin
   - [Typescript, Babel, and Browserslist example](#typescript-babel-and-browserslist-example)
   - [Pure Typescript with CustomTransformers](#pure-typescript-with-customtransformers)
   - [Advanced example of using Typescript, Babel, and Browserslists together](#advanced-example-of-using-typescript-babel-and-browserslists-together)
+  - [Passing a specific TypeScript version](#passing-a-specific-typescript-version)
 - [Hooks](#hooks)
   - [The `outputPath` hook](#the-outputpath-hook)
   - [The `diagnostics` hook](#the-diagnostics-hook)
@@ -88,7 +89,7 @@ In comparison with the [official plugin](https://github.com/rollup/rollup-plugin
   - [`tsconfig`](#tsconfig)
   - [`browserslist`](#browserslist)
   - [`cwd`](#cwd)
-  - [`resolveTypescriptLibFrom`](#resolvetypescriptlibfrom)
+  - [`typescript`](#typescript)
   - [`transformers`](#transformers)
   - [`include`](#include)
   - [`exclude`](#exclude)
@@ -400,6 +401,16 @@ ts({
 });
 ```
 
+### Passing a specific TypeScript version
+
+You can use pass a specific TypeScript to use as an option. This may be useful if you are using different TypeScript versions across packages inside a monorepo and you want to use a specific one with `rollup-plugin-ts`:
+
+```typescript
+ts({
+	typescript: specialTypescriptVersion
+});
+```
+
 ## Hooks
 
 `rollup-plugin-ts` provides a few hooks that allow you to hook into and augment the internal behavior of the plugin.
@@ -488,11 +499,11 @@ Type: `string`
 
 Use this property to overwrite whatever is considered the root directory. The default value is `process.cwd()`.
 
-#### `resolveTypescriptLibFrom`
+#### `typescript`
 
-Type: `string`
+Type: `typeof import("typescript")`
 
-Use this property to overwrite from where to search for the `node_modules/typescript/lib` directory. The default value is `cwd`.
+Use this property to pass a specific version of TypeScript to use.
 
 #### `transformers`
 

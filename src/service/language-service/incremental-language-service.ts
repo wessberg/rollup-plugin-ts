@@ -1,100 +1,75 @@
-import {
-	CompilerHost,
-	CompilerOptions,
-	CustomTransformers,
-	getDefaultLibFileName,
-	IScriptSnapshot,
-	LanguageServiceHost,
-	ResolvedModuleFull,
-	ScriptKind,
-	ScriptSnapshot,
-	SourceFile
-} from "typescript";
-import {join} from "path";
 import {getNewLineCharacter} from "../../util/get-new-line-character/get-new-line-character";
 import {ILanguageServiceOptions} from "./i-language-service-options";
 import {IFile, IFileInput} from "./i-file";
 import {getScriptKindFromPath} from "../../util/get-script-kind-from-path/get-script-kind-from-path";
-import {sync} from "find-up";
-import {DEFAULT_LIB_NAMES} from "../../constant/constant";
-import {ensureAbsolute, isInternalFile} from "../../util/path/path-util";
+import {dirname, ensureAbsolute, isInternalFile, isTypeScriptLib, join, nativeNormalize, normalize} from "../../util/path/path-util";
 import {CustomTransformersFunction} from "../../util/merge-transformers/i-custom-transformer-options";
 import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
 import {resolveId} from "../../util/resolve-id/resolve-id";
+import {TS} from "../../type/ts";
+import {ensureModuleTransformer} from "../transformer/ensure-module/ensure-module-transformer";
+import {generateSourceFile} from "../../util/generate-source-file/generate-source-file";
 
 // tslint:disable:no-any
 
 /**
  * An implementation of a LanguageService for Typescript
  */
-export class IncrementalLanguageService implements LanguageServiceHost, CompilerHost {
-	/**
-	 * A Map between filenames and emitted code
-	 * @type {Map<string, string>}
-	 */
-	public emittedFiles: Map<string, string> = new Map();
-
+export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.CompilerHost {
 	/**
 	 * The Set of all files that has been added manually via the public API
-	 * @type {Set<string>}
 	 */
-	public publicFiles: Set<string> = new Set();
-
-	/**
-	 * The nearest Typescript Lib directory from the given cwd
-	 * @type {string | null}
-	 */
-
-	private readonly LIB_DIRECTORY = sync("node_modules/typescript/lib", {cwd: this.options.resolveTypescriptLibFrom, type: "directory"});
-
-	/**
-	 * The lookup location for the tslib file
-	 * @type {string}
-	 */
+	publicFiles: Set<string> = new Set();
 
 	/**
 	 * A Map between file names and their IFiles
-	 * @type {Map<string, IFile>}
 	 */
-	private readonly files: Map<string, IFile> = new Map();
+	readonly files: Map<string, IFile> = new Map();
+
+	private readonly printer: TS.Printer;
+
 	/**
 	 * The CustomTransformersFunction to use, if any
-	 * @type {CustomTransformersFunction}
 	 */
 	private readonly transformers: CustomTransformersFunction | undefined;
 
 	constructor(private readonly options: ILanguageServiceOptions) {
-		this.addDefaultLibs();
 		this.addDefaultFileNames();
 		this.transformers = options.transformers;
+		this.printer = this.options.typescript.createPrinter({newLine: this.options.parsedCommandLine.options.newLine});
+	}
+
+	getTypeRoots() {
+		return new Set(this.options.typescript.getEffectiveTypeRoots(this.getCompilationSettings(), this));
 	}
 
 	/**
 	 * Writes a file. Will simply put it in the emittedFiles Map
-	 * @param {string} fileName
-	 * @param {string} data
 	 */
-	public writeFile(fileName: string, data: string): void {
-		this.emittedFiles.set(fileName, data);
-	}
+	writeFile(): void {}
 
 	/**
 	 * Gets a SourceFile from the given fileName
-	 * @param {string} fileName
-	 * @returns {SourceFile | undefined}
 	 */
-	public getSourceFile(fileName: string): SourceFile | undefined {
+	getSourceFile(fileName: string): TS.SourceFile | undefined {
 		const program = this.options.languageService().getProgram();
 		if (program == null) return undefined;
 		return program.getSourceFile(fileName);
 	}
 
 	/**
-	 * Gets all diagnostics reported of transformers for the given filename
-	 * @param {string} fileName
-	 * @returns {ReadonlyArray<IExtendedDiagnostic>}
+	 * Gets all SourceFiles
 	 */
-	public getTransformerDiagnostics(fileName?: string): ReadonlyArray<IExtendedDiagnostic> {
+	getSourceFiles(): readonly TS.SourceFile[] {
+		const program = this.options.languageService().getProgram();
+		if (program == null) return [];
+		return program.getSourceFiles();
+	}
+
+	/**
+	 * Gets all diagnostics reported of transformers for the given filename
+	 */
+	getTransformerDiagnostics(fileName?: string): ReadonlyArray<IExtendedDiagnostic> {
 		// If diagnostics for only a specific file should be retrieved, try to get it from the files map and return its transformer diagnostics
 		if (fileName != null) {
 			const fileMatch = this.files.get(fileName);
@@ -112,11 +87,18 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	}
 
 	/**
-	 * Adds a File to the CompilerHost
-	 * @param {IFile} file
-	 * @param {boolean} internal
+	 * Adds as file, but ensures that it is a module before adding it
 	 */
-	public addFile(file: IFileInput, internal: boolean = false): void {
+	addFileAsModule(file: IFileInput, internal: boolean = false): void {
+		const sourceFile = generateSourceFile({...this.options, ...file, compilerOptions: this.getCompilationSettings()});
+		const code = ensureModuleTransformer({sourceFile, printer: this.printer, typescript: this.options.typescript});
+		this.addFile({...file, code}, internal);
+	}
+
+	/**
+	 * Adds a File to the CompilerHost
+	 */
+	addFile(file: IFileInput, internal: boolean = false): void {
 		const existing = this.files.get(file.file);
 
 		// Don't proceed if the file contents are completely unchanged
@@ -124,8 +106,8 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 
 		this.files.set(file.file, {
 			...file,
-			scriptKind: getScriptKindFromPath(file.file),
-			snapshot: ScriptSnapshot.fromString(file.code),
+			scriptKind: getScriptKindFromPath(file.file, this.options.typescript),
+			snapshot: this.options.typescript.ScriptSnapshot.fromString(file.code),
 			version: existing != null ? existing.version + 1 : 0,
 			transformerDiagnostics: []
 		});
@@ -141,10 +123,8 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 
 	/**
 	 * Deletes a file from the LanguageService
-	 * @param {string} fileName
-	 * @returns {boolean}
 	 */
-	public deleteFile(fileName: string): boolean {
+	deleteFile(fileName: string): boolean {
 		const filesResult = this.files.delete(fileName);
 		const publicFilesResult = this.publicFiles.delete(fileName);
 		const cacheResult = this.options.emitCache.delete(fileName);
@@ -153,42 +133,36 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 
 	/**
 	 * Returns true if the given file exists
-	 * @param {string} fileName
-	 * @returns {boolean}
 	 */
-	public fileExists(fileName: string): boolean {
+	fileExists(fileName: string): boolean {
 		// Check if the file exists cached
 		if (this.files.has(fileName)) return true;
 
 		// Otherwise, check if it exists on disk
-		return this.options.fileSystem.fileExists(fileName);
+		return this.options.fileSystem.fileExists(nativeNormalize(fileName));
 	}
 
 	/**
 	 * Gets the current directory
-	 * @returns {string}
 	 */
-	public getCurrentDirectory(): string {
-		return this.options.cwd;
+	getCurrentDirectory(): string {
+		return normalize(this.options.cwd);
 	}
 
 	/**
 	 * Reads the given file
-	 * @param {string} fileName
-	 * @param {string} [encoding]
-	 * @returns {string | undefined}
 	 */
-	public readFile(fileName: string, encoding?: string): string | undefined {
+	readFile(fileName: string, encoding?: string): string | undefined {
 		// Check if the file exists within the cached files and return it if so
 		const result = this.files.get(fileName);
 		if (result != null) return result.code;
 
 		// Otherwise, try to properly resolve the file
-		return this.options.fileSystem.readFile(fileName, encoding);
+		return this.options.fileSystem.readFile(nativeNormalize(fileName), encoding);
 	}
 
-	public resolveModuleNames(moduleNames: string[], containingFile: string): (ResolvedModuleFull | undefined)[] {
-		const resolvedModules: (ResolvedModuleFull | undefined)[] = [];
+	resolveModuleNames(moduleNames: string[], containingFile: string): (TS.ResolvedModuleFull | undefined)[] {
+		const resolvedModules: (TS.ResolvedModuleFull | undefined)[] = [];
 		for (const moduleName of moduleNames) {
 			// try to use standard resolution
 			let result = resolveId({
@@ -198,7 +172,8 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 				moduleResolutionHost: this,
 				options: this.getCompilationSettings(),
 				resolveCache: this.options.resolveCache,
-				supportedExtensions: this.options.supportedExtensions
+				supportedExtensions: this.options.supportedExtensions,
+				typescript: this.options.typescript
 			});
 			if (result != null && result.resolvedAmbientFileName != null) {
 				resolvedModules.push({...result, resolvedFileName: result.resolvedAmbientFileName});
@@ -213,72 +188,62 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 
 	/**
 	 * Reads the given directory
-	 * @param {string} path
-	 * @param {ReadonlyArray<string>} extensions
-	 * @param {ReadonlyArray<string>} exclude
-	 * @param {ReadonlyArray<string>} include
-	 * @param {number} depth
-	 * @returns {string[]}
 	 */
-	public readDirectory(
+	readDirectory(
 		path: string,
 		extensions?: ReadonlyArray<string>,
 		exclude?: ReadonlyArray<string>,
 		include?: ReadonlyArray<string>,
 		depth?: number
 	): string[] {
-		return this.options.fileSystem.readDirectory(path, extensions, exclude, include, depth);
+		return this.options.fileSystem.readDirectory(nativeNormalize(path), extensions, exclude, include, depth).map(normalize);
 	}
 
 	/**
 	 * Gets the real path for the given path. Meant to resolve symlinks
-	 * @param {string} path
-	 * @returns {string}
 	 */
-	public realpath(path: string): string {
-		return this.options.fileSystem.realpath(path);
+	realpath(path: string): string {
+		return normalize(this.options.fileSystem.realpath(nativeNormalize(path)));
+	}
+
+	getDefaultLibLocation(): string {
+		return dirname(this.options.typescript.getDefaultLibFilePath(this.getCompilationSettings()));
 	}
 
 	/**
 	 * Gets the default lib file name based on the given CompilerOptions
-	 * @param {CompilerOptions} options
-	 * @returns {string}
 	 */
-	public getDefaultLibFileName(options: CompilerOptions): string {
-		return getDefaultLibFileName(options);
+	getDefaultLibFileName(options: TS.CompilerOptions): string {
+		return this.options.typescript.getDefaultLibFileName(options);
 	}
 
 	/**
 	 * Gets the newline to use
-	 * @returns {string}
 	 */
-	public getNewLine(): string {
+	getNewLine(): string {
 		return this.options.parsedCommandLine.options.newLine != null
-			? getNewLineCharacter(this.options.parsedCommandLine.options.newLine)
+			? getNewLineCharacter(this.options.parsedCommandLine.options.newLine, this.options.typescript)
 			: this.options.fileSystem.newLine;
 	}
 
 	/**
 	 * Returns true if file names should be treated as case-sensitive
-	 * @returns {boolean}
 	 */
-	public useCaseSensitiveFileNames(): boolean {
+	useCaseSensitiveFileNames(): boolean {
 		return this.options.fileSystem.useCaseSensitiveFileNames;
 	}
 
 	/**
 	 * Gets the CompilerOptions provided in the constructor
-	 * @returns {CompilerOptions}
 	 */
-	public getCompilationSettings(): CompilerOptions {
+	getCompilationSettings(): TS.CompilerOptions {
 		return this.options.parsedCommandLine.options;
 	}
 
 	/**
 	 * Gets the Custom Transformers to use, depending on the current emit mode
-	 * @returns {CustomTransformers | undefined}
 	 */
-	public getCustomTransformers(): CustomTransformers | undefined {
+	getCustomTransformers(): TS.CustomTransformers | undefined {
 		const languageService = this.options.languageService();
 		if (this.transformers == null) return undefined;
 		return this.transformers({
@@ -288,7 +253,6 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 
 			/**
 			 * This hook can add diagnostics from within CustomTransformers. These will be emitted alongside Typescript diagnostics seamlessly
-			 * @param {IExtendedDiagnostic} diagnostics
 			 */
 			addDiagnostics: (...diagnostics) => {
 				diagnostics.forEach(diagnostic => {
@@ -307,86 +271,52 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 
 	/**
 	 * Gets all Script file names
-	 * @returns {string[]}
 	 */
-	public getScriptFileNames(): string[] {
+	getScriptFileNames(): string[] {
 		return [...this.files.keys()];
 	}
 
 	/**
 	 * Gets the ScriptKind for the given file name
-	 * @param {string} fileName
-	 * @returns {ScriptKind}
 	 */
-	public getScriptKind(fileName: string): ScriptKind {
+	getScriptKind(fileName: string): TS.ScriptKind {
 		return this.assertHasFileName(fileName).scriptKind;
 	}
 
 	/**
 	 * Gets a ScriptSnapshot for the given file
-	 * @param {string} fileName
-	 * @returns {IScriptSnapshot | undefined}
 	 */
-	public getScriptSnapshot(fileName: string): IScriptSnapshot | undefined {
+	getScriptSnapshot(fileName: string): TS.IScriptSnapshot | undefined {
 		const file = this.assertHasFileName(fileName);
 		return file.snapshot;
 	}
 
 	/**
 	 * Gets the Script version for the given file name
-	 * @param {string} fileName
-	 * @returns {string}
 	 */
-	public getScriptVersion(fileName: string): string {
+	getScriptVersion(fileName: string): string {
 		return String(this.assertHasFileName(fileName).version);
 	}
 
 	/**
 	 * Gets the canonical filename for the given file
-	 * @param {string} fileName
-	 * @returns {string}
 	 */
-	public getCanonicalFileName(fileName: string): string {
+	getCanonicalFileName(fileName: string): string {
 		return this.useCaseSensitiveFileNames() ? fileName : fileName.toLowerCase();
 	}
 
 	/**
 	 * Gets all directories within the given directory path
-	 * @param {string} directoryName
-	 * @returns {string[]}
 	 */
-	public getDirectories(directoryName: string): string[] {
-		return this.options.fileSystem.getDirectories(directoryName);
+	getDirectories(directoryName: string): string[] {
+		return this.options.fileSystem.getDirectories(nativeNormalize(directoryName)).map(normalize);
 	}
 
 	/**
 	 * Returns true if the given directory exists
-	 * @param {string} directoryName
-	 * @returns {boolean}
 	 */
-	public directoryExists(directoryName: string): boolean {
-		return this.options.fileSystem.directoryExists(directoryName);
-	}
-
-	/**
-	 * Adds all default lib files to the LanguageService
-	 */
-	private addDefaultLibs(): void {
-		DEFAULT_LIB_NAMES.forEach(libName => {
-			if (this.LIB_DIRECTORY == null) return;
-
-			const path = join(this.LIB_DIRECTORY, libName);
-			const code = this.options.fileSystem.readFile(path);
-			if (code == null) return;
-
-			this.addFile(
-				{
-					file: libName,
-					code
-				},
-				true
-			);
-		});
+	directoryExists(directoryName: string): boolean {
+		return this.options.fileSystem.directoryExists(nativeNormalize(directoryName));
 	}
 
 	/**
@@ -394,11 +324,13 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 	 */
 	private addDefaultFileNames(): void {
 		this.options.parsedCommandLine.fileNames.forEach(file => {
-			const code = this.options.fileSystem.readFile(ensureAbsolute(this.options.cwd, file));
+			if (!this.options.filter(normalize(ensureAbsolute(this.options.cwd, file)))) return;
+
+			const code = this.options.fileSystem.readFile(nativeNormalize(ensureAbsolute(this.options.cwd, file)));
 			if (code != null) {
 				this.addFile(
 					{
-						file: file,
+						file,
 						code
 					},
 					true
@@ -407,17 +339,31 @@ export class IncrementalLanguageService implements LanguageServiceHost, Compiler
 		});
 	}
 
+	private assertHasLib(libName: string): IFile {
+		// If the file exists on disk, add it
+		const absolutePath = join(this.getDefaultLibLocation(), libName);
+		const code = this.options.fileSystem.readFile(nativeNormalize(absolutePath));
+		if (code != null) {
+			this.addFile({file: libName, code}, true);
+			this.addFile({file: absolutePath, code}, true);
+			return this.files.get(absolutePath)!;
+		} else {
+			throw new ReferenceError(`Could not resolve built-in lib: '${libName}'`);
+		}
+	}
+
 	/**
 	 * Asserts that the given file name exists within the LanguageServiceHost
-	 * @param {string} fileName
-	 * @returns {IFile}
 	 */
 	private assertHasFileName(fileName: string): IFile {
 		if (!this.files.has(fileName)) {
-			const absoluteFileName = DEFAULT_LIB_NAMES.has(fileName) ? fileName : ensureAbsolute(this.options.cwd, fileName);
+			if (isTypeScriptLib(fileName)) {
+				return this.assertHasLib(fileName);
+			}
+			const absoluteFileName = ensureAbsolute(this.options.cwd, fileName);
 
 			// If the file exists on disk, add it
-			const code = this.options.fileSystem.readFile(absoluteFileName);
+			const code = this.options.fileSystem.readFile(nativeNormalize(absoluteFileName));
 			if (code != null) {
 				this.addFile({file: absoluteFileName, code}, isInternalFile(absoluteFileName));
 				return this.files.get(absoluteFileName)!;

@@ -1,12 +1,9 @@
-import {Node} from "typescript";
+import {TS} from "../../../../type/ts";
 
 /**
  * Returns true if the given Node contains the given Child Node
- * @param {Node} parent
- * @param {Node} potentialChild
- * @returns {boolean}
  */
-export function nodeContainsChild(parent: Node, potentialChild: Node): boolean {
+export function nodeContainsChild(parent: TS.Node, potentialChild: TS.Node): boolean {
 	if (parent === potentialChild) return false;
 
 	let candidate = potentialChild;

@@ -1,7 +1,7 @@
 import {dirname} from "path";
 import {InputOptions} from "rollup";
 import {IBabelConfigItem} from "../../plugin/i-babel-options";
-import {isBabelPluginTransformRuntime, isBabelPresetEnv, isYearlyBabelPreset} from "../path/path-util";
+import {isBabelPluginTransformRuntime, isBabelPresetEnv, isYearlyBabelPreset, nativeNormalize} from "../path/path-util";
 import {
 	BABEL_CHUNK_BLACKLIST_PLUGIN_NAMES,
 	BABEL_CHUNK_BLACKLIST_PRESET_NAMES,
@@ -39,11 +39,6 @@ function getBabelItemId(item: IBabelConfigItem | IBabelPlugin): string {
 
 /**
  * Combines the given two sets of presets
- * @param {(IBabelConfigItem | IBabelPlugin)[]} userItems
- * @param {(IBabelConfigItem | IBabelPlugin)[]} defaultItems
- * @param {(IBabelConfigItem | IBabelPlugin)[]} [forcedItems]
- * @param {boolean} [useChunkOptions]
- * @returns {{}[]}
  */
 function combineConfigItems(
 	userItems: (IBabelConfigItem | IBabelPlugin)[],
@@ -80,9 +75,7 @@ function combineConfigItems(
 }
 
 /**
- * Returns true if the given configItem is related to chunk transform
- * @param {string} resolved
- * @returns {boolean}
+ * Returns true if the given configItem is related to minification
  */
 function configItemIsChunkRelated(item: string | IBabelConfigItem): boolean {
 	const id = typeof item === "string" ? item : getBabelItemId(item);
@@ -102,18 +95,14 @@ function configItemIsSyntaxRelated(id: string): boolean {
 }
 
 /**
- * Returns true if the given configItem is allowed for chunk
- * @param {string} resolved
- * @returns {boolean}
+ * Returns true if the given configItem is allowed during minification
  */
 function configItemIsAllowedForChunk(id: string): boolean {
 	return configItemIsSyntaxRelated(id) || configItemIsChunkRelated(id);
 }
 
 /**
- * Returns true if the given configItem is allowed for transform
- * @param {string} resolved
- * @returns {boolean}
+ * Returns true if the given configItem is allowed when not applying minification
  */
 function configItemIsAllowedForTransform(id: string): boolean {
 	return configItemIsSyntaxRelated(id) || !configItemIsChunkRelated(id);
@@ -154,8 +143,6 @@ function enforceBabelTransformRuntime<T extends IBabelConfigItem | IBabelPlugin>
 
 /**
  * Gets a Babel Config based on the given options
- * @param {GetBabelConfigOptions} options
- * @returns {GetBabelConfigResult}
  */
 export function getBabelConfig({
 	babelConfig,
@@ -163,8 +150,7 @@ export function getBabelConfig({
 	noBabelConfigCustomization,
 	forcedOptions = {},
 	defaultOptions = {},
-	browserslist,
-	rollupInputOptions
+	browserslist
 }: GetBabelConfigOptions): GetBabelConfigResult {
 	const resolvedConfig = findBabelConfig({cwd, babelConfig});
 
@@ -229,7 +215,7 @@ export function getBabelConfig({
 			  {
 					cwd,
 					root: cwd,
-					...(resolvedConfig != null ? {configFile: resolvedConfig.path} : {babelrc: true})
+					...(resolvedConfig != null ? {configFile: nativeNormalize(resolvedConfig.path)} : {babelrc: true})
 			  }
 	);
 
@@ -292,7 +278,7 @@ export function getBabelConfig({
 						plugin.file.request,
 						{
 							...(plugin.options == null ? {} : plugin.options),
-							...FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS(rollupInputOptions)
+							...FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS
 						}
 					],
 					{type: "plugin", dirname: cwd}

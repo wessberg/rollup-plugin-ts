@@ -1,5 +1,5 @@
-import {ScriptKind, IScriptSnapshot} from "typescript";
 import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
+import {TS} from "../../type/ts";
 
 export interface IFileInput {
 	file: string;
@@ -9,8 +9,8 @@ export interface IFileInput {
 export interface IFile {
 	file: string;
 	code: string;
-	scriptKind: ScriptKind;
-	snapshot: IScriptSnapshot;
+	scriptKind: TS.ScriptKind;
+	snapshot: TS.IScriptSnapshot;
 	version: number;
 	transformerDiagnostics: IExtendedDiagnostic[];
 }

@@ -1,27 +1,25 @@
 import {ModuleFormat} from "rollup";
-import {ModuleKind} from "typescript";
+import {TS} from "../../type/ts";
 
 /**
  * Gets a proper ModuleKind for Typescript based on the format given from the Rollup options
- * @param {ModuleFormat} format
- * @returns {ModuleKind}
  */
-export function getModuleKindFromRollupFormat(format: ModuleFormat): ModuleKind {
+export function getModuleKindFromRollupFormat(format: ModuleFormat, typescript: typeof TS): TS.ModuleKind {
 	switch (format) {
 		case "amd":
-			return ModuleKind.AMD;
+			return typescript.ModuleKind.AMD;
 		case "cjs":
 		case "commonjs":
-			return ModuleKind.CommonJS;
+			return typescript.ModuleKind.CommonJS;
 		case "system":
-			return ModuleKind.System;
+			return typescript.ModuleKind.System;
 		case "es":
 		case "esm":
 		case "module":
-			return ModuleKind.ESNext;
+			return typescript.ModuleKind.ESNext;
 		case "umd":
-			return ModuleKind.UMD;
+			return typescript.ModuleKind.UMD;
 		case "iife":
-			return ModuleKind.None;
+			return typescript.ModuleKind.None;
 	}
 }

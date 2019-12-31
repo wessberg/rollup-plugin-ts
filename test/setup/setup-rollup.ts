@@ -1,10 +1,11 @@
-import {dirname, isAbsolute, join, normalize, parse} from "path";
+import * as TSModule from "typescript";
 import {rollup, RollupOptions, RollupOutput} from "rollup";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
-import {sys} from "typescript";
-import {REAL_FILE_SYSTEM} from "../../src/util/file-system/file-system";
-import {HookRecord, InputCompilerOptions} from "../../src/plugin/i-typescript-plugin-options";
+import {HookRecord, InputCompilerOptions, TypescriptPluginOptions} from "../../src/plugin/i-typescript-plugin-options";
 import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION} from "../../src/constant/constant";
+import {getRealFileSystem} from "../../src/util/file-system/file-system";
+import {TS} from "../../src/type/ts";
+import {isAbsolute, nativeDirname, nativeJoin, nativeNormalize, parse} from "../../src/util/path/path-util";
 
 // tslint:disable:no-any
 
@@ -30,25 +31,30 @@ export interface GenerateRollupBundleResult {
 }
 
 export interface GenerateRollupBundleOptions {
+	dir: string;
 	rollupOptions: Partial<RollupOptions>;
+	format: "esm" | "cjs";
 	tsconfig: Partial<InputCompilerOptions>;
+	typescript: typeof TS;
 	transpileOnly: boolean;
-	debug: boolean;
-	hook?: Partial<HookRecord>;
+	debug: TypescriptPluginOptions["debug"];
+	hook: Partial<HookRecord>;
+	transpiler: TypescriptPluginOptions["transpiler"];
 }
 
 /**
  * Prepares a test
- * @param {ITestFile[]|TestFile} inputFiles
- * @param {GenerateRollupBundleOptions} options
- * @returns {Promise<GenerateRollupBundleResult>}
  */
 export async function generateRollupBundle(
 	inputFiles: TestFile[] | TestFile,
 	{
 		rollupOptions = {},
+		transpiler = "typescript",
 		tsconfig = {},
+		format = "esm",
+		dir,
 		transpileOnly = false,
+		typescript = TSModule,
 		debug = false,
 		hook = {outputPath: path => path}
 	}: Partial<GenerateRollupBundleOptions> = {}
@@ -65,9 +71,9 @@ export async function generateRollupBundle(
 				  }
 				: file
 		)
-		.map(file => ({...file, fileName: join(cwd, file.fileName)}));
+		.map(file => ({...file, fileName: nativeJoin(cwd, file.fileName)}));
 
-	const directories = new Set(files.map(file => normalize(dirname(file.fileName))));
+	const directories = new Set(files.map(file => nativeNormalize(nativeDirname(file.fileName))));
 
 	const entryFiles = files.filter(file => file.entry);
 	if (entryFiles.length === 0) {
@@ -75,8 +81,8 @@ export async function generateRollupBundle(
 	}
 
 	const resolveId = (fileName: string, parent: string | undefined): string | undefined => {
-		const absolute = isAbsolute(fileName) ? fileName : join(parent == null ? "" : dirname(parent), fileName);
-		const filenames = [normalize(absolute), join(absolute, "/index")];
+		const absolute = isAbsolute(fileName) ? fileName : nativeJoin(parent == null ? "" : nativeDirname(parent), fileName);
+		const filenames = [nativeNormalize(absolute), nativeJoin(absolute, "/index")];
 		for (const filename of filenames) {
 			for (const ext of EXTENSIONS) {
 				const withExtension = `${filename}${ext}`;
@@ -90,7 +96,7 @@ export async function generateRollupBundle(
 	};
 
 	const load = (id: string): string | null => {
-		const normalized = normalize(id);
+		const normalized = nativeNormalize(id);
 		const matchedFile = files.find(file => file.fileName === normalized);
 		return matchedFile == null ? null : matchedFile.text;
 	};
@@ -103,8 +109,27 @@ export async function generateRollupBundle(
 		input = entryFiles[0].fileName;
 	} else {
 		input = {};
+
+		// Ensure no conflicting chunk names
+		let seenNames = new Set<string>();
 		for (const entryFile of entryFiles) {
-			input[parse(entryFile.fileName).name] = entryFile.fileName;
+			let candidateName = parse(entryFile.fileName).name;
+			let offset = 0;
+			if (!seenNames.has(candidateName)) {
+				seenNames.add(candidateName);
+			} else {
+				candidateName = `${candidateName}-${++offset}`;
+				while (true) {
+					if (seenNames.has(candidateName)) {
+						candidateName = `${candidateName.slice(0, candidateName.length - 2)}-${++offset}`;
+					} else {
+						seenNames.add(candidateName);
+						break;
+					}
+				}
+			}
+
+			input[candidateName] = entryFile.fileName;
 		}
 	}
 
@@ -118,8 +143,11 @@ export async function generateRollupBundle(
 				load
 			},
 			typescriptRollupPlugin({
+				transpiler,
 				transpileOnly,
 				debug,
+				typescript,
+				exclude: ["dist/**/*.*"],
 				tsconfig: {
 					target: "esnext",
 					declaration: true,
@@ -129,30 +157,30 @@ export async function generateRollupBundle(
 				},
 				hook,
 				fileSystem: {
-					...REAL_FILE_SYSTEM,
+					...getRealFileSystem(typescript),
 					useCaseSensitiveFileNames: true,
 					readFile: fileName => {
-						const normalized = normalize(fileName);
-						const absoluteFileName = isAbsolute(normalized) ? normalized : join(cwd, normalized);
+						const normalized = nativeNormalize(fileName);
+						const absoluteFileName = isAbsolute(normalized) ? normalized : nativeJoin(cwd, normalized);
 						const file = files.find(currentFile => currentFile.fileName === absoluteFileName);
 						if (file != null) return file.text;
-						return sys.readFile(absoluteFileName);
+						return typescript.sys.readFile(absoluteFileName);
 					},
 					fileExists: fileName => {
-						const normalized = normalize(fileName);
-						const absoluteFileName = isAbsolute(normalized) ? normalized : join(cwd, normalized);
+						const normalized = nativeNormalize(fileName);
+						const absoluteFileName = isAbsolute(normalized) ? normalized : nativeJoin(cwd, normalized);
 						if (files.some(file => file.fileName === absoluteFileName)) {
 							return true;
 						}
-						return sys.fileExists(absoluteFileName);
+						return typescript.sys.fileExists(absoluteFileName);
 					},
 					directoryExists: dirName => {
-						const normalized = normalize(dirName);
+						const normalized = nativeNormalize(dirName);
 						if (directories.has(normalized)) return true;
-						return sys.directoryExists(normalized);
+						return typescript.sys.directoryExists(normalized);
 					},
 					realpath(path: string): string {
-						return normalize(path);
+						return nativeNormalize(path);
 					}
 				}
 			}),
@@ -161,7 +189,8 @@ export async function generateRollupBundle(
 	});
 
 	const bundle = await result.generate({
-		format: "esm",
+		dir,
+		format,
 		sourcemap: true
 	});
 

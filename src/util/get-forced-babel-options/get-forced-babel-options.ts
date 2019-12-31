@@ -3,8 +3,6 @@ import {IGetForcedBabelOptionsResult} from "./i-get-forced-babel-options-result"
 
 /**
  * Retrieves the Babel config options that will be forced
- * @param {IGetForcedBabelOptionsOptions} _options
- * @returns {IGetForcedBabelOptionsResult}
  */
 export function getForcedBabelOptions({cwd}: IGetForcedBabelOptionsOptions): IGetForcedBabelOptionsResult {
 	return {
@@ -24,7 +22,7 @@ export function getForcedBabelOptions({cwd}: IGetForcedBabelOptionsOptions): IGe
 		sourceType: "module",
 		plugins: [
 			// Needed to make babel understand dynamic imports
-			"@babel/plugin-syntax-dynamic-import"
+			require.resolve("@babel/plugin-syntax-dynamic-import")
 		]
 	};
 }

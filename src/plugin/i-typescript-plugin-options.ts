@@ -1,9 +1,31 @@
-import {CompilerOptions, CustomTransformers, ParsedCommandLine, Diagnostic} from "typescript";
 import {IBabelInputOptions} from "./i-babel-options";
 import {CustomTransformersFunction} from "../util/merge-transformers/i-custom-transformer-options";
 import {FileSystem} from "../util/file-system/file-system";
+import {TS} from "../type/ts";
 
 export type Transpiler = "typescript" | "babel";
+
+export interface DebugTransformerData {
+	kind: "transformer";
+	fileName: string;
+	text: string;
+}
+
+export interface DebugEmitData {
+	kind: "emit";
+	fileName: string;
+	text: string;
+	fileKind: OutputPathKind;
+}
+
+export interface DebugMetricsData {
+	kind: "metrics";
+	fileName?: string;
+}
+
+export type DebugData = DebugTransformerData | DebugEmitData | DebugMetricsData;
+
+export type DebugOptionCallback = (data: DebugData) => boolean;
 
 export interface IBrowserslistPathConfig {
 	path: string;
@@ -17,21 +39,21 @@ export type BrowserslistConfig = IBrowserslistPathConfig | IBrowserslistQueryCon
 
 export interface TsConfigResolverWithFileName {
 	fileName: string;
-	hook(resolvedOptions: CompilerOptions): CompilerOptions;
+	hook(resolvedOptions: TS.CompilerOptions): TS.CompilerOptions;
 }
 
 export type TsConfigResolver = TsConfigResolverWithFileName["hook"];
 
 export type OutputPathKind = "declaration" | "declarationMap";
 export type OutputPathHook = (path: string, kind: OutputPathKind) => string | undefined;
-export type DiagnosticsHook = (diagnostics: readonly Diagnostic[]) => readonly Diagnostic[] | undefined;
+export type DiagnosticsHook = (diagnostics: readonly TS.Diagnostic[]) => readonly TS.Diagnostic[] | undefined;
 
 export interface HookRecord {
 	outputPath: OutputPathHook;
 	diagnostics: DiagnosticsHook;
 }
 
-export interface InputCompilerOptions extends Omit<CompilerOptions, "module" | "moduleResolution" | "newLine" | "jsx" | "target"> {
+export interface InputCompilerOptions extends Omit<TS.CompilerOptions, "module" | "moduleResolution" | "newLine" | "jsx" | "target"> {
 	module: string;
 	moduleResolution: string;
 	newLine: string;
@@ -41,17 +63,23 @@ export interface InputCompilerOptions extends Omit<CompilerOptions, "module" | "
 
 export interface ITypescriptPluginBaseOptions {
 	transpiler: Transpiler;
-	tsconfig?: string | Partial<CompilerOptions> | Partial<InputCompilerOptions> | ParsedCommandLine | TsConfigResolver | TsConfigResolverWithFileName;
+	tsconfig?:
+		| string
+		| Partial<TS.CompilerOptions>
+		| Partial<InputCompilerOptions>
+		| TS.ParsedCommandLine
+		| TsConfigResolver
+		| TsConfigResolverWithFileName;
 	browserslist?: false | string[] | string | BrowserslistConfig;
 	cwd: string;
-	resolveTypescriptLibFrom: string;
-	transformers?: (CustomTransformers | CustomTransformersFunction)[] | CustomTransformers | CustomTransformersFunction;
+	transformers?: (TS.CustomTransformers | CustomTransformersFunction)[] | TS.CustomTransformers | CustomTransformersFunction;
 	include: string[] | string;
 	exclude: string[] | string;
 	transpileOnly?: boolean;
 	fileSystem: FileSystem;
 	hook: Partial<HookRecord>;
-	debug: boolean;
+	debug: boolean | DebugOptionCallback;
+	typescript: typeof TS;
 }
 
 export interface ITypescriptPluginTypescriptOptions extends ITypescriptPluginBaseOptions {

@@ -9,29 +9,6 @@ test("Merges identical statements correctly. #1", async t => {
 			entry: true,
 			fileName: "index.ts",
 			text: `\
-					export function foo (_arg: Buffer): void {}
-					`
-		}
-	]);
-	const {
-		declarations: [file]
-	} = bundle;
-	t.deepEqual(
-		formatCode(file.code),
-		formatCode(`\
-		/// <reference types="node" />
-		declare function foo(_arg: Buffer): void;
-		export { foo };
-		`)
-	);
-});
-
-test("Merges identical statements correctly. #2", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
 					export * from "./bar";
 					export * from "./baz";
 					`
@@ -74,38 +51,41 @@ test("Merges identical statements correctly. #2", async t => {
 	);
 });
 
-test("Merges identical statements correctly. #3", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
+test("Merges identical statements correctly. #2", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
 					export * from "./bar";
 					export * from "./baz";
 					`
-		},
-		{
-			entry: false,
-			fileName: "bar.ts",
-			text: `\
+			},
+			{
+				entry: false,
+				fileName: "bar.ts",
+				text: `\
 					export {foo as bar} from "./a";
 					`
-		},
-		{
-			entry: false,
-			fileName: "baz.ts",
-			text: `\
+			},
+			{
+				entry: false,
+				fileName: "baz.ts",
+				text: `\
 					export {foo as bar} from "./a";
 					`
-		},
-		{
-			entry: true,
-			fileName: "a.ts",
-			text: `\
+			},
+			{
+				entry: true,
+				fileName: "a.ts",
+				text: `\
 					export const foo = 2;
 					`
-		}
-	]);
+			}
+		],
+		{debug: false}
+	);
 
 	const {declarations} = bundle;
 
@@ -118,6 +98,53 @@ test("Merges identical statements correctly. #3", async t => {
 		formatCode(indexFile!.code),
 		formatCode(`\
 			export { foo as bar } from "./a";
+		`)
+	);
+});
+
+test("Merges identical statements correctly. #3", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+          import {BuiltInParser} from './bar';
+					import {Bar} from "./bar";
+          export interface Foo extends Bar {
+            x: BuiltInParser;
+          }
+					`
+			},
+			{
+				entry: false,
+				fileName: "bar.ts",
+				text: `\
+          export {BuiltInParser} from 'prettier';
+					export interface Bar {
+						a: string;
+					}
+					`
+			}
+		],
+		{debug: false}
+	);
+
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			import { BuiltInParser } from "prettier";
+			interface Bar {
+				a: string;
+			}
+			interface Foo extends Bar {
+				x: BuiltInParser;
+			}
+			export {Foo};
 		`)
 	);
 });

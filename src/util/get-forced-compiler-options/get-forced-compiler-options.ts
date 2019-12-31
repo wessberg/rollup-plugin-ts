@@ -1,38 +1,34 @@
-import {CompilerOptions, ModuleKind, ModuleResolutionKind, ScriptTarget} from "typescript";
 import {IGetForcedCompilerOptionsOptions} from "./i-get-forced-compiler-options-options";
 import {getScriptTargetFromBrowserslist} from "../get-script-target-from-browserslist/get-script-target-from-browserslist";
 import {getModuleKindFromRollupFormat} from "../get-module-kind-from-rollup-format/get-module-kind-from-rollup-format";
 import {getOutDir} from "../get-out-dir/get-out-dir";
+import {TS} from "../../type/ts";
 
 /**
  * Gets the ModuleKind to force
- * @param {IGetForcedCompilerOptionsOptions} options
- * @returns {object}
  */
-function getForcedModuleKindOption({rollupOutputOptions}: IGetForcedCompilerOptionsOptions): {module: ModuleKind} {
+function getForcedModuleKindOption({rollupOutputOptions, pluginOptions}: IGetForcedCompilerOptionsOptions): {module: TS.ModuleKind} {
 	// If no OutputOptions is given, or if no format is given in the OutputOptions, use ESNext. Otherwise, convert the
 	// Rollup option into one that Typescript can understand
 	if (rollupOutputOptions == null || rollupOutputOptions.format == null) {
-		return {module: ModuleKind.ESNext};
+		return {module: pluginOptions.typescript.ModuleKind.ESNext};
 	}
 
-	return {module: getModuleKindFromRollupFormat(rollupOutputOptions.format)};
+	return {module: getModuleKindFromRollupFormat(rollupOutputOptions.format, pluginOptions.typescript)};
 }
 
 /**
  * Gets the ScriptTarget to force
- * @param {IGetForcedCompilerOptionsOptions} options
- * @returns {object}
  */
-function getForcedScriptTargetOption({pluginOptions, browserslist}: IGetForcedCompilerOptionsOptions): {target?: ScriptTarget} {
+function getForcedScriptTargetOption({pluginOptions, browserslist}: IGetForcedCompilerOptionsOptions): {target?: TS.ScriptTarget} {
 	// If Babel should perform the transpilation, always target the latest ECMAScript version and let Babel take care of the rest
 	if (pluginOptions.transpiler === "babel") {
-		return {target: ScriptTarget.ESNext};
+		return {target: pluginOptions.typescript.ScriptTarget.ESNext};
 	}
 
 	// If a Browserslist is provided, and if Typescript should perform the transpilation, decide the appropriate ECMAScript version based on the Browserslist.
 	else if (browserslist != null) {
-		return {target: getScriptTargetFromBrowserslist(browserslist)};
+		return {target: getScriptTargetFromBrowserslist(browserslist, pluginOptions.typescript)};
 	}
 
 	// Otherwise, don't force the 'target' option
@@ -41,10 +37,8 @@ function getForcedScriptTargetOption({pluginOptions, browserslist}: IGetForcedCo
 
 /**
  * Retrieves the CompilerOptions that will be forced
- * @param {IGetForcedCompilerOptionsOptions} options
- * @returns {Partial<CompilerOptions>}
  */
-export function getForcedCompilerOptions(options: IGetForcedCompilerOptionsOptions): Partial<CompilerOptions> {
+export function getForcedCompilerOptions(options: IGetForcedCompilerOptionsOptions): Partial<TS.CompilerOptions> {
 	return {
 		...getForcedModuleKindOption(options),
 		...getForcedScriptTargetOption(options),
@@ -61,7 +55,7 @@ export function getForcedCompilerOptions(options: IGetForcedCompilerOptionsOptio
 		// Helpers should *always* be imported. We don't want them to be duplicated multiple times within generated chunks
 		importHelpers: true,
 		// Node resolution is required when 'importHelpers' are true
-		moduleResolution: ModuleResolutionKind.NodeJs,
+		moduleResolution: options.pluginOptions.typescript.ModuleResolutionKind.NodeJs,
 		// Typescript should always be able to emit - otherwise we cannot transform source files
 		noEmit: false,
 		// Typescript should always be able to emit - otherwise we cannot transform source files
