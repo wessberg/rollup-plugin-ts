@@ -269,212 +269,6 @@ test("Flattens declarations. #7", async t => {
 });
 
 test("Flattens declarations. #8", async t => {
-	const bundle = await generateRollupBundle(
-		[
-			{
-				entry: true,
-				fileName: "index.ts",
-				text: `\
-          		export * from "@/foo";
-        	`
-			},
-			{
-				entry: false,
-				fileName: "foo.ts",
-				text: `\
-				export const Foo = "foo";
-				`
-			}
-		],
-		{
-			transpileOnly: true,
-			tsconfig: {
-				paths: {
-					"@/*": ["*"]
-				}
-			}
-		}
-	);
-	const {
-		declarations: [file]
-	} = bundle;
-
-	t.deepEqual(
-		formatCode(file.code),
-		formatCode(`\
-			declare const Foo = "foo";
-			export {Foo};
-		`)
-	);
-});
-
-test("Flattens declarations. #9", async t => {
-	const bundle = await generateRollupBundle(
-		[
-			{
-				entry: true,
-				fileName: "index.ts",
-				text: `\
-          		export {A, B} from "@/foo";
-        	`
-			},
-			{
-				entry: false,
-				fileName: "foo.ts",
-				text: `\
-				export const A = "A";
-				export const B = "B";
-				`
-			}
-		],
-		{
-			debug: false,
-			transpileOnly: true,
-			tsconfig: {
-				paths: {
-					"@/*": ["*"]
-				}
-			}
-		}
-	);
-	const {
-		declarations: [file]
-	} = bundle;
-
-	t.deepEqual(
-		formatCode(file.code),
-		formatCode(`\
-			declare const A = "A";
-			declare const B = "B";
-			export {A, B};
-		`)
-	);
-});
-
-test("Flattens declarations. #10", async t => {
-	const bundle = await generateRollupBundle(
-		[
-			{
-				entry: true,
-				fileName: "index.ts",
-				text: `\
-          		import {Foo} from "@/foo";
-          		export {Foo};
-        	`
-			},
-			{
-				entry: false,
-				fileName: "foo.ts",
-				text: `\
-				export const Foo = "Foo";
-				`
-			}
-		],
-		{
-			transpileOnly: true,
-			tsconfig: {
-				paths: {
-					"@/*": ["*"]
-				}
-			}
-		}
-	);
-	const {
-		declarations: [file]
-	} = bundle;
-
-	t.deepEqual(
-		formatCode(file.code),
-		formatCode(`\
-			declare const Foo = "Foo";
-			export {Foo};
-		`)
-	);
-});
-
-test("Flattens declarations. #11", async t => {
-	const bundle = await generateRollupBundle(
-		[
-			{
-				entry: true,
-				fileName: "index.ts",
-				text: `\
-          		export const Bar: typeof import("@/foo").Foo = "foo";
-        	`
-			},
-			{
-				entry: false,
-				fileName: "foo.ts",
-				text: `\
-				export const Foo: string = "bar";
-				`
-			}
-		],
-		{
-			transpileOnly: true,
-			tsconfig: {
-				paths: {
-					"@/*": ["*"]
-				}
-			}
-		}
-	);
-	const {
-		declarations: [file]
-	} = bundle;
-
-	t.deepEqual(
-		formatCode(file.code),
-		formatCode(`\
-			declare const Foo: string;
-			declare const Bar: typeof Foo;
-			export {Bar};
-		`)
-	);
-});
-
-test("Flattens declarations. #12", async t => {
-	const bundle = await generateRollupBundle(
-		[
-			{
-				entry: true,
-				fileName: "src/index.ts",
-				text: `\
-          		export * from "@/foo";
-        	`
-			},
-			{
-				entry: false,
-				fileName: "src/foo.ts",
-				text: `\
-				export const Foo = "Foo";
-				`
-			}
-		],
-		{
-			debug: false,
-			transpileOnly: true,
-			tsconfig: {
-				paths: {
-					"@/*": ["src/*"]
-				}
-			}
-		}
-	);
-	const {
-		declarations: [file]
-	} = bundle;
-
-	t.deepEqual(
-		formatCode(file.code),
-		formatCode(`\
-			declare const Foo = "Foo";
-			export {Foo};
-		`)
-	);
-});
-
-test("Flattens declarations. #13", async t => {
 	const bundle = await generateRollupBundle([
 		{
 			entry: true,
@@ -506,7 +300,7 @@ test("Flattens declarations. #13", async t => {
 	);
 });
 
-test("Flattens declarations. #14", async t => {
+test("Flattens declarations. #9", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -543,7 +337,7 @@ test("Flattens declarations. #14", async t => {
 	);
 });
 
-test("Flattens declarations. #15", async t => {
+test("Flattens declarations. #10", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -593,7 +387,7 @@ test("Flattens declarations. #15", async t => {
 	);
 });
 
-test("Flattens declarations. #16", async t => {
+test("Flattens declarations. #11", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{
