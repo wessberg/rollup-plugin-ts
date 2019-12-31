@@ -1,3 +1,11 @@
+# [1.2.0](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.83...v1.2.0) (2019-12-31)
+
+### Bug Fixes
+
+- spread out tests to avoid memory issues on Node 8 on CI ([ebec44c](https://github.com/wessberg/rollup-plugin-ts/commit/ebec44c1f65fcf864cacfeb8465c43ca7f714bd2))
+- spread out tests to avoid memory issues on Node 8 on CI ([3cc8021](https://github.com/wessberg/rollup-plugin-ts/commit/3cc80210b07e50118dcc1fe3d2acf6d04bedf5be))
+- **babel:** add @babel/plugin-syntax-dynamic-import as top-level dependency to improve pnpm support that relies on a nested dependency tree ([387d4d1](https://github.com/wessberg/rollup-plugin-ts/commit/387d4d1eeda01e119412b1b5669dc1ade6dd07bb))
+
 ## [1.1.83](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.82...v1.1.83) (2019-11-28)
 
 ### Bug Fixes
