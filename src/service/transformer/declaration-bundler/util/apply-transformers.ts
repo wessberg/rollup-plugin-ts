@@ -9,7 +9,7 @@ export interface ApplyTransformersOptions {
 
 export function applyTransformers({transformers, visitorOptions}: ApplyTransformersOptions): TS.SourceFile {
 	for (const transformer of transformers) {
-		visitorOptions.sourceFile = transformer(visitorOptions as SourceFileBundlerVisitorOptions);
+		visitorOptions.sourceFile = transformer(visitorOptions);
 	}
 	return visitorOptions.sourceFile;
 }

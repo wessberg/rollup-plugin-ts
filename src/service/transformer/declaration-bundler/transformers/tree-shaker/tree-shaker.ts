@@ -24,9 +24,13 @@ import {TS} from "../../../../../type/ts";
 import {isReferenced} from "../reference/is-referenced/is-referenced";
 import {hasExportModifier} from "../../util/modifier-util";
 import {visitExportAssignment} from "./visitor/visit-export-assignment";
-import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {benchmark} from "../../../../../util/benchmark/benchmark-util";
 
 export function treeShaker({typescript, context, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
+	const fullBenchmark = shouldDebugMetrics(options.pluginOptions.debug, options.sourceFile)
+		? benchmark(`Tree-shaking ${options.sourceFile.fileName}`)
+		: undefined;
 	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
 		console.log(`=== BEFORE TREE-SHAKING === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(options.sourceFile));
@@ -103,6 +107,8 @@ export function treeShaker({typescript, context, ...options}: SourceFileBundlerV
 		console.log(`=== AFTER TREE-SHAKING === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(updatedSourceFile));
 	}
+
+	if (fullBenchmark != null) fullBenchmark.finish();
 
 	return updatedSourceFile;
 }

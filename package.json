@@ -83,7 +83,7 @@
 		"@babel/preset-env": "^7.7.7",
 		"@babel/runtime": "^7.7.7",
 		"@types/mkdirp": "^0.5.2",
-		"@types/node": "^13.1.1",
+		"@types/node": "^13.1.2",
 		"@types/resolve": "^1.14.0",
 		"@wessberg/browserslist-generator": "^1.0.30",
 		"@wessberg/stringutil": "^1.0.19",
@@ -96,7 +96,8 @@
 		"resolve": "^1.14.1",
 		"rollup-pluginutils": "^2.8.2",
 		"slash": "^3.0.0",
-		"tslib": "^1.10.0"
+		"tslib": "^1.10.0",
+		"chalk": "^3.0.0"
 	},
 	"peerDependencies": {
 		"rollup": "^1.27.14",

@@ -5,6 +5,8 @@ import {mergeChunksWithAmbientDependencies} from "../../../../../util/chunk/merg
 import {dirname, join} from "../../../../../util/path/path-util";
 import {trackImportsTransformer} from "../track-imports-transformer/track-imports-transformer";
 import {trackExportsTransformer} from "../track-exports-transformer/track-exports-transformer";
+import {shouldDebugMetrics} from "../../../../../util/is-debug/should-debug";
+import {benchmark} from "../../../../../util/benchmark/benchmark-util";
 
 export interface GetModuleDependenciesOptions extends DeclarationBundlerOptions {
 	module: string;
@@ -40,7 +42,9 @@ function getModuleDependencies(options: GetModuleDependenciesOptions): Set<strin
 }
 
 export function initializeDeclarationBundlerOptions(options: DeclarationBundlerOptions, sourceFiles: TS.SourceFile[]): void {
+	const fullBenchmark = shouldDebugMetrics(options.pluginOptions.debug) ? benchmark(`Initializing Declaration Bundler Options`) : undefined;
 	const seenModules = new Map<string, Set<string>>();
+
 	sourceFiles.forEach(sourceFile => {
 		for (const statement of sourceFile.statements) {
 			if (options.typescript.isModuleDeclaration(statement)) {
@@ -49,6 +53,9 @@ export function initializeDeclarationBundlerOptions(options: DeclarationBundlerO
 		}
 	});
 
+	const crossChunkReferencesBenchmark = shouldDebugMetrics(options.pluginOptions.debug)
+		? benchmark(`Track imported and exported symbols across chunks`)
+		: undefined;
 	for (const sourceFile of sourceFiles) {
 		trackImportsTransformer({
 			...options,
@@ -59,7 +66,9 @@ export function initializeDeclarationBundlerOptions(options: DeclarationBundlerO
 			sourceFile
 		});
 	}
+	if (crossChunkReferencesBenchmark != null) crossChunkReferencesBenchmark.finish();
 
+	const moduleDependenciesBenchmark = shouldDebugMetrics(options.pluginOptions.debug) ? benchmark(`Get ambient module dependencies`) : undefined;
 	for (const module of new Set([...options.sourceFileToImportedSymbolSet.keys(), ...options.sourceFileToExportedSymbolSet.keys()])) {
 		getModuleDependencies({
 			...options,
@@ -68,6 +77,7 @@ export function initializeDeclarationBundlerOptions(options: DeclarationBundlerO
 			seenModules
 		});
 	}
+	if (moduleDependenciesBenchmark != null) moduleDependenciesBenchmark.finish();
 
 	// Merge ambient dependencies into the chunks
 	mergeChunksWithAmbientDependencies(options.chunks, options.moduleDependencyMap, options.languageServiceHost);
@@ -75,4 +85,6 @@ export function initializeDeclarationBundlerOptions(options: DeclarationBundlerO
 	for (const chunk of options.chunks) {
 		options.chunkToOriginalFileMap.set(join(absoluteOutDir, chunk.fileName), chunk.modules);
 	}
+
+	if (fullBenchmark != null) fullBenchmark.finish();
 }

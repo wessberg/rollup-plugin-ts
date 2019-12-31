@@ -18,7 +18,12 @@ export interface DebugEmitData {
 	fileKind: OutputPathKind;
 }
 
-export type DebugData = DebugTransformerData | DebugEmitData;
+export interface DebugMetricsData {
+	kind: "metrics";
+	fileName?: string;
+}
+
+export type DebugData = DebugTransformerData | DebugEmitData | DebugMetricsData;
 
 export type DebugOptionCallback = (data: DebugData) => boolean;
 

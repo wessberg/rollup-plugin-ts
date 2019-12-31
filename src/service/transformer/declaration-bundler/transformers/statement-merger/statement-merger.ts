@@ -4,10 +4,14 @@ import {StatementMergerVisitorOptions} from "./statement-merger-visitor-options"
 import {visitNode} from "./visitor/visit-node";
 import {getMergedImportDeclarationsForModules} from "../../util/get-merged-import-declarations-for-modules";
 import {getMergedExportDeclarationsForModules} from "../../util/get-merged-export-declarations-for-modules";
-import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
 import {hasExportModifier} from "../../util/modifier-util";
+import {benchmark} from "../../../../../util/benchmark/benchmark-util";
 
 export function statementMerger(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
+	const fullBenchmark = shouldDebugMetrics(options.pluginOptions.debug, options.sourceFile)
+		? benchmark(`Statement merging ${options.sourceFile.fileName}`)
+		: undefined;
 	const {typescript, context, sourceFile} = options;
 	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
 		console.log(`=== BEFORE STATEMENT MERGING === (${options.sourceFile.fileName})`);
@@ -88,6 +92,8 @@ export function statementMerger(options: SourceFileBundlerVisitorOptions): TS.So
 		console.log(`=== AFTER STATEMENT MERGING === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(result));
 	}
+
+	if (fullBenchmark != null) fullBenchmark.finish();
 
 	return result;
 }

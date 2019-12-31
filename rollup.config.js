@@ -19,7 +19,8 @@ export default {
 	],
 	plugins: [
 		ts({
-			tsconfig: "tsconfig.build.json"
+			tsconfig: "tsconfig.build.json",
+			debug: data => data.kind === "metrics"
 		})
 	],
 	external: [

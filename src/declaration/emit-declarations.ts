@@ -18,8 +18,9 @@ import {
 } from "../service/transformer/declaration-bundler/transformers/reference/cache/reference-cache";
 import {NodeIdentifierCache} from "../service/transformer/declaration-bundler/transformers/trace-identifiers/trace-identifiers";
 import {normalizeChunk} from "../util/chunk/normalize-chunk";
-import {shouldDebugEmit} from "../util/is-debug/should-debug";
+import {shouldDebugEmit, shouldDebugMetrics} from "../util/is-debug/should-debug";
 import {IEmitCache} from "../service/cache/emit-cache/i-emit-cache";
+import {benchmark} from "../util/benchmark/benchmark-util";
 
 export interface EmitDeclarationsOptions {
 	resolver: Resolver;
@@ -62,6 +63,8 @@ function preparePaths({relativeOutDir, absoluteOutDir, fileName}: PreparePathsOp
 }
 
 export function emitDeclarations(options: EmitDeclarationsOptions) {
+	const fullBenchmark = shouldDebugMetrics(options.pluginOptions.debug) ? benchmark(`Emit declarations`) : undefined;
+
 	const {typescript} = options.pluginOptions;
 	const chunks = Object.values(options.bundle)
 		.filter(isOutputChunk)
@@ -254,4 +257,6 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 			});
 		}
 	}
+
+	if (fullBenchmark != null) fullBenchmark.finish();
 }

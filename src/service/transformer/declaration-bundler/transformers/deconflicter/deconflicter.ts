@@ -29,7 +29,8 @@ import {deconflictTypeParameterDeclaration} from "./visitor/deconflict-type-para
 import {deconflictVariableDeclaration} from "./visitor/deconflict-variable-declaration";
 import {ContinuationOptions} from "./deconflicter-options";
 import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
-import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {benchmark} from "../../../../../util/benchmark/benchmark-util";
 
 /**
  * Deconflicts the given Node. Everything but LValues will be updated here
@@ -99,9 +100,14 @@ function deconflictNode({node, ...options}: DeconflicterVisitorOptions<TS.Node>)
  * Deconflicts local bindings
  */
 export function deconflicter({typescript, context, lexicalEnvironment, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
+	const fullBenchmark = shouldDebugMetrics(options.pluginOptions.debug, options.sourceFile)
+		? benchmark(`Deconflicting ${options.sourceFile.fileName}`)
+		: undefined;
+
 	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
 		console.log(`=== BEFORE DECONFLICTING === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(options.sourceFile));
+		console.time(`Deconflicting ${options.sourceFile.fileName}`);
 	}
 
 	// Prepare some VisitorOptions
@@ -136,6 +142,8 @@ export function deconflicter({typescript, context, lexicalEnvironment, ...option
 		console.log(`=== AFTER DECONFLICTING === (${options.sourceFile.fileName})`);
 		console.log(options.printer.printFile(result));
 	}
+
+	if (fullBenchmark != null) fullBenchmark.finish();
 
 	return result;
 }

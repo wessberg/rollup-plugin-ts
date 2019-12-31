@@ -17,6 +17,16 @@ export function shouldDebugSourceFile(debug: TypescriptPluginOptions["debug"], {
 	);
 }
 
+export function shouldDebugMetrics(debug: TypescriptPluginOptions["debug"], sourceFile?: TS.SourceFile): boolean {
+	if (typeof debug === "boolean") return debug;
+	return Boolean(
+		debug({
+			kind: "metrics",
+			...(sourceFile == null ? {} : {fileName: sourceFile.fileName})
+		})
+	);
+}
+
 export function shouldDebugEmit(debug: TypescriptPluginOptions["debug"], fileName: string, text: string, outputPathKind: OutputPathKind): boolean {
 	if (typeof debug === "boolean") return debug;
 	return Boolean(
