@@ -15,7 +15,7 @@ export function benchmark(message: string): Benchmark {
 		.getSeconds()
 		.toString()
 		.padStart(2, "0")})`;
-	const leadingMessage = `${chalk.gray(currentDateTime)}`;
+	const leadingMessage = `${chalk.gray(currentDateTime)}   `;
 	const uniqueMessage = `${leadingMessage}${message}`;
 	console.time(uniqueMessage);
 
