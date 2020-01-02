@@ -1,5 +1,5 @@
 import {getNewLineCharacter} from "../../util/get-new-line-character/get-new-line-character";
-import {ILanguageServiceOptions} from "./i-language-service-options";
+import {LanguageServiceHostOptions} from "./language-service-host-options";
 import {IFile, IFileInput} from "./i-file";
 import {getScriptKindFromPath} from "../../util/get-script-kind-from-path/get-script-kind-from-path";
 import {dirname, ensureAbsolute, isInternalFile, isTypeScriptLib, join, nativeNormalize, normalize} from "../../util/path/path-util";
@@ -9,13 +9,14 @@ import {resolveId} from "../../util/resolve-id/resolve-id";
 import {TS} from "../../type/ts";
 import {ensureModuleTransformer} from "../transformer/ensure-module/ensure-module-transformer";
 import {generateSourceFile} from "../../util/generate-source-file/generate-source-file";
+import {SupportedExtensions} from "../../util/get-supported-extensions/get-supported-extensions";
 
 // tslint:disable:no-any
 
 /**
  * An implementation of a LanguageService for Typescript
  */
-export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.CompilerHost {
+export class LanguageServiceHost implements TS.LanguageServiceHost, TS.CompilerHost {
 	private currentProgram: TS.Program | undefined;
 	/**
 	 * The Set of all files that has been added manually via the public API
@@ -34,10 +35,21 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 	 */
 	private readonly transformers: CustomTransformersFunction | undefined;
 
-	constructor(private readonly options: ILanguageServiceOptions) {
+	constructor(private readonly options: LanguageServiceHostOptions) {
 		this.addDefaultFileNames();
-		this.transformers = options.transformers;
 		this.printer = this.options.typescript.createPrinter({newLine: this.options.parsedCommandLine.options.newLine});
+	}
+
+	getCwd(): string {
+		return this.options.cwd;
+	}
+
+	getSupportedExtensions(): SupportedExtensions {
+		return this.options.supportedExtensions;
+	}
+
+	getTypescript(): typeof TS {
+		return this.options.typescript;
 	}
 
 	getTypeRoots() {
@@ -181,14 +193,10 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 		for (const moduleName of moduleNames) {
 			// try to use standard resolution
 			let result = resolveId({
-				cwd: this.options.cwd,
 				parent: containingFile,
 				id: moduleName,
 				moduleResolutionHost: this,
-				options: this.getCompilationSettings(),
-				resolveCache: this.options.resolveCache,
-				supportedExtensions: this.options.supportedExtensions,
-				typescript: this.options.typescript
+				resolveCache: this.options.resolveCache
 			});
 			if (result != null && result.resolvedAmbientFileName != null) {
 				resolvedModules.push({...result, resolvedFileName: result.resolvedAmbientFileName});

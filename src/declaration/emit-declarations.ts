@@ -4,7 +4,7 @@ import {FileSystem} from "../util/file-system/file-system";
 import {OutputBundle, OutputOptions, PluginContext} from "rollup";
 import {TS} from "../type/ts";
 
-import {IncrementalLanguageService} from "../service/language-service/incremental-language-service";
+import {LanguageServiceHost} from "../service/language-service/language-service-host";
 import {TypescriptPluginOptions} from "../plugin/i-typescript-plugin-options";
 import {isOutputChunk} from "../util/is-output-chunk/is-output-chunk";
 import {getDeclarationOutDir} from "../util/get-declaration-out-dir/get-declaration-out-dir";
@@ -31,7 +31,7 @@ export interface EmitDeclarationsOptions {
 	bundle: OutputBundle;
 	cwd: string;
 	compilerOptions: TS.CompilerOptions;
-	languageServiceHost: IncrementalLanguageService;
+	languageServiceHost: LanguageServiceHost;
 	languageService: TS.LanguageService;
 	pluginOptions: TypescriptPluginOptions;
 	outputOptions: OutputOptions;

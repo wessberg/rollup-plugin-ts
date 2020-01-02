@@ -1,14 +1,13 @@
 import {InputOptions, OutputBundle, OutputOptions, Plugin, PluginContext, RenderedChunk, SourceMap, TransformSourceDescription} from "rollup";
 import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line";
 import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options";
-import {IncrementalLanguageService} from "../service/language-service/incremental-language-service";
+import {LanguageServiceHost} from "../service/language-service/language-service-host";
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
 import {IEmitCache} from "../service/cache/emit-cache/i-emit-cache";
 import {EmitCache} from "../service/cache/emit-cache/emit-cache";
 import {emitDiagnosticsThroughRollup} from "../util/diagnostic/emit-diagnostics-through-rollup";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
 import {ensureRelative, getExtension, isBabelHelper, isRollupPluginMultiEntry, nativeNormalize, normalize} from "../util/path/path-util";
-import {ModuleResolutionHost} from "../service/module-resolution-host/module-resolution-host";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
 import {TypescriptPluginOptions} from "./i-typescript-plugin-options";
 import {getPluginOptions} from "../util/plugin-options/get-plugin-options";
@@ -74,12 +73,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	/**
 	 * The (Incremental) LanguageServiceHost to use
 	 */
-	let languageServiceHost: IncrementalLanguageService;
-
-	/**
-	 * The host to use for when resolving modules
-	 */
-	let moduleResolutionHost: ModuleResolutionHost;
+	let languageServiceHost: LanguageServiceHost;
 
 	/**
 	 * The LanguageService to use
@@ -197,12 +191,8 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				resolveId({
 					id,
 					parent,
-					cwd,
-					options: parsedCommandLineResult.parsedCommandLine.options,
-					moduleResolutionHost,
 					resolveCache,
-					typescript,
-					supportedExtensions: SUPPORTED_EXTENSIONS
+					moduleResolutionHost: languageServiceHost
 				});
 
 			resolver = (id: string, parent: string) => {
@@ -227,7 +217,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			};
 
 			// Hook up a LanguageServiceHost and a LanguageService
-			languageServiceHost = new IncrementalLanguageService({
+			languageServiceHost = new LanguageServiceHost({
 				cwd,
 				filter,
 				emitCache,
@@ -245,9 +235,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				languageServiceHost,
 				typescript.createDocumentRegistry(languageServiceHost.useCaseSensitiveFileNames(), languageServiceHost.getCurrentDirectory())
 			);
-
-			// Hook up a new ModuleResolutionHost
-			moduleResolutionHost = new ModuleResolutionHost({languageServiceHost, extensions: SUPPORTED_EXTENSIONS});
 
 			return undefined;
 		},

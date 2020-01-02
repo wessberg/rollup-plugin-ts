@@ -2,7 +2,7 @@ import {NormalizedChunk} from "./normalize-chunk";
 import {getChunkForModule} from "../../service/transformer/declaration-bundler/util/get-chunk-filename";
 import {basename, stripKnownExtension} from "../path/path-util";
 import {generateRandomHash} from "../hash/generate-random-hash";
-import {IncrementalLanguageService} from "../../service/language-service/incremental-language-service";
+import {LanguageServiceHost} from "../../service/language-service/language-service-host";
 import {ModuleDependencyMap} from "../../service/transformer/declaration-bundler/declaration-bundler-options";
 
 export interface MergeChunksWithAmbientDependenciesResult {
@@ -57,7 +57,7 @@ function ensureChunkForModule(module: string, code: string, chunks: NormalizedCh
 export function mergeChunksWithAmbientDependencies(
 	chunks: NormalizedChunk[],
 	moduleDependencyMap: ModuleDependencyMap,
-	languageServiceHost: IncrementalLanguageService
+	languageServiceHost: LanguageServiceHost
 ): NormalizedChunk[] {
 	const dependencyToModulesMap: Map<string, Set<string>> = new Map();
 

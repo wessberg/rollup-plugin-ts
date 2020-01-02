@@ -9,7 +9,7 @@ import {SourceFileToExportedSymbolSet} from "./transformers/track-exports-transf
 import {SourceFileBundlerVisitorOptions} from "./transformers/source-file-bundler/source-file-bundler-visitor-options";
 import {SourceFileToImportedSymbolSet} from "./transformers/track-imports-transformer/track-imports-transformer-visitor-options";
 import {NormalizedChunk} from "../../../util/chunk/normalize-chunk";
-import {IncrementalLanguageService} from "../../language-service/incremental-language-service";
+import {LanguageServiceHost} from "../../language-service/language-service-host";
 
 export type ModuleDependencyMap = Map<string, Set<string>>;
 export type DeclarationTransformer = (options: SourceFileBundlerVisitorOptions) => TS.SourceFile;
@@ -28,7 +28,7 @@ export interface DeclarationBundlerOptions {
 	typeChecker: TS.TypeChecker;
 	compilerOptions: TS.CompilerOptions;
 	languageService: TS.LanguageService;
-	languageServiceHost: IncrementalLanguageService;
+	languageServiceHost: LanguageServiceHost;
 	typeRoots: Set<string>;
 	chunk: ChunkOptions;
 	chunks: NormalizedChunk[];

@@ -1,11 +1,11 @@
-import {IncrementalLanguageService} from "../../service/language-service/incremental-language-service";
+import {LanguageServiceHost} from "../../service/language-service/language-service-host";
 import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
 import {TS} from "../../type/ts";
 
 export interface ICustomTransformerOptions {
 	program: TS.Program | undefined;
 	languageService: TS.LanguageService;
-	languageServiceHost: IncrementalLanguageService;
+	languageServiceHost: LanguageServiceHost;
 	addDiagnostics(...diagnostics: IExtendedDiagnostic[]): void;
 }
 

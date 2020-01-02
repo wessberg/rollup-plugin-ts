@@ -1,11 +1,11 @@
 import {PluginContext} from "rollup";
-import {IncrementalLanguageService} from "../../service/language-service/incremental-language-service";
+import {LanguageServiceHost} from "../../service/language-service/language-service-host";
 import {TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options";
 import {TS} from "../../type/ts";
 
 export interface IGetDiagnosticsOptions {
 	typescript: typeof TS;
-	languageServiceHost: IncrementalLanguageService;
+	languageServiceHost: LanguageServiceHost;
 	context: PluginContext;
 	pluginOptions: TypescriptPluginOptions;
 }

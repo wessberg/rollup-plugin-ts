@@ -74,16 +74,12 @@ export class ResolveCache implements IResolveCache {
 	 * Gets a cached module result for the given file from the given parent and returns it if it exists already.
 	 * If not, it will compute it, update the cache, and then return it
 	 */
-	get({
-		id,
-		parent,
-		moduleResolutionHost,
-		options,
-		cwd,
-		supportedExtensions,
-		typescript
-	}: IGetResolvedIdWithCachingOptions): ExtendedResolvedModule | null {
+	get({id, parent, moduleResolutionHost}: IGetResolvedIdWithCachingOptions): ExtendedResolvedModule | null {
 		let cacheResult = this.getFromCache(id, parent);
+		const typescript = moduleResolutionHost.getTypescript();
+		const options = moduleResolutionHost.getCompilationSettings();
+		const cwd = moduleResolutionHost.getCwd();
+		const supportedExtensions = moduleResolutionHost.getSupportedExtensions();
 
 		if (cacheResult != null) {
 			return cacheResult;
