@@ -431,3 +431,40 @@ test("Flattens declarations. #11", async t => {
 		`)
 	);
 });
+
+test("Flattens declarations. #12", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+        export {Foo} from "./foo"
+			`
+			},
+			{
+				entry: false,
+				fileName: "foo.ts",
+				text: `\
+        export class Foo { static m() { return 1 } }
+			`
+			}
+		],
+		{
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare class Foo {
+				static m(): number;
+			}
+			export {Foo};
+		`)
+	);
+});
