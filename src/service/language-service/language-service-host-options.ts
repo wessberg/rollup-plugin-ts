@@ -1,4 +1,3 @@
-import {IEmitCache} from "../cache/emit-cache/i-emit-cache";
 import {InputOptions} from "rollup";
 import {CustomTransformersFunction} from "../../util/merge-transformers/i-custom-transformer-options";
 import {IResolveCache} from "../cache/resolve-cache/i-resolve-cache";
@@ -12,7 +11,6 @@ export interface LanguageServiceHostOptions extends ModuleResolutionHostOptions 
 	parsedCommandLine: TS.ParsedCommandLine;
 	typescript: typeof TS;
 	transformers?: CustomTransformersFunction;
-	emitCache: IEmitCache;
 	resolveCache: IResolveCache;
 	rollupInputOptions: InputOptions;
 	supportedExtensions: SupportedExtensions;

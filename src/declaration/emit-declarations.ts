@@ -19,12 +19,10 @@ import {
 import {NodeIdentifierCache} from "../service/transformer/declaration-bundler/transformers/trace-identifiers/trace-identifiers";
 import {normalizeChunk} from "../util/chunk/normalize-chunk";
 import {shouldDebugEmit, shouldDebugMetrics} from "../util/is-debug/should-debug";
-import {IEmitCache} from "../service/cache/emit-cache/i-emit-cache";
 import {benchmark} from "../util/benchmark/benchmark-util";
 
 export interface EmitDeclarationsOptions {
 	resolver: Resolver;
-	emitCache: IEmitCache;
 	supportedExtensions: SupportedExtensions;
 	fileSystem: FileSystem;
 	pluginContext: PluginContext;

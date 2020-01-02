@@ -3,8 +3,6 @@ import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-c
 import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options";
 import {LanguageServiceHost} from "../service/language-service/language-service-host";
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
-import {IEmitCache} from "../service/cache/emit-cache/i-emit-cache";
-import {EmitCache} from "../service/cache/emit-cache/emit-cache";
 import {emitDiagnosticsThroughRollup} from "../util/diagnostic/emit-diagnostics-through-rollup";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
 import {ensureRelative, getExtension, isBabelHelper, isRollupPluginMultiEntry, nativeNormalize, normalize} from "../util/path/path-util";
@@ -91,11 +89,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	 * as the supported extensions
 	 */
 	let ambientResolver: Resolver;
-
-	/**
-	 * The EmitCache to use
-	 */
-	const emitCache: IEmitCache = new EmitCache();
 
 	/**
 	 * The ResolveCache to use
@@ -220,7 +213,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			languageServiceHost = new LanguageServiceHost({
 				cwd,
 				filter,
-				emitCache,
 				resolveCache,
 				rollupInputOptions,
 				fileSystem,
@@ -318,7 +310,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 						languageServiceHost.addFileAsModule({file: normalizedFile, code});
 
 						// Get some EmitOutput, optionally from the cache if the file contents are unchanged
-						const emitOutput = emitCache.get({fileName: normalizedFile, languageService});
+						const emitOutput = languageService.getEmitOutput(normalizedFile);
 
 						// Return the emit output results to Rollup
 						return getSourceDescriptionFromEmitOutput(emitOutput);
@@ -392,7 +384,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			if (Boolean(parsedCommandLineResult.parsedCommandLine.options.declaration)) {
 				emitDeclarations({
 					bundle,
-					emitCache,
 					fileSystem,
 					pluginContext: this,
 					supportedExtensions: SUPPORTED_EXTENSIONS,

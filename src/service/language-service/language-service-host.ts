@@ -140,7 +140,6 @@ export class LanguageServiceHost implements TS.LanguageServiceHost, TS.CompilerH
 		}
 
 		// Remove the file from the emit cache
-		this.options.emitCache.delete(file.file);
 		this.currentProgram = undefined;
 	}
 
@@ -150,8 +149,7 @@ export class LanguageServiceHost implements TS.LanguageServiceHost, TS.CompilerH
 	deleteFile(fileName: string): boolean {
 		const filesResult = this.files.delete(fileName);
 		const publicFilesResult = this.publicFiles.delete(fileName);
-		const cacheResult = this.options.emitCache.delete(fileName);
-		const success = filesResult || publicFilesResult || cacheResult;
+		const success = filesResult || publicFilesResult;
 		if (success) {
 			this.currentProgram = undefined;
 		}
