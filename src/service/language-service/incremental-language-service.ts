@@ -16,6 +16,7 @@ import {generateSourceFile} from "../../util/generate-source-file/generate-sourc
  * An implementation of a LanguageService for Typescript
  */
 export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.CompilerHost {
+	private currentProgram: TS.Program | undefined;
 	/**
 	 * The Set of all files that has been added manually via the public API
 	 */
@@ -43,6 +44,15 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 		return new Set(this.options.typescript.getEffectiveTypeRoots(this.getCompilationSettings(), this));
 	}
 
+	get program(): TS.Program | undefined {
+		if (this.currentProgram == null) {
+			this.currentProgram = this.options.languageService().getProgram();
+			return this.currentProgram;
+		}
+
+		return this.currentProgram;
+	}
+
 	/**
 	 * Writes a file. Will simply put it in the emittedFiles Map
 	 */
@@ -52,7 +62,7 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 	 * Gets a SourceFile from the given fileName
 	 */
 	getSourceFile(fileName: string): TS.SourceFile | undefined {
-		const program = this.options.languageService().getProgram();
+		const program = this.program;
 		if (program == null) return undefined;
 		return program.getSourceFile(fileName);
 	}
@@ -61,7 +71,7 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 	 * Gets all SourceFiles
 	 */
 	getSourceFiles(): readonly TS.SourceFile[] {
-		const program = this.options.languageService().getProgram();
+		const program = this.program;
 		if (program == null) return [];
 		return program.getSourceFiles();
 	}
@@ -119,6 +129,7 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 
 		// Remove the file from the emit cache
 		this.options.emitCache.delete(file.file);
+		this.currentProgram = undefined;
 	}
 
 	/**
@@ -128,7 +139,11 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 		const filesResult = this.files.delete(fileName);
 		const publicFilesResult = this.publicFiles.delete(fileName);
 		const cacheResult = this.options.emitCache.delete(fileName);
-		return filesResult || publicFilesResult || cacheResult;
+		const success = filesResult || publicFilesResult || cacheResult;
+		if (success) {
+			this.currentProgram = undefined;
+		}
+		return success;
 	}
 
 	/**
@@ -249,7 +264,7 @@ export class IncrementalLanguageService implements TS.LanguageServiceHost, TS.Co
 		return this.transformers({
 			languageService,
 			languageServiceHost: this,
-			program: languageService.getProgram(),
+			program: this.program,
 
 			/**
 			 * This hook can add diagnostics from within CustomTransformers. These will be emitted alongside Typescript diagnostics seamlessly

@@ -116,7 +116,8 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 			module: typescript.ModuleKind.System,
 			emitDeclarationOnly: true
 		},
-		host: options.languageServiceHost
+		host: options.languageServiceHost,
+		oldProgram: options.languageServiceHost.program
 	});
 
 	const typeChecker = program.getTypeChecker();

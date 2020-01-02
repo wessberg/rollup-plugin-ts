@@ -87,7 +87,7 @@ export function mergeChunksWithAmbientDependencies(
 			const containingChunk = [...chunksForModulesForDependency].find(chunkForModuleDependency => chunkForModuleDependency === chunkWithDependency);
 			if (containingChunk != null) {
 				containingChunk.modules.splice(containingChunk.modules.indexOf(dependency), 1);
-				chunks.push(createCommonChunk(dependency, languageServiceHost.getSourceFile(dependency)!.text));
+				chunks.push(createCommonChunk(dependency, languageServiceHost.files.get(dependency)!.code));
 			}
 		}
 	}

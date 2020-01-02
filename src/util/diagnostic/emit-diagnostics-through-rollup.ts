@@ -6,14 +6,8 @@ import {TS} from "../../type/ts";
 /**
  * Gets diagnostics for the given fileName
  */
-export function emitDiagnosticsThroughRollup({
-	languageService,
-	languageServiceHost,
-	context,
-	pluginOptions,
-	typescript
-}: IGetDiagnosticsOptions): void {
-	const program = languageService.getProgram();
+export function emitDiagnosticsThroughRollup({languageServiceHost, context, pluginOptions, typescript}: IGetDiagnosticsOptions): void {
+	const program = languageServiceHost.program;
 	if (program == null) return;
 
 	let diagnostics: readonly TS.Diagnostic[] | undefined = [

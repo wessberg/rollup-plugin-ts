@@ -398,7 +398,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// Only emit diagnostics if the plugin options allow it
 			if (!Boolean(transpileOnly)) {
 				// Emit all reported diagnostics
-				emitDiagnosticsThroughRollup({languageServiceHost, languageService, pluginOptions, typescript, context: this});
+				emitDiagnosticsThroughRollup({languageServiceHost, pluginOptions, typescript, context: this});
 			}
 
 			// Emit declaration files if required
