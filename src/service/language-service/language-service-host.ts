@@ -207,6 +207,27 @@ export class LanguageServiceHost implements TS.LanguageServiceHost, TS.CompilerH
 		return resolvedModules;
 	}
 
+	resolveTypeReferenceDirectives(typeReferenceDirectiveNames: string[], containingFile: string): (TS.ResolvedTypeReferenceDirective | undefined)[] {
+		const resolvedTypeReferenceDirectives: (TS.ResolvedTypeReferenceDirective | undefined)[] = [];
+		for (const typeReferenceDirectiveName of typeReferenceDirectiveNames) {
+			// try to use standard resolution
+			let result = resolveId({
+				parent: containingFile,
+				id: typeReferenceDirectiveName,
+				moduleResolutionHost: this,
+				resolveCache: this.options.resolveCache
+			});
+			if (result != null && result.resolvedAmbientFileName != null) {
+				resolvedTypeReferenceDirectives.push({...result, primary: true, resolvedFileName: result.resolvedAmbientFileName});
+			} else if (result != null && result.resolvedFileName != null) {
+				resolvedTypeReferenceDirectives.push({...result, primary: true, resolvedFileName: result.resolvedFileName});
+			} else {
+				resolvedTypeReferenceDirectives.push(undefined);
+			}
+		}
+		return resolvedTypeReferenceDirectives;
+	}
+
 	/**
 	 * Reads the given directory
 	 */
@@ -258,7 +279,14 @@ export class LanguageServiceHost implements TS.LanguageServiceHost, TS.CompilerH
 	 * Gets the CompilerOptions provided in the constructor
 	 */
 	getCompilationSettings(): TS.CompilerOptions {
-		return this.options.parsedCommandLine.options;
+		return this.getParsedCommandLine().options;
+	}
+
+	/**
+	 * Gets the CompilerOptions provided in the constructor
+	 */
+	getParsedCommandLine(): TS.ParsedCommandLine {
+		return this.options.parsedCommandLine;
 	}
 
 	/**

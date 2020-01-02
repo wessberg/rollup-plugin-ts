@@ -22,6 +22,7 @@ import {shouldDebugEmit, shouldDebugMetrics} from "../util/is-debug/should-debug
 import {benchmark} from "../util/benchmark/benchmark-util";
 
 export interface EmitDeclarationsOptions {
+	canEmitForFile(id: string): boolean;
 	resolver: Resolver;
 	supportedExtensions: SupportedExtensions;
 	fileSystem: FileSystem;
@@ -34,7 +35,6 @@ export interface EmitDeclarationsOptions {
 	pluginOptions: TypescriptPluginOptions;
 	outputOptions: OutputOptions;
 	multiEntryFileNames: Set<string> | undefined;
-	canEmitForFile(id: string): boolean;
 }
 
 export interface PreparePathsOptions {
