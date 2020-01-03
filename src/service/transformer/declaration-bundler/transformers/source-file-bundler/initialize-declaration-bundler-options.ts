@@ -80,7 +80,7 @@ export function initializeDeclarationBundlerOptions(options: DeclarationBundlerO
 	if (moduleDependenciesBenchmark != null) moduleDependenciesBenchmark.finish();
 
 	// Merge ambient dependencies into the chunks
-	mergeChunksWithAmbientDependencies(options.chunks, options.moduleDependencyMap, options.languageServiceHost);
+	mergeChunksWithAmbientDependencies(options.chunks, options.moduleDependencyMap, options.host);
 	const absoluteOutDir = dirname(options.chunk.paths.absolute);
 	for (const chunk of options.chunks) {
 		options.chunkToOriginalFileMap.set(join(absoluteOutDir, chunk.fileName), chunk.modules);

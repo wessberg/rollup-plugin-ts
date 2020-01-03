@@ -1,11 +1,9 @@
 import {PluginContext} from "rollup";
-import {LanguageServiceHost} from "../../service/language-service/language-service-host";
 import {TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options";
-import {TS} from "../../type/ts";
+import {CompilerHost} from "../../service/compiler-host/compiler-host";
 
 export interface IGetDiagnosticsOptions {
-	typescript: typeof TS;
-	languageServiceHost: LanguageServiceHost;
+	compilerHost: CompilerHost;
 	context: PluginContext;
 	pluginOptions: TypescriptPluginOptions;
 }

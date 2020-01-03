@@ -6,14 +6,9 @@ import {TS} from "../../type/ts";
 /**
  * Gets diagnostics for the given fileName
  */
-export function emitDiagnosticsThroughRollup({languageServiceHost, context, pluginOptions, typescript}: IGetDiagnosticsOptions): void {
-	const program = languageServiceHost.program;
-	if (program == null) return;
-
-	let diagnostics: readonly TS.Diagnostic[] | undefined = [
-		...typescript.getPreEmitDiagnostics(program),
-		...languageServiceHost.getTransformerDiagnostics()
-	];
+export function emitDiagnosticsThroughRollup({compilerHost, context, pluginOptions}: IGetDiagnosticsOptions): void {
+	const typescript = compilerHost.getTypescript();
+	let diagnostics: readonly TS.Diagnostic[] | undefined = compilerHost.getDiagnostics();
 
 	// If there is a hook for diagnostics, call it assign the result of calling it to the local variable 'diagnostics'
 	if (pluginOptions.hook.diagnostics != null) {
@@ -29,7 +24,7 @@ export function emitDiagnosticsThroughRollup({languageServiceHost, context, plug
 			diagnostic.start == null || diagnostic.file == null ? undefined : diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
 
 		// Color-format the diagnostics
-		const colorFormatted = typescript.formatDiagnosticsWithColorAndContext([diagnostic], languageServiceHost);
+		const colorFormatted = typescript.formatDiagnosticsWithColorAndContext([diagnostic], compilerHost);
 
 		// Provide a normalized error code
 		const code = `${diagnostic.scope == null ? "TS" : diagnostic.scope}${diagnostic.code}`;
@@ -38,7 +33,7 @@ export function emitDiagnosticsThroughRollup({languageServiceHost, context, plug
 		const stack = "";
 
 		// Isolate the frame
-		const newLine = languageServiceHost.getNewLine();
+		const newLine = compilerHost.getNewLine();
 		let frame = colorFormatted.slice(colorFormatted.indexOf(message) + message.length);
 
 		// Remove the trailing newline from the frame if it has one

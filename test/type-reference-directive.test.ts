@@ -123,3 +123,32 @@ test("Detects type reference directives and respects tree-shaking and code-split
 		`)
 	);
 });
+
+test("Detects type reference directives and respects tree-shaking and code-splitting. #5", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+					export interface Foo {
+						error: Error;
+					}
+					`
+			}
+		],
+		{debug: false}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			interface Foo {
+    		error: Error;
+			}
+			export {Foo};
+		`)
+	);
+});

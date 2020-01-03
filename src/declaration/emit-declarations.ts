@@ -3,8 +3,6 @@ import {SupportedExtensions} from "../util/get-supported-extensions/get-supporte
 import {FileSystem} from "../util/file-system/file-system";
 import {OutputBundle, OutputOptions, PluginContext} from "rollup";
 import {TS} from "../type/ts";
-
-import {LanguageServiceHost} from "../service/language-service/language-service-host";
 import {TypescriptPluginOptions} from "../plugin/i-typescript-plugin-options";
 import {isOutputChunk} from "../util/is-output-chunk/is-output-chunk";
 import {getDeclarationOutDir} from "../util/get-declaration-out-dir/get-declaration-out-dir";
@@ -20,6 +18,7 @@ import {NodeIdentifierCache} from "../service/transformer/declaration-bundler/tr
 import {normalizeChunk} from "../util/chunk/normalize-chunk";
 import {shouldDebugEmit, shouldDebugMetrics} from "../util/is-debug/should-debug";
 import {benchmark} from "../util/benchmark/benchmark-util";
+import {CompilerHost} from "../service/compiler-host/compiler-host";
 
 export interface EmitDeclarationsOptions {
 	canEmitForFile(id: string): boolean;
@@ -30,8 +29,7 @@ export interface EmitDeclarationsOptions {
 	bundle: OutputBundle;
 	cwd: string;
 	compilerOptions: TS.CompilerOptions;
-	languageServiceHost: LanguageServiceHost;
-	languageService: TS.LanguageService;
+	compilerHost: CompilerHost;
 	pluginOptions: TypescriptPluginOptions;
 	outputOptions: OutputOptions;
 	multiEntryFileNames: Set<string> | undefined;
@@ -106,23 +104,18 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		}
 	}
 
-	const program = typescript.createProgram({
-		rootNames: [...allModules],
-		options: {
-			...options.compilerOptions,
-			outFile: setExtension(virtualOutFile.relative, JS_EXTENSION),
-			module: typescript.ModuleKind.System,
-			emitDeclarationOnly: true
-		},
-		host: options.languageServiceHost,
-		oldProgram: options.languageServiceHost.program
+	const host = options.compilerHost.clone({
+		...options.compilerOptions,
+		outFile: setExtension(virtualOutFile.relative, JS_EXTENSION),
+		module: typescript.ModuleKind.System,
+		emitDeclarationOnly: true
 	});
 
-	const typeChecker = program.getTypeChecker();
+	const typeChecker = host.getTypeChecker();
 
 	const sharedOptions = {
 		...options,
-		program,
+		host,
 		typeChecker,
 		typescript,
 		generateMap,
@@ -131,7 +124,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		referenceCache,
 		sourceFileToNodeToReferencedIdentifiersCache,
 		chunks: mergedChunks,
-		typeRoots: options.languageServiceHost.getTypeRoots(),
+		typeRoots: options.compilerHost.getTypeRoots(),
 		sourceFileToTypeReferencesSet: new Map(),
 		moduleSpecifierToSourceFileMap: new Map(),
 		chunkToOriginalFileMap: new Map(),

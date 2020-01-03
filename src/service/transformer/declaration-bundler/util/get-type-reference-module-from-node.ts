@@ -1,7 +1,6 @@
 import {getAliasedDeclaration, GetAliasedDeclarationOptions} from "./get-aliased-declaration";
 import {getTypeReferenceModuleFromFileName} from "./get-type-reference-module-from-file-name";
 import {TS} from "../../../../type/ts";
-import {isTypeScriptLib} from "../../../../util/path/path-util";
 
 export interface GetTypeReferenceModuleFromNodeOptions extends GetAliasedDeclarationOptions {
 	node: TS.Identifier;
@@ -48,25 +47,6 @@ export function getTypeReferenceModuleFromNode(options: GetTypeReferenceModuleFr
 				}
 			}
 		}
-	}
-	// Otherwise, the identifier may also be part of a built-in lib definition, in which case the type reference can be left out.
-	// To find out, retrieve all implementations and check if any of them is a lib file
-	try {
-		const originalNode = options.nodeToOriginalNodeMap.get(options.node);
-		const originalSourceFile = originalNode == null ? undefined : originalNode.getSourceFile();
-		const implementations =
-			options.node.end === -1 && originalSourceFile != null && originalNode != null
-				? options.languageService.getImplementationAtPosition(originalSourceFile.fileName, originalNode.end)
-				: options.languageService.getImplementationAtPosition(options.sourceFile.fileName, options.node.end);
-		// If there are none, preserve it
-		if (implementations == null) return typeReference;
-
-		// If at least one of them comes from a built-in lib, we don't need the directive
-		if (implementations.some(implementation => isTypeScriptLib(implementation.fileName))) {
-			return undefined;
-		}
-	} catch {
-		// This is OK
 	}
 
 	// Otherwise, preserve it!

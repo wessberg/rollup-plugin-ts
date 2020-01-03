@@ -1,23 +1,18 @@
 import {typeModuleReferenceIsAllowed} from "./type-module-reference-is-allowed";
-import {TS} from "../../../../type/ts";
 import {dirname} from "../../../../util/path/path-util";
+import {CompilerHost} from "../../../compiler-host/compiler-host";
 
 export interface GetTypeReferenceModuleFromFileNameOptions {
-	typeRoots: Set<string>;
-	compilerOptions: TS.CompilerOptions;
+	host: CompilerHost;
 	fileName: string;
 }
 
-export function getTypeReferenceModuleFromFileName({
-	typeRoots,
-	compilerOptions,
-	fileName
-}: GetTypeReferenceModuleFromFileNameOptions): string | undefined {
-	for (const typeRoot of typeRoots) {
+export function getTypeReferenceModuleFromFileName({host, fileName}: GetTypeReferenceModuleFromFileNameOptions): string | undefined {
+	for (const typeRoot of host.getTypeRoots()) {
 		if (!fileName.includes(typeRoot)) continue;
 		const typeModule = dirname(fileName.slice(typeRoot.length + 1));
 
-		if (typeModuleReferenceIsAllowed({compilerOptions, typeModule})) {
+		if (typeModuleReferenceIsAllowed({host, typeModule})) {
 			return typeModule;
 		}
 	}

@@ -9,7 +9,7 @@ import {SourceFileToExportedSymbolSet} from "./transformers/track-exports-transf
 import {SourceFileBundlerVisitorOptions} from "./transformers/source-file-bundler/source-file-bundler-visitor-options";
 import {SourceFileToImportedSymbolSet} from "./transformers/track-imports-transformer/track-imports-transformer-visitor-options";
 import {NormalizedChunk} from "../../../util/chunk/normalize-chunk";
-import {LanguageServiceHost} from "../../language-service/language-service-host";
+import {CompilerHost} from "../../compiler-host/compiler-host";
 
 export type ModuleDependencyMap = Map<string, Set<string>>;
 export type DeclarationTransformer = (options: SourceFileBundlerVisitorOptions) => TS.SourceFile;
@@ -25,11 +25,8 @@ export type ModuleSpecifierToSourceFileMap = Map<string, TS.SourceFile>;
 
 export interface DeclarationBundlerOptions {
 	typescript: typeof TS;
+	host: CompilerHost;
 	typeChecker: TS.TypeChecker;
-	compilerOptions: TS.CompilerOptions;
-	languageService: TS.LanguageService;
-	languageServiceHost: LanguageServiceHost;
-	typeRoots: Set<string>;
 	chunk: ChunkOptions;
 	chunks: NormalizedChunk[];
 	declarationPaths: PreparePathsResult;

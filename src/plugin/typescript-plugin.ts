@@ -1,7 +1,6 @@
 import {InputOptions, OutputBundle, OutputOptions, Plugin, PluginContext, RenderedChunk, SourceMap, TransformSourceDescription} from "rollup";
 import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line";
 import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options";
-import {LanguageServiceHost} from "../service/language-service/language-service-host";
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
 import {emitDiagnosticsThroughRollup} from "../util/diagnostic/emit-diagnostics-through-rollup";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
@@ -30,8 +29,8 @@ import {takeBrowserslistOrComputeBasedOnCompilerOptions} from "../util/take-brow
 import {matchAll} from "@wessberg/stringutil";
 import {Resolver} from "../util/resolve-id/resolver";
 import {emitDeclarations} from "../declaration/emit-declarations";
-import {TS} from "../type/ts";
 import {replaceBabelEsmHelpers} from "../util/replace-babel-esm-helpers/replace-babel-esm-helpers";
+import {CompilerHost} from "../service/compiler-host/compiler-host";
 
 /**
  * The name of the Rollup plugin
@@ -71,12 +70,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	/**
 	 * The (Incremental) LanguageServiceHost to use
 	 */
-	let languageServiceHost: LanguageServiceHost;
-
-	/**
-	 * The LanguageService to use
-	 */
-	let languageService: TS.LanguageService;
+	let compilerHost: CompilerHost;
 
 	/**
 	 * A function that given an id and a parent resolves the full path for a dependency. The Module Resolution Algorithm depends on the CompilerOptions as well
@@ -134,13 +128,10 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 */
 		options(options: InputOptions): undefined {
 			// Break if the options aren't different from the previous ones
-			if (options === rollupInputOptions) return;
+			if (rollupInputOptions != null) return;
 
 			// Re-assign the input options
 			rollupInputOptions = options;
-
-			// Clear resolve-related caches
-			resolveCache.clear();
 
 			// Make sure we have a proper ParsedCommandLine to work with
 			parsedCommandLineResult = getParsedCommandLine({
@@ -180,12 +171,24 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 			canEmitForFile = (id: string) => filter(id) && SUPPORTED_EXTENSIONS.has(getExtension(id));
 
+			// Hook up a LanguageServiceHost and a LanguageService
+			compilerHost = new CompilerHost({
+				filter,
+				cwd,
+				resolveCache,
+				fileSystem,
+				typescript,
+				extensions: SUPPORTED_EXTENSIONS,
+				parsedCommandLine: parsedCommandLineResult.parsedCommandLine,
+				transformers: mergeTransformers(...transformers)
+			});
+
 			const resolve = (id: string, parent: string) =>
 				resolveId({
 					id,
 					parent,
 					resolveCache,
-					moduleResolutionHost: languageServiceHost
+					moduleResolutionHost: compilerHost
 				});
 
 			resolver = (id: string, parent: string) => {
@@ -208,25 +211,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 							isExternalLibrary: resolved.isExternalLibraryImport === true
 					  };
 			};
-
-			// Hook up a LanguageServiceHost and a LanguageService
-			languageServiceHost = new LanguageServiceHost({
-				cwd,
-				filter,
-				resolveCache,
-				rollupInputOptions,
-				fileSystem,
-				typescript,
-				supportedExtensions: SUPPORTED_EXTENSIONS,
-				parsedCommandLine: parsedCommandLineResult.parsedCommandLine,
-				transformers: mergeTransformers(...transformers),
-				languageService: () => languageService
-			});
-
-			languageService = typescript.createLanguageService(
-				languageServiceHost,
-				typescript.createDocumentRegistry(languageServiceHost.useCaseSensitiveFileNames(), languageServiceHost.getCurrentDirectory())
-			);
 
 			return undefined;
 		},
@@ -307,10 +291,10 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 						}
 
 						// Add the file to the LanguageServiceHost
-						languageServiceHost.addFileAsModule({file: normalizedFile, code});
+						compilerHost.add({fileName: normalizedFile, text: code, fromRollup: true});
 
 						// Get some EmitOutput, optionally from the cache if the file contents are unchanged
-						const emitOutput = languageService.getEmitOutput(normalizedFile);
+						const emitOutput = compilerHost.emit(normalizedFile, false);
 
 						// Return the emit output results to Rollup
 						return getSourceDescriptionFromEmitOutput(emitOutput);
@@ -377,34 +361,33 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// Only emit diagnostics if the plugin options allow it
 			if (!Boolean(transpileOnly)) {
 				// Emit all reported diagnostics
-				emitDiagnosticsThroughRollup({languageServiceHost, pluginOptions, typescript, context: this});
+				emitDiagnosticsThroughRollup({compilerHost, pluginOptions, context: this});
 			}
 
 			// Emit declaration files if required
 			if (Boolean(parsedCommandLineResult.parsedCommandLine.options.declaration)) {
 				emitDeclarations({
+					compilerHost,
 					bundle,
 					fileSystem,
-					pluginContext: this,
-					supportedExtensions: SUPPORTED_EXTENSIONS,
-					resolver: ambientResolver,
 					cwd,
 					outputOptions,
 					pluginOptions,
-					languageService,
-					languageServiceHost,
+					canEmitForFile,
+					resolver: ambientResolver,
+					pluginContext: this,
+					supportedExtensions: SUPPORTED_EXTENSIONS,
 					compilerOptions: parsedCommandLineResult.parsedCommandLine.options,
-					multiEntryFileNames: MULTI_ENTRY_FILE_NAMES,
-					canEmitForFile
+					multiEntryFileNames: MULTI_ENTRY_FILE_NAMES
 				});
 			}
 
 			const bundledFilenames = takeBundledFilesNames(bundle);
 
 			// Walk through all of the files of the LanguageService and make sure to remove them if they are not part of the bundle
-			for (const fileName of languageServiceHost.publicFiles) {
+			for (const fileName of compilerHost.getRollupFileNames()) {
 				if (!bundledFilenames.has(fileName)) {
-					languageServiceHost.deleteFile(fileName);
+					compilerHost.delete(fileName);
 				}
 			}
 		}
