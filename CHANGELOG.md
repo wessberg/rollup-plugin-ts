@@ -1,3 +1,13 @@
+## [1.2.1](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.0...v1.2.1) (2020-01-03)
+
+### Bug Fixes
+
+- fix issue with cloning MethodSignatures with modifiers. Closes [#62](https://github.com/wessberg/rollup-plugin-ts/issues/62) ([bbffc35](https://github.com/wessberg/rollup-plugin-ts/commit/bbffc35ae266828e811110666614bf7d05756b92))
+
+### Performance Improvements
+
+- improve performance ([7ee2422](https://github.com/wessberg/rollup-plugin-ts/commit/7ee2422c4de70dda87038b608d2600642eb140ed))
+
 # [1.2.0](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.83...v1.2.0) (2019-12-31)
 
 ### Bug Fixes
