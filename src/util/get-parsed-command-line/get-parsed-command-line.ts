@@ -1,6 +1,6 @@
 import {IGetParsedCommandLineOptions} from "./i-get-parsed-command-line-options";
 import {ensureAbsolute} from "../path/path-util";
-import {DECLARATION_EXTENSION} from "../../constant/constant";
+import {D_TS_EXTENSION} from "../../constant/constant";
 import {GetParsedCommandLineResult} from "./get-parsed-command-line-result";
 import {InputCompilerOptions, TsConfigResolver, TsConfigResolverWithFileName} from "../../plugin/i-typescript-plugin-options";
 import {TS} from "../../type/ts";
@@ -135,7 +135,7 @@ export function getParsedCommandLine({
 	}
 
 	// Remove all non-declaration files from the default file names since these will be handled separately by Rollup
-	parsedCommandLine.fileNames = parsedCommandLine.fileNames.filter(file => file.endsWith(DECLARATION_EXTENSION));
+	parsedCommandLine.fileNames = parsedCommandLine.fileNames.filter(file => file.endsWith(D_TS_EXTENSION));
 
 	return {
 		parsedCommandLine,

@@ -2,7 +2,7 @@ import * as TSModule from "typescript";
 import {rollup, RollupOptions, RollupOutput} from "rollup";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
 import {HookRecord, InputCompilerOptions, TypescriptPluginOptions} from "../../src/plugin/i-typescript-plugin-options";
-import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION} from "../../src/constant/constant";
+import {D_TS_EXTENSION, DECLARATION_MAP_EXTENSION} from "../../src/constant/constant";
 import {getRealFileSystem} from "../../src/util/file-system/file-system";
 import {TS} from "../../src/type/ts";
 import {isAbsolute, nativeDirname, nativeJoin, nativeNormalize, parse} from "../../src/util/path/path-util";
@@ -40,6 +40,7 @@ export interface GenerateRollupBundleOptions {
 	debug: TypescriptPluginOptions["debug"];
 	hook: Partial<HookRecord>;
 	transpiler: TypescriptPluginOptions["transpiler"];
+	transformers: TypescriptPluginOptions["transformers"];
 }
 
 /**
@@ -49,6 +50,7 @@ export async function generateRollupBundle(
 	inputFiles: TestFile[] | TestFile,
 	{
 		rollupOptions = {},
+		transformers,
 		transpiler = "typescript",
 		tsconfig = {},
 		format = "esm",
@@ -143,6 +145,7 @@ export async function generateRollupBundle(
 				load
 			},
 			typescriptRollupPlugin({
+				transformers,
 				transpiler,
 				transpileOnly,
 				debug,
@@ -201,7 +204,7 @@ export async function generateRollupBundle(
 				code: file.source.toString(),
 				fileName: file.fileName
 			});
-		} else if (file.fileName.endsWith(DECLARATION_EXTENSION)) {
+		} else if (file.fileName.endsWith(D_TS_EXTENSION)) {
 			declarations.push({
 				code: file.source.toString(),
 				fileName: file.fileName

@@ -25,21 +25,19 @@ import {isReferenced} from "../reference/is-referenced/is-referenced";
 import {hasExportModifier} from "../../util/modifier-util";
 import {visitExportAssignment} from "./visitor/visit-export-assignment";
 import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
-import {benchmark} from "../../../../../util/benchmark/benchmark-util";
+import {logMetrics} from "../../../../../util/logging/log-metrics";
+import {logTransformer} from "../../../../../util/logging/log-transformer";
 
-export function treeShaker({typescript, context, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
-	const fullBenchmark = shouldDebugMetrics(options.pluginOptions.debug, options.sourceFile)
-		? benchmark(`Tree-shaking ${options.sourceFile.fileName}`)
-		: undefined;
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== BEFORE TREE-SHAKING === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(options.sourceFile));
-	}
+export function treeShaker(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
+	const {typescript, context, sourceFile, pluginOptions, printer} = options;
+
+	const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile) ? logMetrics(`Tree-shaking`, sourceFile.fileName) : undefined;
+
+	const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile) ? logTransformer("Tree-shaking", sourceFile, printer) : undefined;
 
 	// Prepare some VisitorOptions
 	const visitorOptions = {
 		...options,
-		typescript,
 		isReferenced: <U extends TS.Node>(node: U): boolean => {
 			return isReferenced({...visitorOptions, node});
 		},
@@ -101,14 +99,10 @@ export function treeShaker({typescript, context, ...options}: SourceFileBundlerV
 		}
 	}
 
-	const updatedSourceFile = typescript.visitEachChild(options.sourceFile, visitor, context);
+	const updatedSourceFile = typescript.visitEachChild(sourceFile, visitor, context);
 
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== AFTER TREE-SHAKING === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(updatedSourceFile));
-	}
-
-	if (fullBenchmark != null) fullBenchmark.finish();
+	transformationLog?.finish(updatedSourceFile);
+	fullBenchmark?.finish();
 
 	return updatedSourceFile;
 }

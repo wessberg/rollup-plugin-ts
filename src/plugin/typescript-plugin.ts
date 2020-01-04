@@ -4,7 +4,7 @@ import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
 import {emitDiagnosticsThroughRollup} from "../util/diagnostic/emit-diagnostics-through-rollup";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
-import {ensureRelative, getExtension, isBabelHelper, isRollupPluginMultiEntry, nativeNormalize, normalize} from "../util/path/path-util";
+import {ensureRelative, isBabelHelper, isRollupPluginMultiEntry, nativeNormalize, normalize} from "../util/path/path-util";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
 import {TypescriptPluginOptions} from "./i-typescript-plugin-options";
 import {getPluginOptions} from "../util/plugin-options/get-plugin-options";
@@ -21,16 +21,15 @@ import {getDefaultBabelOptions} from "../util/get-default-babel-options/get-defa
 import {transformAsync} from "@babel/core";
 // @ts-ignore
 import {createFilter} from "rollup-pluginutils";
-import {resolveId} from "../util/resolve-id/resolve-id";
 import {mergeTransformers} from "../util/merge-transformers/merge-transformers";
 import {ensureArray} from "../util/ensure-array/ensure-array";
 import {GetParsedCommandLineResult} from "../util/get-parsed-command-line/get-parsed-command-line-result";
 import {takeBrowserslistOrComputeBasedOnCompilerOptions} from "../util/take-browserslist-or-compute-based-on-compiler-options/take-browserslist-or-compute-based-on-compiler-options";
 import {matchAll} from "@wessberg/stringutil";
-import {Resolver} from "../util/resolve-id/resolver";
 import {emitDeclarations} from "../declaration/emit-declarations";
 import {replaceBabelEsmHelpers} from "../util/replace-babel-esm-helpers/replace-babel-esm-helpers";
 import {CompilerHost} from "../service/compiler-host/compiler-host";
+import {pickResolvedModule} from "../util/pick-resolved-module";
 
 /**
  * The name of the Rollup plugin
@@ -70,19 +69,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	/**
 	 * The (Incremental) LanguageServiceHost to use
 	 */
-	let compilerHost: CompilerHost;
-
-	/**
-	 * A function that given an id and a parent resolves the full path for a dependency. The Module Resolution Algorithm depends on the CompilerOptions as well
-	 * as the supported extensions
-	 */
-	let resolver: Resolver;
-
-	/**
-	 * A function that given an id and a parent resolves the full path for a dependency, prioritizing ambient files (.d.ts). The Module Resolution Algorithm depends on the CompilerOptions as well
-	 * as the supported extensions
-	 */
-	let ambientResolver: Resolver;
+	let host: CompilerHost;
 
 	/**
 	 * The ResolveCache to use
@@ -94,11 +81,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	 */
 	const internalFilter: (id: string) => boolean = createFilter(include, exclude);
 	const filter = (id: string): boolean => internalFilter(id) || internalFilter(normalize(id)) || internalFilter(nativeNormalize(id));
-
-	/**
-	 * The Set of all transformed files.
-	 */
-	let transformedFiles = new Set<string>();
 
 	/**
 	 * All supported extensions
@@ -114,11 +96,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	 * A Set of the entry filenames for when using rollup-plugin-multi-entry (we need to track this for generating valid declarations)
 	 */
 	let MULTI_ENTRY_FILE_NAMES: Set<string> | undefined;
-
-	/**
-	 * Returns true if Typescript can emit something for the given file
-	 */
-	let canEmitForFile: (id: string) => boolean;
 
 	return {
 		name: PLUGIN_NAME,
@@ -169,10 +146,8 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				Boolean(parsedCommandLineResult.parsedCommandLine.options.resolveJsonModule)
 			);
 
-			canEmitForFile = (id: string) => filter(id) && SUPPORTED_EXTENSIONS.has(getExtension(id));
-
 			// Hook up a LanguageServiceHost and a LanguageService
-			compilerHost = new CompilerHost({
+			host = new CompilerHost({
 				filter,
 				cwd,
 				resolveCache,
@@ -182,35 +157,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				parsedCommandLine: parsedCommandLineResult.parsedCommandLine,
 				transformers: mergeTransformers(...transformers)
 			});
-
-			const resolve = (id: string, parent: string) =>
-				resolveId({
-					id,
-					parent,
-					resolveCache,
-					moduleResolutionHost: compilerHost
-				});
-
-			resolver = (id: string, parent: string) => {
-				const resolved = resolve(id, parent);
-
-				return resolved == null || resolved.resolvedFileName == null
-					? undefined
-					: {
-							fileName: resolved.resolvedFileName,
-							isExternalLibrary: resolved.isExternalLibraryImport === true
-					  };
-			};
-
-			ambientResolver = (id: string, parent: string) => {
-				const resolved = resolve(id, parent);
-				return resolved == null || (resolved.resolvedAmbientFileName == null && resolved.resolvedFileName == null)
-					? undefined
-					: {
-							fileName: resolved.resolvedAmbientFileName ?? resolved.resolvedFileName!,
-							isExternalLibrary: resolved.isExternalLibraryImport === true
-					  };
-			};
 
 			return undefined;
 		},
@@ -260,6 +206,14 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		},
 
 		/**
+		 * When a file changes, make sure to clear it from any caches to avoid stale caches
+		 */
+		watchChange(id: string): void {
+			host.delete(id);
+			resolveCache.delete(id);
+		},
+
+		/**
 		 * Transforms the given code and file
 		 */
 		async transform(this: PluginContext, code: string, file: string): Promise<TransformSourceDescription | undefined> {
@@ -280,21 +234,27 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 			// Only pass the file through Typescript if it's extension is supported. Otherwise, if we're going to continue on with Babel,
 			// Mock a SourceDescription. Otherwise, return bind undefined
-			let sourceDescription = !canEmitForFile(normalizedFile)
+			let sourceDescription = !host.isSupportedFileName(normalizedFile)
 				? babelConfig != null
 					? {code, map: undefined}
 					: undefined
 				: (() => {
-						if (transformedFiles.has(normalizedFile)) {
-							// Remove the file from the resolve cache, now that it has changed.
-							resolveCache.delete(normalizedFile);
+						// Add the file to the LanguageServiceHost
+						host.add({fileName: normalizedFile, text: code, fromRollup: true});
+
+						// Add all dependencies of the file to the File Watcher if missing
+						const dependencies = host.getDependenciesForFile(normalizedFile, true);
+
+						if (dependencies != null) {
+							for (const dependency of dependencies) {
+								const pickedDependency = pickResolvedModule(dependency, false);
+								if (pickedDependency == null) continue;
+								this.addWatchFile(pickedDependency);
+							}
 						}
 
-						// Add the file to the LanguageServiceHost
-						compilerHost.add({fileName: normalizedFile, text: code, fromRollup: true});
-
 						// Get some EmitOutput, optionally from the cache if the file contents are unchanged
-						const emitOutput = compilerHost.emit(normalizedFile, false);
+						const emitOutput = host.emit(normalizedFile, false);
 
 						// Return the emit output results to Rollup
 						return getSourceDescriptionFromEmitOutput(emitOutput);
@@ -304,7 +264,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			if (sourceDescription == null) {
 				return undefined;
 			} else {
-				transformedFiles.add(normalizedFile);
 				// If Babel shouldn't be used, simply return the emitted results
 				if (babelConfig == null) {
 					return sourceDescription;
@@ -335,8 +294,9 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// Don't proceed if there is no parent (in which case this is an entry module)
 			if (parent == null) return null;
 
-			const resolveResult = resolver(id, parent);
-			return resolveResult == null ? null : nativeNormalize(resolveResult.fileName);
+			const resolveResult = host.resolve(id, parent);
+			const pickedResolveResult = resolveResult == null ? undefined : pickResolvedModule(resolveResult, false);
+			return pickedResolveResult == null ? null : nativeNormalize(pickedResolveResult);
 		},
 
 		/**
@@ -361,33 +321,28 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// Only emit diagnostics if the plugin options allow it
 			if (!Boolean(transpileOnly)) {
 				// Emit all reported diagnostics
-				emitDiagnosticsThroughRollup({compilerHost, pluginOptions, context: this});
+				emitDiagnosticsThroughRollup({host, pluginOptions, context: this});
 			}
 
 			// Emit declaration files if required
-			if (Boolean(parsedCommandLineResult.parsedCommandLine.options.declaration)) {
+			if (Boolean(parsedCommandLineResult.originalCompilerOptions.declaration)) {
 				emitDeclarations({
-					compilerHost,
+					host,
 					bundle,
-					fileSystem,
-					cwd,
 					outputOptions,
 					pluginOptions,
-					canEmitForFile,
-					resolver: ambientResolver,
 					pluginContext: this,
-					supportedExtensions: SUPPORTED_EXTENSIONS,
-					compilerOptions: parsedCommandLineResult.parsedCommandLine.options,
-					multiEntryFileNames: MULTI_ENTRY_FILE_NAMES
+					multiEntryFileNames: MULTI_ENTRY_FILE_NAMES,
+					originalCompilerOptions: parsedCommandLineResult.originalCompilerOptions
 				});
 			}
 
 			const bundledFilenames = takeBundledFilesNames(bundle);
 
 			// Walk through all of the files of the LanguageService and make sure to remove them if they are not part of the bundle
-			for (const fileName of compilerHost.getRollupFileNames()) {
+			for (const fileName of host.getRollupFileNames()) {
 				if (!bundledFilenames.has(fileName)) {
-					compilerHost.delete(fileName);
+					host.delete(fileName);
 				}
 			}
 		}

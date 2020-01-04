@@ -5,22 +5,58 @@ import {getChunkFilename} from "../../util/get-chunk-filename";
 import {SourceFileBundlerVisitorOptions} from "./source-file-bundler-visitor-options";
 import {formatLibReferenceDirective} from "../../util/format-lib-reference-directive";
 import {formatTypeReferenceDirective} from "../../util/format-type-reference-directive";
-import {isUninitializedDeclarationBundlerOptions} from "../../util/assert-declaration-bundler-options";
-import {initializeDeclarationBundlerOptions} from "./initialize-declaration-bundler-options";
+import {pickResolvedModule} from "../../../../../util/pick-resolved-module";
+import {trackImportsTransformer} from "../track-imports-transformer/track-imports-transformer";
+import {trackExportsTransformer} from "../track-exports-transformer/track-exports-transformer";
+
+function needsInitialize(options: DeclarationBundlerOptions): boolean {
+	return (
+		options.sourceFileToExportedSymbolSet.size === 0 ||
+		options.sourceFileToImportedSymbolSet.size === 0 ||
+		options.moduleSpecifierToSourceFileMap.size === 0
+	);
+}
 
 export function sourceFileBundler(options: DeclarationBundlerOptions, ...transformers: DeclarationTransformer[]): TS.TransformerFactory<TS.Bundle> {
 	return context => {
 		return bundle => {
-			if (isUninitializedDeclarationBundlerOptions(options)) {
-				initializeDeclarationBundlerOptions(options, [...bundle.sourceFiles]);
-			}
-
 			const updatedSourceFiles: TS.SourceFile[] = [];
 			const entryModulesArr = [...options.chunk.entryModules];
 
+			const sourceFileMap = new Map<string, TS.SourceFile>(bundle.sourceFiles.map(sourceFile => [sourceFile.fileName, sourceFile]));
+			// Take file names for all SourceFiles
+			const sourceFileNames = new Set(sourceFileMap.keys());
+			const sourceFiles = [...sourceFileMap.values()];
+
+			if (needsInitialize(options)) {
+				sourceFiles.forEach(sourceFile => {
+					for (const statement of sourceFile.statements) {
+						if (options.typescript.isModuleDeclaration(statement)) {
+							options.moduleSpecifierToSourceFileMap.set(statement.name.text, sourceFile);
+						}
+					}
+
+					options.sourceFileToImportedSymbolSet.set(
+						sourceFile.fileName,
+						trackImportsTransformer({
+							typescript: options.typescript,
+							sourceFile
+						})
+					);
+
+					options.sourceFileToExportedSymbolSet.set(
+						sourceFile.fileName,
+						trackExportsTransformer({
+							typescript: options.typescript,
+							sourceFile
+						})
+					);
+				});
+			}
+
 			// Only consider those SourceFiles that are part of the current chunk to be emitted
-			const sourceFilesForChunk = bundle.sourceFiles.filter(
-				sourceFile => getChunkFilename({...options, fileName: sourceFile.fileName}) === options.chunk.paths.absolute
+			const sourceFilesForChunk = sourceFiles.filter(
+				sourceFile => getChunkFilename(sourceFile.fileName, options.chunks) === options.chunk.paths.absolute
 			);
 
 			// Visit only the entry SourceFile(s)
@@ -30,28 +66,66 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 
 			const nonEntrySourceFiles = sourceFilesForChunk.filter(sourceFile => !entrySourceFiles.includes(sourceFile));
 
-			const [firstEntrySourceFile] = entrySourceFiles;
+			const firstEntrySourceFile = entrySourceFiles[0] as TS.SourceFile | undefined;
 			const otherEntrySourceFilesForChunk = entrySourceFiles.filter(entrySourceFile => entrySourceFile !== firstEntrySourceFile);
 
-			// Prepare some VisitorOptions
-			const visitorOptions: SourceFileBundlerVisitorOptions = {
-				...options,
-				context,
-				otherEntrySourceFilesForChunk,
-				sourceFiles: [...bundle.sourceFiles],
-				sourceFile: firstEntrySourceFile,
-				lexicalEnvironment: {
-					parent: undefined,
-					bindings: new Map()
-				},
-				includedSourceFiles: new Set<string>([firstEntrySourceFile.fileName]),
-				declarationToDeconflictedBindingMap: new Map<number, string>(),
-				nodeToOriginalSymbolMap: new Map<TS.Node, TS.Symbol>(),
-				nodeToOriginalNodeMap: new Map<TS.Node, TS.Node>(),
-				preservedImports: new Map()
-			};
+			if (firstEntrySourceFile != null) {
+				// Prepare some VisitorOptions
+				const visitorOptions: SourceFileBundlerVisitorOptions = {
+					...options,
+					context,
+					otherEntrySourceFilesForChunk,
+					sourceFile: firstEntrySourceFile,
+					lexicalEnvironment: {
+						parent: undefined,
+						bindings: new Map()
+					},
+					includedSourceFiles: new Set<string>([firstEntrySourceFile.fileName]),
+					declarationToDeconflictedBindingMap: new Map<number, string>(),
+					nodeToOriginalSymbolMap: new Map<TS.Node, TS.Symbol>(),
+					nodeToOriginalNodeMap: new Map<TS.Node, TS.Node>(),
+					preservedImports: new Map(),
+					resolveSourceFile: (fileName, from) => {
+						for (const file of [fileName, `${fileName}/index`]) {
+							if (options.moduleSpecifierToSourceFileMap.has(file)) {
+								return options.moduleSpecifierToSourceFileMap.get(file)!;
+							}
+						}
 
-			updatedSourceFiles.push(applyTransformers({visitorOptions, transformers}));
+						const resolved = options.host.resolve(fileName, from);
+
+						if (resolved == null) return undefined;
+						const pickedResolvedModule = pickResolvedModule(resolved, true);
+						const resolvedSourceFile = pickedResolvedModule == null ? undefined : sourceFileMap.get(pickedResolvedModule);
+
+						// Never allow resolving SourceFiles representing content not part of the compilation unit,
+						// since that would lead to module merging assuming that modules will be part of the emitted declarations
+						// even though they want, leading to undefined symbols
+						if (resolvedSourceFile == null || !sourceFileNames.has(resolvedSourceFile.fileName)) return undefined;
+						return resolvedSourceFile;
+					}
+				};
+
+				// Run all transformers on the SourceFile
+				let transformedSourceFile = applyTransformers({
+					visitorOptions,
+					transformers
+				});
+
+				// There may be additional transformers that are wrapped by this one. Run them on the transformed SourceFile rather than the entire bundle.
+				if (options.wrappedTransformers != null && options.wrappedTransformers.afterDeclarations != null) {
+					for (const transformerFactory of options.wrappedTransformers.afterDeclarations) {
+						const transformer = transformerFactory(context);
+						if ("transformSourceFile" in transformer) {
+							transformedSourceFile = transformer.transformSourceFile(transformedSourceFile);
+						} else {
+							transformedSourceFile = transformer(transformedSourceFile) as TS.SourceFile;
+						}
+					}
+				}
+
+				updatedSourceFiles.push(transformedSourceFile);
+			}
 
 			for (const sourceFile of [...otherEntrySourceFilesForChunk, ...nonEntrySourceFiles]) {
 				updatedSourceFiles.push(options.typescript.updateSourceFileNode(sourceFile, [], true));

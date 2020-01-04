@@ -1,6 +1,6 @@
-import {DeclarationTransformer} from "../declaration-bundler-options";
 import {TS} from "../../../../type/ts";
 import {SourceFileBundlerVisitorOptions} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
+import {DeclarationTransformer} from "../declaration-bundler-options";
 
 export interface ApplyTransformersOptions {
 	transformers: DeclarationTransformer[];

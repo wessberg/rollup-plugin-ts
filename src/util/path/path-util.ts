@@ -2,7 +2,7 @@ import {basename, dirname, extname, isAbsolute, join, normalize, parse, ParsedPa
 import {
 	BABEL_RUNTIME_PREFIX_1,
 	BABEL_RUNTIME_PREFIX_2,
-	DECLARATION_EXTENSION,
+	D_TS_EXTENSION,
 	DECLARATION_MAP_EXTENSION,
 	KNOWN_EXTENSIONS,
 	NODE_MODULES_MATCH_PATH,
@@ -40,7 +40,7 @@ function _parse(path: string): ParsedPath {
 }
 
 export function isTypeScriptLib(path: string): boolean {
-	return path.startsWith(`lib.`) && path.endsWith(DECLARATION_EXTENSION);
+	return path.startsWith(`lib.`) && path.endsWith(D_TS_EXTENSION);
 }
 
 /**
@@ -71,7 +71,7 @@ export function _isAbsolute(path: string): boolean {
  * Gets the extension of the given file
  */
 export function getExtension(file: string): string {
-	if (file.endsWith(DECLARATION_EXTENSION)) return DECLARATION_EXTENSION;
+	if (file.endsWith(D_TS_EXTENSION)) return D_TS_EXTENSION;
 	else if (file.endsWith(DECLARATION_MAP_EXTENSION)) return DECLARATION_MAP_EXTENSION;
 	return extname(file);
 }

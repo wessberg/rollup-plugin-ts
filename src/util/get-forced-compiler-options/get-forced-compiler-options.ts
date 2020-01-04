@@ -70,6 +70,12 @@ export function getForcedCompilerOptions(options: IGetForcedCompilerOptionsOptio
 		watch: false,
 		// Typescript should never watch files. That is the job of Rollup
 		preserveWatchOutput: false,
-		skipLibCheck: true
+		skipLibCheck: true,
+
+		// Declarations may be generated, but not as part of the Builder program which is used during the transform, renderChunk, and generateBundle phases, so TypeScript needs to be instructed not to generate them.
+		// The raw CompilerOptions will be preserved and used in the last compilation phase to generate declarations if needed.
+		declaration: false,
+		declarationDir: undefined,
+		declarationMap: false
 	};
 }

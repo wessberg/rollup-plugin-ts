@@ -3,21 +3,26 @@ import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-fil
 import {visitNode} from "./visitor/visit-node";
 import {getNodePlacementQueue} from "../../util/get-node-placement-queue";
 import {ToExportDeclarationTransformerVisitorOptions} from "./to-export-declaration-transformer-visitor-options";
-import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {logMetrics} from "../../../../../util/logging/log-metrics";
+import {logTransformer} from "../../../../../util/logging/log-transformer";
 
-export function toExportDeclarationTransformer({typescript, context, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== BEFORE ADDING EXPORT DECLARATIONS === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(options.sourceFile));
-	}
+export function toExportDeclarationTransformer(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
+	const {typescript, context, sourceFile, pluginOptions, printer} = options;
+
+	const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile)
+		? logMetrics(`Adding ExportDeclarations`, sourceFile.fileName)
+		: undefined;
+
+	const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile)
+		? logTransformer("Adding ExportDeclarations", sourceFile, printer)
+		: undefined;
 
 	const nodePlacementQueue = getNodePlacementQueue({typescript});
 
 	// Prepare some VisitorOptions
 	const visitorOptions: Omit<ToExportDeclarationTransformerVisitorOptions<TS.Node>, "node"> = {
 		...options,
-		context,
-		typescript,
 		...nodePlacementQueue,
 
 		childContinuation: <U extends TS.Node>(node: U): U =>
@@ -42,7 +47,7 @@ export function toExportDeclarationTransformer({typescript, context, ...options}
 			) as U
 	};
 
-	let result = typescript.visitEachChild(options.sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
+	let result = typescript.visitEachChild(sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
 
 	// There may be prepended or appended nodes that hasn't been added yet. Do so!
 	const [missingPrependNodes, missingAppendNodes] = nodePlacementQueue.flush();
@@ -58,10 +63,8 @@ export function toExportDeclarationTransformer({typescript, context, ...options}
 		);
 	}
 
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== AFTER ADDING EXPORT DECLARATIONS === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(result));
-	}
+	transformationLog?.finish(result);
+	fullBenchmark?.finish();
 
 	return result;
 }

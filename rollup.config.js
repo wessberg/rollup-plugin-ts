@@ -4,6 +4,9 @@ import packageJson from "./package.json";
 import {builtinModules} from "module";
 
 export default {
+	watch: {
+		clearScreen: false
+	},
 	input: "src/index.ts",
 	output: [
 		{
@@ -19,8 +22,7 @@ export default {
 	],
 	plugins: [
 		ts({
-			tsconfig: "tsconfig.build.json",
-			debug: data => data.kind === "metrics"
+			tsconfig: "tsconfig.build.json"
 		})
 	],
 	external: [

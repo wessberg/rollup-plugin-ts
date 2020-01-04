@@ -1,83 +1,58 @@
-import {Resolver} from "../util/resolve-id/resolver";
-import {SupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
-import {FileSystem} from "../util/file-system/file-system";
 import {OutputBundle, OutputOptions, PluginContext} from "rollup";
-import {TS} from "../type/ts";
 import {TypescriptPluginOptions} from "../plugin/i-typescript-plugin-options";
 import {isOutputChunk} from "../util/is-output-chunk/is-output-chunk";
 import {getDeclarationOutDir} from "../util/get-declaration-out-dir/get-declaration-out-dir";
 import {getOutDir} from "../util/get-out-dir/get-out-dir";
-import {basename, dirname, join, nativeNormalize, normalize, relative, setExtension} from "../util/path/path-util";
-import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION, JS_EXTENSION, ROLLUP_PLUGIN_MULTI_ENTRY} from "../constant/constant";
+import {basename, dirname, join, nativeNormalize, relative, setExtension} from "../util/path/path-util";
+import {D_TS_EXTENSION, DECLARATION_MAP_EXTENSION, JS_EXTENSION} from "../constant/constant";
 import {bundleDeclarationsForChunk} from "./bundle-declarations-for-chunk";
 import {
 	ReferenceCache,
 	SourceFileToNodeToReferencedIdentifiersCache
 } from "../service/transformer/declaration-bundler/transformers/reference/cache/reference-cache";
-import {NodeIdentifierCache} from "../service/transformer/declaration-bundler/transformers/trace-identifiers/trace-identifiers";
-import {normalizeChunk} from "../util/chunk/normalize-chunk";
+import {normalizeChunk, preNormalizeChunk} from "../util/chunk/normalize-chunk";
 import {shouldDebugEmit, shouldDebugMetrics} from "../util/is-debug/should-debug";
-import {benchmark} from "../util/benchmark/benchmark-util";
+import {logMetrics} from "../util/logging/log-metrics";
 import {CompilerHost} from "../service/compiler-host/compiler-host";
+import {mergeChunksWithAmbientDependencies} from "../util/chunk/merge-chunks-with-ambient-dependencies";
+import {preparePaths} from "../service/transformer/declaration-bundler/util/prepare-paths/prepare-paths";
+import {logEmit} from "../util/logging/log-emit";
+import {TS} from "../type/ts";
 
 export interface EmitDeclarationsOptions {
-	canEmitForFile(id: string): boolean;
-	resolver: Resolver;
-	supportedExtensions: SupportedExtensions;
-	fileSystem: FileSystem;
+	originalCompilerOptions: TS.CompilerOptions;
 	pluginContext: PluginContext;
 	bundle: OutputBundle;
-	cwd: string;
-	compilerOptions: TS.CompilerOptions;
-	compilerHost: CompilerHost;
+	host: CompilerHost;
 	pluginOptions: TypescriptPluginOptions;
 	outputOptions: OutputOptions;
 	multiEntryFileNames: Set<string> | undefined;
 }
 
-export interface PreparePathsOptions {
-	fileName: string;
-	relativeOutDir: string;
-	absoluteOutDir: string;
-}
-
-export interface PreparePathsResult {
-	fileName: string;
-	relative: string;
-	absolute: string;
-}
-
-function preparePaths({relativeOutDir, absoluteOutDir, fileName}: PreparePathsOptions): PreparePathsResult {
-	const absolutePath = join(absoluteOutDir, fileName);
-	const relativePath = join(relativeOutDir, fileName);
-
-	return {
-		fileName,
-		absolute: absolutePath,
-		relative: relativePath
-	};
-}
-
 export function emitDeclarations(options: EmitDeclarationsOptions) {
-	const fullBenchmark = shouldDebugMetrics(options.pluginOptions.debug) ? benchmark(`Emit declarations`) : undefined;
+	const fullBenchmark = shouldDebugMetrics(options.pluginOptions.debug) ? logMetrics(`Emit declarations`) : undefined;
 
-	const {typescript} = options.pluginOptions;
+	const typescript = options.host.getTypescript();
+	const cwd = options.host.getCwd();
+	const relativeOutDir = getOutDir(cwd, options.outputOptions);
+
 	const chunks = Object.values(options.bundle)
 		.filter(isOutputChunk)
-		.map(normalizeChunk);
+		.map(preNormalizeChunk);
 
-	const relativeDeclarationOutDir = getDeclarationOutDir(options.cwd, options.compilerOptions, options.outputOptions);
-	const absoluteDeclarationOutDir = join(options.cwd, relativeDeclarationOutDir);
+	// Merge ambient dependencies into the chunks
+	mergeChunksWithAmbientDependencies(chunks, options.host);
+	// Normalize the chunks
+	const normalizedChunks = chunks.map(chunk => normalizeChunk(chunk, {...options, relativeOutDir}));
 
-	const relativeOutDir = getOutDir(options.cwd, options.outputOptions);
-	const generateMap = Boolean(options.compilerOptions.declarationMap);
+	const relativeDeclarationOutDir = getDeclarationOutDir(cwd, options.originalCompilerOptions, options.outputOptions);
+	const absoluteDeclarationOutDir = join(cwd, relativeDeclarationOutDir);
+
 	const sourceFileToNodeToReferencedIdentifiersCache: SourceFileToNodeToReferencedIdentifiersCache = new Map();
-	const nodeIdentifierCache: NodeIdentifierCache = new Map();
 	const referenceCache: ReferenceCache = new Map();
-	const printer = typescript.createPrinter({newLine: options.compilerOptions.newLine});
 
 	let virtualOutFile = preparePaths({
-		fileName: setExtension("index.js", DECLARATION_EXTENSION),
+		fileName: setExtension("index.js", D_TS_EXTENSION),
 		relativeOutDir: relativeDeclarationOutDir,
 		absoluteOutDir: absoluteDeclarationOutDir
 	});
@@ -89,23 +64,17 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		if (result != null) {
 			virtualOutFile = preparePaths({
 				fileName: basename(result),
-				relativeOutDir: relative(options.cwd, dirname(result)),
+				relativeOutDir: relative(cwd, dirname(result)),
 				absoluteOutDir: dirname(result)
 			});
 		}
 	}
 
-	const mergedChunks = [...chunks];
-	const allModules = new Set<string>();
-
-	for (const chunk of mergedChunks) {
-		for (const module of chunk.modules) {
-			allModules.add(module);
-		}
-	}
-
-	const host = options.compilerHost.clone({
-		...options.compilerOptions,
+	const host = options.host.clone({
+		...options.host.getCompilationSettings(),
+		declaration: Boolean(options.originalCompilerOptions.declaration),
+		declarationMap: Boolean(options.originalCompilerOptions.declarationMap),
+		declarationDir: options.originalCompilerOptions.declarationDir,
 		outFile: setExtension(virtualOutFile.relative, JS_EXTENSION),
 		module: typescript.ModuleKind.System,
 		emitDeclarationOnly: true
@@ -115,39 +84,29 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 
 	const sharedOptions = {
 		...options,
+		chunks: normalizedChunks,
 		host,
 		typeChecker,
 		typescript,
-		generateMap,
-		nodeIdentifierCache,
-		printer,
 		referenceCache,
 		sourceFileToNodeToReferencedIdentifiersCache,
-		chunks: mergedChunks,
-		typeRoots: options.compilerHost.getTypeRoots(),
 		sourceFileToTypeReferencesSet: new Map(),
-		moduleSpecifierToSourceFileMap: new Map(),
-		chunkToOriginalFileMap: new Map(),
-		sourceFileToImportedSymbolSet: new Map(),
 		sourceFileToExportedSymbolSet: new Map(),
-		moduleDependencyMap: new Map()
+		sourceFileToImportedSymbolSet: new Map(),
+		sourceFileToDependenciesMap: new Map(),
+		moduleSpecifierToSourceFileMap: new Map(),
+		printer: host.getPrinter()
 	};
 
-	for (const chunk of mergedChunks) {
-		const chunkPaths = preparePaths({
-			fileName: normalize(chunk.fileName),
-			relativeOutDir: getOutDir(options.cwd, options.outputOptions),
-			absoluteOutDir: join(options.cwd, relativeOutDir)
-		});
-
+	for (const chunk of normalizedChunks) {
 		let declarationPaths = preparePaths({
-			fileName: setExtension(chunk.fileName, DECLARATION_EXTENSION),
+			fileName: setExtension(chunk.paths.fileName, D_TS_EXTENSION),
 			relativeOutDir: relativeDeclarationOutDir,
 			absoluteOutDir: absoluteDeclarationOutDir
 		});
 
 		let declarationMapPaths = preparePaths({
-			fileName: setExtension(chunk.fileName, DECLARATION_MAP_EXTENSION),
+			fileName: setExtension(chunk.paths.fileName, DECLARATION_MAP_EXTENSION),
 			relativeOutDir: relativeDeclarationOutDir,
 			absoluteOutDir: absoluteDeclarationOutDir
 		});
@@ -160,7 +119,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 			if (declarationResult != null) {
 				declarationPaths = preparePaths({
 					fileName: basename(declarationResult),
-					relativeOutDir: relative(options.cwd, dirname(declarationResult)),
+					relativeOutDir: relative(cwd, dirname(declarationResult)),
 					absoluteOutDir: dirname(declarationResult)
 				});
 			}
@@ -191,37 +150,19 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		emitFileDeclarationFilename = nativeNormalize(emitFileDeclarationFilename);
 		emitFileDeclarationMapFilename = nativeNormalize(emitFileDeclarationMapFilename);
 
-		const rawLocalModuleNames = chunk.modules;
-		const modules = rawLocalModuleNames.filter(options.canEmitForFile);
-		const rawEntryFileName = rawLocalModuleNames.slice(-1)[0];
-		let entryModules = chunk.isEntry ? [modules.slice(-1)[0]] : [...modules].reverse();
-
-		// If the entry filename is equal to the ROLLUP_PLUGIN_MULTI_ENTRY constant,
-		// the entry is a combination of one or more of the local module names.
-		// Luckily we should know this by now after having parsed the contents in the transform hook
-		if (rawEntryFileName === ROLLUP_PLUGIN_MULTI_ENTRY && options.multiEntryFileNames != null) {
-			// Reassign the entry file names accordingly
-			entryModules = [...options.multiEntryFileNames];
-		}
-
 		// Don't emit declarations when there is no compatible entry file
-		if (entryModules.length < 1 || entryModules.some(entryFileName => entryFileName == null)) continue;
+		if (chunk.entryModules.size < 1) continue;
 
 		const bundleResult = bundleDeclarationsForChunk({
 			...sharedOptions,
-			chunk: {
-				paths: chunkPaths,
-				isEntry: chunk.isEntry,
-				modules: new Set(modules),
-				entryModules: new Set(entryModules)
-			},
+			chunk,
 			declarationPaths,
-			declarationMapPaths
+			declarationMapPaths,
+			wrappedTransformers: options.host.getCustomTransformers()
 		});
 
 		if (shouldDebugEmit(options.pluginOptions.debug, emitFileDeclarationFilename, bundleResult.code, "declaration")) {
-			console.log(`=== Emitting ${emitFileDeclarationFilename} ===`);
-			console.log(bundleResult.code);
+			logEmit(emitFileDeclarationFilename, bundleResult.code);
 		}
 
 		if (options.pluginContext.emitFile == null) {
@@ -238,8 +179,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions) {
 		// If there is a SourceMap for the declarations, add that asset too
 		if (bundleResult.map != null) {
 			if (shouldDebugEmit(options.pluginOptions.debug, emitFileDeclarationMapFilename, bundleResult.map.toString(), "declarationMap")) {
-				console.log(`=== Emitting ${emitFileDeclarationMapFilename} ===`);
-				console.log(bundleResult.map);
+				logEmit(emitFileDeclarationMapFilename, bundleResult.map.toString());
 			}
 
 			options.pluginContext.emitFile({

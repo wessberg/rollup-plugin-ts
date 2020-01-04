@@ -7,11 +7,11 @@ export const JSX_EXTENSION = ".jsx";
 export const JSON_EXTENSION = ".json";
 export const MJS_EXTENSION = ".mjs";
 export const MJSX_EXTENSION = ".mjsx";
-export const DECLARATION_EXTENSION = `.d${TS_EXTENSION}`;
+export const D_TS_EXTENSION = `.d${TS_EXTENSION}`;
 export const DECLARATION_MAP_EXTENSION = `.d${TS_EXTENSION}${SOURCE_MAP_EXTENSION}`;
 
 export const KNOWN_EXTENSIONS = new Set([
-	DECLARATION_EXTENSION,
+	D_TS_EXTENSION,
 	DECLARATION_MAP_EXTENSION,
 	JS_MAP_EXTENSION,
 	TS_EXTENSION,
@@ -28,7 +28,7 @@ export const NODE_MODULES = "node_modules";
 export const NODE_MODULES_MATCH_PATH = `/${NODE_MODULES}/`;
 export const SOURCE_MAP_COMMENT = "//# sourceMappingURL";
 export const SOURCE_MAP_COMMENT_REGEXP = /\/\/# sourceMappingURL=(\S*)/;
-export const TSLIB_NAME = `tslib${DECLARATION_EXTENSION}`;
+export const TSLIB_NAME = `tslib${D_TS_EXTENSION}`;
 export const BABEL_RUNTIME_PREFIX_1 = "@babel/runtime/";
 export const BABEL_RUNTIME_PREFIX_2 = "babel-runtime/";
 export const BABEL_CONFIG_JS_FILENAME = "babel.config.js";

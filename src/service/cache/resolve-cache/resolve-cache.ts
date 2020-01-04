@@ -2,7 +2,7 @@ import {IGetResolvedIdWithCachingOptions} from "./i-get-resolved-id-with-caching
 import {ExtendedResolvedModule, IResolveCache} from "./i-resolve-cache";
 import {ensureAbsolute, isTslib, nativeNormalize, normalize, setExtension} from "../../../util/path/path-util";
 
-import {DECLARATION_EXTENSION, JS_EXTENSION} from "../../../constant/constant";
+import {D_TS_EXTENSION, JS_EXTENSION} from "../../../constant/constant";
 import {FileSystem} from "../../../util/file-system/file-system";
 import {TS} from "../../../type/ts";
 
@@ -74,10 +74,11 @@ export class ResolveCache implements IResolveCache {
 	 * Gets a cached module result for the given file from the given parent and returns it if it exists already.
 	 * If not, it will compute it, update the cache, and then return it
 	 */
-	get({id, parent, moduleResolutionHost}: IGetResolvedIdWithCachingOptions): ExtendedResolvedModule | null {
+	get(options: IGetResolvedIdWithCachingOptions): ExtendedResolvedModule | null {
+		const {id, parent, moduleResolutionHost} = options;
 		let cacheResult = this.getFromCache(id, parent);
 		const typescript = moduleResolutionHost.getTypescript();
-		const options = moduleResolutionHost.getCompilationSettings();
+		const compilerOptions = moduleResolutionHost.getCompilationSettings();
 		const cwd = moduleResolutionHost.getCwd();
 		const supportedExtensions = moduleResolutionHost.getSupportedExtensions();
 
@@ -86,7 +87,7 @@ export class ResolveCache implements IResolveCache {
 		}
 
 		// Resolve the file via Typescript, either through classic or node module resolution
-		const {resolvedModule} = this.resolveModuleName(typescript, id, parent, options, moduleResolutionHost) as {
+		const {resolvedModule} = this.resolveModuleName(typescript, id, parent, compilerOptions, moduleResolutionHost) as {
 			resolvedModule: ExtendedResolvedModule | undefined;
 		};
 
@@ -100,10 +101,10 @@ export class ResolveCache implements IResolveCache {
 			// Make sure that the path is absolute from the cwd
 			resolvedModule.resolvedFileName = normalize(ensureAbsolute(cwd, resolvedModule.resolvedFileName!));
 
-			if (resolvedModule.resolvedFileName.endsWith(DECLARATION_EXTENSION)) {
+			if (resolvedModule.resolvedFileName.endsWith(D_TS_EXTENSION)) {
 				resolvedModule.resolvedAmbientFileName = resolvedModule.resolvedFileName;
 				resolvedModule.resolvedFileName = undefined;
-				resolvedModule.extension = DECLARATION_EXTENSION as TS.Extension;
+				resolvedModule.extension = D_TS_EXTENSION as TS.Extension;
 
 				if (isTslib(id)) {
 					const candidate = normalize(setExtension(resolvedModule.resolvedAmbientFileName, `.es6${JS_EXTENSION}`));
@@ -127,7 +128,7 @@ export class ResolveCache implements IResolveCache {
 				}
 			} else {
 				resolvedModule.resolvedAmbientFileName = undefined;
-				const candidate = normalize(setExtension(resolvedModule.resolvedFileName, DECLARATION_EXTENSION));
+				const candidate = normalize(setExtension(resolvedModule.resolvedFileName, D_TS_EXTENSION));
 
 				if (this.options.fileSystem.fileExists(nativeNormalize(candidate))) {
 					resolvedModule.resolvedAmbientFileName = candidate;

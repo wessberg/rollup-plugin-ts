@@ -1,4 +1,4 @@
-import {DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION, SOURCE_MAP_EXTENSION} from "../../constant/constant";
+import {D_TS_EXTENSION, DECLARATION_MAP_EXTENSION, SOURCE_MAP_EXTENSION} from "../../constant/constant";
 import {getExtension} from "../path/path-util";
 import {TS} from "../../type/ts";
 
@@ -7,5 +7,5 @@ import {TS} from "../../type/ts";
  */
 export function isCodeOutputFile({name}: TS.OutputFile): boolean {
 	const extension = getExtension(name);
-	return [SOURCE_MAP_EXTENSION, DECLARATION_EXTENSION, DECLARATION_MAP_EXTENSION].every(otherExtension => extension !== otherExtension);
+	return [SOURCE_MAP_EXTENSION, D_TS_EXTENSION, DECLARATION_MAP_EXTENSION].every(otherExtension => extension !== otherExtension);
 }

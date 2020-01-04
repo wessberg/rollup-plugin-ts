@@ -2,15 +2,8 @@ import {SourceDescription, SourceMap} from "rollup";
 import {DECLARATION_MAP_EXTENSION, SOURCE_MAP_COMMENT, SOURCE_MAP_COMMENT_REGEXP} from "../constant/constant";
 import {declarationBundler} from "../service/transformer/declaration-bundler/declaration-bundler";
 import {DeclarationBundlerOptions} from "../service/transformer/declaration-bundler/declaration-bundler-options";
-import {CompilerHost} from "../service/compiler-host/compiler-host";
-import {TS} from "../type/ts";
 
-export interface BundleDeclarationsForChunkOptions extends Omit<DeclarationBundlerOptions, "typeChecker"> {
-	cwd: string;
-	generateMap: boolean;
-	host: CompilerHost;
-	typeChecker: TS.TypeChecker;
-}
+export interface BundleDeclarationsForChunkOptions extends DeclarationBundlerOptions {}
 
 export function bundleDeclarationsForChunk(options: BundleDeclarationsForChunkOptions): SourceDescription {
 	let code = "";

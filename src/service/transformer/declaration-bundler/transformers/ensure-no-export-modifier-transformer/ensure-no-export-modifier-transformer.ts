@@ -1,19 +1,24 @@
 import {TS} from "../../../../../type/ts";
 import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
 import {visitNode} from "./visitor/visit-node";
-import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {logMetrics} from "../../../../../util/logging/log-metrics";
+import {logTransformer} from "../../../../../util/logging/log-transformer";
 
-export function ensureNoExportModifierTransformer({typescript, context, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== BEFORE ENSURING NO EXPORT MODIFIERS === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(options.sourceFile));
-	}
+export function ensureNoExportModifierTransformer(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
+	const {typescript, context, sourceFile, pluginOptions, printer} = options;
+
+	const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile)
+		? logMetrics(`Ensuring no export modifiers`, sourceFile.fileName)
+		: undefined;
+
+	const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile)
+		? logTransformer("Ensuring no export modifiers", sourceFile, printer)
+		: undefined;
 
 	// Prepare some VisitorOptions
 	const visitorOptions = {
 		...options,
-		context,
-		typescript,
 
 		childContinuation: <U extends TS.Node>(node: U): U =>
 			typescript.visitEachChild(
@@ -33,12 +38,10 @@ export function ensureNoExportModifierTransformer({typescript, context, ...optio
 			}) as U
 	};
 
-	const result = typescript.visitEachChild(options.sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
+	const result = typescript.visitEachChild(sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
 
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== AFTER ENSURING NO EXPORT MODIFIERS === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(result));
-	}
+	transformationLog?.finish(result);
+	fullBenchmark?.finish();
 
 	return result;
 }

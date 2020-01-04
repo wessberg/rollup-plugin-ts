@@ -1,19 +1,24 @@
 import {TS} from "../../../../../type/ts";
 import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
 import {visitNode} from "./visitor/visit-node";
-import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {logTransformer} from "../../../../../util/logging/log-transformer";
+import {logMetrics} from "../../../../../util/logging/log-metrics";
 
-export function ensureDeclareModifierTransformer({typescript, context, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== BEFORE ENSURING DECLARE MODIFIERS === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(options.sourceFile));
-	}
+export function ensureDeclareModifierTransformer(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
+	const {typescript, context, sourceFile, pluginOptions, printer} = options;
+
+	const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile)
+		? logMetrics(`Ensuring declare modifiers`, sourceFile.fileName)
+		: undefined;
+
+	const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile)
+		? logTransformer("Ensuring declare modifiers", sourceFile, printer)
+		: undefined;
 
 	// Prepare some VisitorOptions
 	const visitorOptions = {
 		...options,
-		typescript,
-		context,
 
 		childContinuation: <U extends TS.Node>(node: U): U =>
 			typescript.visitEachChild(
@@ -33,12 +38,10 @@ export function ensureDeclareModifierTransformer({typescript, context, ...option
 			}) as U
 	};
 
-	const result = typescript.visitEachChild(options.sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
+	const result = typescript.visitEachChild(sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
 
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== AFTER ENSURING DECLARE MODIFIERS === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(result));
-	}
+	transformationLog?.finish(result);
+	fullBenchmark?.finish();
 
 	return result;
 }

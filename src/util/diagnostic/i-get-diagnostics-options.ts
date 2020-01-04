@@ -3,7 +3,7 @@ import {TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options"
 import {CompilerHost} from "../../service/compiler-host/compiler-host";
 
 export interface IGetDiagnosticsOptions {
-	compilerHost: CompilerHost;
+	host: CompilerHost;
 	context: PluginContext;
 	pluginOptions: TypescriptPluginOptions;
 }

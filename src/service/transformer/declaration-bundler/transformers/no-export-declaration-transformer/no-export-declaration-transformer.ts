@@ -3,21 +3,26 @@ import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-fil
 import {visitNode} from "./visitor/visit-node";
 import {getNodePlacementQueue} from "../../util/get-node-placement-queue";
 import {NoExportDeclarationTransformerVisitorOptions} from "./no-export-declaration-transformer-visitor-options";
-import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {logMetrics} from "../../../../../util/logging/log-metrics";
+import {logTransformer} from "../../../../../util/logging/log-transformer";
 
-export function noExportDeclarationTransformer({typescript, context, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== BEFORE REMOVING EXPORT DECLARATIONS === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(options.sourceFile));
-	}
+export function noExportDeclarationTransformer(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
+	const {typescript, context, sourceFile, pluginOptions, printer} = options;
+
+	const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile)
+		? logMetrics(`Removing ExportDeclarations`, sourceFile.fileName)
+		: undefined;
+
+	const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile)
+		? logTransformer("Removing ExportDeclarations", sourceFile, printer)
+		: undefined;
 
 	const nodePlacementQueue = getNodePlacementQueue({typescript});
 
 	// Prepare some VisitorOptions
 	const visitorOptions: Omit<NoExportDeclarationTransformerVisitorOptions<TS.Node>, "node"> = {
 		...options,
-		context,
-		typescript,
 		...nodePlacementQueue,
 
 		childContinuation: <U extends TS.Node>(node: U): U =>
@@ -42,12 +47,10 @@ export function noExportDeclarationTransformer({typescript, context, ...options}
 			) as U
 	};
 
-	const result = typescript.visitEachChild(options.sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
+	const result = typescript.visitEachChild(sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
 
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== AFTER REMOVING EXPORT DECLARATIONS === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(result));
-	}
+	transformationLog?.finish(result);
+	fullBenchmark?.finish();
 
 	return result;
 }

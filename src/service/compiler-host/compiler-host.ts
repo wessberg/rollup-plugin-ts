@@ -1,7 +1,7 @@
 import {TS} from "../../type/ts";
 import {CompilerHostOptions} from "./compiler-host-options";
 import {ModuleResolutionHost} from "../module-resolution-host/module-resolution-host";
-import {dirname, ensureAbsolute, isTypeScriptLib, join, nativeNormalize, normalize} from "../../util/path/path-util";
+import {dirname, ensureAbsolute, getExtension, isTypeScriptLib, join, nativeNormalize, normalize} from "../../util/path/path-util";
 import {getNewLineCharacter} from "../../util/get-new-line-character/get-new-line-character";
 import {resolveId} from "../../util/resolve-id/resolve-id";
 import {getScriptKindFromPath} from "../../util/get-script-kind-from-path/get-script-kind-from-path";
@@ -9,10 +9,14 @@ import {VirtualFile, VirtualFileInput} from "../module-resolution-host/virtual-f
 import {CustomTransformersFunction} from "../../util/merge-transformers/i-custom-transformer-options";
 import {mergeTransformers} from "../../util/merge-transformers/merge-transformers";
 import {ensureModuleTransformer} from "../transformer/ensure-module/ensure-module-transformer";
+import {SourceFileToDependenciesMap} from "../transformer/declaration-bundler/declaration-bundler-options";
+import {ExtendedResolvedModule} from "../cache/resolve-cache/i-resolve-cache";
+import {getModuleDependencies} from "../../util/get-module-dependencies/get-module-dependencies";
 
 export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHost {
 	private previousProgram: TS.EmitAndSemanticDiagnosticsBuilderProgram | undefined;
 	private currentProgram: TS.EmitAndSemanticDiagnosticsBuilderProgram | undefined;
+	private currentTypeRoots: Set<string> | undefined;
 	private currentProgramInstance: TS.Program | undefined;
 	private currentTypeChecker: TS.TypeChecker | undefined;
 	private emitOutput: TS.EmitOutput | undefined;
@@ -23,10 +27,15 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		protected readonly sourceFiles: Map<string, TS.SourceFile> = new Map(),
 		protected readonly transformerDiagnostics: Map<string, TS.Diagnostic[]> = new Map(),
 		protected readonly fileToVersionMap: Map<string, number> = new Map(),
+		protected readonly sourceFileToDependenciesMap: SourceFileToDependenciesMap = new Map(),
 		files?: Map<string, VirtualFile>
 	) {
 		super(options, files);
 		this.addDefaultFileNames();
+	}
+
+	isSupportedFileName(fileName: string): boolean {
+		return this.options.filter(fileName) && this.getSupportedExtensions().has(getExtension(fileName));
 	}
 
 	getDiagnostics(fileName?: string): readonly TS.Diagnostic[] {
@@ -53,15 +62,11 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		}
 	}
 
-	emit(
-		fileName?: string,
-		onlyDts: boolean = false,
-		...extraTransformers: (CustomTransformersFunction | TS.CustomTransformers | undefined)[]
-	): TS.EmitOutput {
+	emit(fileName?: string, onlyDts: boolean = false, transformers?: CustomTransformersFunction | TS.CustomTransformers | undefined): TS.EmitOutput {
 		this.popEmitOutput();
 
 		const sourceFile = fileName == null ? undefined : this.getSourceFile(fileName);
-		const customTransformers = this.getCustomTransformers(...extraTransformers);
+		const customTransformers = this.getCustomTransformers(transformers);
 		let hasEmitted = false;
 
 		const runEmit = (program: TS.Program | TS.EmitAndSemanticDiagnosticsBuilderProgram) => {
@@ -112,6 +117,10 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		return this.currentProgram;
 	}
 
+	getPrinter(): TS.Printer {
+		return this.printer;
+	}
+
 	getProgramInstance(): TS.Program {
 		if (this.currentProgramInstance == null) {
 			this.currentProgramInstance = this.getProgram().getProgram();
@@ -134,13 +143,49 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		return this.options.transformers;
 	}
 
+	private getDependenciesForFileDeep(
+		fileName: string,
+		dependencies: Set<ExtendedResolvedModule> = new Set(),
+		seenModules: Set<string> = new Set()
+	): Set<ExtendedResolvedModule> {
+		if (seenModules.has(fileName)) return dependencies;
+		seenModules.add(fileName);
+		const localDependencies = this.sourceFileToDependenciesMap.get(fileName);
+		const dependenciesArr = [...dependencies];
+		if (localDependencies != null) {
+			for (const dependency of localDependencies) {
+				if (
+					!dependenciesArr.some(
+						({resolvedFileName, resolvedAmbientFileName}) =>
+							resolvedFileName === dependency.resolvedFileName && resolvedAmbientFileName === dependency.resolvedAmbientFileName
+					)
+				) {
+					dependencies.add(dependency);
+					if (dependency.resolvedFileName != null) this.getDependenciesForFileDeep(dependency.resolvedFileName, dependencies, seenModules);
+					if (dependency.resolvedAmbientFileName != null)
+						this.getDependenciesForFileDeep(dependency.resolvedAmbientFileName, dependencies, seenModules);
+				}
+			}
+		}
+		return dependencies;
+	}
+
+	getDependenciesForFile(fileName: string, deep: boolean = false): Set<ExtendedResolvedModule> | undefined {
+		if (deep) {
+			return this.getDependenciesForFileDeep(fileName);
+		}
+		return this.sourceFileToDependenciesMap.get(fileName);
+	}
+
+	getAllDependencies(): SourceFileToDependenciesMap {
+		return this.sourceFileToDependenciesMap;
+	}
+
 	add(fileInput: VirtualFileInput | VirtualFile): VirtualFile {
 		const existing = this.get(fileInput.fileName);
 		if (existing != null && existing.text === fileInput.text) return existing;
 
-		this.sourceFiles.delete(fileInput.fileName);
-		this.transformerDiagnostics.delete(fileInput.fileName);
-		this.clearProgram();
+		this.delete(fileInput.fileName);
 
 		if (fileInput.fromRollup) {
 			const sourceFile = this.constructSourceFile(fileInput.fileName, fileInput.text);
@@ -150,7 +195,29 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 			}
 		}
 
-		return super.add(fileInput);
+		const addedFile = super.add(fileInput);
+		this.refreshDependenciesForFileName(fileInput.fileName);
+		return addedFile;
+	}
+
+	private refreshDependenciesForFileName(fileName: string, seenModules: Set<string> = new Set()): void {
+		if (seenModules.has(fileName)) return;
+		seenModules.add(fileName);
+
+		const dependencies = getModuleDependencies({
+			compilerHost: this,
+			module: fileName
+		});
+
+		if (dependencies == null) return;
+		this.sourceFileToDependenciesMap.set(fileName, dependencies);
+
+		for (const resolveResult of dependencies) {
+			for (const module of [resolveResult.resolvedFileName, resolveResult.resolvedAmbientFileName]) {
+				if (module == null) continue;
+				this.refreshDependenciesForFileName(module, seenModules);
+			}
+		}
 	}
 
 	private constructSourceFile(fileName: string, text: string, languageVersion: TS.ScriptTarget = this.getScriptTarget()): TS.SourceFile {
@@ -181,15 +248,20 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 	}
 
 	delete(fileName: string): boolean {
-		const success = super.delete(fileName) || this.sourceFiles.delete(fileName) || this.transformerDiagnostics.delete(fileName);
+		const superDelete = super.delete(fileName);
+		const sourceFilesDelete = this.sourceFiles.delete(fileName);
+		const transformerDiagnosticsDelete = this.transformerDiagnostics.delete(fileName);
+		const sourceFileToDependenciesMapDelete = this.sourceFileToDependenciesMap.delete(fileName);
+		const success = superDelete || sourceFilesDelete || transformerDiagnosticsDelete || sourceFileToDependenciesMapDelete;
 		this.clearProgram();
 		return success;
 	}
 
-	clone(compilerOptions: TS.CompilerOptions): CompilerHost {
+	clone(compilerOptions: TS.CompilerOptions, cwd: string = this.getCwd()): CompilerHost {
 		return new CompilerHost(
 			{
 				...this.options,
+				cwd,
 				parsedCommandLine: {
 					...this.getParsedCommandLine(),
 					options: {
@@ -202,6 +274,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 			new Map(this.sourceFiles),
 			new Map(this.transformerDiagnostics),
 			new Map(this.fileToVersionMap),
+			new Map(this.sourceFileToDependenciesMap),
 			new Map(this.files)
 		);
 	}
@@ -212,6 +285,8 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		if (this.sourceFiles.has(absoluteFileName)) {
 			return this.sourceFiles.get(absoluteFileName);
 		}
+
+		if (!this.isSupportedFileName(absoluteFileName)) return undefined;
 
 		let file = this.get(absoluteFileName);
 
@@ -235,7 +310,10 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 	}
 
 	getTypeRoots() {
-		return new Set(this.getTypescript().getEffectiveTypeRoots(this.getCompilationSettings(), this));
+		if (this.currentTypeRoots == null) {
+			this.currentTypeRoots = new Set(this.getTypescript().getEffectiveTypeRoots(this.getCompilationSettings(), this));
+		}
+		return this.currentTypeRoots;
 	}
 
 	getDefaultLibLocation(): string {
@@ -245,10 +323,14 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 	/**
 	 * Gets the Custom Transformers to use, depending on the current emit mode
 	 */
-	getCustomTransformers(...extraTransformers: (CustomTransformersFunction | TS.CustomTransformers | undefined)[]): TS.CustomTransformers | undefined {
-		const mergedTransformers = mergeTransformers(this.getTransformers(), ...extraTransformers);
+	getCustomTransformers(
+		transformers: CustomTransformersFunction | TS.CustomTransformers | undefined = this.getTransformers()
+	): TS.CustomTransformers | undefined {
+		const mergedTransformers = mergeTransformers(transformers);
 		return mergedTransformers({
 			program: this.getProgramInstance(),
+			typescript: this.getTypescript(),
+			printer: this.printer,
 
 			/**
 			 * This hook can add diagnostics from within CustomTransformers. These will be emitted alongside Typescript diagnostics seamlessly
@@ -317,16 +399,20 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 			.map(normalize);
 	}
 
+	resolve(moduleName: string, containingFile: string): ExtendedResolvedModule | null {
+		return resolveId({
+			moduleResolutionHost: this,
+			parent: containingFile,
+			id: moduleName,
+			resolveCache: this.options.resolveCache
+		});
+	}
+
 	resolveModuleNames(moduleNames: string[], containingFile: string): (TS.ResolvedModuleFull | undefined)[] {
 		const resolvedModules: (TS.ResolvedModuleFull | undefined)[] = [];
 		for (const moduleName of moduleNames) {
-			// try to use standard resolution
-			let result = resolveId({
-				moduleResolutionHost: this,
-				parent: containingFile,
-				id: moduleName,
-				resolveCache: this.options.resolveCache
-			});
+			const result = this.resolve(moduleName, containingFile);
+
 			if (result != null && result.resolvedAmbientFileName != null) {
 				resolvedModules.push({...result, resolvedFileName: result.resolvedAmbientFileName});
 			} else if (result != null && result.resolvedFileName != null) {
@@ -365,6 +451,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 	private addDefaultFileNames(): void {
 		this.options.parsedCommandLine.fileNames.forEach(file => {
 			const fileName = ensureAbsolute(this.getCwd(), file);
+
 			if (!this.getFilter()(normalize(fileName))) return;
 
 			const text = this.readFile(fileName);

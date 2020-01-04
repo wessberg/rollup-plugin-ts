@@ -1,11 +1,12 @@
-import {NormalizedChunk} from "./normalize-chunk";
+import {PreNormalizedChunk} from "./normalize-chunk";
 import {getChunkForModule} from "../../service/transformer/declaration-bundler/util/get-chunk-filename";
 import {basename, stripKnownExtension} from "../path/path-util";
 import {generateRandomHash} from "../hash/generate-random-hash";
-import {ModuleDependencyMap} from "../../service/transformer/declaration-bundler/declaration-bundler-options";
+import {SourceFileToDependenciesMap} from "../../service/transformer/declaration-bundler/declaration-bundler-options";
 import {CompilerHost} from "../../service/compiler-host/compiler-host";
+import {pickResolvedModule} from "../pick-resolved-module";
 
-function createCommonChunk(module: string, code: string): NormalizedChunk {
+function createCommonChunk(module: string, code: string): PreNormalizedChunk {
 	return {
 		fileName: `${stripKnownExtension(basename(module))}-${generateRandomHash({key: code})}.js`,
 		modules: [module],
@@ -13,7 +14,12 @@ function createCommonChunk(module: string, code: string): NormalizedChunk {
 	};
 }
 
-function ensureChunkForModule(module: string, code: string, chunks: NormalizedChunk[], moduleDependencyMap: ModuleDependencyMap): NormalizedChunk {
+function ensureChunkForModule(
+	module: string,
+	code: string,
+	chunks: PreNormalizedChunk[],
+	moduleDependencyMap: SourceFileToDependenciesMap
+): PreNormalizedChunk {
 	let chunk = getChunkForModule(module, chunks);
 	const [firstChunk] = chunks;
 
@@ -24,8 +30,10 @@ function ensureChunkForModule(module: string, code: string, chunks: NormalizedCh
 		} else {
 			// Find all modules that refer to this module.
 			const referencingModules = [...moduleDependencyMap.entries()]
-				.filter(([, dependencies]) => dependencies.has(module))
+				.map(([otherModule, dependencies]) => [otherModule, [...dependencies]] as const)
+				.filter(([, dependencies]) => dependencies.find(resolveModule => pickResolvedModule(resolveModule, false) === module))
 				.map(([otherModule]) => otherModule);
+
 			// Find all chunks for the referencing modules
 			const [firstReferencingChunk, ...otherReferencingChunks] = new Set(
 				referencingModules.map(referencingModule => getChunkForModule(referencingModule, chunks)).filter(chunkOrUndefined => chunkOrUndefined != null)
@@ -49,15 +57,14 @@ function ensureChunkForModule(module: string, code: string, chunks: NormalizedCh
 	}
 }
 
-export function mergeChunksWithAmbientDependencies(
-	chunks: NormalizedChunk[],
-	moduleDependencyMap: ModuleDependencyMap,
-	host: CompilerHost
-): NormalizedChunk[] {
+export function mergeChunksWithAmbientDependencies(chunks: PreNormalizedChunk[], host: CompilerHost): void {
 	const dependencyToModulesMap: Map<string, Set<string>> = new Map();
+	const sourceFileToDependenciesMap = host.getAllDependencies();
 
-	for (const [module, dependencies] of moduleDependencyMap.entries()) {
-		for (const dependency of dependencies) {
+	for (const [module, dependencies] of sourceFileToDependenciesMap.entries()) {
+		for (const resolvedModule of dependencies) {
+			const dependency = pickResolvedModule(resolvedModule, false);
+			if (dependency == null) continue;
 			let modulesForDependency = dependencyToModulesMap.get(dependency);
 			if (modulesForDependency == null) {
 				modulesForDependency = new Set();
@@ -68,12 +75,12 @@ export function mergeChunksWithAmbientDependencies(
 	}
 
 	for (const [dependency, modulesForDependency] of dependencyToModulesMap.entries()) {
-		const chunkWithDependency = ensureChunkForModule(dependency, host.get(dependency)!.text, chunks, moduleDependencyMap);
+		const text = host.readFile(dependency);
+		if (text == null) continue;
+		const chunkWithDependency = ensureChunkForModule(dependency, text, chunks, sourceFileToDependenciesMap);
 
-		const chunksForModulesForDependency = new Set<NormalizedChunk>(
-			[...modulesForDependency].map(moduleForDependency =>
-				ensureChunkForModule(moduleForDependency, host.get(dependency)!.text, chunks, moduleDependencyMap)
-			)
+		const chunksForModulesForDependency = new Set<PreNormalizedChunk>(
+			[...modulesForDependency].map(moduleForDependency => ensureChunkForModule(moduleForDependency, text, chunks, sourceFileToDependenciesMap))
 		);
 
 		// If the modules that refer to the dependency are divided across multiple chunks, and one of those chunks contain the dependency,
@@ -82,9 +89,8 @@ export function mergeChunksWithAmbientDependencies(
 			const containingChunk = [...chunksForModulesForDependency].find(chunkForModuleDependency => chunkForModuleDependency === chunkWithDependency);
 			if (containingChunk != null) {
 				containingChunk.modules.splice(containingChunk.modules.indexOf(dependency), 1);
-				chunks.push(createCommonChunk(dependency, host.get(dependency)!.text));
+				chunks.push(createCommonChunk(dependency, text));
 			}
 		}
 	}
-	return chunks;
 }

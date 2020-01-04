@@ -3,12 +3,14 @@ import {
 	NamespaceExportedSymbol,
 	SourceFileToExportedSymbolSet
 } from "../transformers/track-exports-transformer/track-exports-transformer-visitor-options";
-import {ModuleSpecifierToSourceFileMap} from "../declaration-bundler-options";
+import {CompilerHost} from "../../../compiler-host/compiler-host";
+import {SourceFileResolver} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
 
 export interface LocateExportedSymbolContext {
-	sourceFile: string;
+	host: CompilerHost;
+	resolveSourceFile: SourceFileResolver;
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
-	moduleSpecifierToSourceFileMap: ModuleSpecifierToSourceFileMap;
+	sourceFile: string;
 }
 
 export interface LocateExportedSymbolOptionsBase {
@@ -93,7 +95,7 @@ export function locateExportedSymbolForSourceFile(
 			for (const namespaceExport of exportedSymbolsArr.filter(
 				(exportedSymbol): exportedSymbol is NamespaceExportedSymbol => "isNamespaceExport" in exportedSymbol
 			)) {
-				const sourceFile = context.moduleSpecifierToSourceFileMap.get(namespaceExport.moduleSpecifier);
+				const sourceFile = context.resolveSourceFile(namespaceExport.moduleSpecifier, context.sourceFile);
 				if (sourceFile != null && !seenSourceFiles.has(sourceFile.fileName)) {
 					const recursiveResult = locateExportedSymbolForSourceFile(options, {...context, sourceFile: sourceFile.fileName}, seenSourceFiles);
 					if (recursiveResult != null) return recursiveResult;

@@ -7,8 +7,6 @@ import {traceIdentifiers} from "../../trace-identifiers/trace-identifiers";
 export function visitVariableStatement({
 	node,
 	typescript,
-	resolver,
-	nodeIdentifierCache,
 	sourceFile,
 	markAsExported,
 	...options
@@ -16,7 +14,7 @@ export function visitVariableStatement({
 	// If the node has no export modifier, leave it as it is
 	if (!hasExportModifier(node, typescript)) return;
 
-	const identifiers = traceIdentifiers({node, resolver, sourceFile, nodeIdentifierCache, typescript});
+	const identifiers = traceIdentifiers({node, sourceFile, typescript});
 
 	for (const identifier of identifiers) {
 		const {exportedSymbol} = createExportSpecifierFromNameAndModifiers({

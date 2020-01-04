@@ -1,19 +1,24 @@
 import {TS} from "../../../../../type/ts";
 import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
 import {visitNode} from "./visitor/visit-node";
-import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {logMetrics} from "../../../../../util/logging/log-metrics";
+import {logTransformer} from "../../../../../util/logging/log-transformer";
 
-export function ensureNoDeclareModifierTransformer({typescript, context, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== BEFORE ENSURING NO DECLARE MODIFIERS === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(options.sourceFile));
-	}
+export function ensureNoDeclareModifierTransformer(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
+	const {typescript, context, sourceFile, pluginOptions, printer} = options;
+
+	const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile)
+		? logMetrics(`Ensuring no declare modifiers`, sourceFile.fileName)
+		: undefined;
+
+	const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile)
+		? logTransformer("Ensuring no declare modifiers", sourceFile, printer)
+		: undefined;
 
 	// Prepare some VisitorOptions
 	const visitorOptions = {
 		...options,
-		typescript,
-		context,
 
 		childContinuation: <U extends TS.Node>(node: U): U =>
 			typescript.visitEachChild(
@@ -33,12 +38,10 @@ export function ensureNoDeclareModifierTransformer({typescript, context, ...opti
 			}) as U
 	};
 
-	const result = typescript.visitEachChild(options.sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
+	const result = typescript.visitEachChild(sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
 
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== AFTER ENSURING NO DECLARE MODIFIERS === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(result));
-	}
+	transformationLog?.finish(result);
+	fullBenchmark?.finish();
 
 	return result;
 }

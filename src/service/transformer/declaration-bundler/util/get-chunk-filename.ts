@@ -1,42 +1,25 @@
-import {extname, join, setExtension} from "../../../../util/path/path-util";
-import {SupportedExtensions} from "../../../../util/get-supported-extensions/get-supported-extensions";
-import {NormalizedChunk} from "../../../../util/chunk/normalize-chunk";
-
-export interface GetChunkFilenameOptions {
-	fileName: string;
-	supportedExtensions: SupportedExtensions;
-	chunkToOriginalFileMap: Map<string, string[]>;
-}
-
-export function getChunkForModule(module: string, chunks: NormalizedChunk[]): NormalizedChunk | undefined {
-	for (const chunk of chunks) {
-		if (chunk.modules.includes(module)) {
-			return chunk;
-		}
-	}
-
-	return undefined;
-}
+import {NormalizedChunk, PreNormalizedChunk} from "../../../../util/chunk/normalize-chunk";
 
 /**
  * Gets the chunk filename that matches the given filename. It may be the same.
  */
-export function getChunkFilename({chunkToOriginalFileMap, fileName, supportedExtensions}: GetChunkFilenameOptions): string | undefined {
-	for (const [chunkFilename, originalSourceFilenames] of chunkToOriginalFileMap) {
-		const filenames = [fileName, join(fileName, "/index")];
-		for (const file of filenames) {
-			for (const originalSourceFilename of originalSourceFilenames) {
-				if (originalSourceFilename === file) {
-					return chunkFilename;
-				}
+export function getChunkFilename(module: string, chunks: NormalizedChunk[]): string | undefined {
+	return getChunkForModule(module, chunks)?.paths.absolute;
+}
 
-				for (const extension of [extname(file), ...supportedExtensions]) {
-					if (originalSourceFilename === setExtension(file, extension)) {
-						return chunkFilename;
-					}
-				}
-			}
+export function getChunkForModule(module: string, chunks: NormalizedChunk[]): NormalizedChunk | undefined;
+export function getChunkForModule(module: string, chunks: PreNormalizedChunk[]): PreNormalizedChunk | undefined;
+export function getChunkForModule(
+	module: string,
+	chunks: PreNormalizedChunk[] | NormalizedChunk[]
+): NormalizedChunk | PreNormalizedChunk | undefined {
+	for (const chunk of chunks) {
+		if ("has" in chunk.modules && chunk.modules.has(module)) {
+			return chunk;
+		} else if ("includes" in chunk.modules && chunk.modules.includes(module)) {
+			return chunk;
 		}
 	}
+
 	return undefined;
 }

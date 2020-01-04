@@ -6,17 +6,17 @@ import {getMergedImportDeclarationsForModules} from "../../util/get-merged-impor
 import {getMergedExportDeclarationsForModules} from "../../util/get-merged-export-declarations-for-modules";
 import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
 import {hasExportModifier} from "../../util/modifier-util";
-import {benchmark} from "../../../../../util/benchmark/benchmark-util";
+import {logMetrics} from "../../../../../util/logging/log-metrics";
+import {logTransformer} from "../../../../../util/logging/log-transformer";
 
 export function statementMerger(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
-	const fullBenchmark = shouldDebugMetrics(options.pluginOptions.debug, options.sourceFile)
-		? benchmark(`Statement merging ${options.sourceFile.fileName}`)
+	const {typescript, context, sourceFile, pluginOptions, printer} = options;
+
+	const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile) ? logMetrics(`Statement merging`, sourceFile.fileName) : undefined;
+
+	const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile)
+		? logTransformer("Statement merging", sourceFile, printer)
 		: undefined;
-	const {typescript, context, sourceFile} = options;
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== BEFORE STATEMENT MERGING === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(options.sourceFile));
-	}
 
 	// Merge all of the imports
 	const mergedImports = getMergedImportDeclarationsForModules(sourceFile, typescript);
@@ -88,12 +88,8 @@ export function statementMerger(options: SourceFileBundlerVisitorOptions): TS.So
 		result.libReferenceDirectives
 	);
 
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== AFTER STATEMENT MERGING === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(result));
-	}
-
-	if (fullBenchmark != null) fullBenchmark.finish();
+	transformationLog?.finish(result);
+	fullBenchmark?.finish();
 
 	return result;
 }

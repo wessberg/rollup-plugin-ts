@@ -1,21 +1,25 @@
 import {dirname, ensureHasLeadingDotAndPosix, relative, stripKnownExtension} from "../../../../util/path/path-util";
-import {getChunkFilename, GetChunkFilenameOptions} from "./get-chunk-filename";
-import {ChunkOptions} from "../declaration-bundler-options";
-import {resolveSourceFileFromModuleSpecifier, ResolveSourceFileFromModuleSpecifierOptions} from "./resolve-source-file-from-module-specifier";
+import {getChunkFilename} from "./get-chunk-filename";
+import {NormalizedChunk} from "../../../../util/chunk/normalize-chunk";
+import {SourceFileResolver} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
 
-export interface GenerateModuleSpecifierOptions extends Omit<GetChunkFilenameOptions, "fileName">, ResolveSourceFileFromModuleSpecifierOptions {
-	chunk: ChunkOptions;
+export interface GenerateModuleSpecifierOptions {
+	moduleSpecifier: string;
+	from: string;
+	resolveSourceFile: SourceFileResolver;
+	chunk: NormalizedChunk;
+	chunks: NormalizedChunk[];
 }
 
 export function generateModuleSpecifier(options: GenerateModuleSpecifierOptions): string | undefined {
-	const {chunk, moduleSpecifier} = options;
-	const sourceFileWithChunk = resolveSourceFileFromModuleSpecifier(options);
+	const {chunk, moduleSpecifier, resolveSourceFile, from} = options;
+	const sourceFile = resolveSourceFile(moduleSpecifier, from);
 
-	if (sourceFileWithChunk == null) {
+	if (sourceFile == null) {
 		return moduleSpecifier;
 	}
 
-	const chunkForModuleSpecifier = getChunkFilename({...options, fileName: sourceFileWithChunk.fileName});
+	const chunkForModuleSpecifier = getChunkFilename(sourceFile.fileName, options.chunks);
 
 	if (chunkForModuleSpecifier == null) {
 		return moduleSpecifier;

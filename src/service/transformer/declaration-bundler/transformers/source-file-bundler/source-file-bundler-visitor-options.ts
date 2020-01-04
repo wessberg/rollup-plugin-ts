@@ -1,12 +1,13 @@
 import {TS} from "../../../../../type/ts";
 import {DeclarationBundlerOptions} from "../../declaration-bundler-options";
 import {LexicalEnvironment} from "../deconflicter/deconflicter-options";
-import {SourceFileToExportedSymbolSet} from "../track-exports-transformer/track-exports-transformer-visitor-options";
 import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options";
 
+export type SourceFileResolver = (fileName: string, from: string) => TS.SourceFile | undefined;
+
 export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptions {
+	resolveSourceFile: SourceFileResolver;
 	context: TS.TransformationContext;
-	sourceFiles: TS.SourceFile[];
 	sourceFile: TS.SourceFile;
 	otherEntrySourceFilesForChunk: TS.SourceFile[];
 	lexicalEnvironment: LexicalEnvironment;
@@ -19,6 +20,5 @@ export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptio
 	// For example, for ImportTypeNodes that are replaced with an identifier, we want the Identifier to refer to the symbol of original quantifier
 	nodeToOriginalSymbolMap: Map<TS.Node, TS.Symbol>;
 	nodeToOriginalNodeMap: Map<TS.Node, TS.Node>;
-	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
 	preservedImports: Map<string, Set<ImportedSymbol>>;
 }

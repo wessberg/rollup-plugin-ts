@@ -6,9 +6,9 @@ import {TS} from "../../type/ts";
 /**
  * Gets diagnostics for the given fileName
  */
-export function emitDiagnosticsThroughRollup({compilerHost, context, pluginOptions}: IGetDiagnosticsOptions): void {
-	const typescript = compilerHost.getTypescript();
-	let diagnostics: readonly TS.Diagnostic[] | undefined = compilerHost.getDiagnostics();
+export function emitDiagnosticsThroughRollup({host, context, pluginOptions}: IGetDiagnosticsOptions): void {
+	const typescript = host.getTypescript();
+	let diagnostics: readonly TS.Diagnostic[] | undefined = host.getDiagnostics();
 
 	// If there is a hook for diagnostics, call it assign the result of calling it to the local variable 'diagnostics'
 	if (pluginOptions.hook.diagnostics != null) {
@@ -24,7 +24,7 @@ export function emitDiagnosticsThroughRollup({compilerHost, context, pluginOptio
 			diagnostic.start == null || diagnostic.file == null ? undefined : diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
 
 		// Color-format the diagnostics
-		const colorFormatted = typescript.formatDiagnosticsWithColorAndContext([diagnostic], compilerHost);
+		const colorFormatted = typescript.formatDiagnosticsWithColorAndContext([diagnostic], host);
 
 		// Provide a normalized error code
 		const code = `${diagnostic.scope == null ? "TS" : diagnostic.scope}${diagnostic.code}`;
@@ -33,7 +33,7 @@ export function emitDiagnosticsThroughRollup({compilerHost, context, pluginOptio
 		const stack = "";
 
 		// Isolate the frame
-		const newLine = compilerHost.getNewLine();
+		const newLine = host.getNewLine();
 		let frame = colorFormatted.slice(colorFormatted.indexOf(message) + message.length);
 
 		// Remove the trailing newline from the frame if it has one

@@ -1,5 +1,4 @@
 import {TS} from "../../../../../type/ts";
-import {DeclarationBundlerOptions} from "../../declaration-bundler-options";
 
 export interface ImportedSymbolBase {
 	moduleSpecifier: string;
@@ -32,7 +31,8 @@ export type ImportedSymbolSet = Set<ImportedSymbol>;
  */
 export type SourceFileToImportedSymbolSet = Map<string, ImportedSymbolSet>;
 
-export interface TrackImportsOptions extends DeclarationBundlerOptions {
+export interface TrackImportsOptions {
+	typescript: typeof TS;
 	sourceFile: TS.SourceFile;
 }
 

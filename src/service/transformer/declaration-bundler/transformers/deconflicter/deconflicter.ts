@@ -30,7 +30,8 @@ import {deconflictVariableDeclaration} from "./visitor/deconflict-variable-decla
 import {ContinuationOptions} from "./deconflicter-options";
 import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
 import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
-import {benchmark} from "../../../../../util/benchmark/benchmark-util";
+import {logMetrics} from "../../../../../util/logging/log-metrics";
+import {logTransformer} from "../../../../../util/logging/log-transformer";
 
 /**
  * Deconflicts the given Node. Everything but LValues will be updated here
@@ -99,22 +100,16 @@ function deconflictNode({node, ...options}: DeconflicterVisitorOptions<TS.Node>)
 /**
  * Deconflicts local bindings
  */
-export function deconflicter({typescript, context, lexicalEnvironment, ...options}: SourceFileBundlerVisitorOptions): TS.SourceFile {
-	const fullBenchmark = shouldDebugMetrics(options.pluginOptions.debug, options.sourceFile)
-		? benchmark(`Deconflicting ${options.sourceFile.fileName}`)
-		: undefined;
+export function deconflicter(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
+	const {typescript, context, sourceFile, pluginOptions, printer, lexicalEnvironment} = options;
 
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== BEFORE DECONFLICTING === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(options.sourceFile));
-		console.time(`Deconflicting ${options.sourceFile.fileName}`);
-	}
+	const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile) ? logMetrics(`Deconflicting`, sourceFile.fileName) : undefined;
+
+	const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile) ? logTransformer("Deconflicting", sourceFile, printer) : undefined;
 
 	// Prepare some VisitorOptions
 	const visitorOptions = {
 		...options,
-		context,
-		typescript,
 
 		childContinuation: <U extends TS.Node>(node: U, continuationOptions: ContinuationOptions): U =>
 			typescript.visitEachChild(
@@ -136,14 +131,10 @@ export function deconflicter({typescript, context, lexicalEnvironment, ...option
 			}) as U
 	};
 
-	const result = typescript.visitEachChild(options.sourceFile, nextNode => visitorOptions.continuation(nextNode, {lexicalEnvironment}), context);
+	const result = typescript.visitEachChild(sourceFile, nextNode => visitorOptions.continuation(nextNode, {lexicalEnvironment}), context);
 
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== AFTER DECONFLICTING === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(result));
-	}
-
-	if (fullBenchmark != null) fullBenchmark.finish();
+	transformationLog?.finish(result);
+	fullBenchmark?.finish();
 
 	return result;
 }

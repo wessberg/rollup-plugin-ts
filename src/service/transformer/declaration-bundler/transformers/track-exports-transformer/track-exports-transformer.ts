@@ -7,10 +7,9 @@ import {
 	TrackExportsTransformerVisitorOptions
 } from "./track-exports-transformer-visitor-options";
 
-export function trackExportsTransformer(options: TrackExportsOptions): TS.SourceFile {
+export function trackExportsTransformer(options: TrackExportsOptions): ExportedSymbolSet {
 	const {typescript} = options;
 	const exportedSymbolSet: ExportedSymbolSet = new Set();
-	options.sourceFileToExportedSymbolSet.set(options.sourceFile.fileName, exportedSymbolSet);
 
 	// Prepare some VisitorOptions
 	const visitorOptions: Omit<TrackExportsTransformerVisitorOptions<TS.Node>, "node"> = {
@@ -39,5 +38,5 @@ export function trackExportsTransformer(options: TrackExportsOptions): TS.Source
 	typescript.forEachChild(options.sourceFile, nextNode => {
 		visitorOptions.continuation(nextNode);
 	});
-	return options.sourceFile;
+	return exportedSymbolSet;
 }

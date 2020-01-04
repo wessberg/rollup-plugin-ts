@@ -1,19 +1,22 @@
 import {TS} from "../../../../../type/ts";
 import {visitNode} from "./visitor/visit-node";
 import {ModuleBlockExtractorOptions} from "./module-block-extractor-options";
-import {shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
+import {logMetrics} from "../../../../../util/logging/log-metrics";
+import {logTransformer} from "../../../../../util/logging/log-transformer";
 
-export function moduleBlockExtractor({typescript, context, ...options}: ModuleBlockExtractorOptions): TS.SourceFile {
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== BEFORE EXTRACTING MODULE BLOCKS === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(options.sourceFile));
-	}
+export function moduleBlockExtractor(options: ModuleBlockExtractorOptions): TS.SourceFile {
+	const {typescript, context, sourceFile, pluginOptions, printer} = options;
+
+	const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile) ? logMetrics(`Extracting module blocks`, sourceFile.fileName) : undefined;
+
+	const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile)
+		? logTransformer("Extracting module blocks", sourceFile, printer)
+		: undefined;
 
 	// Prepare some VisitorOptions
 	const visitorOptions = {
 		...options,
-		typescript,
-		context,
 
 		childContinuation: <U extends TS.Node>(node: U): TS.VisitResult<TS.Node> =>
 			typescript.visitEachChild(
@@ -33,12 +36,10 @@ export function moduleBlockExtractor({typescript, context, ...options}: ModuleBl
 			})
 	};
 
-	const result = typescript.visitEachChild(options.sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
+	const result = typescript.visitEachChild(sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
 
-	if (shouldDebugSourceFile(options.pluginOptions.debug, options.sourceFile)) {
-		console.log(`=== AFTER EXTRACTING MODULE BLOCKS === (${options.sourceFile.fileName})`);
-		console.log(options.printer.printFile(result));
-	}
+	transformationLog?.finish(result);
+	fullBenchmark?.finish();
 
 	return result;
 }

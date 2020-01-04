@@ -353,23 +353,28 @@ test("Handles default exports inside ExportSpecifiers. #2", async t => {
 });
 
 test("Handles default exports inside ExportSpecifiers. #3", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
           import {Bar} from './bar';
 					export const Foo = Bar;
 					`
-		},
-		{
-			entry: false,
-			fileName: "bar.ts",
-			text: `\
+			},
+			{
+				entry: false,
+				fileName: "bar.ts",
+				text: `\
           export {default as Bar} from 'magic-string';
 					`
+			}
+		],
+		{
+			debug: false
 		}
-	]);
+	);
 	const {
 		declarations: [file]
 	} = bundle;
