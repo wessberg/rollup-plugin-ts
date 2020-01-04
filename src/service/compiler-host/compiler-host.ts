@@ -162,8 +162,9 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 				) {
 					dependencies.add(dependency);
 					if (dependency.resolvedFileName != null) this.getDependenciesForFileDeep(dependency.resolvedFileName, dependencies, seenModules);
-					if (dependency.resolvedAmbientFileName != null)
+					if (dependency.resolvedAmbientFileName != null) {
 						this.getDependenciesForFileDeep(dependency.resolvedAmbientFileName, dependencies, seenModules);
+					}
 				}
 			}
 		}
