@@ -1,3 +1,13 @@
+## [1.2.2](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.1...v1.2.2) (2020-01-05)
+
+### Bug Fixes
+
+- Fix watch mode. Closes [#63](https://github.com/wessberg/rollup-plugin-ts/issues/63) ([1d54c95](https://github.com/wessberg/rollup-plugin-ts/commit/1d54c95c54e30c6e630fe13c3dffa3b1f5cb13d6))
+
+### Performance Improvements
+
+- improve performance ([9fa2756](https://github.com/wessberg/rollup-plugin-ts/commit/9fa2756ff1967482231e8e14053a137a35da3edf))
+
 ## [1.2.1](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.0...v1.2.1) (2020-01-03)
 
 ### Bug Fixes
