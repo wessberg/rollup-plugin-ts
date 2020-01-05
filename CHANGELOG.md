@@ -1,3 +1,9 @@
+## [1.2.3](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.2...v1.2.3) (2020-01-05)
+
+### Bug Fixes
+
+- allow generating SourceFiles for files matched by a user-provided 'exclude' glob. Closes [#65](https://github.com/wessberg/rollup-plugin-ts/issues/65) ([c54c1e6](https://github.com/wessberg/rollup-plugin-ts/commit/c54c1e600f54dfe17658eb46f2431285172b2314))
+
 ## [1.2.2](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.1...v1.2.2) (2020-01-05)
 
 ### Bug Fixes
