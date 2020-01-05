@@ -39,6 +39,7 @@ export interface GenerateRollupBundleOptions {
 	transpileOnly: boolean;
 	debug: TypescriptPluginOptions["debug"];
 	hook: Partial<HookRecord>;
+	exclude: TypescriptPluginOptions["exclude"];
 	transpiler: TypescriptPluginOptions["transpiler"];
 	transformers: TypescriptPluginOptions["transformers"];
 }
@@ -51,6 +52,7 @@ export async function generateRollupBundle(
 	{
 		rollupOptions = {},
 		transformers,
+		exclude = [],
 		transpiler = "typescript",
 		tsconfig = {},
 		format = "esm",
@@ -150,7 +152,7 @@ export async function generateRollupBundle(
 				transpileOnly,
 				debug,
 				typescript,
-				exclude: ["dist/**/*.*"],
+				exclude: [...exclude, "dist/**/*.*"],
 				tsconfig: {
 					target: "esnext",
 					declaration: true,
@@ -184,6 +186,18 @@ export async function generateRollupBundle(
 					},
 					realpath(path: string): string {
 						return nativeNormalize(path);
+					},
+					readDirectory(
+						rootDir: string,
+						extensions: readonly string[],
+						excludes: readonly string[] | undefined,
+						includes: readonly string[],
+						depth?: number
+					): readonly string[] {
+						const nativeNormalizedRootDir = nativeNormalize(rootDir);
+						const realResult = typescript.sys.readDirectory(rootDir, extensions, excludes, includes, depth);
+						const virtualFiles = files.filter(file => file.fileName.includes(nativeNormalizedRootDir)).map(file => file.fileName);
+						return [...new Set([...realResult, ...virtualFiles])];
 					}
 				}
 			}),

@@ -34,8 +34,8 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		this.addDefaultFileNames();
 	}
 
-	isSupportedFileName(fileName: string): boolean {
-		return this.options.filter(fileName) && this.getSupportedExtensions().has(getExtension(fileName));
+	isSupportedFileName(fileName: string, ignoreFilter: boolean = false): boolean {
+		return (ignoreFilter || this.options.filter(fileName)) && this.getSupportedExtensions().has(getExtension(fileName));
 	}
 
 	getDiagnostics(fileName?: string): readonly TS.Diagnostic[] {
@@ -287,7 +287,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 			return this.sourceFiles.get(absoluteFileName);
 		}
 
-		if (!this.isSupportedFileName(absoluteFileName)) return undefined;
+		if (!this.isSupportedFileName(absoluteFileName, true)) return undefined;
 
 		let file = this.get(absoluteFileName);
 
@@ -390,9 +390,9 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 	 */
 	readDirectory(
 		path: string,
-		extensions?: ReadonlyArray<string>,
-		exclude?: ReadonlyArray<string>,
-		include?: ReadonlyArray<string>,
+		extensions: readonly string[],
+		exclude: readonly string[] | undefined,
+		include: readonly string[],
 		depth?: number
 	): string[] {
 		return this.getFileSystem()

@@ -7,14 +7,14 @@ export interface FileSystem {
 	useCaseSensitiveFileNames: boolean;
 	fileExists(path: string): boolean;
 	readFile(path: string, encoding?: string): string | undefined;
-	ensureDirectory(path: string): string;
 	readDirectory(
-		path: string,
-		extensions?: ReadonlyArray<string>,
-		exclude?: ReadonlyArray<string>,
-		include?: ReadonlyArray<string>,
+		rootDir: string,
+		extensions: readonly string[],
+		excludes: readonly string[] | undefined,
+		includes: readonly string[],
 		depth?: number
-	): string[];
+	): readonly string[];
+	ensureDirectory(path: string): string;
 	realpath(path: string): string;
 	getDirectories(path: string): string[];
 	directoryExists(path: string): boolean;

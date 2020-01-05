@@ -211,6 +211,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		watchChange(id: string): void {
 			host.delete(id);
 			resolveCache.delete(id);
+			host.clearCaches();
 		},
 
 		/**

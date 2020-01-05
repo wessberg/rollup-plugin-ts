@@ -1,11 +1,15 @@
 import {TS} from "../../type/ts";
 import {ModuleResolutionHostOptions} from "./module-resolution-host-options";
-import {nativeNormalize, normalize} from "../../util/path/path-util";
+import {dirname, nativeNormalize, normalize} from "../../util/path/path-util";
 import {FileSystem} from "../../util/file-system/file-system";
 import {SupportedExtensions} from "../../util/get-supported-extensions/get-supported-extensions";
 import {VirtualFile, VirtualFileInput} from "./virtual-file";
 
 export class ModuleResolutionHost implements TS.ModuleSpecifierResolutionHost {
+	private readonly directoryExistsCache: Map<string, boolean> = new Map();
+	private readonly fileExistsCache: Map<string, boolean> = new Map();
+	private currentFileNames: Set<string> | undefined;
+	private currentDirectories: Set<string> | undefined;
 	constructor(protected readonly options: ModuleResolutionHostOptions, protected readonly files: Map<string, VirtualFile> = new Map()) {}
 
 	add(fileInput: VirtualFileInput | VirtualFile): VirtualFile {
@@ -14,7 +18,16 @@ export class ModuleResolutionHost implements TS.ModuleSpecifierResolutionHost {
 			transformedText: "transformedText" in fileInput && fileInput.transformedText != null ? fileInput.transformedText : fileInput.text
 		};
 		this.files.set(file.fileName, file);
+		this.fileExistsCache.delete(file.fileName);
+		this.directoryExistsCache.delete(dirname(file.fileName));
+		this.currentFileNames = undefined;
+		this.currentDirectories = undefined;
 		return file;
+	}
+
+	clearCaches(): void {
+		this.directoryExistsCache.clear();
+		this.fileExistsCache.clear();
 	}
 
 	delete(fileName: string): boolean {
@@ -30,7 +43,19 @@ export class ModuleResolutionHost implements TS.ModuleSpecifierResolutionHost {
 	}
 
 	getFileNames(): Set<string> {
-		return new Set(this.files.keys());
+		if (this.currentFileNames == null) {
+			this.currentFileNames = new Set(this.files.keys());
+		}
+
+		return this.currentFileNames;
+	}
+
+	getFileNameDirectories(): Set<string> {
+		if (this.currentDirectories == null) {
+			this.currentDirectories = new Set([...this.getFileNames()].map(fileName => dirname(fileName)));
+		}
+
+		return this.currentDirectories;
 	}
 
 	getRollupFileNames(): Set<string> {
@@ -65,11 +90,13 @@ export class ModuleResolutionHost implements TS.ModuleSpecifierResolutionHost {
 	 * Returns true if the given file exists
 	 */
 	fileExists(fileName: string): boolean {
-		// Check if the file exists cached
-		if (this.files.has(fileName)) return true;
+		if (this.fileExistsCache.has(fileName)) {
+			return this.fileExistsCache.get(fileName)!;
+		}
 
-		// Otherwise, check if it exists on disk
-		return this.getFileSystem().fileExists(nativeNormalize(fileName));
+		const exists = this.files.has(fileName) || this.getFileSystem().fileExists(nativeNormalize(fileName));
+		this.fileExistsCache.set(fileName, exists);
+		return exists;
 	}
 
 	/**
@@ -88,7 +115,13 @@ export class ModuleResolutionHost implements TS.ModuleSpecifierResolutionHost {
 	 * Returns true if the given directory exists
 	 */
 	directoryExists(directoryName: string): boolean {
-		return this.getFileSystem().directoryExists(nativeNormalize(directoryName));
+		if (this.directoryExistsCache.has(directoryName)) {
+			return this.directoryExistsCache.get(directoryName)!;
+		}
+
+		const result = this.getFileNameDirectories().has(directoryName) || this.getFileSystem().directoryExists(nativeNormalize(directoryName));
+		this.directoryExistsCache.set(directoryName, result);
+		return result;
 	}
 
 	/**
