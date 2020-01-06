@@ -1,12 +1,19 @@
-import {IGetDiagnosticsOptions} from "./i-get-diagnostics-options";
-import {RollupError, RollupWarning} from "rollup";
-import {IExtendedDiagnostic} from "../../diagnostic/i-extended-diagnostic";
-import {TS} from "../../type/ts";
+import {RollupError, RollupWarning, PluginContext} from "rollup";
+import {IExtendedDiagnostic} from "../../../diagnostic/i-extended-diagnostic";
+import {TS} from "../../../type/ts";
+import {CompilerHost} from "../../compiler-host/compiler-host";
+import {TypescriptPluginOptions} from "../../../plugin/i-typescript-plugin-options";
+
+export interface EmitDiagnosticsOptions {
+	host: CompilerHost;
+	context: PluginContext;
+	pluginOptions: TypescriptPluginOptions;
+}
 
 /**
  * Gets diagnostics for the given fileName
  */
-export function emitDiagnosticsThroughRollup({host, context, pluginOptions}: IGetDiagnosticsOptions): void {
+export function emitDiagnostics({host, context, pluginOptions}: EmitDiagnosticsOptions): void {
 	const typescript = host.getTypescript();
 	let diagnostics: readonly TS.Diagnostic[] | undefined = host.getDiagnostics();
 

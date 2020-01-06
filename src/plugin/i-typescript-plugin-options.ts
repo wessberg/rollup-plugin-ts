@@ -44,7 +44,7 @@ export interface TsConfigResolverWithFileName {
 
 export type TsConfigResolver = TsConfigResolverWithFileName["hook"];
 
-export type OutputPathKind = "declaration" | "declarationMap";
+export type OutputPathKind = "declaration" | "declarationMap" | "buildInfo";
 export type OutputPathHook = (path: string, kind: OutputPathKind) => string | undefined;
 export type DiagnosticsHook = (diagnostics: readonly TS.Diagnostic[]) => readonly TS.Diagnostic[] | undefined;
 

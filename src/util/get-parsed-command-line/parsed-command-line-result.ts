@@ -1,6 +1,7 @@
 import {TS} from "../../type/ts";
 
-export interface GetParsedCommandLineResult {
+export interface ParsedCommandLineResult {
 	parsedCommandLine: TS.ParsedCommandLine;
 	originalCompilerOptions: TS.CompilerOptions;
+	tsconfigPath: string;
 }

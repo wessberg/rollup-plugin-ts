@@ -2,7 +2,7 @@ import * as TSModule from "typescript";
 import {rollup, RollupOptions, RollupOutput} from "rollup";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
 import {HookRecord, InputCompilerOptions, TypescriptPluginOptions} from "../../src/plugin/i-typescript-plugin-options";
-import {D_TS_EXTENSION, DECLARATION_MAP_EXTENSION} from "../../src/constant/constant";
+import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, TSBUILDINFO_EXTENSION} from "../../src/constant/constant";
 import {getRealFileSystem} from "../../src/util/file-system/file-system";
 import {TS} from "../../src/type/ts";
 import {isAbsolute, nativeDirname, nativeJoin, nativeNormalize, parse} from "../../src/util/path/path-util";
@@ -28,6 +28,7 @@ export interface GenerateRollupBundleResult {
 	bundle: RollupOutput;
 	declarations: FileResult[];
 	declarationMaps: FileResult[];
+	buildInfo: FileResult | undefined;
 }
 
 export interface GenerateRollupBundleOptions {
@@ -107,6 +108,7 @@ export async function generateRollupBundle(
 
 	const declarations: FileResult[] = [];
 	const declarationMaps: FileResult[] = [];
+	let buildInfo: FileResult | undefined;
 
 	let input: Record<string, string> | string;
 	if (entryFiles.length === 1) {
@@ -171,6 +173,13 @@ export async function generateRollupBundle(
 						if (file != null) return file.text;
 						return typescript.sys.readFile(absoluteFileName);
 					},
+					writeFile(fileName, text) {
+						extraFiles.push({
+							type: "asset",
+							fileName,
+							source: text
+						});
+					},
 					fileExists: fileName => {
 						const normalized = nativeNormalize(fileName);
 						const absoluteFileName = isAbsolute(normalized) ? normalized : nativeJoin(cwd, normalized);
@@ -205,15 +214,16 @@ export async function generateRollupBundle(
 		]
 	});
 
+	const extraFiles: {type: "chunk" | "asset"; source: string; fileName: string}[] = [];
 	const bundle = await result.generate({
 		dir,
 		format,
 		sourcemap: true
 	});
 
-	for (const file of bundle.output) {
+	for (const file of [...bundle.output, ...extraFiles]) {
 		if (file.type === "chunk") continue;
-		if (file.fileName.endsWith(DECLARATION_MAP_EXTENSION)) {
+		if (file.fileName.endsWith(D_TS_MAP_EXTENSION)) {
 			declarationMaps.push({
 				code: file.source.toString(),
 				fileName: file.fileName
@@ -223,12 +233,18 @@ export async function generateRollupBundle(
 				code: file.source.toString(),
 				fileName: file.fileName
 			});
+		} else if (file.fileName.endsWith(TSBUILDINFO_EXTENSION)) {
+			buildInfo = {
+				code: file.source.toString(),
+				fileName: file.fileName
+			};
 		}
 	}
 
 	return {
 		declarations,
 		declarationMaps,
-		bundle
+		bundle,
+		buildInfo
 	};
 }

@@ -7,6 +7,7 @@ export interface FileSystem {
 	useCaseSensitiveFileNames: boolean;
 	fileExists(path: string): boolean;
 	readFile(path: string, encoding?: string): string | undefined;
+	writeFile(path: string, data: string, writeByteOrderMark?: boolean): void;
 	readDirectory(
 		rootDir: string,
 		extensions: readonly string[],

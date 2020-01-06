@@ -3,7 +3,7 @@ import {
 	BABEL_RUNTIME_PREFIX_1,
 	BABEL_RUNTIME_PREFIX_2,
 	D_TS_EXTENSION,
-	DECLARATION_MAP_EXTENSION,
+	D_TS_MAP_EXTENSION,
 	KNOWN_EXTENSIONS,
 	NODE_MODULES_MATCH_PATH,
 	ROLLUP_PLUGIN_MULTI_ENTRY,
@@ -72,7 +72,7 @@ export function _isAbsolute(path: string): boolean {
  */
 export function getExtension(file: string): string {
 	if (file.endsWith(D_TS_EXTENSION)) return D_TS_EXTENSION;
-	else if (file.endsWith(DECLARATION_MAP_EXTENSION)) return DECLARATION_MAP_EXTENSION;
+	else if (file.endsWith(D_TS_MAP_EXTENSION)) return D_TS_MAP_EXTENSION;
 	return extname(file);
 }
 

@@ -22,8 +22,7 @@ test("Detects d.ts files when matched by a ParsedCommandLine. #1", async t => {
 			}
 		],
 		{
-			debug: false,
-			exclude: ["node_modules/**/*.*"]
+			debug: false
 		}
 	);
 	const {

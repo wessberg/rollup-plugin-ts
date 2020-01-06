@@ -428,7 +428,7 @@ The next few subsections describe the different hooks that can be provided
 
 ### The `outputPath` hook
 
-Type: `(path: string, kind: "declaration" | "declarationMap") => string | undefined`
+Type: `(path: string, kind: "declaration" | "declarationMap" | "buildInfo") => string | undefined`
 
 The `outputPath` hook can be used to rewrite the location on the filesystem that assets produced by `rollup-plugin-ts` are written to.
 It is invoked immediately before assets such as _declarations_ or _declaration maps_ are emitted.

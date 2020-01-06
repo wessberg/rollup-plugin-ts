@@ -1,12 +1,11 @@
 import {TS} from "../../type/ts";
-import {CompilerHostOptions} from "./compiler-host-options";
+import {CompilerHostOptions, CustomTransformersInput} from "./compiler-host-options";
 import {ModuleResolutionHost} from "../module-resolution-host/module-resolution-host";
 import {dirname, ensureAbsolute, getExtension, isTypeScriptLib, join, nativeNormalize, normalize} from "../../util/path/path-util";
 import {getNewLineCharacter} from "../../util/get-new-line-character/get-new-line-character";
 import {resolveId} from "../../util/resolve-id/resolve-id";
 import {getScriptKindFromPath} from "../../util/get-script-kind-from-path/get-script-kind-from-path";
 import {VirtualFile, VirtualFileInput} from "../module-resolution-host/virtual-file";
-import {CustomTransformersFunction} from "../../util/merge-transformers/i-custom-transformer-options";
 import {mergeTransformers} from "../../util/merge-transformers/merge-transformers";
 import {ensureModuleTransformer} from "../transformer/ensure-module/ensure-module-transformer";
 import {SourceFileToDependenciesMap} from "../transformer/declaration-bundler/declaration-bundler-options";
@@ -23,7 +22,9 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 
 	constructor(
 		protected readonly options: CompilerHostOptions,
-		protected readonly printer: TS.Printer = options.typescript.createPrinter({newLine: options.parsedCommandLine.options.newLine}),
+		protected readonly printer: TS.Printer = options.typescript.createPrinter({
+			newLine: options.parsedCommandLineResult.parsedCommandLine.options.newLine
+		}),
 		protected readonly sourceFiles: Map<string, TS.SourceFile> = new Map(),
 		protected readonly transformerDiagnostics: Map<string, TS.Diagnostic[]> = new Map(),
 		protected readonly fileToVersionMap: Map<string, number> = new Map(),
@@ -34,6 +35,10 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		this.addDefaultFileNames();
 	}
 
+	allowTransformingDeclarations(): boolean {
+		return this.options.allowTransformingDeclarations === true;
+	}
+
 	isSupportedFileName(fileName: string, ignoreFilter: boolean = false): boolean {
 		return (ignoreFilter || this.options.filter(fileName)) && this.getSupportedExtensions().has(getExtension(fileName));
 	}
@@ -42,7 +47,9 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		const program = this.getProgram();
 
 		const sourceFile = fileName == null ? undefined : this.getSourceFile(fileName);
+
 		const baseDiagnostics = [
+			...this.getParsedCommandLine().errors,
 			...program.getConfigFileParsingDiagnostics(),
 			...program.getOptionsDiagnostics(),
 			...program.getSyntacticDiagnostics(sourceFile),
@@ -62,7 +69,17 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		}
 	}
 
-	emit(fileName?: string, onlyDts: boolean = false, transformers?: CustomTransformersFunction | TS.CustomTransformers | undefined): TS.EmitOutput {
+	emitBuildInfo(): TS.EmitOutput {
+		this.popEmitOutput();
+		const programWithEmitBuildInfo = this.getProgramInstance() as TS.Program & {emitBuildInfo?(writeFileCallback: TS.WriteFileCallback): void};
+		// A non-exposed internal method, emitBuildInfo, is used, if available (which it is from TypeScript v3.4 and up)
+		// If not, we would have to emit the entire Program (or pending affected files) which can be avoided for maximum performance
+		programWithEmitBuildInfo.emitBuildInfo?.(this.writeFile.bind(this));
+
+		return this.popEmitOutput();
+	}
+
+	emit(fileName?: string, onlyDts: boolean = false, transformers?: CustomTransformersInput): TS.EmitOutput {
 		this.popEmitOutput();
 
 		const sourceFile = fileName == null ? undefined : this.getSourceFile(fileName);
@@ -70,16 +87,20 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		let hasEmitted = false;
 
 		const runEmit = (program: TS.Program | TS.EmitAndSemanticDiagnosticsBuilderProgram) => {
-			program.emit(
-				sourceFile,
-				(file, data, writeByteOrderMark) => {
-					hasEmitted = true;
-					this.writeFile(file, data, writeByteOrderMark);
-				},
-				undefined,
-				onlyDts,
-				customTransformers
-			);
+			try {
+				program.emit(
+					sourceFile,
+					(file, data, writeByteOrderMark) => {
+						hasEmitted = true;
+						this.writeFile(file, data, writeByteOrderMark);
+					},
+					undefined,
+					onlyDts,
+					customTransformers
+				);
+			} catch (ex) {
+				// This is OK and the cause of the BuilderProgram not having any pending files awaiting emit.
+			}
 		};
 
 		runEmit(this.getProgram());
@@ -105,14 +126,29 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		return this.getCompilationSettings().target ?? this.getTypescript().ScriptTarget.ES3;
 	}
 
-	getProgram(): TS.EmitAndSemanticDiagnosticsBuilderProgram {
-		if (this.currentProgram == null) {
-			this.currentProgram = this.getTypescript().createEmitAndSemanticDiagnosticsBuilderProgram(
+	private createProgram(): TS.EmitAndSemanticDiagnosticsBuilderProgram {
+		const typescript = this.getTypescript();
+
+		// The --incremental option is part of TypeScript 3.4 and up only
+		if ("createIncrementalProgram" in (typescript as Partial<typeof TS>)) {
+			return typescript.createIncrementalProgram({
+				rootNames: [...this.getFileNames()],
+				options: this.getCompilationSettings(),
+				host: this
+			});
+		} else {
+			return typescript.createEmitAndSemanticDiagnosticsBuilderProgram(
 				[...this.getFileNames()],
 				this.getCompilationSettings(),
 				this,
 				this.previousProgram
 			);
+		}
+	}
+
+	getProgram(): TS.EmitAndSemanticDiagnosticsBuilderProgram {
+		if (this.currentProgram == null) {
+			this.currentProgram = this.createProgram();
 		}
 		return this.currentProgram;
 	}
@@ -139,7 +175,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		return this.options.filter;
 	}
 
-	getTransformers(): CustomTransformersFunction | undefined {
+	getTransformers(): CustomTransformersInput {
 		return this.options.transformers;
 	}
 
@@ -258,16 +294,19 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		return success;
 	}
 
-	clone(compilerOptions: TS.CompilerOptions, cwd: string = this.getCwd()): CompilerHost {
+	clone(compilerOptions: TS.CompilerOptions, overrides: Partial<Omit<CompilerHostOptions, "parsedCommandLineResult">> = {}): CompilerHost {
 		return new CompilerHost(
 			{
 				...this.options,
-				cwd,
-				parsedCommandLine: {
-					...this.getParsedCommandLine(),
-					options: {
-						...this.getCompilationSettings(),
-						...compilerOptions
+				...overrides,
+				parsedCommandLineResult: {
+					...this.options.parsedCommandLineResult,
+					parsedCommandLine: {
+						...this.getParsedCommandLine(),
+						options: {
+							...this.getCompilationSettings(),
+							...compilerOptions
+						}
 					}
 				}
 			},
@@ -324,11 +363,9 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 	/**
 	 * Gets the Custom Transformers to use, depending on the current emit mode
 	 */
-	getCustomTransformers(
-		transformers: CustomTransformersFunction | TS.CustomTransformers | undefined = this.getTransformers()
-	): TS.CustomTransformers | undefined {
+	getCustomTransformers(transformers: CustomTransformersInput = this.getTransformers()): TS.CustomTransformers | undefined {
 		const mergedTransformers = mergeTransformers(transformers);
-		return mergedTransformers({
+		const upgradedTransformers = mergedTransformers({
 			program: this.getProgramInstance(),
 			typescript: this.getTypescript(),
 			printer: this.printer,
@@ -352,6 +389,15 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 				});
 			}
 		});
+
+		// Ensure that declarations are never transformed if not allowed
+		if (!this.allowTransformingDeclarations()) {
+			return {
+				...upgradedTransformers,
+				afterDeclarations: undefined
+			};
+		}
+		return upgradedTransformers;
 	}
 
 	/**
@@ -450,7 +496,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 	 * Adds all default declaration files to the LanguageService
 	 */
 	private addDefaultFileNames(): void {
-		this.options.parsedCommandLine.fileNames.forEach(file => {
+		this.getParsedCommandLine().fileNames.forEach(file => {
 			const fileName = ensureAbsolute(this.getCwd(), file);
 
 			if (!this.getFilter()(normalize(fileName))) return;

@@ -1,4 +1,4 @@
-import {IGetForcedCompilerOptionsOptions} from "./i-get-forced-compiler-options-options";
+import {GetForcedCompilerOptionsOptions} from "./get-forced-compiler-options-options";
 import {getScriptTargetFromBrowserslist} from "../get-script-target-from-browserslist/get-script-target-from-browserslist";
 import {getModuleKindFromRollupFormat} from "../get-module-kind-from-rollup-format/get-module-kind-from-rollup-format";
 import {getOutDir} from "../get-out-dir/get-out-dir";
@@ -7,7 +7,7 @@ import {TS} from "../../type/ts";
 /**
  * Gets the ModuleKind to force
  */
-function getForcedModuleKindOption({rollupOutputOptions, pluginOptions}: IGetForcedCompilerOptionsOptions): {module: TS.ModuleKind} {
+function getForcedModuleKindOption({rollupOutputOptions, pluginOptions}: GetForcedCompilerOptionsOptions): {module: TS.ModuleKind} {
 	// If no OutputOptions is given, or if no format is given in the OutputOptions, use ESNext. Otherwise, convert the
 	// Rollup option into one that Typescript can understand
 	if (rollupOutputOptions == null || rollupOutputOptions.format == null) {
@@ -20,7 +20,7 @@ function getForcedModuleKindOption({rollupOutputOptions, pluginOptions}: IGetFor
 /**
  * Gets the ScriptTarget to force
  */
-function getForcedScriptTargetOption({pluginOptions, browserslist}: IGetForcedCompilerOptionsOptions): {target?: TS.ScriptTarget} {
+function getForcedScriptTargetOption({pluginOptions, browserslist}: GetForcedCompilerOptionsOptions): {target?: TS.ScriptTarget} {
 	// If Babel should perform the transpilation, always target the latest ECMAScript version and let Babel take care of the rest
 	if (pluginOptions.transpiler === "babel") {
 		return {target: pluginOptions.typescript.ScriptTarget.ESNext};
@@ -38,7 +38,7 @@ function getForcedScriptTargetOption({pluginOptions, browserslist}: IGetForcedCo
 /**
  * Retrieves the CompilerOptions that will be forced
  */
-export function getForcedCompilerOptions(options: IGetForcedCompilerOptionsOptions): Partial<TS.CompilerOptions> {
+export function getForcedCompilerOptions(options: GetForcedCompilerOptionsOptions): Partial<TS.CompilerOptions> {
 	return {
 		...getForcedModuleKindOption(options),
 		...getForcedScriptTargetOption(options),
@@ -70,12 +70,6 @@ export function getForcedCompilerOptions(options: IGetForcedCompilerOptionsOptio
 		watch: false,
 		// Typescript should never watch files. That is the job of Rollup
 		preserveWatchOutput: false,
-		skipLibCheck: true,
-
-		// Declarations may be generated, but not as part of the Builder program which is used during the transform, renderChunk, and generateBundle phases, so TypeScript needs to be instructed not to generate them.
-		// The raw CompilerOptions will be preserved and used in the last compilation phase to generate declarations if needed.
-		declaration: false,
-		declarationDir: undefined,
-		declarationMap: false
+		skipLibCheck: true
 	};
 }

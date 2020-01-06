@@ -2,7 +2,7 @@ import {InputOptions, OutputBundle, OutputOptions, Plugin, PluginContext, Render
 import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line";
 import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options";
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
-import {emitDiagnosticsThroughRollup} from "../util/diagnostic/emit-diagnostics-through-rollup";
+import {emitDiagnostics} from "../service/emit/diagnostics/emit-diagnostics";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
 import {ensureRelative, isBabelHelper, isRollupPluginMultiEntry, nativeNormalize, normalize} from "../util/path/path-util";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
@@ -23,13 +23,14 @@ import {transformAsync} from "@babel/core";
 import {createFilter} from "rollup-pluginutils";
 import {mergeTransformers} from "../util/merge-transformers/merge-transformers";
 import {ensureArray} from "../util/ensure-array/ensure-array";
-import {GetParsedCommandLineResult} from "../util/get-parsed-command-line/get-parsed-command-line-result";
+import {ParsedCommandLineResult} from "../util/get-parsed-command-line/parsed-command-line-result";
 import {takeBrowserslistOrComputeBasedOnCompilerOptions} from "../util/take-browserslist-or-compute-based-on-compiler-options/take-browserslist-or-compute-based-on-compiler-options";
 import {matchAll} from "@wessberg/stringutil";
-import {emitDeclarations} from "../declaration/emit-declarations";
+import {emitDeclarations} from "../service/emit/declaration/emit-declarations";
 import {replaceBabelEsmHelpers} from "../util/replace-babel-esm-helpers/replace-babel-esm-helpers";
 import {CompilerHost} from "../service/compiler-host/compiler-host";
 import {pickResolvedModule} from "../util/pick-resolved-module";
+import {emitBuildInfo} from "../service/emit/tsbuildinfo/emit-build-info";
 
 /**
  * The name of the Rollup plugin
@@ -49,7 +50,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	/**
 	 * The ParsedCommandLine to use with Typescript
 	 */
-	let parsedCommandLineResult: GetParsedCommandLineResult;
+	let parsedCommandLineResult: ParsedCommandLineResult;
 
 	/**
 	 * The config to use with Babel, if Babel should transpile source code
@@ -154,7 +155,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				fileSystem,
 				typescript,
 				extensions: SUPPORTED_EXTENSIONS,
-				parsedCommandLine: parsedCommandLineResult.parsedCommandLine,
+				parsedCommandLineResult,
 				transformers: mergeTransformers(...transformers)
 			});
 
@@ -322,7 +323,21 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// Only emit diagnostics if the plugin options allow it
 			if (!Boolean(transpileOnly)) {
 				// Emit all reported diagnostics
-				emitDiagnosticsThroughRollup({host, pluginOptions, context: this});
+				emitDiagnostics({host, pluginOptions, context: this});
+			}
+
+			// Emit tsbuildinfo files if required
+			if (
+				Boolean(parsedCommandLineResult.parsedCommandLine.options.incremental) ||
+				Boolean(parsedCommandLineResult.parsedCommandLine.options.composite)
+			) {
+				emitBuildInfo({
+					host,
+					bundle,
+					outputOptions,
+					pluginOptions,
+					pluginContext: this
+				});
 			}
 
 			// Emit declaration files if required

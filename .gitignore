@@ -34,3 +34,4 @@ Thumbs.db
 *.csr
 /node_modules/
 /dist/
+/tsconfig.build.tsbuildinfo

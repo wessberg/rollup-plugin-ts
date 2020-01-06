@@ -67,7 +67,7 @@ export class ModuleResolutionHost implements TS.ModuleSpecifierResolutionHost {
 	}
 
 	getParsedCommandLine(): TS.ParsedCommandLine {
-		return this.options.parsedCommandLine;
+		return this.options.parsedCommandLineResult.parsedCommandLine;
 	}
 
 	getCompilationSettings(): TS.CompilerOptions {
@@ -84,6 +84,10 @@ export class ModuleResolutionHost implements TS.ModuleSpecifierResolutionHost {
 
 	getCwd(): string {
 		return this.options.cwd;
+	}
+
+	getTsconfigPath(): string {
+		return this.options.parsedCommandLineResult.tsconfigPath;
 	}
 
 	/**

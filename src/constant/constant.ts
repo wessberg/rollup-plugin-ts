@@ -8,11 +8,12 @@ export const JSON_EXTENSION = ".json";
 export const MJS_EXTENSION = ".mjs";
 export const MJSX_EXTENSION = ".mjsx";
 export const D_TS_EXTENSION = `.d${TS_EXTENSION}`;
-export const DECLARATION_MAP_EXTENSION = `.d${TS_EXTENSION}${SOURCE_MAP_EXTENSION}`;
+export const D_TS_MAP_EXTENSION = `.d${TS_EXTENSION}${SOURCE_MAP_EXTENSION}`;
+export const TSBUILDINFO_EXTENSION = `.tsbuildinfo`;
 
 export const KNOWN_EXTENSIONS = new Set([
 	D_TS_EXTENSION,
-	DECLARATION_MAP_EXTENSION,
+	D_TS_MAP_EXTENSION,
 	JS_MAP_EXTENSION,
 	TS_EXTENSION,
 	TSX_EXTENSION,
@@ -20,10 +21,11 @@ export const KNOWN_EXTENSIONS = new Set([
 	JSX_EXTENSION,
 	JSON_EXTENSION,
 	MJS_EXTENSION,
-	MJSX_EXTENSION
+	MJSX_EXTENSION,
+	TSBUILDINFO_EXTENSION
 ] as const);
 
-export const DEFAULT_TYPES_ROOT = "@types";
+export const DEFAULT_TSCONFIG_FILE_NAME = "tsconfig.json";
 export const NODE_MODULES = "node_modules";
 export const NODE_MODULES_MATCH_PATH = `/${NODE_MODULES}/`;
 export const SOURCE_MAP_COMMENT = "//# sourceMappingURL";

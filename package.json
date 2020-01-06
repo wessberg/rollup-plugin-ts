@@ -48,7 +48,7 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@types/prettier": "^1.19.0",
-		"@wessberg/rollup-plugin-ts": "^1.2.0",
+		"@wessberg/rollup-plugin-ts": "^1.2.3",
 		"@wessberg/scaffold": "^1.0.23",
 		"@wessberg/ts-config": "^0.0.44",
 		"ava": "2.4.0",
@@ -57,7 +57,7 @@
 		"pnpm": "^4.6.0",
 		"prettier": "^1.19.1",
 		"pretty-quick": "^2.0.1",
-		"rollup": "^1.27.14",
+		"rollup": "^1.28.0",
 		"standard-changelog": "^2.0.21",
 		"ts-node": "8.5.4",
 		"tslint": "^5.20.1",
@@ -84,12 +84,12 @@
 		"@babel/preset-env": "^7.7.7",
 		"@babel/runtime": "^7.7.7",
 		"@types/mkdirp": "^0.5.2",
-		"@types/node": "^13.1.2",
+		"@types/node": "^13.1.4",
 		"@types/resolve": "^1.14.0",
 		"@wessberg/browserslist-generator": "^1.0.30",
 		"@wessberg/stringutil": "^1.0.19",
 		"@wessberg/ts-clone-node": "^0.1.4",
-		"browserslist": "^4.8.2",
+		"browserslist": "^4.8.3",
 		"find-up": "^4.1.0",
 		"magic-string": "^0.25.5",
 		"merge-source-map": "^1.1.0",
@@ -101,7 +101,7 @@
 		"chalk": "^3.0.0"
 	},
 	"peerDependencies": {
-		"rollup": "^1.27.14",
+		"rollup": "^1.28.0",
 		"typescript": "^3.x"
 	},
 	"main": "./dist/cjs/index.js",
