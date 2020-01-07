@@ -1,3 +1,9 @@
+## [1.2.4](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.3...v1.2.4) (2020-01-07)
+
+### Bug Fixes
+
+- add support for incremental compilation. Closes [#67](https://github.com/wessberg/rollup-plugin-ts/issues/67). Closes [#66](https://github.com/wessberg/rollup-plugin-ts/issues/66) ([c1e4dcc](https://github.com/wessberg/rollup-plugin-ts/commit/c1e4dccc9f42a5e42a687e342328c5d30248dc36))
+
 ## [1.2.3](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.2...v1.2.3) (2020-01-05)
 
 ### Bug Fixes
