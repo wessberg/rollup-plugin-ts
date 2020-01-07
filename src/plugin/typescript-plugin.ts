@@ -60,12 +60,12 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	/**
 	 * If babel is to be used, and if one or more minify presets/plugins has been passed, this config will be used
 	 */
-	let babelMinifyConfig: ((filename: string) => IBabelConfig) | undefined;
+	let babelChunkConfig: ((filename: string) => IBabelConfig) | undefined;
 
 	/**
 	 * If babel is to be used, and if one or more minify presets/plugins has been passed, this will be true
 	 */
-	let hasBabelMinifyOptions: boolean = false;
+	let hasBabelChunkOptions: boolean = false;
 
 	/**
 	 * The (Incremental) LanguageServiceHost to use
@@ -132,14 +132,15 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				const babelConfigResult = getBabelConfig({
 					cwd,
 					babelConfig: pluginOptions.babelConfig,
+					noBabelConfigCustomization: pluginOptions.noBabelConfigCustomization,
 					forcedOptions: getForcedBabelOptions({cwd, pluginOptions, rollupInputOptions, browserslist: computedBrowserslist}),
 					defaultOptions: getDefaultBabelOptions({pluginOptions, rollupInputOptions, browserslist: computedBrowserslist}),
 					browserslist: computedBrowserslist,
 					rollupInputOptions
 				});
 				babelConfig = babelConfigResult.config;
-				babelMinifyConfig = babelConfigResult.minifyConfig;
-				hasBabelMinifyOptions = babelConfigResult.hasMinifyOptions;
+				babelChunkConfig = babelConfigResult.chunkConfig;
+				hasBabelChunkOptions = babelConfigResult.hasChunkOptions;
 			}
 
 			SUPPORTED_EXTENSIONS = getSupportedExtensions(
@@ -181,7 +182,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			}
 
 			// Don't proceed if there is no minification config
-			if (!hasBabelMinifyOptions || babelMinifyConfig == null) {
+			if (!hasBabelChunkOptions || babelChunkConfig == null) {
 				return updatedSourceDescription == null ? null : updatedSourceDescription;
 			}
 
@@ -189,7 +190,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			const updatedMap = updatedSourceDescription != null ? updatedSourceDescription.map : undefined;
 
 			const transpilationResult = await transformAsync(updatedCode, {
-				...babelMinifyConfig(chunk.fileName),
+				...babelChunkConfig(chunk.fileName),
 				filename: chunk.fileName,
 				filenameRelative: ensureRelative(cwd, chunk.fileName),
 				...(updatedMap == null

@@ -1,10 +1,12 @@
+import {dirname} from "path";
+import {InputOptions} from "rollup";
 import {IBabelConfigItem} from "../../plugin/i-babel-options";
 import {isBabelPluginTransformRuntime, isBabelPresetEnv, isYearlyBabelPreset, nativeNormalize} from "../path/path-util";
 import {
-	BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES,
-	BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES,
-	BABEL_MINIFY_PLUGIN_NAMES,
-	BABEL_MINIFY_PRESET_NAMES,
+	BABEL_CHUNK_BLACKLIST_PLUGIN_NAMES,
+	BABEL_CHUNK_BLACKLIST_PRESET_NAMES,
+	BABEL_CHUNK_PLUGIN_NAMES,
+	BABEL_CHUNK_PRESET_NAMES,
 	FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS,
 	FORCED_BABEL_PRESET_ENV_OPTIONS,
 	FORCED_BABEL_YEARLY_PRESET_OPTIONS
@@ -17,17 +19,35 @@ import {findBabelConfig} from "./find-babel-config";
 
 // tslint:disable:no-any
 
+interface IBabelPlugin {
+	key: string;
+	options?: {[key: string]: unknown};
+}
+
+function getBabelItemId(item: IBabelConfigItem | IBabelPlugin): string {
+	if ("file" in item) return item.file.resolved;
+
+	const {key} = item;
+
+	// 1) full file path to plugin entrypoint
+	// 2 & 3) full module name
+	if (key.startsWith("/") || key.startsWith("@") || key.startsWith("babel-plugin-")) return key;
+
+	// add prefix to match keys defined in BABEL_CHUNK_PLUGIN_NAMES
+	return `babel-plugin-${key}`;
+}
+
 /**
  * Combines the given two sets of presets
  */
 function combineConfigItems(
-	userItems: IBabelConfigItem[],
-	defaultItems: IBabelConfigItem[] = [],
-	forcedItems: IBabelConfigItem[] = [],
-	useMinifyOptions: boolean = false
+	userItems: (IBabelConfigItem | IBabelPlugin)[],
+	defaultItems: (IBabelConfigItem | IBabelPlugin)[] = [],
+	forcedItems: (IBabelConfigItem | IBabelPlugin)[] = [],
+	useChunkOptions: boolean = false
 ): {}[] {
-	const namesInUserItems = new Set(userItems.map(item => item.file.resolved));
-	const namesInForcedItems = new Set(forcedItems.map(item => item.file.resolved));
+	const namesInUserItems = new Set(userItems.map(getBabelItemId));
+	const namesInForcedItems = new Set(forcedItems.map(getBabelItemId));
 	const userItemsHasYearlyPreset = [...namesInUserItems].some(isYearlyBabelPreset);
 
 	return (
@@ -36,20 +56,20 @@ function combineConfigItems(
 			// If the options contains a yearly preset such as "preset-es2015", filter out preset-env from the default items if it is given
 			...defaultItems.filter(
 				item =>
-					!namesInUserItems.has(item.file.resolved) &&
-					!namesInForcedItems.has(item.file.resolved) &&
-					(!userItemsHasYearlyPreset || !isBabelPresetEnv(item.file.resolved))
+					!namesInUserItems.has(getBabelItemId(item)) &&
+					!namesInForcedItems.has(getBabelItemId(item)) &&
+					(!userItemsHasYearlyPreset || !isBabelPresetEnv(getBabelItemId(item)))
 			),
 
 			// Only use those user items that doesn't appear within the forced items
-			...userItems.filter(item => !namesInForcedItems.has(item.file.resolved)),
+			...userItems.filter(item => !namesInForcedItems.has(getBabelItemId(item))),
 
 			// Apply the forced items at all times
 			...forcedItems
 		]
-			// Filter out those options that do not apply depending on whether or not to apply minification
+			// Filter out those options that do not apply depending chunk generation
 			.filter(configItem =>
-				useMinifyOptions ? configItemIsAllowedDuringMinification(configItem) : configItemIsAllowedDuringNoMinification(configItem)
+				useChunkOptions ? configItemIsAllowedForChunk(getBabelItemId(configItem)) : configItemIsAllowedForTransform(getBabelItemId(configItem))
 			)
 	);
 }
@@ -57,27 +77,68 @@ function combineConfigItems(
 /**
  * Returns true if the given configItem is related to minification
  */
-function configItemIsMinificationRelated({file: {resolved}}: IBabelConfigItem): boolean {
-	return BABEL_MINIFY_PRESET_NAMES.some(preset => resolved.includes(preset)) || BABEL_MINIFY_PLUGIN_NAMES.some(plugin => resolved.includes(plugin));
+function configItemIsChunkRelated(item: string | IBabelConfigItem): boolean {
+	const id = typeof item === "string" ? item : getBabelItemId(item);
+
+	return (
+		(/\bminify\b/.test(id) ||
+			BABEL_CHUNK_PRESET_NAMES.some(preset => id.includes(preset)) ||
+			BABEL_CHUNK_PLUGIN_NAMES.some(plugin => id.includes(plugin))) &&
+		!(
+			BABEL_CHUNK_BLACKLIST_PLUGIN_NAMES.some(preset => id.includes(preset)) || BABEL_CHUNK_BLACKLIST_PRESET_NAMES.some(plugin => id.includes(plugin))
+		)
+	);
+}
+
+function configItemIsSyntaxRelated(id: string): boolean {
+	return /\bsyntax\b/.test(id);
 }
 
 /**
  * Returns true if the given configItem is allowed during minification
  */
-function configItemIsAllowedDuringMinification({file: {resolved}}: IBabelConfigItem): boolean {
-	return (
-		BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES.every(preset => !resolved.includes(preset)) &&
-		BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES.every(plugin => !resolved.includes(plugin))
-	);
+function configItemIsAllowedForChunk(id: string): boolean {
+	return configItemIsSyntaxRelated(id) || configItemIsChunkRelated(id);
 }
 
 /**
  * Returns true if the given configItem is allowed when not applying minification
  */
-function configItemIsAllowedDuringNoMinification({file: {resolved}}: IBabelConfigItem): boolean {
-	return (
-		BABEL_MINIFY_PRESET_NAMES.every(preset => !resolved.includes(preset)) && BABEL_MINIFY_PLUGIN_NAMES.every(plugin => !resolved.includes(plugin))
-	);
+function configItemIsAllowedForTransform(id: string): boolean {
+	return configItemIsSyntaxRelated(id) || !configItemIsChunkRelated(id);
+}
+
+type BabelTransformOptions = Partial<ReturnType<typeof FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS>> & {corejs?: boolean; useESModules?: boolean};
+
+function enforceBabelTransformRuntime<T extends IBabelConfigItem | IBabelPlugin>(
+	plugins: T[],
+	rollupInputOptions: InputOptions,
+	filename: string
+): T[] {
+	const babelTransformPlugin = plugins.find(item => isBabelPluginTransformRuntime(getBabelItemId(item)));
+
+	const babelTransformOptions: BabelTransformOptions = {
+		...FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS(rollupInputOptions),
+		corejs: false
+	};
+
+	if (babelTransformPlugin != null) {
+		const options: BabelTransformOptions = babelTransformPlugin.options != null ? babelTransformPlugin.options : {};
+
+		// set default options but keep explicitly defined options
+		babelTransformPlugin.options = {
+			...babelTransformOptions,
+			...options
+		};
+
+		return plugins;
+	}
+
+	return [
+		...plugins,
+		// Force the use of helpers (e.g. the runtime). But *don't* apply polyfills.
+		createConfigItem(["@babel/plugin-transform-runtime", babelTransformOptions], {type: "plugin", dirname: dirname(filename)})
+	];
 }
 
 /**
@@ -86,11 +147,64 @@ function configItemIsAllowedDuringNoMinification({file: {resolved}}: IBabelConfi
 export function getBabelConfig({
 	babelConfig,
 	cwd,
+	noBabelConfigCustomization,
 	forcedOptions = {},
 	defaultOptions = {},
 	browserslist
 }: GetBabelConfigOptions): GetBabelConfigResult {
 	const resolvedConfig = findBabelConfig({cwd, babelConfig});
+
+	if (noBabelConfigCustomization === true) {
+		const loadOptionsForFilename = (filename: string, useChunkOptions: boolean = false) => {
+			const partialCustomConfig =
+				resolvedConfig != null && resolvedConfig.kind === "dict"
+					? // If the given babelConfig is an object of input options, use that as the basis for the full config
+					  resolvedConfig
+					: // Load the path to a babel config provided to the plugin if any, otherwise try to resolve it
+					  loadPartialConfig({
+							cwd,
+							root: cwd,
+							...(resolvedConfig != null ? {configFile: resolvedConfig.path} : {babelrc: true}),
+							filename
+					  });
+
+			// fully load all options, which results in a flat plugins structure
+			// which can then be used to match chunk plugins
+			const fullOptions = loadOptions({
+				...partialCustomConfig.options,
+				...forcedOptions,
+				presets: partialCustomConfig.options.presets,
+				plugins: partialCustomConfig.options.plugins,
+				filename,
+				caller: {
+					name: "rollup-plugin-ts",
+					...(partialCustomConfig.options.caller ? partialCustomConfig.options.caller : {}),
+					supportsStaticESM: true,
+					supportsDynamicImport: true
+				}
+			});
+
+			// sourceMap is an alias for 'sourceMaps'. If the user provided it, make sure it is undefined. Otherwise, Babel will fail during validation
+			if ("sourceMap" in fullOptions) {
+				delete fullOptions.sourceMap;
+			}
+
+			// Force the use of helpers (e.g. the runtime) for transform
+			const plugins = useChunkOptions ? fullOptions.plugins : enforceBabelTransformRuntime(fullOptions.plugins, rollupInputOptions, filename);
+
+			return {
+				...fullOptions,
+				// presets is an empty array as babel as resolved all plugins
+				plugins: combineConfigItems(plugins, [], [], useChunkOptions)
+			};
+		};
+
+		return {
+			config: filename => loadOptionsForFilename(filename, false),
+			chunkConfig: filename => loadOptionsForFilename(filename, true),
+			hasChunkOptions: true
+		};
+	}
 
 	// Load a partial Babel config based on the input options
 	const partialConfig = loadPartialConfig(
@@ -199,8 +313,8 @@ export function getBabelConfig({
 		delete combined.sourceMap;
 	}
 
-	// Combine the partial config with the default and forced options for the minifyConfig
-	const minifyCombined = {
+	// Combine the partial config with the default and forced options for the chunkConfig
+	const chunkCombined = {
 		...combined,
 		presets: combineConfigItems(
 			options.presets,
@@ -217,18 +331,16 @@ export function getBabelConfig({
 	};
 
 	const finalConfigFileOption = config == null ? configFileOption : {configFile: config};
-	const finalMinifyConfigFileOption = config == null ? configFileOption : {configFile: `${config}.minify`};
+	const finalchunkConfigFileOption = config == null ? configFileOption : {configFile: `${config}.minify`};
 
 	// Normalize the options
 	return {
 		config: filename => loadOptions({...combined, filename, ...finalConfigFileOption}),
 		// Only return the minify config if it includes at least one plugin or preset
-		minifyConfig:
-			minifyCombined.plugins.length < 1 && minifyCombined.presets.length < 1
+		chunkConfig:
+			chunkCombined.plugins.length < 1 && chunkCombined.presets.length < 1
 				? undefined
-				: filename => loadOptions({...minifyCombined, filename, ...finalMinifyConfigFileOption}),
-		hasMinifyOptions:
-			[...minifyCombined.plugins.filter(configItemIsMinificationRelated), ...minifyCombined.presets.filter(configItemIsMinificationRelated)].length >
-			0
+				: filename => loadOptions({...chunkCombined, filename, ...finalchunkConfigFileOption}),
+		hasChunkOptions: [...chunkCombined.plugins.filter(configItemIsChunkRelated), ...chunkCombined.presets.filter(configItemIsChunkRelated)].length > 0
 	};
 }
