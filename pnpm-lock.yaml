@@ -9,6 +9,7 @@ dependencies:
   "@babel/plugin-transform-runtime": 7.7.6_@babel+core@7.7.7
   "@babel/preset-env": 7.7.7_@babel+core@7.7.7
   "@babel/runtime": 7.7.7
+  "@rollup/pluginutils": 3.0.4_rollup@1.29.0
   "@types/node": 13.1.6
   "@wessberg/browserslist-generator": 1.0.30
   "@wessberg/stringutil": 1.0.19
@@ -16,15 +17,16 @@ dependencies:
   browserslist: 4.8.3
   chalk: 3.0.0
   magic-string: 0.25.6
-  rollup-pluginutils: 2.8.2
   slash: 3.0.0
   tslib: 1.10.0
 devDependencies:
+  "@rollup/plugin-commonjs": 11.0.1_rollup@1.29.0
   "@types/prettier": 1.19.0
   "@wessberg/rollup-plugin-ts": 1.2.4_rollup@1.29.0+typescript@3.7.4
   "@wessberg/scaffold": 1.0.23_typescript@3.7.4
   "@wessberg/ts-config": 0.0.44_tslint@5.20.1+typescript@3.7.4
   ava: 2.4.0
+  core-js: 3.6.2
   husky: 4.0.6
   np: 5.2.1
   pnpm: 4.7.1
@@ -33,7 +35,7 @@ devDependencies:
   rimraf: 3.0.0
   rollup: 1.29.0
   standard-changelog: 2.0.21
-  ts-node: 8.6.0_typescript@3.7.4
+  ts-node: 8.6.1_typescript@3.7.4
   tslint: 5.20.1_typescript@3.7.4
   typescript: 3.7.4
   typescript-3-0-1: /typescript/3.0.1
@@ -767,6 +769,31 @@ packages:
       node: ">= 8"
     resolution:
       integrity: sha512-1V9XOY4rDW0rehzbrcqAmHnz8e7SKvX27gh8Gt2WgB0+pdzdiLV83p72kZPU+jvMbS1qU5mauP2iOvO8rhmurQ==
+  /@rollup/plugin-commonjs/11.0.1_rollup@1.29.0:
+    dependencies:
+      "@rollup/pluginutils": 3.0.4_rollup@1.29.0
+      estree-walker: 0.6.1
+      is-reference: 1.1.4
+      magic-string: 0.25.6
+      resolve: 1.14.2
+      rollup: 1.29.0
+    dev: true
+    engines:
+      node: ">= 8.0.0"
+    peerDependencies:
+      rollup: ^1.20.0
+    resolution:
+      integrity: sha512-SaVUoaLDg3KnIXC5IBNIspr1APTYDzk05VaYcI6qz+0XX3ZlSCwAkfAhNSOxfd5GAdcm/63Noi4TowOY9MpcDg==
+  /@rollup/pluginutils/3.0.4_rollup@1.29.0:
+    dependencies:
+      estree-walker: 0.6.1
+      rollup: 1.29.0
+    engines:
+      node: ">= 8.0.0"
+    peerDependencies:
+      rollup: ^1.20.0
+    resolution:
+      integrity: sha512-buc0oeq2zqQu2mpMyvZgAaQvitikYjT/4JYhA4EXwxX8/g0ZGHoGiX+0AwmfhrNqH4oJv67gn80sTZFQ/jL1bw==
   /@samverschueren/stream-to-observable/0.3.0:
     dependencies:
       any-observable: 0.3.0
@@ -799,8 +826,11 @@ packages:
     dev: true
     resolution:
       integrity: sha512-llYf1QNZaDweXtA7uY6JczcwHmFwJL9TpK3E6sY0B18l6ulDT6VWNMAdEjYccFHiDfxLPxffd8QmSDV4QUUspA==
-  /@types/estree/0.0.42:
+  /@types/estree/0.0.39:
     dev: true
+    resolution:
+      integrity: sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==
+  /@types/estree/0.0.42:
     resolution:
       integrity: sha512-K1DPVvnBCPxzD+G51/cxVIoc2X8uUVl1zpJeE6iKcgHMj4+tbat5Xu4TjV7v2QSDbIeAfLi2hIk+u2+s0MlpUQ==
   /@types/events/3.0.0:
@@ -1009,7 +1039,6 @@ packages:
     resolution:
       integrity: sha512-tMUqwBWfLFbJbizRmEcWSLw6HnFzfdJs2sOJEOwwtVPMoH/0Ay+E703oZz78VSXZiiDcZrQ5XKjPIUQixhmgVw==
   /acorn/7.1.0:
-    dev: true
     engines:
       node: ">=0.4.0"
     hasBin: true
@@ -1838,6 +1867,11 @@ packages:
     requiresBuild: true
     resolution:
       integrity: sha512-5wjnpaT/3dV+XB4borEsnAYQchn00XSgTAWKDkEqv+K8KevjbzmofK6hfJ9TZIlpj2N0xQpazy7PiRQiWHqzWg==
+  /core-js/3.6.2:
+    dev: true
+    requiresBuild: true
+    resolution:
+      integrity: sha512-hIE5dXkRzRvnZ5vhkRfQxUvDxQZmD9oueA08jDYRBKJHx+VIl/Pne/e0A4x9LObEEthC/TqiZybUoNM4tRgnKg==
   /core-util-is/1.0.2:
     dev: true
     resolution:
@@ -3256,6 +3290,12 @@ packages:
     dev: true
     resolution:
       integrity: sha1-eaKp7OfwlugPNtKy87wWwf9L8/o=
+  /is-reference/1.1.4:
+    dependencies:
+      "@types/estree": 0.0.39
+    dev: true
+    resolution:
+      integrity: sha512-uJA/CDPO3Tao3GTrxYn6AwkM4nUPJiGGYu5+cB8qbC7WGFlrKZbiRo7SFKxUAEpFUfiHofWCXBUNhvYJMh+6zw==
   /is-regex/1.0.5:
     dependencies:
       has: 1.0.3
@@ -5033,6 +5073,7 @@ packages:
   /rollup-pluginutils/2.8.2:
     dependencies:
       estree-walker: 0.6.1
+    dev: true
     resolution:
       integrity: sha512-EEp9NhnUkwY8aif6bxgovPHMoMoNr2FulJziTndpt5H9RdwC47GSGuII9XxpSdzVGM0GWrNPHV6ie1LTNJPaLQ==
   /rollup/1.29.0:
@@ -5040,7 +5081,6 @@ packages:
       "@types/estree": 0.0.42
       "@types/node": 13.1.6
       acorn: 7.1.0
-    dev: true
     hasBin: true
     resolution:
       integrity: sha512-V63Iz0dSdI5qPPN5HmCN6OBRzBFhMqNWcvwgq863JtSCTU6Vdvqq6S2fYle/dSCyoPrBkIP3EIr1RVs3HTRqqg==
@@ -5629,7 +5669,7 @@ packages:
       node: ">=0.10.0"
     resolution:
       integrity: sha1-yy4SAwZ+DI3h9hQJS5/kVwTqYAM=
-  /ts-node/8.6.0_typescript@3.7.4:
+  /ts-node/8.6.1_typescript@3.7.4:
     dependencies:
       arg: 4.1.2
       diff: 4.0.1
@@ -5644,7 +5684,7 @@ packages:
     peerDependencies:
       typescript: ">=2.7"
     resolution:
-      integrity: sha512-NVJ/5ZjrxCS445zMIxGWiieTZoWcHbqtVKa+1V7opSmOFCYi7fvkugEXZBC9IvUnEzNewZWy8dw0u6iSTridpA==
+      integrity: sha512-KqPbO7/UuOPE4ANAOV9geZjk6tet6rK2K+DFeEJq6kIXUi0nLkrOMksozGkIlFopOorkStlwar3DdWYrdl7zCw==
   /tslib/1.10.0:
     resolution:
       integrity: sha512-qOebF53frne81cf0S9B41ByenJ3/IuH8yJKngAX35CmiZySA0khhkovshKK+jGCaMnVomla7gVlIcc3EvKPbTQ==
@@ -6068,6 +6108,8 @@ specifiers:
   "@babel/plugin-transform-runtime": ^7.7.6
   "@babel/preset-env": ^7.7.7
   "@babel/runtime": ^7.7.7
+  "@rollup/plugin-commonjs": ^11.0.1
+  "@rollup/pluginutils": ^3.0.4
   "@types/node": ^13.1.6
   "@types/prettier": ^1.19.0
   "@wessberg/browserslist-generator": ^1.0.30
@@ -6079,6 +6121,7 @@ specifiers:
   ava: 2.4.0
   browserslist: ^4.8.3
   chalk: ^3.0.0
+  core-js: ^3.6.2
   husky: ^4.0.6
   magic-string: ^0.25.6
   np: ^5.2.1
@@ -6087,10 +6130,9 @@ specifiers:
   pretty-quick: ^2.0.1
   rimraf: ^3.0.0
   rollup: ^1.29.0
-  rollup-pluginutils: ^2.8.2
   slash: ^3.0.0
   standard-changelog: ^2.0.21
-  ts-node: 8.6.0
+  ts-node: 8.6.1
   tslib: ^1.10.0
   tslint: ^5.20.1
   typescript: ^3.7.4

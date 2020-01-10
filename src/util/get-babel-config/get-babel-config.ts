@@ -1,5 +1,5 @@
 import {IBabelConfigItem} from "../../plugin/i-babel-options";
-import {isBabelPluginTransformRuntime, isBabelPresetEnv, isYearlyBabelPreset, nativeNormalize} from "../path/path-util";
+import {isBabelPluginTransformRuntime, isBabelPresetEnv, isYearlyBabelPreset, nativeNormalize, somePathsAreRelated} from "../path/path-util";
 import {
 	BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES,
 	BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES,
@@ -36,8 +36,8 @@ function combineConfigItems(
 			// If the options contains a yearly preset such as "preset-es2015", filter out preset-env from the default items if it is given
 			...defaultItems.filter(
 				item =>
-					!namesInUserItems.has(item.file.resolved) &&
-					!namesInForcedItems.has(item.file.resolved) &&
+					!somePathsAreRelated(namesInUserItems, item.file.resolved) &&
+					!somePathsAreRelated(namesInForcedItems, item.file.resolved) &&
 					(!userItemsHasYearlyPreset || !isBabelPresetEnv(item.file.resolved))
 			),
 

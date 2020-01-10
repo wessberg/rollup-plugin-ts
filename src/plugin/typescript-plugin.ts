@@ -4,7 +4,7 @@ import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
 import {emitDiagnostics} from "../service/emit/diagnostics/emit-diagnostics";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
-import {ensureRelative, isBabelHelper, isRollupPluginMultiEntry, nativeNormalize, normalize} from "../util/path/path-util";
+import {ensureRelative, isBabelHelper, isCoreJsInternals, isRollupPluginMultiEntry, nativeNormalize, normalize} from "../util/path/path-util";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
 import {TypescriptPluginOptions} from "./i-typescript-plugin-options";
 import {getPluginOptions} from "../util/plugin-options/get-plugin-options";
@@ -19,8 +19,7 @@ import {REGENERATOR_SOURCE} from "../lib/regenerator/regenerator";
 import {getDefaultBabelOptions} from "../util/get-default-babel-options/get-default-babel-options";
 // @ts-ignore
 import {transformAsync} from "@babel/core";
-// @ts-ignore
-import {createFilter} from "rollup-pluginutils";
+import {createFilter} from "@rollup/pluginutils";
 import {mergeTransformers} from "../util/merge-transformers/merge-transformers";
 import {ensureArray} from "../util/ensure-array/ensure-array";
 import {ParsedCommandLineResult} from "../util/get-parsed-command-line/parsed-command-line-result";
@@ -31,6 +30,8 @@ import {replaceBabelEsmHelpers} from "../util/replace-babel-esm-helpers/replace-
 import {CompilerHost} from "../service/compiler-host/compiler-host";
 import {pickResolvedModule} from "../util/pick-resolved-module";
 import {emitBuildInfo} from "../service/emit/tsbuildinfo/emit-build-info";
+import {shouldDebugEmit} from "../util/is-debug/should-debug";
+import {logEmit} from "../util/logging/log-emit";
 
 /**
  * The name of the Rollup plugin
@@ -80,7 +81,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	/**
 	 * The filter function to use
 	 */
-	const internalFilter: (id: string) => boolean = createFilter(include, exclude);
+	const internalFilter = createFilter(include, exclude);
 	const filter = (id: string): boolean => internalFilter(id) || internalFilter(normalize(id)) || internalFilter(nativeNormalize(id));
 
 	/**
@@ -230,7 +231,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			}
 
 			// Skip the file if it doesn't match the filter or if the helper cannot be transformed
-			if (!filter(normalizedFile) || isBabelHelper(normalizedFile)) {
+			if (!filter(normalizedFile) || isBabelHelper(normalizedFile) || isCoreJsInternals(normalizedFile)) {
 				return undefined;
 			}
 
@@ -321,6 +322,15 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * from the LanguageService
 		 */
 		generateBundle(this: PluginContext, outputOptions: OutputOptions, bundle: OutputBundle): void {
+			// If debugging is active, log the outputted files
+			for (const file of Object.values(bundle)) {
+				const normalizedFileName = normalize(file.fileName);
+				const text = "code" in file ? file.code : file.source.toString();
+				if (shouldDebugEmit(pluginOptions.debug, normalizedFileName, text, "javascript")) {
+					logEmit(normalizedFileName, text);
+				}
+			}
+
 			// Only emit diagnostics if the plugin options allow it
 			if (!Boolean(transpileOnly)) {
 				// Emit all reported diagnostics

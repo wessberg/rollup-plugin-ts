@@ -1,7 +1,8 @@
 import * as TSModule from "typescript";
 import {rollup, RollupOptions, RollupOutput} from "rollup";
+import commonjs from "@rollup/plugin-commonjs";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
-import {HookRecord, InputCompilerOptions, TypescriptPluginOptions} from "../../src/plugin/i-typescript-plugin-options";
+import {HookRecord, InputCompilerOptions, ITypescriptPluginBabelOptions, TypescriptPluginOptions} from "../../src/plugin/i-typescript-plugin-options";
 import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, TSBUILDINFO_EXTENSION} from "../../src/constant/constant";
 import {getRealFileSystem} from "../../src/util/file-system/file-system";
 import {TS} from "../../src/type/ts";
@@ -26,6 +27,7 @@ const EXTENSIONS = ["", ".ts", ".js", ".mjs"];
 
 export interface GenerateRollupBundleResult {
 	bundle: RollupOutput;
+	js: FileResult[];
 	declarations: FileResult[];
 	declarationMaps: FileResult[];
 	buildInfo: FileResult | undefined;
@@ -44,6 +46,7 @@ export interface GenerateRollupBundleOptions {
 	exclude: TypescriptPluginOptions["exclude"];
 	transpiler: TypescriptPluginOptions["transpiler"];
 	transformers: TypescriptPluginOptions["transformers"];
+	babelConfig: ITypescriptPluginBabelOptions["babelConfig"];
 }
 
 /**
@@ -63,6 +66,7 @@ export async function generateRollupBundle(
 		transpileOnly = false,
 		typescript = TSModule,
 		debug = false,
+		babelConfig,
 		hook = {outputPath: path => path}
 	}: Partial<GenerateRollupBundleOptions> = {}
 ): Promise<GenerateRollupBundleResult> {
@@ -107,6 +111,7 @@ export async function generateRollupBundle(
 	};
 
 	const declarations: FileResult[] = [];
+	const js: FileResult[] = [];
 	const declarationMaps: FileResult[] = [];
 	let buildInfo: FileResult | undefined;
 
@@ -148,6 +153,7 @@ export async function generateRollupBundle(
 				resolveId,
 				load
 			},
+			commonjs(),
 			typescriptRollupPlugin({
 				transformers,
 				transpiler,
@@ -208,7 +214,8 @@ export async function generateRollupBundle(
 						const virtualFiles = files.filter(file => file.fileName.includes(nativeNormalizedRootDir)).map(file => file.fileName);
 						return [...new Set([...realResult, ...virtualFiles])];
 					}
-				}
+				},
+				babelConfig
 			}),
 			...(rollupOptions.plugins == null ? [] : rollupOptions.plugins)
 		]
@@ -222,26 +229,33 @@ export async function generateRollupBundle(
 	});
 
 	for (const file of [...bundle.output, ...extraFiles]) {
-		if (file.type === "chunk") continue;
-		if (file.fileName.endsWith(D_TS_MAP_EXTENSION)) {
-			declarationMaps.push({
-				code: file.source.toString(),
+		if (file.type === "chunk" && "code" in file) {
+			js.push({
+				code: file.code,
 				fileName: file.fileName
 			});
-		} else if (file.fileName.endsWith(D_TS_EXTENSION)) {
-			declarations.push({
-				code: file.source.toString(),
-				fileName: file.fileName
-			});
-		} else if (file.fileName.endsWith(TSBUILDINFO_EXTENSION)) {
-			buildInfo = {
-				code: file.source.toString(),
-				fileName: file.fileName
-			};
+		} else {
+			if (file.fileName.endsWith(D_TS_MAP_EXTENSION)) {
+				declarationMaps.push({
+					code: file.source.toString(),
+					fileName: file.fileName
+				});
+			} else if (file.fileName.endsWith(D_TS_EXTENSION)) {
+				declarations.push({
+					code: file.source.toString(),
+					fileName: file.fileName
+				});
+			} else if (file.fileName.endsWith(TSBUILDINFO_EXTENSION)) {
+				buildInfo = {
+					code: file.source.toString(),
+					fileName: file.fileName
+				};
+			}
 		}
 	}
 
 	return {
+		js,
 		declarations,
 		declarationMaps,
 		bundle,

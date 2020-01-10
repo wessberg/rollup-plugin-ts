@@ -5,6 +5,7 @@ import {
 	D_TS_EXTENSION,
 	D_TS_MAP_EXTENSION,
 	KNOWN_EXTENSIONS,
+	NODE_MODULES,
 	NODE_MODULES_MATCH_PATH,
 	ROLLUP_PLUGIN_MULTI_ENTRY,
 	TSLIB_NAME
@@ -109,8 +110,13 @@ export function isBabelHelper(path: string): boolean {
 	return includesBabelEsmHelper(path) || isBabelCjsHelper(path);
 }
 
-export function isBabelRegeneratorRuntime(path: string): boolean {
-	return _normalize(path).includes(`${BABEL_RUNTIME_PREFIX_1}regenerator`) || _normalize(path).includes(`${BABEL_RUNTIME_PREFIX_2}regenerator`);
+/**
+ * Returns true if the given path represents an internal core-js file.
+ * This is relevant when combining Babel's preset-env with 'useBuiltIns' with values other than false.
+ */
+export function isCoreJsInternals(path: string): boolean {
+	const normalizedPath = _normalize(path);
+	return normalizedPath.includes(NODE_MODULES) && normalizedPath.includes("core-js/");
 }
 
 /**
@@ -156,6 +162,28 @@ export function isYearlyBabelPreset(path: string): boolean {
  */
 export function isBabelPluginTransformRuntime(path: string): boolean {
 	return _normalize(path).includes("@babel/plugin-transform-runtime") || _normalize(path).includes("babel-plugin-transform-runtime");
+}
+
+export function somePathsAreRelated(paths: Iterable<string>, matchPath: string): boolean {
+	for (const path of paths) {
+		if (pathsAreRelated(path, matchPath)) return true;
+	}
+	return false;
+}
+
+export function pathsAreRelated(pathA: string, pathB: string): boolean {
+	if (pathA === pathB) return true;
+
+	// A node_modules folder may contain one or more nested node_modules
+	if (pathA.includes(NODE_MODULES) || pathB.includes(NODE_MODULES)) {
+		const pathAFromNodeModules = pathA.includes(NODE_MODULES) ? pathA.slice(pathA.indexOf(NODE_MODULES)) : pathA;
+		const pathBFromNodeModules = pathB.includes(NODE_MODULES) ? pathB.slice(pathB.indexOf(NODE_MODULES)) : pathB;
+
+		if (pathAFromNodeModules.includes(pathBFromNodeModules)) return true;
+		if (pathBFromNodeModules.includes(pathAFromNodeModules)) return true;
+	}
+
+	return false;
 }
 
 /**
