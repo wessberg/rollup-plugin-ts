@@ -1,3 +1,10 @@
+## [1.2.5](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.4...v1.2.5) (2020-01-10)
+
+### Bug Fixes
+
+- fix bug where ambient sources were mistakenly added to the Rollup graph. Closes [#71](https://github.com/wessberg/rollup-plugin-ts/issues/71). Improve JSDoc support. Closes [#64](https://github.com/wessberg/rollup-plugin-ts/issues/64) ([5b9e7d7](https://github.com/wessberg/rollup-plugin-ts/commit/5b9e7d7de09281f63de04635d76b83ae46a3dab9))
+- fix core-js self-referencing transformations when preset-env is combined with useBuiltIns: 'usage'. Closes [#55](https://github.com/wessberg/rollup-plugin-ts/issues/55) ([b31478c](https://github.com/wessberg/rollup-plugin-ts/commit/b31478c68ce857225b88ac3825998a16feda2ea9))
+
 ## [1.2.4](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.3...v1.2.4) (2020-01-07)
 
 ### Bug Fixes
