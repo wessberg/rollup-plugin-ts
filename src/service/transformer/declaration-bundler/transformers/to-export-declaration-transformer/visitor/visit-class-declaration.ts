@@ -2,9 +2,8 @@ import {TS} from "../../../../../../type/ts";
 import {ToExportDeclarationTransformerVisitorOptions} from "../to-export-declaration-transformer-visitor-options";
 import {generateIdentifierName} from "../../../util/generate-identifier-name";
 import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta, preserveSymbols} from "../../../util/clone-node-with-meta";
 import {hasExportModifier} from "../../../util/modifier-util";
-import {getSymbolAtLocation} from "../../../util/get-symbol-at-location";
 
 export function visitClassDeclaration(options: ToExportDeclarationTransformerVisitorOptions<TS.ClassDeclaration>): TS.ClassDeclaration {
 	const {node, typescript, appendNodes, sourceFile} = options;
@@ -27,7 +26,7 @@ export function visitClassDeclaration(options: ToExportDeclarationTransformerVis
 	if (node.name != null && nameText === node.name.text) {
 		returnNode = node;
 	} else {
-		returnNode = preserveSymbols(
+		returnNode = preserveMeta(
 			typescript.updateClassDeclaration(
 				node,
 				node.decorators,
@@ -37,13 +36,13 @@ export function visitClassDeclaration(options: ToExportDeclarationTransformerVis
 				node.heritageClauses,
 				node.members
 			),
+			node,
 			options
 		);
 	}
 
 	const propertyName = exportSpecifier.propertyName ?? exportSpecifier.name;
-	options.nodeToOriginalSymbolMap.set(propertyName, getSymbolAtLocation({...options, node: returnNode}));
-	options.nodeToOriginalNodeMap.set(returnNode, node);
+	preserveSymbols(propertyName, returnNode, options);
 
 	return returnNode;
 }

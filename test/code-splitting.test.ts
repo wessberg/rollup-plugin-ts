@@ -237,14 +237,14 @@ test("Declaration bundling supports code splitting. #4", async t => {
 		[
 			{
 				entry: true,
-				fileName: "src/api.ts",
+				fileName: "virtual-src/api.ts",
 				text: `\
 				export {Foo} from "./foo";
 			`
 			},
 			{
 				entry: true,
-				fileName: "src/cli/cli.ts",
+				fileName: "virtual-src/cli/cli.ts",
 				text: `\
 				import "../foo";
 				console.log(true);
@@ -252,7 +252,7 @@ test("Declaration bundling supports code splitting. #4", async t => {
 			},
 			{
 				entry: false,
-				fileName: "src/foo.ts",
+				fileName: "virtual-src/foo.ts",
 				text: `\
 				export type Foo = string;
 			`

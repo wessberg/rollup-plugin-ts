@@ -7,7 +7,7 @@ import {isIdentifierFree} from "../../../util/is-identifier-free";
 import {generateUniqueBinding} from "../../../util/generate-unique-binding";
 import {ContinuationOptions} from "../deconflicter-options";
 import {getIdForNode} from "../../../util/get-id-for-node";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given FunctionExpression.
@@ -55,7 +55,7 @@ export function deconflictFunctionExpression(options: DeconflicterVisitorOptions
 		return node;
 	}
 
-	return preserveSymbols(
+	return preserveMeta(
 		typescript.updateFunctionExpression(
 			node,
 			node.modifiers,
@@ -66,6 +66,7 @@ export function deconflictFunctionExpression(options: DeconflicterVisitorOptions
 			typeContResult,
 			bodyContResult
 		),
+		node,
 		options
 	);
 }

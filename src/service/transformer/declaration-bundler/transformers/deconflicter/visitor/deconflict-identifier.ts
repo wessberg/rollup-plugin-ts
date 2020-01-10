@@ -1,7 +1,7 @@
 import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options";
 import {TS} from "../../../../../../type/ts";
 import {getBindingFromLexicalEnvironment} from "../../../util/get-binding-from-lexical-environment";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {getAliasedDeclaration} from "../../../util/get-aliased-declaration";
 
 /**
@@ -13,6 +13,7 @@ export function deconflictIdentifier(options: DeconflicterVisitorOptions<TS.Iden
 
 	const envLookupResult = getBindingFromLexicalEnvironment(lexicalEnvironment, node.text);
 	const deconflictedBindingMapLookupResult = declaration == null ? undefined : declarationToDeconflictedBindingMap.get(declaration.id);
+
 	const textResult =
 		deconflictedBindingMapLookupResult != null && deconflictedBindingMapLookupResult.startsWith(node.text)
 			? deconflictedBindingMapLookupResult
@@ -23,5 +24,5 @@ export function deconflictIdentifier(options: DeconflicterVisitorOptions<TS.Iden
 		return node;
 	}
 
-	return preserveSymbols(typescript.createIdentifier(textResult), options);
+	return preserveMeta(typescript.createIdentifier(textResult), node, options);
 }

@@ -1,15 +1,17 @@
 import {TS} from "../../type/ts";
 import {ModuleResolutionHostOptions} from "./module-resolution-host-options";
-import {dirname, nativeNormalize, normalize} from "../../util/path/path-util";
+import {dirname, ensureAbsolute, nativeNormalize, normalize} from "../../util/path/path-util";
 import {FileSystem} from "../../util/file-system/file-system";
 import {SupportedExtensions} from "../../util/get-supported-extensions/get-supported-extensions";
 import {VirtualFile, VirtualFileInput} from "./virtual-file";
+import {D_TS_EXTENSION, D_TS_MAP_EXTENSION} from "../../constant/constant";
 
 export class ModuleResolutionHost implements TS.ModuleSpecifierResolutionHost {
 	private readonly directoryExistsCache: Map<string, boolean> = new Map();
 	private readonly fileExistsCache: Map<string, boolean> = new Map();
 	private currentFileNames: Set<string> | undefined;
 	private currentDirectories: Set<string> | undefined;
+	private currentNonAmbientSupportedExtensions: SupportedExtensions;
 	constructor(protected readonly options: ModuleResolutionHostOptions, protected readonly files: Map<string, VirtualFile> = new Map()) {}
 
 	add(fileInput: VirtualFileInput | VirtualFile): VirtualFile {
@@ -78,6 +80,15 @@ export class ModuleResolutionHost implements TS.ModuleSpecifierResolutionHost {
 		return this.options.extensions;
 	}
 
+	getSupportedNonAmbientExtensions(): SupportedExtensions {
+		if (this.currentNonAmbientSupportedExtensions == null) {
+			this.currentNonAmbientSupportedExtensions = new Set(
+				[...this.options.extensions].filter(extension => extension !== D_TS_EXTENSION && extension !== D_TS_MAP_EXTENSION)
+			);
+		}
+		return this.currentNonAmbientSupportedExtensions;
+	}
+
 	getTypescript(): typeof TS {
 		return this.options.typescript;
 	}
@@ -122,8 +133,14 @@ export class ModuleResolutionHost implements TS.ModuleSpecifierResolutionHost {
 		if (this.directoryExistsCache.has(directoryName)) {
 			return this.directoryExistsCache.get(directoryName)!;
 		}
+		const absoluteDirectoryName = ensureAbsolute(this.getCwd(), directoryName);
+		const fileNameDirectories = this.getFileNameDirectories();
 
-		const result = this.getFileNameDirectories().has(directoryName) || this.getFileSystem().directoryExists(nativeNormalize(directoryName));
+		const result =
+			fileNameDirectories.has(directoryName) ||
+			fileNameDirectories.has(absoluteDirectoryName) ||
+			this.getFileSystem().directoryExists(nativeNormalize(directoryName)) ||
+			this.getFileSystem().directoryExists(nativeNormalize(absoluteDirectoryName));
 		this.directoryExistsCache.set(directoryName, result);
 		return result;
 	}

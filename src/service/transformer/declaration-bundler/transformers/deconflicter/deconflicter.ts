@@ -32,6 +32,7 @@ import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-fil
 import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
 import {logMetrics} from "../../../../../util/logging/log-metrics";
 import {logTransformer} from "../../../../../util/logging/log-transformer";
+import {preserveMeta} from "../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given Node. Everything but LValues will be updated here
@@ -131,7 +132,11 @@ export function deconflicter(options: SourceFileBundlerVisitorOptions): TS.Sourc
 			}) as U
 	};
 
-	const result = typescript.visitEachChild(sourceFile, nextNode => visitorOptions.continuation(nextNode, {lexicalEnvironment}), context);
+	const result = preserveMeta(
+		typescript.visitEachChild(sourceFile, nextNode => visitorOptions.continuation(nextNode, {lexicalEnvironment}), context),
+		sourceFile,
+		options
+	);
 
 	transformationLog?.finish(result);
 	fullBenchmark?.finish();

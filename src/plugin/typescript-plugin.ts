@@ -297,6 +297,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			if (parent == null) return null;
 
 			const resolveResult = host.resolve(id, parent);
+
 			const pickedResolveResult = resolveResult == null ? undefined : pickResolvedModule(resolveResult, false);
 			return pickedResolveResult == null ? null : nativeNormalize(pickedResolveResult);
 		},

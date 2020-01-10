@@ -5,7 +5,7 @@ import {DeclarationTransformer} from "../../declaration-bundler-options";
 import {applyTransformers} from "../../util/apply-transformers";
 import {getNodePlacementQueue} from "../../util/get-node-placement-queue";
 import {findMatchingImportedSymbol} from "../../util/find-matching-imported-symbol";
-import {cloneNodeWithSymbols} from "../../util/clone-node-with-symbols";
+import {cloneNodeWithMeta, preserveMeta} from "../../util/clone-node-with-meta";
 import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options";
 import {getChunkFilename} from "../../util/get-chunk-filename";
 import {ensureNoExportModifierTransformer} from "../ensure-no-export-modifier-transformer/ensure-no-export-modifier-transformer";
@@ -121,23 +121,27 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 				});
 
 				// Keep track of the original symbols which will be lost when the nodes are cloned
-				return transformedSourceFile.statements.map(node => cloneNodeWithSymbols({...options, node}));
+				return transformedSourceFile.statements.map(node => cloneNodeWithMeta(node, options));
 			}
 		};
 
-		const result = visitorOptions.continuation(sourceFile, undefined);
+		let result = visitorOptions.continuation(sourceFile, undefined);
 
 		// There may be prepended or appended nodes that hasn't been added yet. Do so!
 		const [missingPrependNodes, missingAppendNodes] = nodePlacementQueue.flush();
 		if (missingPrependNodes.length > 0 || missingAppendNodes.length > 0) {
-			return typescript.updateSourceFileNode(
+			result = preserveMeta(
+				typescript.updateSourceFileNode(
+					result,
+					[...(missingPrependNodes as TS.Statement[]), ...result.statements, ...(missingAppendNodes as TS.Statement[])],
+					result.isDeclarationFile,
+					result.referencedFiles,
+					result.typeReferenceDirectives,
+					result.hasNoDefaultLib,
+					result.libReferenceDirectives
+				),
 				result,
-				[...(missingPrependNodes as TS.Statement[]), ...result.statements, ...(missingAppendNodes as TS.Statement[])],
-				result.isDeclarationFile,
-				result.referencedFiles,
-				result.typeReferenceDirectives,
-				result.hasNoDefaultLib,
-				result.libReferenceDirectives
+				options
 			);
 		}
 

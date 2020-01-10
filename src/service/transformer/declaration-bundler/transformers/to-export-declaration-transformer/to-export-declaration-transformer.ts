@@ -6,6 +6,7 @@ import {ToExportDeclarationTransformerVisitorOptions} from "./to-export-declarat
 import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
 import {logMetrics} from "../../../../../util/logging/log-metrics";
 import {logTransformer} from "../../../../../util/logging/log-transformer";
+import {preserveMeta} from "../../util/clone-node-with-meta";
 
 export function toExportDeclarationTransformer(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
 	const {typescript, context, sourceFile, pluginOptions, printer} = options;
@@ -62,6 +63,8 @@ export function toExportDeclarationTransformer(options: SourceFileBundlerVisitor
 			result.libReferenceDirectives
 		);
 	}
+
+	result = preserveMeta(result, result, options);
 
 	transformationLog?.finish(result);
 	fullBenchmark?.finish();

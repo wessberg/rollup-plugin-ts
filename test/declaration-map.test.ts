@@ -8,7 +8,7 @@ test("Declaration maps correctly maps input sources. #1", async t => {
 		[
 			{
 				entry: true,
-				fileName: "src/main.ts",
+				fileName: "virtual-src/main.ts",
 				text: `\
 					import {Foo, Bar} from "./foo";
 					export {Foo};
@@ -17,7 +17,7 @@ test("Declaration maps correctly maps input sources. #1", async t => {
 			},
 			{
 				entry: false,
-				fileName: "src/foo.ts",
+				fileName: "virtual-src/foo.ts",
 				text: `\
 					export const Foo = "Hello, World!";
 					export const Bar = 2;
@@ -26,7 +26,7 @@ test("Declaration maps correctly maps input sources. #1", async t => {
 		],
 		{
 			debug: false,
-			dir: "dist",
+			dir: "virtual-dist",
 			tsconfig: {declarationMap: true}
 		}
 	);
@@ -51,7 +51,7 @@ test("Declaration maps correctly maps input sources. #1", async t => {
 		formatCode(map.code, "json"),
 		formatCode(
 			`\
-		{"version":3,"file":"main.d.ts","sourceRoot":"","sources":["../src/main.ts", "../src/foo.ts"],"names":[],"mappings":";;AACK,OAAO,YAAK,CAAC"}
+		{"version":3,"file":"main.d.ts","sourceRoot":"","sources":["../virtual-src/main.ts", "../virtual-src/foo.ts"],"names":[],"mappings":";;AACK,OAAO,YAAK,CAAC"}
 		`,
 			"json"
 		)

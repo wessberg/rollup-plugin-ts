@@ -4,6 +4,8 @@ import {ModuleBlockExtractorOptions} from "./module-block-extractor-options";
 import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
 import {logMetrics} from "../../../../../util/logging/log-metrics";
 import {logTransformer} from "../../../../../util/logging/log-transformer";
+import {ModuleBlockExtractorVisitorOptions} from "./module-block-extractor-visitor-options";
+import {preserveMeta} from "../../util/clone-node-with-meta";
 
 export function moduleBlockExtractor(options: ModuleBlockExtractorOptions): TS.SourceFile {
 	const {typescript, context, sourceFile, pluginOptions, printer} = options;
@@ -15,7 +17,7 @@ export function moduleBlockExtractor(options: ModuleBlockExtractorOptions): TS.S
 		: undefined;
 
 	// Prepare some VisitorOptions
-	const visitorOptions = {
+	const visitorOptions: Omit<ModuleBlockExtractorVisitorOptions<TS.Node>, "node"> = {
 		...options,
 
 		childContinuation: <U extends TS.Node>(node: U): TS.VisitResult<TS.Node> =>
@@ -36,7 +38,11 @@ export function moduleBlockExtractor(options: ModuleBlockExtractorOptions): TS.S
 			})
 	};
 
-	const result = typescript.visitEachChild(sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
+	const result = preserveMeta(
+		typescript.visitEachChild(sourceFile, nextNode => visitorOptions.continuation(nextNode), context),
+		sourceFile,
+		options
+	);
 
 	transformationLog?.finish(result);
 	fullBenchmark?.finish();

@@ -4,7 +4,7 @@ import {addBindingToLexicalEnvironment} from "../../../util/add-binding-to-lexic
 import {isIdentifierFree} from "../../../util/is-identifier-free";
 import {generateUniqueBinding} from "../../../util/generate-unique-binding";
 import {getIdForNode} from "../../../util/get-id-for-node";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given VariableDeclaration.
@@ -45,5 +45,5 @@ export function deconflictVariableDeclaration(options: DeconflicterVisitorOption
 		return node;
 	}
 
-	return preserveSymbols(typescript.updateVariableDeclaration(node, nameContResult, typeContResult, initializerContResult), options);
+	return preserveMeta(typescript.updateVariableDeclaration(node, nameContResult, typeContResult, initializerContResult), node, options);
 }

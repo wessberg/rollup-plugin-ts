@@ -15,10 +15,5 @@ export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptio
 
 	// Declarations are represented by IDs which are mapped a string, indicating the deconflicted names for them
 	declarationToDeconflictedBindingMap: Map<number, string>;
-
-	// Some nodes are completely rewritten, under which circumstances the original symbol will be lost. However, it might be relevant to refer to the original symbol.
-	// For example, for ImportTypeNodes that are replaced with an identifier, we want the Identifier to refer to the symbol of original quantifier
-	nodeToOriginalSymbolMap: Map<TS.Node, TS.Symbol>;
-	nodeToOriginalNodeMap: Map<TS.Node, TS.Node>;
 	preservedImports: Map<string, Set<ImportedSymbol>>;
 }

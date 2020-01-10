@@ -3,7 +3,7 @@ import {TS} from "../../../../../../type/ts";
 import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {nodeArraysAreEqual} from "../../../util/node-arrays-are-equal";
 import {ContinuationOptions} from "../deconflicter-options";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given SetAccessorDeclaration.
@@ -25,8 +25,9 @@ export function deconflictSetAccessorDeclaration(
 	if (isIdentical) {
 		return node;
 	}
-	return preserveSymbols(
+	return preserveMeta(
 		typescript.updateSetAccessor(node, node.decorators, node.modifiers, nameContResult, parametersContResult, bodyContResult),
+		node,
 		options
 	);
 }

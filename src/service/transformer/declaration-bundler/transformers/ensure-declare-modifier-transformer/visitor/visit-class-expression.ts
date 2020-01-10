@@ -1,13 +1,13 @@
 import {TS} from "../../../../../../type/ts";
 import {EnsureDeclareModifierTransformerVisitorOptions} from "../ensure-declare-modifier-transformer-visitor-options";
 import {ensureHasDeclareModifier, hasDeclareModifier} from "../../../util/modifier-util";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 export function visitClassExpression(options: EnsureDeclareModifierTransformerVisitorOptions<TS.ClassExpression>): TS.ClassExpression {
 	const {node, typescript} = options;
 	if (hasDeclareModifier(node, typescript)) return node;
 
-	return preserveSymbols(
+	return preserveMeta(
 		typescript.updateClassExpression(
 			node,
 			ensureHasDeclareModifier(node.modifiers, typescript),
@@ -16,6 +16,7 @@ export function visitClassExpression(options: EnsureDeclareModifierTransformerVi
 			node.heritageClauses,
 			node.members
 		),
+		node,
 		options
 	);
 }

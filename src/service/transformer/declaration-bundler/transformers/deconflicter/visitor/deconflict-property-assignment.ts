@@ -1,6 +1,6 @@
 import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options";
 import {TS} from "../../../../../../type/ts";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given PropertyAssignment.
@@ -16,5 +16,5 @@ export function deconflictPropertyAssignment(options: DeconflicterVisitorOptions
 		return node;
 	}
 
-	return preserveSymbols(typescript.updatePropertyAssignment(node, nameContResult, initializerContResult!), options);
+	return preserveMeta(typescript.updatePropertyAssignment(node, nameContResult, initializerContResult!), node, options);
 }

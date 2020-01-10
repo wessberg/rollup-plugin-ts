@@ -3,7 +3,7 @@ import {TS} from "../../../../../../type/ts";
 import {addBindingToLexicalEnvironment} from "../../../util/add-binding-to-lexical-environment";
 import {isIdentifierFree} from "../../../util/is-identifier-free";
 import {generateUniqueBinding} from "../../../util/generate-unique-binding";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given ImportSpecifier.
@@ -25,8 +25,9 @@ export function deconflictImportSpecifier(options: DeconflicterVisitorOptions<TS
 		// If the ImportSpecifier is something like '{Foo}' but 'Foo' is already bound in this SourceFile,
 		// we should re-write it to something like '{Foo as Foo$0}'
 		const propertyName = node.propertyName ?? node.name;
-		return preserveSymbols(
+		return preserveMeta(
 			typescript.updateImportSpecifier(node, typescript.createIdentifier(propertyName.text), typescript.createIdentifier(uniqueBinding)),
+			node,
 			options
 		);
 	}

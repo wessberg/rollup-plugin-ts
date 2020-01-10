@@ -4,7 +4,7 @@ import {addBindingToLexicalEnvironment} from "../../../util/add-binding-to-lexic
 import {isIdentifierFree} from "../../../util/is-identifier-free";
 import {generateUniqueBinding} from "../../../util/generate-unique-binding";
 import {getIdForNode} from "../../../util/get-id-for-node";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given TypeParameterDeclaration.
@@ -41,5 +41,5 @@ export function deconflictTypeParameterDeclaration(
 		return node;
 	}
 
-	return preserveSymbols(typescript.updateTypeParameterDeclaration(node, nameContResult, constraintContResult, defaultContResult), options);
+	return preserveMeta(typescript.updateTypeParameterDeclaration(node, nameContResult, constraintContResult, defaultContResult), node, options);
 }

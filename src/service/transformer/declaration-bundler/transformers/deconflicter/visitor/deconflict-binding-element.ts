@@ -3,7 +3,7 @@ import {addBindingToLexicalEnvironment} from "../../../util/add-binding-to-lexic
 import {isIdentifierFree} from "../../../util/is-identifier-free";
 import {generateUniqueBinding} from "../../../util/generate-unique-binding";
 import {TS} from "../../../../../../type/ts";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given BindingElement.
@@ -46,8 +46,9 @@ export function deconflictBindingElement(options: DeconflicterVisitorOptions<TS.
 		return node;
 	}
 
-	return preserveSymbols(
+	return preserveMeta(
 		typescript.updateBindingElement(node, node.dotDotDotToken, propertyNameContResult, nameContResult, initializerContResult),
+		node,
 		options
 	);
 }

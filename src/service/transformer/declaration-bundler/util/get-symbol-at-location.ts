@@ -1,15 +1,21 @@
 import {TS} from "../../../../type/ts";
 import {getSymbolFlagsForNode} from "./get-symbol-flags-for-node";
-import {SourceFileBundlerVisitorOptions} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
+import {SafeNode} from "../../../../type/safe-node";
+import {getOriginalNode} from "./get-original-node";
 
-export interface GetSymbolAtLocationOptions extends Pick<SourceFileBundlerVisitorOptions, "nodeToOriginalSymbolMap" | "typeChecker" | "typescript"> {
-	node: TS.Node;
+export interface GetSymbolAtLocationOptions {
+	node: SafeNode;
+	typeChecker: TS.TypeChecker;
+	typescript: typeof TS;
 }
 
-export function getSymbolAtLocation({node, typescript, typeChecker, nodeToOriginalSymbolMap}: GetSymbolAtLocationOptions): TS.Symbol {
+export function getSymbolAtLocation({node, typescript, typeChecker}: GetSymbolAtLocationOptions): TS.Symbol {
+	const originalNode = getOriginalNode(node, typescript);
+
 	return (
-		nodeToOriginalSymbolMap.get(node) ??
-		typeChecker.getSymbolAtLocation(node) ??
-		typeChecker.getSymbolsInScope(node, getSymbolFlagsForNode(node, typescript))[0]
+		originalNode._symbol ??
+		originalNode.symbol ??
+		typeChecker.getSymbolAtLocation(originalNode) ??
+		typeChecker.getSymbolsInScope(originalNode, getSymbolFlagsForNode(originalNode, typescript))[0]
 	);
 }

@@ -3,7 +3,7 @@ import {TS} from "../../../../../../type/ts";
 import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {nodeArraysAreEqual} from "../../../util/node-arrays-are-equal";
 import {ContinuationOptions} from "../deconflicter-options";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given IndexSignatureDeclaration.
@@ -32,5 +32,5 @@ export function deconflictIndexSignatureDeclaration(
 		return node;
 	}
 
-	return preserveSymbols(typescript.updateIndexSignature(node, node.decorators, node.modifiers, parametersContResult, typeContResult!), options);
+	return preserveMeta(typescript.updateIndexSignature(node, node.decorators, node.modifiers, parametersContResult, typeContResult!), node, options);
 }

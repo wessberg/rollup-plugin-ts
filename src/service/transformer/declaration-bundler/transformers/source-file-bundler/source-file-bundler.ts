@@ -82,9 +82,8 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 					},
 					includedSourceFiles: new Set<string>([firstEntrySourceFile.fileName]),
 					declarationToDeconflictedBindingMap: new Map<number, string>(),
-					nodeToOriginalSymbolMap: new Map<TS.Node, TS.Symbol>(),
-					nodeToOriginalNodeMap: new Map<TS.Node, TS.Node>(),
 					preservedImports: new Map(),
+
 					resolveSourceFile: (fileName, from) => {
 						for (const file of [fileName, `${fileName}/index`]) {
 							if (options.moduleSpecifierToSourceFileMap.has(file)) {

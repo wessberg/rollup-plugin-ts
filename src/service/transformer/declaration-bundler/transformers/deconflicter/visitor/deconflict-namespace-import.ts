@@ -3,7 +3,7 @@ import {TS} from "../../../../../../type/ts";
 import {addBindingToLexicalEnvironment} from "../../../util/add-binding-to-lexical-environment";
 import {isIdentifierFree} from "../../../util/is-identifier-free";
 import {generateUniqueBinding} from "../../../util/generate-unique-binding";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given NamespaceImport.
@@ -32,5 +32,5 @@ export function deconflictNamespaceImport(options: DeconflicterVisitorOptions<TS
 		return node;
 	}
 
-	return preserveSymbols(typescript.updateNamespaceImport(node, nameContResult), options);
+	return preserveMeta(typescript.updateNamespaceImport(node, nameContResult), node, options);
 }

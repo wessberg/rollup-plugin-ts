@@ -80,7 +80,7 @@ export class ResolveCache implements IResolveCache {
 		const typescript = moduleResolutionHost.getTypescript();
 		const compilerOptions = moduleResolutionHost.getCompilationSettings();
 		const cwd = moduleResolutionHost.getCwd();
-		const supportedExtensions = moduleResolutionHost.getSupportedExtensions();
+		const nonAmbientSupportedExtensions = moduleResolutionHost.getSupportedNonAmbientExtensions();
 
 		if (cacheResult != null) {
 			return cacheResult;
@@ -117,7 +117,7 @@ export class ResolveCache implements IResolveCache {
 				// Don't go and attempt to resolve sources for external libraries
 				else if (resolvedModule.isExternalLibraryImport == null || !resolvedModule.isExternalLibraryImport) {
 					// Try to determine the resolved file name.
-					for (const extension of supportedExtensions) {
+					for (const extension of nonAmbientSupportedExtensions) {
 						const candidate = normalize(setExtension(resolvedModule.resolvedAmbientFileName, extension));
 
 						if (this.options.fileSystem.fileExists(nativeNormalize(candidate))) {

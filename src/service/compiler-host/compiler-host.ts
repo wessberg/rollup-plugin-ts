@@ -87,20 +87,16 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		let hasEmitted = false;
 
 		const runEmit = (program: TS.Program | TS.EmitAndSemanticDiagnosticsBuilderProgram) => {
-			try {
-				program.emit(
-					sourceFile,
-					(file, data, writeByteOrderMark) => {
-						hasEmitted = true;
-						this.writeFile(file, data, writeByteOrderMark);
-					},
-					undefined,
-					onlyDts,
-					customTransformers
-				);
-			} catch (ex) {
-				// This is OK and the cause of the BuilderProgram not having any pending files awaiting emit.
-			}
+			program.emit(
+				sourceFile,
+				(file, data, writeByteOrderMark) => {
+					hasEmitted = true;
+					this.writeFile(file, data, writeByteOrderMark);
+				},
+				undefined,
+				onlyDts,
+				customTransformers
+			);
 		};
 
 		runEmit(this.getProgram());

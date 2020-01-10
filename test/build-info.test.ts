@@ -20,7 +20,7 @@ test("Can generate .tsbuildinfo for a compilation unit. #1", async t => {
 		{
 			debug: false,
 			tsconfig: {
-				outDir: "dist",
+				outDir: "virtual-dist",
 				composite: true,
 				incremental: true,
 				declaration: true
@@ -53,7 +53,7 @@ test("Won't break for older TypeScript versions. #1", async t => {
 					debug: false,
 					typescript: (TS as unknown) as typeof import("typescript"),
 					tsconfig: {
-						outDir: "dist",
+						outDir: "virtual-dist",
 						composite: true,
 						declaration: true
 					}

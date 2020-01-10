@@ -7,8 +7,7 @@ import {isIdentifierFree} from "../../../util/is-identifier-free";
 import {generateUniqueBinding} from "../../../util/generate-unique-binding";
 import {ContinuationOptions} from "../deconflicter-options";
 import {getIdForNode} from "../../../util/get-id-for-node";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
-import {getAliasedDeclaration} from "../../../util/get-aliased-declaration";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given FunctionDeclaration.
@@ -19,10 +18,8 @@ export function deconflictFunctionDeclaration(options: DeconflicterVisitorOption
 
 	if (node.name != null) {
 		const id = getIdForNode(options);
-		const originalDeclaration = getAliasedDeclaration({...options, node});
 		// There may be multiple functions with the same name if they are overloaded
-		const assumeOverload =
-			originalDeclaration != null && "body" in originalDeclaration && ((originalDeclaration as unknown) as {body: TS.Block | undefined}).body == null;
+		const assumeOverload = node.body == null;
 
 		if (assumeOverload || isIdentifierFree(lexicalEnvironment, node.name.text)) {
 			nameContResult = node.name;
@@ -61,7 +58,7 @@ export function deconflictFunctionDeclaration(options: DeconflicterVisitorOption
 		return node;
 	}
 
-	return preserveSymbols(
+	return preserveMeta(
 		typescript.updateFunctionDeclaration(
 			node,
 			node.decorators,
@@ -73,6 +70,7 @@ export function deconflictFunctionDeclaration(options: DeconflicterVisitorOption
 			typeContResult,
 			bodyContResult
 		),
+		node,
 		options
 	);
 }

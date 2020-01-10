@@ -1,7 +1,7 @@
 import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options";
 import {TS} from "../../../../../../type/ts";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
-import {getSymbolAtLocation} from "../../../util/get-symbol-at-location";
+import {preserveSymbols} from "../../../util/clone-node-with-meta";
 
 export interface GenerateExportDeclarationsOptions extends Omit<ModuleMergerVisitorOptions<TS.ExportDeclaration>, "node"> {}
 
@@ -63,7 +63,7 @@ function generateExportDeclarations(
 				)
 			);
 			const propertyName = exportSpecifier.propertyName ?? exportSpecifier.name;
-			options.nodeToOriginalSymbolMap.set(propertyName, getSymbolAtLocation({...options, node: symbol.propertyName ?? symbol.name}));
+			preserveSymbols(propertyName, symbol.propertyName ?? symbol.name, options);
 		}
 	}
 	return exportDeclarations;

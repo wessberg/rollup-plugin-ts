@@ -27,6 +27,7 @@ import {visitExportAssignment} from "./visitor/visit-export-assignment";
 import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
 import {logMetrics} from "../../../../../util/logging/log-metrics";
 import {logTransformer} from "../../../../../util/logging/log-transformer";
+import {preserveMeta} from "../../util/clone-node-with-meta";
 
 export function treeShaker(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
 	const {typescript, context, sourceFile, pluginOptions, printer} = options;
@@ -99,7 +100,7 @@ export function treeShaker(options: SourceFileBundlerVisitorOptions): TS.SourceF
 		}
 	}
 
-	const updatedSourceFile = typescript.visitEachChild(sourceFile, visitor, context);
+	const updatedSourceFile = preserveMeta(typescript.visitEachChild(sourceFile, visitor, context), sourceFile, options);
 
 	transformationLog?.finish(updatedSourceFile);
 	fullBenchmark?.finish();

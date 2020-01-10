@@ -38,6 +38,7 @@ export interface GenerateRollupBundleOptions {
 	tsconfig: Partial<InputCompilerOptions>;
 	typescript: typeof TS;
 	transpileOnly: boolean;
+	cwd: TypescriptPluginOptions["cwd"];
 	debug: TypescriptPluginOptions["debug"];
 	hook: Partial<HookRecord>;
 	exclude: TypescriptPluginOptions["exclude"];
@@ -58,14 +59,13 @@ export async function generateRollupBundle(
 		tsconfig = {},
 		format = "esm",
 		dir,
+		cwd = process.cwd(),
 		transpileOnly = false,
 		typescript = TSModule,
 		debug = false,
 		hook = {outputPath: path => path}
 	}: Partial<GenerateRollupBundleOptions> = {}
 ): Promise<GenerateRollupBundleResult> {
-	const cwd = process.cwd();
-
 	const files: ITestFile[] = (Array.isArray(inputFiles) ? inputFiles : [inputFiles])
 		.map(file =>
 			typeof file === "string"
@@ -154,7 +154,7 @@ export async function generateRollupBundle(
 				transpileOnly,
 				debug,
 				typescript,
-				exclude: [...exclude, "dist/**/*.*"],
+				exclude: [...exclude, "dist/**/*.*", "src/**/*.*"],
 				tsconfig: {
 					target: "esnext",
 					declaration: true,

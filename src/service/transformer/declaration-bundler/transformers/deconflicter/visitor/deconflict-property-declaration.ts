@@ -1,6 +1,6 @@
 import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options";
 import {TS} from "../../../../../../type/ts";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given PropertyDeclaration.
@@ -18,7 +18,7 @@ export function deconflictPropertyDeclaration(options: DeconflicterVisitorOption
 		return node;
 	}
 
-	return preserveSymbols(
+	return preserveMeta(
 		typescript.updateProperty(
 			node,
 			node.decorators,
@@ -28,6 +28,7 @@ export function deconflictPropertyDeclaration(options: DeconflicterVisitorOption
 			typeContResult,
 			initializerContResult
 		),
+		node,
 		options
 	);
 }

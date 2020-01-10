@@ -6,7 +6,7 @@ import {isIdentifierFree} from "../../../util/is-identifier-free";
 import {generateUniqueBinding} from "../../../util/generate-unique-binding";
 import {ContinuationOptions} from "../deconflicter-options";
 import {getIdForNode} from "../../../util/get-id-for-node";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given ModuleDeclaration.
@@ -42,5 +42,5 @@ export function deconflictModuleDeclaration(options: DeconflicterVisitorOptions<
 		return node;
 	}
 
-	return preserveSymbols(typescript.updateModuleDeclaration(node, node.decorators, node.modifiers, nameContResult, bodyContResult), options);
+	return preserveMeta(typescript.updateModuleDeclaration(node, node.decorators, node.modifiers, nameContResult, bodyContResult), node, options);
 }

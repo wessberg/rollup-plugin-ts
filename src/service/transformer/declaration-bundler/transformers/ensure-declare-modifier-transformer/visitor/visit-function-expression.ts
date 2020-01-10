@@ -1,13 +1,13 @@
 import {TS} from "../../../../../../type/ts";
 import {EnsureDeclareModifierTransformerVisitorOptions} from "../ensure-declare-modifier-transformer-visitor-options";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {ensureHasDeclareModifier, hasDeclareModifier} from "../../../util/modifier-util";
 
 export function visitFunctionExpression(options: EnsureDeclareModifierTransformerVisitorOptions<TS.FunctionExpression>): TS.FunctionExpression {
 	const {node, typescript} = options;
 	if (hasDeclareModifier(node, typescript)) return node;
 
-	return preserveSymbols(
+	return preserveMeta(
 		typescript.updateFunctionExpression(
 			node,
 			ensureHasDeclareModifier(node.modifiers, typescript),
@@ -18,6 +18,7 @@ export function visitFunctionExpression(options: EnsureDeclareModifierTransforme
 			node.type,
 			node.body
 		),
+		node,
 		options
 	);
 }

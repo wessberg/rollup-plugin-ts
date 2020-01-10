@@ -3,7 +3,7 @@ import {TS} from "../../../../../../type/ts";
 import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {nodeArraysAreEqual} from "../../../util/node-arrays-are-equal";
 import {ContinuationOptions} from "../deconflicter-options";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given MethodDeclaration.
@@ -32,7 +32,7 @@ export function deconflictMethodDeclaration(options: DeconflicterVisitorOptions<
 		return node;
 	}
 
-	return preserveSymbols(
+	return preserveMeta(
 		typescript.updateMethod(
 			node,
 			node.decorators,
@@ -45,6 +45,7 @@ export function deconflictMethodDeclaration(options: DeconflicterVisitorOptions<
 			typeContResult,
 			bodyContResult
 		),
+		node,
 		options
 	);
 }

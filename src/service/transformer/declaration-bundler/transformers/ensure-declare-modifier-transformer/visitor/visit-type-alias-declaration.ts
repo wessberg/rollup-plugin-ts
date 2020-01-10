@@ -1,13 +1,13 @@
 import {TS} from "../../../../../../type/ts";
 import {EnsureDeclareModifierTransformerVisitorOptions} from "../ensure-declare-modifier-transformer-visitor-options";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {hasDeclareModifier, removeDeclareModifier} from "../../../util/modifier-util";
 
 export function visitTypeAliasDeclaration(options: EnsureDeclareModifierTransformerVisitorOptions<TS.TypeAliasDeclaration>): TS.TypeAliasDeclaration {
 	const {node, typescript} = options;
-	if (hasDeclareModifier(node, typescript)) return node;
+	if (!hasDeclareModifier(node, typescript)) return node;
 
-	return preserveSymbols(
+	return preserveMeta(
 		typescript.updateTypeAliasDeclaration(
 			node,
 			node.decorators,
@@ -16,6 +16,7 @@ export function visitTypeAliasDeclaration(options: EnsureDeclareModifierTransfor
 			node.typeParameters,
 			node.type
 		),
+		node,
 		options
 	);
 }

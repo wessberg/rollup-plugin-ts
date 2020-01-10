@@ -3,7 +3,7 @@ import {TS} from "../../../../../../type/ts";
 import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {nodeArraysAreEqual} from "../../../util/node-arrays-are-equal";
 import {ContinuationOptions} from "../deconflicter-options";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given GetAccessorDeclaration.
@@ -31,8 +31,9 @@ export function deconflictGetAccessorDeclaration(
 		return node;
 	}
 
-	return preserveSymbols(
+	return preserveMeta(
 		typescript.updateGetAccessor(node, node.decorators, node.modifiers, nameContResult, parametersContResult, typeContResult, bodyContResult),
+		node,
 		options
 	);
 }

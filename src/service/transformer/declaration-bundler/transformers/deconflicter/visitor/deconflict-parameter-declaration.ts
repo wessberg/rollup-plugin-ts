@@ -1,6 +1,6 @@
 import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options";
 import {TS} from "../../../../../../type/ts";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given ParameterDeclaration.
@@ -18,7 +18,7 @@ export function deconflictParameterDeclaration(options: DeconflicterVisitorOptio
 		return node;
 	}
 
-	return preserveSymbols(
+	return preserveMeta(
 		typescript.updateParameter(
 			node,
 			node.decorators,
@@ -29,6 +29,7 @@ export function deconflictParameterDeclaration(options: DeconflicterVisitorOptio
 			typeContResult,
 			initializerContResult
 		),
+		node,
 		options
 	);
 }

@@ -1,7 +1,7 @@
 import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options";
 import {TS} from "../../../../../../type/ts";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 export function visitImportDeclaration(options: ModuleMergerVisitorOptions<TS.ImportDeclaration>): VisitResult<TS.ImportDeclaration> {
 	const {node, typescript} = options;
@@ -36,7 +36,7 @@ export function visitImportDeclaration(options: ModuleMergerVisitorOptions<TS.Im
 	}
 
 	// Otherwise, update the ModuleSpecifier
-	return preserveSymbols(
+	return preserveMeta(
 		typescript.updateImportDeclaration(
 			contResult,
 			contResult.decorators,
@@ -44,6 +44,7 @@ export function visitImportDeclaration(options: ModuleMergerVisitorOptions<TS.Im
 			contResult.importClause,
 			typescript.createStringLiteral(updatedModuleSpecifier)
 		),
+		contResult,
 		options
 	);
 }

@@ -82,7 +82,8 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 
 			// Never allow these options for bundled declarations
 			composite: false,
-			incremental: false
+			incremental: false,
+			tsBuildInfoFile: undefined
 		},
 		{
 			allowTransformingDeclarations: true

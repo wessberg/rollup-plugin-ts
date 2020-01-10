@@ -1,6 +1,6 @@
 import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options";
 import {TS} from "../../../../../../type/ts";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {locateExportedSymbolForSourceFile} from "../../../util/locate-exported-symbol";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
 
@@ -64,12 +64,13 @@ export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.Expo
 
 			return undefined;
 		} else if (propertyName.text === "default") {
-			return preserveSymbols(
+			return preserveMeta(
 				typescript.updateExportSpecifier(
 					contResult,
 					exportedSymbol.propertyName.text === contResult.name.text ? undefined : typescript.createIdentifier(exportedSymbol.propertyName.text),
 					typescript.createIdentifier(contResult.name.text)
 				),
+				contResult,
 				options
 			);
 		}

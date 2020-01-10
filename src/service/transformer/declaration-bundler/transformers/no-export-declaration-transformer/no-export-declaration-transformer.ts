@@ -6,6 +6,7 @@ import {NoExportDeclarationTransformerVisitorOptions} from "./no-export-declarat
 import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
 import {logMetrics} from "../../../../../util/logging/log-metrics";
 import {logTransformer} from "../../../../../util/logging/log-transformer";
+import {preserveMeta} from "../../util/clone-node-with-meta";
 
 export function noExportDeclarationTransformer(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
 	const {typescript, context, sourceFile, pluginOptions, printer} = options;
@@ -47,7 +48,11 @@ export function noExportDeclarationTransformer(options: SourceFileBundlerVisitor
 			) as U
 	};
 
-	const result = typescript.visitEachChild(sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
+	const result = preserveMeta(
+		typescript.visitEachChild(sourceFile, nextNode => visitorOptions.continuation(nextNode), context),
+		sourceFile,
+		options
+	);
 
 	transformationLog?.finish(result);
 	fullBenchmark?.finish();

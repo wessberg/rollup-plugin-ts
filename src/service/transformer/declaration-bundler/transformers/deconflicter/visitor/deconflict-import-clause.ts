@@ -3,7 +3,7 @@ import {TS} from "../../../../../../type/ts";
 import {addBindingToLexicalEnvironment} from "../../../util/add-binding-to-lexical-environment";
 import {isIdentifierFree} from "../../../util/is-identifier-free";
 import {generateUniqueBinding} from "../../../util/generate-unique-binding";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given ImportClause.
@@ -36,5 +36,5 @@ export function deconflictImportClause(options: DeconflicterVisitorOptions<TS.Im
 		return node;
 	}
 
-	return preserveSymbols(typescript.updateImportClause(node, nameContResult, namedBindingsContResult), options);
+	return preserveMeta(typescript.updateImportClause(node, nameContResult, namedBindingsContResult), node, options);
 }

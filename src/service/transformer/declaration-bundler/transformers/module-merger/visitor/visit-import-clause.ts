@@ -1,7 +1,7 @@
 import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options";
 import {TS} from "../../../../../../type/ts";
 import {getImportedSymbolFromImportClauseName} from "../../../util/create-export-specifier-from-name-and-modifiers";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {createAliasedBinding} from "../../../util/create-aliased-binding";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
 import {locateExportedSymbolForSourceFile} from "../../../util/locate-exported-symbol";
@@ -26,7 +26,7 @@ export function visitImportClause(options: ModuleMergerVisitorOptions<TS.ImportC
 		}
 
 		// Otherwise, remove the default import and remove the named bindings that was retrieved from the continuation.
-		return preserveSymbols(typescript.updateImportClause(contResult, undefined, contResult.namedBindings), options);
+		return preserveMeta(typescript.updateImportClause(contResult, undefined, contResult.namedBindings), contResult, options);
 	}
 
 	// Otherwise, prepend the nodes for the SourceFile

@@ -7,7 +7,7 @@ import {isIdentifierFree} from "../../../util/is-identifier-free";
 import {generateUniqueBinding} from "../../../util/generate-unique-binding";
 import {ContinuationOptions} from "../deconflicter-options";
 import {getIdForNode} from "../../../util/get-id-for-node";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 /**
  * Deconflicts the given InterfaceDeclaration.
@@ -52,7 +52,7 @@ export function deconflictInterfaceDeclaration(options: DeconflicterVisitorOptio
 		return node;
 	}
 
-	return preserveSymbols(
+	return preserveMeta(
 		typescript.updateInterfaceDeclaration(
 			node,
 			node.decorators,
@@ -62,6 +62,7 @@ export function deconflictInterfaceDeclaration(options: DeconflicterVisitorOptio
 			heritageClausesContResult,
 			membersContResult
 		),
+		node,
 		options
 	);
 }

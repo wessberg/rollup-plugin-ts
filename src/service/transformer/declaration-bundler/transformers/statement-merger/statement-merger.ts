@@ -8,6 +8,7 @@ import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-
 import {hasExportModifier} from "../../util/modifier-util";
 import {logMetrics} from "../../../../../util/logging/log-metrics";
 import {logTransformer} from "../../../../../util/logging/log-transformer";
+import {preserveMeta} from "../../util/clone-node-with-meta";
 
 export function statementMerger(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
 	const {typescript, context, sourceFile, pluginOptions, printer} = options;
@@ -70,22 +71,26 @@ export function statementMerger(options: SourceFileBundlerVisitorOptions): TS.So
 	);
 	const importExportCount = importDeclarations.length + exportDeclarations.length + statementsWithExportModifier.length;
 
-	result = typescript.updateSourceFileNode(
+	result = preserveMeta(
+		typescript.updateSourceFileNode(
+			result,
+			[
+				...importDeclarations,
+				...otherStatements,
+				...exportDeclarations,
+				...(importExportCount === 0
+					? // Create an 'export {}' declaration to mark the declaration file as module-based if it has no imports or exports
+					  [typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([]))]
+					: [])
+			],
+			result.isDeclarationFile,
+			result.referencedFiles,
+			result.typeReferenceDirectives,
+			result.hasNoDefaultLib,
+			result.libReferenceDirectives
+		),
 		result,
-		[
-			...importDeclarations,
-			...otherStatements,
-			...exportDeclarations,
-			...(importExportCount === 0
-				? // Create an 'export {}' declaration to mark the declaration file as module-based if it has no imports or exports
-				  [typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([]))]
-				: [])
-		],
-		result.isDeclarationFile,
-		result.referencedFiles,
-		result.typeReferenceDirectives,
-		result.hasNoDefaultLib,
-		result.libReferenceDirectives
+		options
 	);
 
 	transformationLog?.finish(result);

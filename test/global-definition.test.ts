@@ -37,3 +37,40 @@ test("Detects d.ts files when matched by a ParsedCommandLine. #1", async t => {
 		`)
 	);
 });
+
+test("Will not add .d.ts files matched by imports to the Rollup graph when corresponding non-ambient files exist for them #1", async t => {
+	await t.notThrowsAsync(
+		generateRollupBundle(
+			[
+				{
+					entry: true,
+					fileName: "virtual-src/index.ts",
+					text: `\
+				import someDefaultValue from "../virtual-dist";
+				console.log(someDefaultValue);
+
+				`
+				},
+				{
+					entry: false,
+					fileName: "virtual-dist/index.d.ts",
+					text: `\
+				declare const foo = string;
+				export { foo as default };
+				`
+				},
+				{
+					entry: false,
+					fileName: "virtual-dist/index.js",
+					text: `\
+				const foo = "test";
+				export {foo as default};
+				`
+				}
+			],
+			{
+				debug: false
+			}
+		)
+	);
+});

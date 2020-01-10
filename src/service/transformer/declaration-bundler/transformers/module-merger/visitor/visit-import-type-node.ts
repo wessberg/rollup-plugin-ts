@@ -5,10 +5,10 @@ import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifi
 import {ensureHasDeclareModifier} from "../../../util/modifier-util";
 import {generateIdentifierName} from "../../../util/generate-identifier-name";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
-import {preserveSymbols} from "../../../util/clone-node-with-symbols";
+import {preserveMeta, preserveSymbols} from "../../../util/clone-node-with-meta";
 
 export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.ImportTypeNode>): VisitResult<TS.ImportTypeNode> {
-	const {node, typeChecker, nodeToOriginalSymbolMap} = options;
+	const {node} = options;
 	const moduleSpecifier =
 		!options.typescript.isLiteralTypeNode(node.argument) || !options.typescript.isStringLiteralLike(node.argument.literal)
 			? undefined
@@ -35,7 +35,7 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 				  });
 		return generatedModuleSpecifier == null
 			? contResult
-			: preserveSymbols(
+			: preserveMeta(
 					options.typescript.updateImportTypeNode(
 						contResult,
 						options.typescript.createLiteralTypeNode(options.typescript.createStringLiteral(generatedModuleSpecifier)),
@@ -43,11 +43,11 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 						contResult.typeArguments,
 						contResult.isTypeOf
 					),
+					node,
 					options
 			  );
 	}
 
-	const symbol = typeChecker.getSymbolAtLocation(node.qualifier ?? node);
 	let returnNode: TS.TypeQueryNode | TS.Identifier | TS.QualifiedName;
 
 	// If the node has no qualifier, it imports the entire module as a namespace.
@@ -83,7 +83,6 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 		returnNode = node.isTypeOf != null && node.isTypeOf ? options.typescript.createTypeQueryNode(innerContent) : innerContent;
 	}
 
-	if (symbol != null) nodeToOriginalSymbolMap.set(returnNode, symbol);
-	options.nodeToOriginalNodeMap.set(returnNode, node);
+	preserveSymbols(returnNode, node.qualifier ?? node, options);
 	return returnNode;
 }
