@@ -38,7 +38,7 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
 
 <!-- SHADOW_SECTION_FEATURES_END -->
 
-In comparison with the [official plugin](https://github.com/rollup/rollup-plugin-typescript), this one has several significant improvements:
+In comparison with the [official plugin](https://github.com/rollup/plugins/tree/master/packages/typescript), this one has several significant improvements:
 
 - Compiler diagnostics are correctly emitted and brought into the Rollup build lifecycle
 - [Emit-less types](https://github.com/rollup/rollup-plugin-typescript/issues/28) are correctly handled
