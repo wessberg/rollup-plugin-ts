@@ -209,3 +209,68 @@ test("Tree-shakes correctly. #6", async t => {
 		`)
 	);
 });
+
+test("Tree-shakes correctly. #7", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+					const S = Symbol();
+
+					export const f2 = {
+						[S]: "";
+					}
+				`
+			}
+		],
+		{debug: false}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare const S: unique symbol;
+		declare const f2: {
+				[S]: string;
+		};
+		export { f2 };
+		`)
+	);
+});
+
+test("Tree-shakes correctly. #8", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\	
+				const S = Symbol();
+				export default {
+					async [S] () {
+						return;
+					}
+				}
+				`
+			}
+		],
+		{debug: false}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare const S: unique symbol;
+		declare const _default: {
+    	[S](): Promise<void>;
+		};
+		export { _default as default };
+		`)
+	);
+});

@@ -1,10 +1,11 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
 import {TS} from "../../../../../../../type/ts";
+import {isSymbolIdentifier} from "../../../../util/is-symbol-identifier";
 
 export function checkMethodSignature({node, continuation, typescript}: ReferenceVisitorOptions<TS.MethodSignature>): string[] {
 	const referencedIdentifiers: string[] = [];
 
-	if (!typescript.isIdentifier(node.name)) {
+	if (!typescript.isIdentifier(node.name) || isSymbolIdentifier(node.name, typescript)) {
 		referencedIdentifiers.push(...continuation(node.name));
 	}
 	for (const parameter of node.parameters) {

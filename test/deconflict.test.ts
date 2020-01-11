@@ -956,3 +956,61 @@ test("Deconflicts symbols. #18", async t => {
 		`)
 	);
 });
+
+test("Deconflicts symbols. #19", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "a.ts",
+				text: `\
+					import { setInstance, S } from './b';
+					export const f2 = {
+  					[S]: ({ foo }: { foo: string }) =>
+   						(foo + ": foo")
+					};
+
+					export const fns = {
+						f1: setInstance,
+						f2,
+					};
+					`
+			},
+			{
+				entry: false,
+				fileName: "b.ts",
+				text: `\
+					export const setFactory = <T>() => new Set<T>();
+					export const setInstance = setFactory<number | boolean>();
+					export const S = Symbol('foo');
+					`
+			}
+		],
+		{debug: data => data.kind === "emit"}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare const S: unique symbol;
+declare const f2: {
+    [S]: ({ foo }: {
+        foo: string;
+    }) => string;
+};
+declare const fns: {
+    f1: Set<number | boolean>;
+    f2: {
+        [S]: ({ foo }: {
+            foo: string;
+        }) => string;
+    };
+};
+export { f2, fns };
+
+
+		`)
+	);
+});
