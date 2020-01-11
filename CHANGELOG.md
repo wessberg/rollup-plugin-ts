@@ -1,3 +1,9 @@
+## [1.2.6](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.5...v1.2.6) (2020-01-11)
+
+### Bug Fixes
+
+- **tree-shaking:** fix issue where computed property names inside Property- and MethodSignatures would not count as a reference to a symbol. Make sure to create a new lexical environment for FunctionTypeNodes. Closes [#69](https://github.com/wessberg/rollup-plugin-ts/issues/69). ([b7a0bd1](https://github.com/wessberg/rollup-plugin-ts/commit/b7a0bd1463234e6540ca080e77408465dd0d05c4))
+
 ## [1.2.5](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.4...v1.2.5) (2020-01-10)
 
 ### Bug Fixes
