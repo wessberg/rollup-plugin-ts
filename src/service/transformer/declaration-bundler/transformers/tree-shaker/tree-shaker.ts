@@ -28,6 +28,7 @@ import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-
 import {logMetrics} from "../../../../../util/logging/log-metrics";
 import {logTransformer} from "../../../../../util/logging/log-transformer";
 import {preserveMeta} from "../../util/clone-node-with-meta";
+import {visitImportEqualsDeclaration} from "./visitor/visit-import-equals-declaration";
 
 export function treeShaker(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
 	const {typescript, context, sourceFile, pluginOptions, printer} = options;
@@ -86,6 +87,8 @@ export function treeShaker(options: SourceFileBundlerVisitorOptions): TS.SourceF
 			return visitNamedImports({node, ...visitorOptions});
 		} else if (typescript.isNamespaceImport(node)) {
 			return visitNamespaceImport({node, ...visitorOptions});
+		} else if (typescript.isImportEqualsDeclaration(node)) {
+			return visitImportEqualsDeclaration({node, ...visitorOptions});
 		} else if (typescript.isArrayBindingPattern(node)) {
 			return visitArrayBindingPattern({node, ...visitorOptions});
 		} else if (typescript.isObjectBindingPattern(node)) {

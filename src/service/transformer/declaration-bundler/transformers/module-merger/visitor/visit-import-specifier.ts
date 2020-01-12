@@ -69,7 +69,14 @@ export function visitImportSpecifier(options: ModuleMergerVisitorOptions<TS.Impo
 		} else if (contResult.propertyName != null) {
 			const declaration = getAliasedDeclaration({...options, node: contResult.propertyName});
 			options.prependNodes(
-				createAliasedBinding(declaration, exportedSymbol.propertyName.text, contResult.name.text, typescript, options.typeChecker)
+				...createAliasedBinding(
+					declaration,
+					exportedSymbol.propertyName.text,
+					contResult.name.text,
+					typescript,
+					options.typeChecker,
+					options.lexicalEnvironment
+				)
 			);
 		}
 	}

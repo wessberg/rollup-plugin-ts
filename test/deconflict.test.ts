@@ -33,7 +33,10 @@ test("Deconflicts symbols. #1", async t => {
 		formatCode(`\
 			declare class Foo {
 			}
-			declare const OtherFoo: typeof Foo;
+			declare module FooWrapper {
+					export { Foo };
+			}
+			import OtherFoo = FooWrapper.Foo;
 			declare class Foo$0 extends OtherFoo {
 			}
 			export { Foo$0 as Foo };
@@ -150,7 +153,10 @@ test("Deconflicts symbols. #3", async t => {
 			interface A {
 					b: B;
 			}
-			declare const OriginalB: typeof B;
+			declare module BWrapper {
+					export { B };
+			}
+			import OriginalB = BWrapper.B;
 			declare class B$0 extends OriginalB {
 					someOtherProp: string;
 			}
@@ -986,7 +992,7 @@ test("Deconflicts symbols. #19", async t => {
 					`
 			}
 		],
-		{debug: data => data.kind === "emit"}
+		{debug: false}
 	);
 	const {
 		declarations: [file]

@@ -468,3 +468,45 @@ test("Flattens declarations. #12", async t => {
 		`)
 	);
 });
+
+test("Flattens declarations. #13", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+        import { A as AClass } from './a';
+				export type A = AClass;
+			`
+			},
+			{
+				entry: false,
+				fileName: "a.ts",
+				text: `\
+        export class A {}
+			`
+			}
+		],
+		{
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare class A {
+			}
+			declare module AWrapper {
+					export { A };
+			}
+			import AClass = AWrapper.A;
+			type A$0 = AClass;
+			export { A$0 as A };
+		`)
+	);
+});
