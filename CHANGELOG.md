@@ -1,3 +1,9 @@
+## [1.2.7](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.6...v1.2.7) (2020-01-12)
+
+### Bug Fixes
+
+- fix issue with type aliasing classes. Closes [#68](https://github.com/wessberg/rollup-plugin-ts/issues/68) ([e00fc5a](https://github.com/wessberg/rollup-plugin-ts/commit/e00fc5a03f7c40383f9f32cde505555662f0e53b))
+
 ## [1.2.6](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.5...v1.2.6) (2020-01-11)
 
 ### Bug Fixes
