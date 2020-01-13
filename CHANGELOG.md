@@ -1,3 +1,10 @@
+## [1.2.11](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.10...v1.2.11) (2020-01-13)
+
+### Bug Fixes
+
+- fix bug where ImportTypeNodes inside other ImportTypeNodes weren't tracked correctly ([4369f0c](https://github.com/wessberg/rollup-plugin-ts/commit/4369f0c19d3f39e8ce90b6fd0526fd701d9e3f3c))
+- fix bug where ImportTypeNodes would lose their type arguments ([8ced5c9](https://github.com/wessberg/rollup-plugin-ts/commit/8ced5c9abe77d35ac8af8f900a53ecbd9588b07e))
+
 ## [1.2.10](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.9...v1.2.10) (2020-01-13)
 
 ### Features
