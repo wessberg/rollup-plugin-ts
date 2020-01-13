@@ -52,6 +52,7 @@
 		"@wessberg/scaffold": "^1.0.23",
 		"@wessberg/ts-config": "^0.0.44",
 		"@rollup/plugin-commonjs": "^11.0.1",
+		"@rollup/plugin-json": "^4.0.1",
 		"ava": "2.4.0",
 		"core-js": "^3.6.3",
 		"husky": "^4.0.7",

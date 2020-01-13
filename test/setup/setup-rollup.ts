@@ -1,5 +1,5 @@
 import * as TSModule from "typescript";
-import {rollup, RollupOptions, RollupOutput} from "rollup";
+import {rollup, RollupOptions, RollupOutput, Plugin} from "rollup";
 import commonjs from "@rollup/plugin-commonjs";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
 import {HookRecord, InputCompilerOptions, ITypescriptPluginBabelOptions, TypescriptPluginOptions} from "../../src/plugin/i-typescript-plugin-options";
@@ -43,6 +43,7 @@ export interface GenerateRollupBundleOptions {
 	cwd: TypescriptPluginOptions["cwd"];
 	debug: TypescriptPluginOptions["debug"];
 	hook: Partial<HookRecord>;
+	plugins: Plugin[];
 	exclude: TypescriptPluginOptions["exclude"];
 	transpiler: TypescriptPluginOptions["transpiler"];
 	transformers: TypescriptPluginOptions["transformers"];
@@ -62,6 +63,7 @@ export async function generateRollupBundle(
 		tsconfig = {},
 		format = "esm",
 		dir,
+		plugins = [],
 		cwd = process.cwd(),
 		transpileOnly = false,
 		typescript = TSModule,
@@ -154,6 +156,7 @@ export async function generateRollupBundle(
 				load
 			},
 			commonjs(),
+			...plugins,
 			typescriptRollupPlugin({
 				transformers,
 				transpiler,

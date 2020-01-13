@@ -21,6 +21,7 @@ dependencies:
   tslib: 1.10.0
 devDependencies:
   "@rollup/plugin-commonjs": 11.0.1_rollup@1.29.0
+  "@rollup/plugin-json": 4.0.1_rollup@1.29.0
   "@types/prettier": 1.19.0
   "@wessberg/rollup-plugin-ts": 1.2.8_rollup@1.29.0+typescript@3.7.4
   "@wessberg/scaffold": 1.0.23_typescript@3.7.4
@@ -1493,6 +1494,15 @@ packages:
       rollup: ^1.20.0
     resolution:
       integrity: sha512-SaVUoaLDg3KnIXC5IBNIspr1APTYDzk05VaYcI6qz+0XX3ZlSCwAkfAhNSOxfd5GAdcm/63Noi4TowOY9MpcDg==
+  /@rollup/plugin-json/4.0.1_rollup@1.29.0:
+    dependencies:
+      rollup: 1.29.0
+      rollup-pluginutils: 2.8.2
+    dev: true
+    peerDependencies:
+      rollup: ^1.20.0
+    resolution:
+      integrity: sha512-soxllkhOGgchswBAAaTe7X9G80U2tjjHvXv0sBrriLJcC/89PkP59iTrKPOfbz3SjX088mKDmMhAscuyLz8ZSg==
   /@rollup/pluginutils/3.0.4_rollup@1.29.0:
     dependencies:
       estree-walker: 0.6.1
@@ -5765,6 +5775,12 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-NDGVxTsjqfunkds7CqsOiEnxln4Bo7Nddl3XhS4pXg5OzwkLqJ971ZVAAnB+DDLnF76N+VnDEiBHaVV8I06SUg==
+  /rollup-pluginutils/2.8.2:
+    dependencies:
+      estree-walker: 0.6.1
+    dev: true
+    resolution:
+      integrity: sha512-EEp9NhnUkwY8aif6bxgovPHMoMoNr2FulJziTndpt5H9RdwC47GSGuII9XxpSdzVGM0GWrNPHV6ie1LTNJPaLQ==
   /rollup/1.29.0:
     dependencies:
       "@types/estree": 0.0.42
@@ -6798,6 +6814,7 @@ specifiers:
   "@babel/preset-env": 7.7.7
   "@babel/runtime": 7.7.7
   "@rollup/plugin-commonjs": ^11.0.1
+  "@rollup/plugin-json": ^4.0.1
   "@rollup/pluginutils": ^3.0.4
   "@types/node": ^13.1.6
   "@types/prettier": ^1.19.0

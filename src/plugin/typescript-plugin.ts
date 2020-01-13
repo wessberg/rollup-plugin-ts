@@ -4,7 +4,15 @@ import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
 import {emitDiagnostics} from "../service/emit/diagnostics/emit-diagnostics";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
-import {ensureRelative, isBabelHelper, isCoreJsInternals, isRollupPluginMultiEntry, nativeNormalize, normalize} from "../util/path/path-util";
+import {
+	ensureRelative,
+	getExtension,
+	isBabelHelper,
+	isCoreJsInternals,
+	isRollupPluginMultiEntry,
+	nativeNormalize,
+	normalize
+} from "../util/path/path-util";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
 import {TypescriptPluginOptions} from "./i-typescript-plugin-options";
 import {getPluginOptions} from "../util/plugin-options/get-plugin-options";
@@ -14,7 +22,7 @@ import {getForcedBabelOptions} from "../util/get-forced-babel-options/get-forced
 import {getBrowserslist} from "../util/get-browserslist/get-browserslist";
 import {IResolveCache} from "../service/cache/resolve-cache/i-resolve-cache";
 import {ResolveCache} from "../service/cache/resolve-cache/resolve-cache";
-import {REGENERATOR_RUNTIME_NAME_1, REGENERATOR_RUNTIME_NAME_2} from "../constant/constant";
+import {JSON_EXTENSION, REGENERATOR_RUNTIME_NAME_1, REGENERATOR_RUNTIME_NAME_2} from "../constant/constant";
 import {REGENERATOR_SOURCE} from "../lib/regenerator/regenerator";
 import {getDefaultBabelOptions} from "../util/get-default-babel-options/get-default-babel-options";
 // @ts-ignore
@@ -32,6 +40,7 @@ import {pickResolvedModule} from "../util/pick-resolved-module";
 import {emitBuildInfo} from "../service/emit/tsbuildinfo/emit-build-info";
 import {shouldDebugEmit} from "../util/is-debug/should-debug";
 import {logEmit} from "../util/logging/log-emit";
+import {isJsonLike} from "../util/is-json-like/is-json-like";
 
 /**
  * The name of the Rollup plugin
@@ -235,33 +244,40 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				return undefined;
 			}
 
+			const hasJsonExtension = getExtension(normalizedFile) === JSON_EXTENSION;
+			// Files with a .json extension may not necessarily be JSON, for example
+			// if a JSON plugin came before rollup-plugin-ts, in which case it shouldn't be treated
+			// as JSON.
+			const isJsInDisguise = hasJsonExtension && !isJsonLike(code);
+
 			// Only pass the file through Typescript if it's extension is supported. Otherwise, if we're going to continue on with Babel,
 			// Mock a SourceDescription. Otherwise, return bind undefined
-			let sourceDescription = !host.isSupportedFileName(normalizedFile)
-				? babelConfig != null
-					? {code, map: undefined}
-					: undefined
-				: (() => {
-						// Add the file to the LanguageServiceHost
-						host.add({fileName: normalizedFile, text: code, fromRollup: true});
+			let sourceDescription =
+				!host.isSupportedFileName(normalizedFile) || isJsInDisguise
+					? babelConfig != null
+						? {code, map: undefined}
+						: undefined
+					: (() => {
+							// Add the file to the LanguageServiceHost
+							host.add({fileName: normalizedFile, text: code, fromRollup: true});
 
-						// Add all dependencies of the file to the File Watcher if missing
-						const dependencies = host.getDependenciesForFile(normalizedFile, true);
+							// Add all dependencies of the file to the File Watcher if missing
+							const dependencies = host.getDependenciesForFile(normalizedFile, true);
 
-						if (dependencies != null) {
-							for (const dependency of dependencies) {
-								const pickedDependency = pickResolvedModule(dependency, false);
-								if (pickedDependency == null) continue;
-								this.addWatchFile(pickedDependency);
+							if (dependencies != null) {
+								for (const dependency of dependencies) {
+									const pickedDependency = pickResolvedModule(dependency, false);
+									if (pickedDependency == null) continue;
+									this.addWatchFile(pickedDependency);
+								}
 							}
-						}
 
-						// Get some EmitOutput, optionally from the cache if the file contents are unchanged
-						const emitOutput = host.emit(normalizedFile, false);
+							// Get some EmitOutput, optionally from the cache if the file contents are unchanged
+							const emitOutput = host.emit(normalizedFile, false);
 
-						// Return the emit output results to Rollup
-						return getSourceDescriptionFromEmitOutput(emitOutput);
-				  })();
+							// Return the emit output results to Rollup
+							return getSourceDescriptionFromEmitOutput(emitOutput);
+					  })();
 
 			// If nothing was emitted, simply return undefined
 			if (sourceDescription == null) {
