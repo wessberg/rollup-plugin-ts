@@ -95,6 +95,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 
 						if (resolved == null) return undefined;
 						const pickedResolvedModule = pickResolvedModule(resolved, true);
+
 						const resolvedSourceFile = pickedResolvedModule == null ? undefined : sourceFileMap.get(pickedResolvedModule);
 
 						// Never allow resolving SourceFiles representing content not part of the compilation unit,

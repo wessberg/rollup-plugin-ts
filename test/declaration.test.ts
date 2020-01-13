@@ -553,3 +553,46 @@ test("Flattens declarations. #14", async t => {
 		`)
 	);
 });
+
+test("Flattens declarations. #15", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "virtual-src/components/generated.ts",
+				text: `\
+        export const WebGLMultisampleRenderTarget = {} as unknown as import("typescript").NodeArray<import("..").Overwrite<Partial<string>, number>>;
+				console.log(WebGLMultisampleRenderTarget);
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/index.ts",
+				text: `\
+        export type NonFunctionKeys<T> = {
+						[K in keyof T]: T[K] extends Function ? never : K;
+				}[keyof T];
+				export type Overwrite<T, O> = Omit<T, NonFunctionKeys<O>> & O;
+			`
+			}
+		],
+		{
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		type NonFunctionKeys<T> = {
+				[K in keyof T]: T[K] extends Function ? never : K;
+		}[keyof T];
+		type Overwrite<T, O> = Omit<T, NonFunctionKeys<O>> & O;
+		declare const WebGLMultisampleRenderTarget: import("typescript").NodeArray<Overwrite<string, number>>;
+		export { WebGLMultisampleRenderTarget };
+		`)
+	);
+});
