@@ -1,3 +1,9 @@
+## [1.2.10](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.9...v1.2.10) (2020-01-13)
+
+### Features
+
+- **json:** improve interoperability with @rollup/plugin-json ([e9a64a7](https://github.com/wessberg/rollup-plugin-ts/commit/e9a64a7125fff940491934f2a999eb8c0e3c6b4a))
+
 ## [1.2.9](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.8...v1.2.9) (2020-01-13)
 
 ## [1.2.8](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.7...v1.2.8) (2020-01-12)
