@@ -1020,3 +1020,49 @@ export { f2, fns };
 		`)
 	);
 });
+
+test("Deconflicts symbols. #20", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "virtual-src/components/a.ts",
+				text: `\
+				export {Bar} from "./b";
+        export const Foo = {} as unknown as import("..").Foo;
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/components/b.ts",
+				text: `\
+        type Foo = 2;
+        export type Bar = Foo;
+			`
+			},
+			{
+				entry: true,
+				fileName: "virtual-src/index.ts",
+				text: `\
+        export type Foo = {a: string; b: number};
+			`
+			}
+		],
+		{
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		type Foo = 2;
+		type Bar = Foo;
+		declare const Foo$0: import("./index").Foo;
+		export { Bar, Foo$0 as Foo };
+		`)
+	);
+});

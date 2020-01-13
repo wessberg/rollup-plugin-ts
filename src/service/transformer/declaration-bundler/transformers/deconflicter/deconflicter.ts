@@ -34,6 +34,7 @@ import {logMetrics} from "../../../../../util/logging/log-metrics";
 import {logTransformer} from "../../../../../util/logging/log-transformer";
 import {preserveMeta} from "../../util/clone-node-with-meta";
 import {deconflictFunctionTypeNode} from "./visitor/deconflict-function-type";
+import {deconflictImportTypeNode} from "./visitor/deconflict-import-type-node";
 
 /**
  * Deconflicts the given Node. Everything but LValues will be updated here
@@ -94,6 +95,8 @@ function deconflictNode({node, ...options}: DeconflicterVisitorOptions<TS.Node>)
 		return deconflictSetAccessorDeclaration({node, ...options});
 	} else if (options.typescript.isTypeAliasDeclaration(node)) {
 		return deconflictTypeAliasDeclaration({node, ...options});
+	} else if (options.typescript.isImportTypeNode(node)) {
+		return deconflictImportTypeNode({node, ...options});
 	} else if (options.typescript.isTypeParameterDeclaration(node)) {
 		return deconflictTypeParameterDeclaration({node, ...options});
 	} else if (options.typescript.isVariableDeclaration(node)) {
