@@ -21,7 +21,7 @@ export type PayloadMap = {
 };
 
 export type VisitResult<T extends TS.Node> = T extends TS.ImportTypeNode
-	? TS.Identifier | TS.TypeQueryNode | TS.ImportTypeNode | TS.QualifiedName
+	? TS.Identifier | TS.TypeQueryNode | TS.TypeReferenceNode | TS.ImportTypeNode | TS.QualifiedName
 	: T extends TS.ImportDeclaration | TS.ImportSpecifier | TS.ExportSpecifier | TS.ImportClause | TS.NamespaceImport
 	? T | undefined
 	: T extends TS.ExportDeclaration

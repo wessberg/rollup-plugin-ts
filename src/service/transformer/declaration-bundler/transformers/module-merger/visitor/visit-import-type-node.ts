@@ -48,10 +48,10 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 			  );
 	}
 
-	let returnNode: TS.TypeQueryNode | TS.Identifier | TS.QualifiedName;
+	let returnNode: TS.TypeQueryNode | TS.TypeReferenceNode | TS.Identifier | TS.QualifiedName;
 
 	// If the node has no qualifier, it imports the entire module as a namespace.
-	if (node.qualifier == null) {
+	if (contResult.qualifier == null) {
 		// Generate a name for it
 		const namespaceName = generateIdentifierName(matchingSourceFile.fileName, "namespace");
 		const innerContent = options.typescript.createIdentifier(namespaceName);
@@ -72,17 +72,16 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 			)
 		);
 
-		returnNode = node.isTypeOf != null && node.isTypeOf ? options.typescript.createTypeQueryNode(innerContent) : innerContent;
+		returnNode = contResult.isTypeOf != null && contResult.isTypeOf ? options.typescript.createTypeQueryNode(innerContent) : innerContent;
 	} else {
-		const innerContent = options.typescript.isIdentifier(node.qualifier)
-			? options.typescript.createIdentifier(node.qualifier.text)
-			: options.typescript.createQualifiedName(node.qualifier.left, node.qualifier.right);
-
 		options.prependNodes(...options.includeSourceFile(matchingSourceFile));
 
-		returnNode = node.isTypeOf != null && node.isTypeOf ? options.typescript.createTypeQueryNode(innerContent) : innerContent;
+		returnNode =
+			contResult.isTypeOf != null && contResult.isTypeOf
+				? options.typescript.createTypeQueryNode(contResult.qualifier)
+				: options.typescript.createTypeReferenceNode(contResult.qualifier, contResult.typeArguments);
 	}
 
-	preserveSymbols(returnNode, node.qualifier ?? node, options);
+	preserveSymbols(returnNode, contResult.qualifier ?? contResult, options);
 	return returnNode;
 }
