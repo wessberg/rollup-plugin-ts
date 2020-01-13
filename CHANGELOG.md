@@ -1,3 +1,9 @@
+## [1.2.12](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.11...v1.2.12) (2020-01-13)
+
+### Bug Fixes
+
+- Ensure that the Qualifier for ImportTypeNodes preserve the original binding name from external modules ([c7db633](https://github.com/wessberg/rollup-plugin-ts/commit/c7db633618182211768a32f19b7ee2ad08940043))
+
 ## [1.2.11](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.10...v1.2.11) (2020-01-13)
 
 ### Bug Fixes
