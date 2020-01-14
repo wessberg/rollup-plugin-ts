@@ -1,3 +1,9 @@
+## [1.2.13](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.12...v1.2.13) (2020-01-14)
+
+### Bug Fixes
+
+- stop relying on babel/core internals for finding configs and instead rely on the public API at all times ([3b73419](https://github.com/wessberg/rollup-plugin-ts/commit/3b73419941ffa9899c2cdeedca3726647f04261f))
+
 ## [1.2.12](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.11...v1.2.12) (2020-01-13)
 
 ### Bug Fixes
