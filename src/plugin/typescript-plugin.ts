@@ -1,4 +1,14 @@
-import {InputOptions, OutputBundle, OutputOptions, Plugin, PluginContext, RenderedChunk, SourceMap, TransformSourceDescription} from "rollup";
+import {
+	InputOptions,
+	OutputBundle,
+	OutputOptions,
+	Plugin,
+	PluginContext,
+	RenderedChunk,
+	ExistingRawSourceMap,
+	SourceDescription,
+	TransformSourceDescription
+} from "rollup";
 import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line";
 import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options";
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
@@ -16,7 +26,6 @@ import {
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
 import {TypescriptPluginOptions} from "./i-typescript-plugin-options";
 import {getPluginOptions} from "../util/plugin-options/get-plugin-options";
-import {IBabelConfig} from "./i-babel-options";
 import {getBabelConfig} from "../util/get-babel-config/get-babel-config";
 import {getForcedBabelOptions} from "../util/get-forced-babel-options/get-forced-babel-options";
 import {getBrowserslist} from "../util/get-browserslist/get-browserslist";
@@ -25,7 +34,6 @@ import {ResolveCache} from "../service/cache/resolve-cache/resolve-cache";
 import {JSON_EXTENSION, REGENERATOR_RUNTIME_NAME_1, REGENERATOR_RUNTIME_NAME_2} from "../constant/constant";
 import {REGENERATOR_SOURCE} from "../lib/regenerator/regenerator";
 import {getDefaultBabelOptions} from "../util/get-default-babel-options/get-default-babel-options";
-// @ts-ignore
 import {transformAsync} from "@babel/core";
 import {createFilter} from "@rollup/pluginutils";
 import {mergeTransformers} from "../util/merge-transformers/merge-transformers";
@@ -41,6 +49,7 @@ import {emitBuildInfo} from "../service/emit/tsbuildinfo/emit-build-info";
 import {shouldDebugEmit} from "../util/is-debug/should-debug";
 import {logEmit} from "../util/logging/log-emit";
 import {isJsonLike} from "../util/is-json-like/is-json-like";
+import {BabelConfigFactory} from "../util/get-babel-config/get-babel-config-result";
 
 /**
  * The name of the Rollup plugin
@@ -54,6 +63,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	const pluginOptions: TypescriptPluginOptions = getPluginOptions(pluginInputOptions);
 	const {include, exclude, tsconfig, cwd, browserslist, typescript, fileSystem, transpileOnly} = pluginOptions;
 	const transformers = pluginOptions.transformers == null ? [] : ensureArray(pluginOptions.transformers);
+
 	// Make sure to normalize the received Browserslist
 	const normalizedBrowserslist = getBrowserslist({browserslist, cwd, fileSystem});
 
@@ -63,19 +73,14 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	let parsedCommandLineResult: ParsedCommandLineResult;
 
 	/**
-	 * The config to use with Babel, if Babel should transpile source code
+	 * The config to use with Babel for each file, if Babel should transpile source code
 	 */
-	let babelConfig: ((filename: string) => IBabelConfig) | undefined;
+	let babelConfigFileFactory: BabelConfigFactory | undefined;
 
 	/**
-	 * If babel is to be used, and if one or more minify presets/plugins has been passed, this config will be used
+	 * The config to use with Babel for each chunk, if Babel should transpile source code
 	 */
-	let babelMinifyConfig: ((filename: string) => IBabelConfig) | undefined;
-
-	/**
-	 * If babel is to be used, and if one or more minify presets/plugins has been passed, this will be true
-	 */
-	let hasBabelMinifyOptions: boolean = false;
+	let babelConfigChunkFactory: BabelConfigFactory | undefined;
 
 	/**
 	 * The (Incremental) LanguageServiceHost to use
@@ -139,17 +144,25 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 					typescript
 				);
 
-				const babelConfigResult = getBabelConfig({
+				const sharedBabelConfigFactoryOptions = {
 					cwd,
+					hook: pluginOptions.hook.babelConfig,
 					babelConfig: pluginOptions.babelConfig,
 					forcedOptions: getForcedBabelOptions({cwd, pluginOptions, rollupInputOptions, browserslist: computedBrowserslist}),
 					defaultOptions: getDefaultBabelOptions({pluginOptions, rollupInputOptions, browserslist: computedBrowserslist}),
 					browserslist: computedBrowserslist,
 					rollupInputOptions
+				};
+
+				babelConfigFileFactory = getBabelConfig({
+					...sharedBabelConfigFactoryOptions,
+					phase: "file"
 				});
-				babelConfig = babelConfigResult.config;
-				babelMinifyConfig = babelConfigResult.minifyConfig;
-				hasBabelMinifyOptions = babelConfigResult.hasMinifyOptions;
+
+				babelConfigChunkFactory = getBabelConfig({
+					...sharedBabelConfigFactoryOptions,
+					phase: "chunk"
+				});
 			}
 
 			SUPPORTED_EXTENSIONS = getSupportedExtensions(
@@ -177,21 +190,22 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * Will also apply any minification via Babel if a minification plugin or preset has been provided,
 		 * and if Babel is the chosen transpiler. Otherwise, it will simply do nothing
 		 */
-		async renderChunk(
-			this: PluginContext,
-			code: string,
-			chunk: RenderedChunk,
-			outputOptions: OutputOptions
-		): Promise<{code: string; map: SourceMap} | null> {
-			let updatedSourceDescription: {code: string; map: SourceMap} | undefined;
+		async renderChunk(this: PluginContext, code: string, chunk: RenderedChunk, outputOptions: OutputOptions): Promise<SourceDescription | null> {
+			let updatedSourceDescription: SourceDescription | undefined;
 
 			// When targeting CommonJS and using babel as a transpiler, we may need to rewrite forced ESM paths for preserved external helpers to paths that are compatible with CommonJS.
 			if (pluginOptions.transpiler === "babel" && (outputOptions.format === "cjs" || outputOptions.format === "commonjs")) {
 				updatedSourceDescription = replaceBabelEsmHelpers(code, chunk.fileName);
 			}
 
+			if (babelConfigChunkFactory == null) {
+				return updatedSourceDescription == null ? null : updatedSourceDescription;
+			}
+
+			const {config} = babelConfigChunkFactory(chunk.fileName);
+
 			// Don't proceed if there is no minification config
-			if (!hasBabelMinifyOptions || babelMinifyConfig == null) {
+			if (config == null) {
 				return updatedSourceDescription == null ? null : updatedSourceDescription;
 			}
 
@@ -199,20 +213,23 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			const updatedMap = updatedSourceDescription != null ? updatedSourceDescription.map : undefined;
 
 			const transpilationResult = await transformAsync(updatedCode, {
-				...babelMinifyConfig(chunk.fileName),
-				filename: chunk.fileName,
+				...config,
 				filenameRelative: ensureRelative(cwd, chunk.fileName),
 				...(updatedMap == null
 					? {}
 					: {
-							inputSourceMap: updatedMap
+							inputSourceMap: updatedMap as ExistingRawSourceMap
 					  })
 			});
+
+			if (transpilationResult == null || transpilationResult.code == null) {
+				return updatedSourceDescription == null ? null : updatedSourceDescription;
+			}
 
 			// Return the results
 			return {
 				code: transpilationResult.code,
-				map: transpilationResult.map == null ? undefined : transpilationResult.map
+				map: transpilationResult.map ?? undefined
 			};
 		},
 
@@ -250,11 +267,13 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// as JSON.
 			const isJsInDisguise = hasJsonExtension && !isJsonLike(code);
 
+			const babelConfigResult = babelConfigFileFactory?.(file);
+
 			// Only pass the file through Typescript if it's extension is supported. Otherwise, if we're going to continue on with Babel,
 			// Mock a SourceDescription. Otherwise, return bind undefined
 			let sourceDescription =
 				!host.isSupportedFileName(normalizedFile) || isJsInDisguise
-					? babelConfig != null
+					? babelConfigResult != null
 						? {code, map: undefined}
 						: undefined
 					: (() => {
@@ -284,23 +303,26 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				return undefined;
 			} else {
 				// If Babel shouldn't be used, simply return the emitted results
-				if (babelConfig == null) {
+				if (babelConfigResult == null) {
 					return sourceDescription;
 				}
 
 				// Otherwise, pass it on to Babel to perform the rest of the transpilation steps
 				else {
 					const transpilationResult = await transformAsync(sourceDescription.code, {
-						...babelConfig(normalizedFile),
-						filename: normalizedFile,
-						filenameRelative: ensureRelative(cwd, normalizedFile),
+						...babelConfigResult.config,
+						filenameRelative: ensureRelative(cwd, file),
 						inputSourceMap: typeof sourceDescription.map === "string" ? JSON.parse(sourceDescription.map) : sourceDescription.map
 					});
+
+					if (transpilationResult == null || transpilationResult.code == null) {
+						return sourceDescription;
+					}
 
 					// Return the results
 					return {
 						code: transpilationResult.code,
-						map: transpilationResult.map == null ? undefined : transpilationResult.map
+						map: transpilationResult.map ?? undefined
 					};
 				}
 			}

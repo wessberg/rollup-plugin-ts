@@ -43,11 +43,13 @@ export interface GenerateRollupBundleOptions {
 	cwd: TypescriptPluginOptions["cwd"];
 	debug: TypescriptPluginOptions["debug"];
 	hook: Partial<HookRecord>;
-	plugins: Plugin[];
+	prePlugins: Plugin[];
+	postPlugins: Plugin[];
 	exclude: TypescriptPluginOptions["exclude"];
 	transpiler: TypescriptPluginOptions["transpiler"];
 	transformers: TypescriptPluginOptions["transformers"];
 	babelConfig: ITypescriptPluginBabelOptions["babelConfig"];
+	browserslist: TypescriptPluginOptions["browserslist"];
 }
 
 /**
@@ -59,11 +61,13 @@ export async function generateRollupBundle(
 		rollupOptions = {},
 		transformers,
 		exclude = [],
+		browserslist,
 		transpiler = "typescript",
 		tsconfig = {},
 		format = "esm",
 		dir,
-		plugins = [],
+		prePlugins = [],
+		postPlugins = [],
 		cwd = process.cwd(),
 		transpileOnly = false,
 		typescript = TSModule,
@@ -156,12 +160,13 @@ export async function generateRollupBundle(
 				load
 			},
 			commonjs(),
-			...plugins,
+			...prePlugins,
 			typescriptRollupPlugin({
 				transformers,
 				transpiler,
 				transpileOnly,
 				debug,
+				cwd,
 				typescript,
 				exclude: [...exclude, "dist/**/*.*", "src/**/*.*"],
 				tsconfig: {
@@ -172,6 +177,7 @@ export async function generateRollupBundle(
 					...tsconfig
 				},
 				hook,
+				browserslist,
 				fileSystem: {
 					...getRealFileSystem(typescript),
 					useCaseSensitiveFileNames: true,
@@ -220,7 +226,8 @@ export async function generateRollupBundle(
 				},
 				babelConfig
 			}),
-			...(rollupOptions.plugins == null ? [] : rollupOptions.plugins)
+			...(rollupOptions.plugins == null ? [] : rollupOptions.plugins),
+			...postPlugins
 		]
 	});
 

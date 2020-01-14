@@ -1,19 +1,15 @@
 import {IGetForcedBabelOptionsOptions} from "./i-get-forced-babel-options-options";
-import {IGetForcedBabelOptionsResult} from "./i-get-forced-babel-options-result";
+import {TransformOptions} from "@babel/core";
 
 /**
  * Retrieves the Babel config options that will be forced
  */
-export function getForcedBabelOptions({cwd}: IGetForcedBabelOptionsOptions): IGetForcedBabelOptionsResult {
+export function getForcedBabelOptions({cwd}: IGetForcedBabelOptionsOptions): TransformOptions {
 	return {
 		// Always produce sourcemaps. Rollup will be the decider of what to do with them.
 		sourceMaps: true,
 		// Always use the cwd provided to the plugin
 		cwd,
-		// Never let Babel be the decider of which files to include. Rather let Rollup decide that
-		include: undefined,
-		// Never let Babel be the decider of which files to exclude. Rather let Rollup decide that
-		exclude: undefined,
 		// Never let Babel be the decider of which files to ignore. Rather let Rollup decide that
 		ignore: undefined,
 		// Never let Babel be the decider of which files to include. Rather let Rollup decide that

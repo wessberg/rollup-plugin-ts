@@ -27,7 +27,7 @@ function getForcedScriptTargetOption({pluginOptions, browserslist}: GetForcedCom
 	}
 
 	// If a Browserslist is provided, and if Typescript should perform the transpilation, decide the appropriate ECMAScript version based on the Browserslist.
-	else if (browserslist != null) {
+	else if (browserslist != null && browserslist !== false) {
 		return {target: getScriptTargetFromBrowserslist(browserslist, pluginOptions.typescript)};
 	}
 

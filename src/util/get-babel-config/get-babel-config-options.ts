@@ -1,11 +1,14 @@
-import {IGetForcedBabelOptionsResult} from "../get-forced-babel-options/i-get-forced-babel-options-result";
-import {IGetDefaultBabelOptionsResult} from "../get-default-babel-options/i-get-default-babel-options-result";
 import {InputOptions} from "rollup";
-import {FindBabelConfigOptions} from "./find-babel-config-options";
+import {TransformOptions} from "@babel/core";
+import {BabelConfigHook, ITypescriptPluginBabelOptions, TranspilationPhase} from "../../plugin/i-typescript-plugin-options";
 
-export interface GetBabelConfigOptions extends FindBabelConfigOptions {
+export interface GetBabelConfigOptions {
+	cwd: string;
+	hook: BabelConfigHook | undefined;
+	babelConfig: ITypescriptPluginBabelOptions["babelConfig"];
 	browserslist: string[] | undefined;
 	rollupInputOptions: InputOptions;
-	forcedOptions?: IGetForcedBabelOptionsResult;
-	defaultOptions?: IGetDefaultBabelOptionsResult;
+	forcedOptions: TransformOptions | undefined;
+	defaultOptions: TransformOptions | undefined;
+	phase: TranspilationPhase;
 }

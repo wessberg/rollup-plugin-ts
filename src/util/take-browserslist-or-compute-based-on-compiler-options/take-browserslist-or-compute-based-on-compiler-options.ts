@@ -7,15 +7,19 @@ import {TS} from "../../type/ts";
  * will be computed based on the targeted Ecma version
  */
 export function takeBrowserslistOrComputeBasedOnCompilerOptions(
-	browserslist: string[] | undefined,
+	browserslist: string[] | undefined | false,
 	compilerOptions: TS.CompilerOptions,
 	typescript: typeof TS
 ): string[] | undefined {
-	return browserslist != null
-		? // If a browserslist is given, use that one
-		  browserslist
-		: // Otherwise, generate a browserslist based on the tsconfig target if given
-		compilerOptions.target == null
-		? undefined
-		: browsersWithSupportForEcmaVersion(getEcmaVersionForScriptTarget(compilerOptions.target, typescript));
+	if (browserslist != null && browserslist !== false) {
+		// If a browserslist is given, use it
+		return browserslist;
+	} else if (browserslist === false) {
+		return undefined;
+	} else {
+		// Otherwise, generate a browserslist based on the tsconfig target if given
+		return compilerOptions.target == null
+			? undefined
+			: browsersWithSupportForEcmaVersion(getEcmaVersionForScriptTarget(compilerOptions.target, typescript));
+	}
 }
