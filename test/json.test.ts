@@ -28,7 +28,7 @@ test("Handles .JSON files that has been pre-transformed by other plugins. #1", a
 		],
 		{
 			debug: false,
-			plugins: [json()],
+			prePlugins: [json()],
 			tsconfig: {
 				resolveJsonModule: true
 			}

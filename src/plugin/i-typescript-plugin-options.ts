@@ -1,7 +1,7 @@
-import {IBabelInputOptions} from "./i-babel-options";
 import {CustomTransformersFunction} from "../util/merge-transformers/i-custom-transformer-options";
 import {FileSystem} from "../util/file-system/file-system";
 import {TS} from "../type/ts";
+import {TransformOptions} from "@babel/core";
 
 export type Transpiler = "typescript" | "babel";
 
@@ -45,13 +45,20 @@ export interface TsConfigResolverWithFileName {
 export type TsConfigResolver = TsConfigResolverWithFileName["hook"];
 
 export type OutputPathKind = "declaration" | "declarationMap" | "buildInfo";
+export type TranspilationPhase = "file" | "chunk";
 export type EmitPathKind = OutputPathKind | "javascript";
 export type OutputPathHook = (path: string, kind: OutputPathKind) => string | undefined;
 export type DiagnosticsHook = (diagnostics: readonly TS.Diagnostic[]) => readonly TS.Diagnostic[] | undefined;
+export type BabelConfigHook = (
+	config: TransformOptions | undefined,
+	fileName: string | undefined,
+	phase: TranspilationPhase
+) => TransformOptions | undefined;
 
 export interface HookRecord {
 	outputPath: OutputPathHook;
 	diagnostics: DiagnosticsHook;
+	babelConfig: BabelConfigHook;
 }
 
 export interface InputCompilerOptions extends Omit<TS.CompilerOptions, "module" | "moduleResolution" | "newLine" | "jsx" | "target"> {
@@ -89,7 +96,7 @@ export interface ITypescriptPluginTypescriptOptions extends ITypescriptPluginBas
 
 export interface ITypescriptPluginBabelOptions extends ITypescriptPluginBaseOptions {
 	transpiler: "babel";
-	babelConfig?: string | Partial<IBabelInputOptions>;
+	babelConfig?: string | Partial<TransformOptions>;
 }
 
 export type TypescriptPluginOptions = ITypescriptPluginTypescriptOptions | ITypescriptPluginBabelOptions;

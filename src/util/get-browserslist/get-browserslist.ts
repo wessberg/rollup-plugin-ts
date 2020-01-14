@@ -32,12 +32,12 @@ function isBrowserslistPathConfig(browserslist: IGetBrowserslistOptions["browser
 /**
  * Gets a Browserslist based on the given options
  */
-export function getBrowserslist({browserslist, cwd, fileSystem}: IGetBrowserslistOptions): string[] | undefined {
+export function getBrowserslist({browserslist, cwd, fileSystem}: IGetBrowserslistOptions): string[] | false | undefined {
 	// If a Browserslist is provided directly from the options, use that
 	if (browserslist != null) {
 		// If the Browserslist is equal to false, it should never be used. Return undefined
 		if (browserslist === false) {
-			return undefined;
+			return false;
 		}
 
 		// If the Browserslist is some raw input queries, use them directly

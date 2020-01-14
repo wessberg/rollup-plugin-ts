@@ -1,4 +1,4 @@
-import {basename, dirname, extname, isAbsolute, join, normalize, parse, ParsedPath, relative} from "path";
+import {basename, dirname, extname, isAbsolute, join, normalize, parse, ParsedPath, relative, resolve} from "path";
 import {
 	BABEL_RUNTIME_PREFIX_1,
 	BABEL_RUNTIME_PREFIX_2,
@@ -22,6 +22,10 @@ function _join(...paths: string[]): string {
 
 function _normalize(p: string): string {
 	return ensurePosix(p);
+}
+
+function _resolve(p: string): string {
+	return resolve(p);
 }
 
 function _dirname(p: string): string {
@@ -256,6 +260,7 @@ export {
 	_dirname as dirname,
 	_basename as basename,
 	_extname as extname,
+	_resolve as resolve,
 	_isAbsolute as isAbsolute,
 	_parse as parse
 };

@@ -8,4 +8,3 @@ export {
 	ITypescriptPluginBabelOptions,
 	ITypescriptPluginTypescriptOptions
 } from "./plugin/i-typescript-plugin-options";
-export {IBabelInputOptions} from "./plugin/i-babel-options";
