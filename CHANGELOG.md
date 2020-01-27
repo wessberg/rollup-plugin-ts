@@ -1,3 +1,9 @@
+## [1.2.14](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.13...v1.2.14) (2020-01-27)
+
+### Bug Fixes
+
+- **babel:** unpin babel dependencies ([9ea5335](https://github.com/wessberg/rollup-plugin-ts/commit/9ea5335edbad45f8d5911823ded41f5ef0534ca7))
+
 ## [1.2.13](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.12...v1.2.13) (2020-01-14)
 
 ### Bug Fixes
