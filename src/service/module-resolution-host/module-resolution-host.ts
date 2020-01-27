@@ -97,10 +97,6 @@ export class ModuleResolutionHost implements TS.ModuleSpecifierResolutionHost {
 		return this.options.cwd;
 	}
 
-	getTsconfigPath(): string {
-		return this.options.parsedCommandLineResult.tsconfigPath;
-	}
-
 	/**
 	 * Returns true if the given file exists
 	 */

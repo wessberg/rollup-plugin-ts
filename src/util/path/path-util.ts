@@ -1,4 +1,4 @@
-import {basename, dirname, extname, isAbsolute, join, normalize, parse, ParsedPath, relative, resolve} from "path";
+import pathModule, {ParsedPath} from "path";
 import {
 	BABEL_RUNTIME_PREFIX_1,
 	BABEL_RUNTIME_PREFIX_2,
@@ -12,36 +12,43 @@ import {
 } from "../../constant/constant";
 import slash from "slash";
 
-function _relative(from: string, to: string): string {
-	return ensurePosix(relative(from, to));
+export function relative(from: string, to: string): string {
+	return ensurePosix(pathModule.relative(from, to));
 }
 
-function _join(...paths: string[]): string {
-	return ensurePosix(join(...paths));
+export function join(...paths: string[]): string {
+	return ensurePosix(pathModule.join(...paths));
 }
 
-function _normalize(p: string): string {
+export function normalize(p: string): string {
 	return ensurePosix(p);
 }
 
-function _resolve(p: string): string {
-	return resolve(p);
+export function resolve(p: string): string {
+	return ensurePosix(pathModule.resolve(p));
 }
 
-function _dirname(p: string): string {
-	return ensurePosix(dirname(p));
+export function dirname(p: string): string {
+	return ensurePosix(pathModule.dirname(p));
 }
 
-function _basename(p: string): string {
-	return ensurePosix(basename(p));
+export function basename(p: string): string {
+	return ensurePosix(pathModule.basename(p));
 }
 
-function _extname(p: string): string {
-	return extname(p);
+export function extname(p: string): string {
+	return pathModule.extname(p);
 }
 
-function _parse(path: string): ParsedPath {
-	return parse(path);
+export function parse(path: string): ParsedPath {
+	const parsedPath = pathModule.parse(path);
+	return {
+		ext: parsedPath.ext,
+		name: normalize(parsedPath.name),
+		base: normalize(parsedPath.base),
+		dir: normalize(parsedPath.dir),
+		root: normalize(parsedPath.root)
+	};
 }
 
 export function isTypeScriptLib(path: string): boolean {
@@ -57,19 +64,19 @@ export function ensurePosix(path: string): string {
 
 export function nativeNormalize(path: string): string {
 	// Converts to either POSIX or native Windows file paths
-	return normalize(path);
+	return pathModule.normalize(path);
 }
 
 export function nativeDirname(path: string): string {
-	return dirname(path);
+	return pathModule.dirname(path);
 }
 
 export function nativeJoin(...paths: string[]): string {
-	return join(...paths);
+	return pathModule.join(...paths);
 }
 
-export function _isAbsolute(path: string): boolean {
-	return isAbsolute(path);
+export function isAbsolute(path: string): boolean {
+	return pathModule.isAbsolute(path);
 }
 
 /**
@@ -101,9 +108,9 @@ export function isInternalFile(path: string): boolean {
 export function isTslib(path: string): boolean {
 	return (
 		path === "tslib" ||
-		_normalize(path).endsWith(`/tslib/${TSLIB_NAME}`) ||
-		_normalize(path).endsWith("/tslib/tslib.es6.js") ||
-		_normalize(path).endsWith("/tslib/tslib.js")
+		normalize(path).endsWith(`/tslib/${TSLIB_NAME}`) ||
+		normalize(path).endsWith("/tslib/tslib.es6.js") ||
+		normalize(path).endsWith("/tslib/tslib.js")
 	);
 }
 
@@ -119,7 +126,7 @@ export function isBabelHelper(path: string): boolean {
  * This is relevant when combining Babel's preset-env with 'useBuiltIns' with values other than false.
  */
 export function isCoreJsInternals(path: string): boolean {
-	const normalizedPath = _normalize(path);
+	const normalizedPath = normalize(path);
 	return normalizedPath.includes(NODE_MODULES) && normalizedPath.includes("core-js/");
 }
 
@@ -127,7 +134,7 @@ export function isCoreJsInternals(path: string): boolean {
  * Returns true if the given path represents a Babel ESM helper
  */
 export function includesBabelEsmHelper(path: string): boolean {
-	return _normalize(path).includes(`${BABEL_RUNTIME_PREFIX_1}helpers/esm`) || _normalize(path).includes(`${BABEL_RUNTIME_PREFIX_2}helpers/esm`);
+	return normalize(path).includes(`${BABEL_RUNTIME_PREFIX_1}helpers/esm`) || normalize(path).includes(`${BABEL_RUNTIME_PREFIX_2}helpers/esm`);
 }
 
 /**
@@ -136,7 +143,7 @@ export function includesBabelEsmHelper(path: string): boolean {
 export function isBabelCjsHelper(path: string): boolean {
 	return (
 		!includesBabelEsmHelper(path) &&
-		(_normalize(path).includes(`${BABEL_RUNTIME_PREFIX_1}helpers`) || _normalize(path).includes(`${BABEL_RUNTIME_PREFIX_2}helpers`))
+		(normalize(path).includes(`${BABEL_RUNTIME_PREFIX_1}helpers`) || normalize(path).includes(`${BABEL_RUNTIME_PREFIX_2}helpers`))
 	);
 }
 
@@ -144,28 +151,28 @@ export function isBabelCjsHelper(path: string): boolean {
  * Returns true if the given path represents @babel/preset-env
  */
 export function isBabelPresetEnv(path: string): boolean {
-	return _normalize(path).includes("@babel/preset-env") || _normalize(path).includes("babel-preset-env");
+	return normalize(path).includes("@babel/preset-env") || normalize(path).includes("babel-preset-env");
 }
 
 /**
  * Returns true if the given path represents the entry point for rollup-plugin-multi-entry
  */
 export function isRollupPluginMultiEntry(path: string): boolean {
-	return _normalize(path) === ROLLUP_PLUGIN_MULTI_ENTRY;
+	return normalize(path) === ROLLUP_PLUGIN_MULTI_ENTRY;
 }
 
 /**
  * Returns true if the given path represents @babel/preset-es[2015|2016|2017]
  */
 export function isYearlyBabelPreset(path: string): boolean {
-	return _normalize(path).includes("@babel/preset-es") || _normalize(path).includes("babel-preset-es");
+	return normalize(path).includes("@babel/preset-es") || normalize(path).includes("babel-preset-es");
 }
 
 /**
  * Returns true if the given path represents @babel/plugin-transform-runtime
  */
 export function isBabelPluginTransformRuntime(path: string): boolean {
-	return _normalize(path).includes("@babel/plugin-transform-runtime") || _normalize(path).includes("babel-plugin-transform-runtime");
+	return normalize(path).includes("@babel/plugin-transform-runtime") || normalize(path).includes("babel-plugin-transform-runtime");
 }
 
 export function somePathsAreRelated(paths: Iterable<string>, matchPath: string): boolean {
@@ -212,7 +219,7 @@ export function stripKnownExtension(file: string): string {
  * Sets the given extension for the given file
  */
 export function setExtension(file: string, extension: string): string {
-	return _normalize(`${stripKnownExtension(file)}${extension}`);
+	return normalize(`${stripKnownExtension(file)}${extension}`);
 }
 
 /**
@@ -232,12 +239,12 @@ export function ensureHasLeadingDotAndPosix(path: string, externalGuard: boolean
  */
 export function ensureRelative(root: string, path: string): string {
 	// If the path is already relative, simply return it
-	if (!_isAbsolute(path)) {
-		return _normalize(path);
+	if (!isAbsolute(path)) {
+		return normalize(path);
 	}
 
 	// Otherwise, construct a relative path from the root
-	return _relative(root, path);
+	return relative(root, path);
 }
 
 /**
@@ -245,22 +252,10 @@ export function ensureRelative(root: string, path: string): string {
  */
 export function ensureAbsolute(root: string, path: string): string {
 	// If the path is already absolute, simply return it
-	if (_isAbsolute(path)) {
-		return _normalize(path);
+	if (isAbsolute(path)) {
+		return normalize(path);
 	}
 
 	// Otherwise, construct an absolute path from the root
-	return _join(root, path);
+	return join(root, path);
 }
-
-export {
-	_relative as relative,
-	_join as join,
-	_normalize as normalize,
-	_dirname as dirname,
-	_basename as basename,
-	_extname as extname,
-	_resolve as resolve,
-	_isAbsolute as isAbsolute,
-	_parse as parse
-};

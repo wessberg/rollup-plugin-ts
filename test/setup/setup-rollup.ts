@@ -37,7 +37,7 @@ export interface GenerateRollupBundleOptions {
 	dir: string;
 	rollupOptions: Partial<RollupOptions>;
 	format: "esm" | "cjs";
-	tsconfig: Partial<InputCompilerOptions>;
+	tsconfig: Partial<InputCompilerOptions> | string;
 	typescript: typeof TS;
 	transpileOnly: boolean;
 	cwd: TypescriptPluginOptions["cwd"];
@@ -169,13 +169,16 @@ export async function generateRollupBundle(
 				cwd,
 				typescript,
 				exclude: [...exclude, "dist/**/*.*", "src/**/*.*"],
-				tsconfig: {
-					target: "esnext",
-					declaration: true,
-					moduleResolution: "node",
-					baseUrl: ".",
-					...tsconfig
-				},
+				tsconfig:
+					typeof tsconfig === "string"
+						? tsconfig
+						: {
+								target: "esnext",
+								declaration: true,
+								moduleResolution: "node",
+								baseUrl: ".",
+								...tsconfig
+						  },
 				hook,
 				browserslist,
 				fileSystem: {
@@ -221,7 +224,11 @@ export async function generateRollupBundle(
 						const nativeNormalizedRootDir = nativeNormalize(rootDir);
 						const realResult = typescript.sys.readDirectory(rootDir, extensions, excludes, includes, depth);
 						const virtualFiles = files.filter(file => file.fileName.includes(nativeNormalizedRootDir)).map(file => file.fileName);
-						return [...new Set([...realResult, ...virtualFiles])];
+						return [...new Set([...realResult, ...virtualFiles])].map(nativeNormalize);
+					},
+
+					getDirectories(path: string): string[] {
+						return typescript.sys.getDirectories(path).map(nativeNormalize);
 					}
 				},
 				babelConfig
