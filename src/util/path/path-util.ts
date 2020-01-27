@@ -1,4 +1,4 @@
-import pathModule, {ParsedPath} from "path";
+import path, {ParsedPath} from "path";
 import {
 	BABEL_RUNTIME_PREFIX_1,
 	BABEL_RUNTIME_PREFIX_2,
@@ -13,11 +13,11 @@ import {
 import slash from "slash";
 
 export function relative(from: string, to: string): string {
-	return ensurePosix(pathModule.relative(from, to));
+	return ensurePosix(path.relative(from, to));
 }
 
 export function join(...paths: string[]): string {
-	return ensurePosix(pathModule.join(...paths));
+	return ensurePosix(path.join(...paths));
 }
 
 export function normalize(p: string): string {
@@ -25,23 +25,23 @@ export function normalize(p: string): string {
 }
 
 export function resolve(p: string): string {
-	return ensurePosix(pathModule.resolve(p));
+	return ensurePosix(path.resolve(p));
 }
 
 export function dirname(p: string): string {
-	return ensurePosix(pathModule.dirname(p));
+	return ensurePosix(path.dirname(p));
 }
 
 export function basename(p: string): string {
-	return ensurePosix(pathModule.basename(p));
+	return ensurePosix(path.basename(p));
 }
 
 export function extname(p: string): string {
-	return pathModule.extname(p);
+	return path.extname(p);
 }
 
-export function parse(path: string): ParsedPath {
-	const parsedPath = pathModule.parse(path);
+export function parse(p: string): ParsedPath {
+	const parsedPath = path.parse(p);
 	return {
 		ext: parsedPath.ext,
 		name: normalize(parsedPath.name),
@@ -51,32 +51,32 @@ export function parse(path: string): ParsedPath {
 	};
 }
 
-export function isTypeScriptLib(path: string): boolean {
-	return path.startsWith(`lib.`) && path.endsWith(D_TS_EXTENSION);
+export function isTypeScriptLib(p: string): boolean {
+	return p.startsWith(`lib.`) && p.endsWith(D_TS_EXTENSION);
 }
 
 /**
  * Ensures that the given path follows posix file names
  */
-export function ensurePosix(path: string): string {
-	return slash(path);
+export function ensurePosix(p: string): string {
+	return slash(p);
 }
 
-export function nativeNormalize(path: string): string {
+export function nativeNormalize(p: string): string {
 	// Converts to either POSIX or native Windows file paths
-	return pathModule.normalize(path);
+	return path.normalize(p);
 }
 
-export function nativeDirname(path: string): string {
-	return pathModule.dirname(path);
+export function nativeDirname(p: string): string {
+	return path.dirname(p);
 }
 
 export function nativeJoin(...paths: string[]): string {
-	return pathModule.join(...paths);
+	return path.join(...paths);
 }
 
-export function isAbsolute(path: string): boolean {
-	return pathModule.isAbsolute(path);
+export function isAbsolute(p: string): boolean {
+	return path.isAbsolute(p);
 }
 
 /**
@@ -91,93 +91,86 @@ export function getExtension(file: string): string {
 /**
  * Returns true if the given path represents an external library
  */
-export function isExternalLibrary(path: string): boolean {
-	return (!path.startsWith(".") && !path.startsWith("/")) || path.includes(NODE_MODULES_MATCH_PATH);
-}
-
-/**
- * Returns true if the given path represents an internal Typescript file
- */
-export function isInternalFile(path: string): boolean {
-	return isTypeScriptLib(path) || path.toLowerCase().endsWith(TSLIB_NAME);
+export function isExternalLibrary(p: string): boolean {
+	return (!p.startsWith(".") && !p.startsWith("/")) || p.includes(NODE_MODULES_MATCH_PATH);
 }
 
 /**
  * Returns true if the given id represents tslib
  */
-export function isTslib(path: string): boolean {
+export function isTslib(p: string): boolean {
 	return (
-		path === "tslib" ||
-		normalize(path).endsWith(`/tslib/${TSLIB_NAME}`) ||
-		normalize(path).endsWith("/tslib/tslib.es6.js") ||
-		normalize(path).endsWith("/tslib/tslib.js")
+		p === "tslib" ||
+		normalize(p).endsWith(`/tslib/${TSLIB_NAME}`) ||
+		normalize(p).endsWith("/tslib/tslib.es6.js") ||
+		normalize(p).endsWith("/tslib/tslib.js")
 	);
 }
 
 /**
  * Returns true if the given path represents a Babel helper
  */
-export function isBabelHelper(path: string): boolean {
-	return includesBabelEsmHelper(path) || isBabelCjsHelper(path);
+export function isBabelHelper(p: string): boolean {
+	return includesBabelEsmHelper(p) || isBabelCjsHelper(p);
 }
 
 /**
  * Returns true if the given path represents an internal core-js file.
  * This is relevant when combining Babel's preset-env with 'useBuiltIns' with values other than false.
  */
-export function isCoreJsInternals(path: string): boolean {
-	const normalizedPath = normalize(path);
+export function isCoreJsInternals(p: string): boolean {
+	const normalizedPath = normalize(p);
 	return normalizedPath.includes(NODE_MODULES) && normalizedPath.includes("core-js/");
 }
 
 /**
  * Returns true if the given path represents a Babel ESM helper
  */
-export function includesBabelEsmHelper(path: string): boolean {
-	return normalize(path).includes(`${BABEL_RUNTIME_PREFIX_1}helpers/esm`) || normalize(path).includes(`${BABEL_RUNTIME_PREFIX_2}helpers/esm`);
+export function includesBabelEsmHelper(p: string): boolean {
+	return normalize(p).includes(`${BABEL_RUNTIME_PREFIX_1}helpers/esm`) || normalize(p).includes(`${BABEL_RUNTIME_PREFIX_2}helpers/esm`);
 }
 
 /**
  * Returns true if the given path represents a Babel CJS helper
  */
-export function isBabelCjsHelper(path: string): boolean {
+export function isBabelCjsHelper(p: string): boolean {
 	return (
-		!includesBabelEsmHelper(path) &&
-		(normalize(path).includes(`${BABEL_RUNTIME_PREFIX_1}helpers`) || normalize(path).includes(`${BABEL_RUNTIME_PREFIX_2}helpers`))
+		!includesBabelEsmHelper(p) &&
+		(normalize(p).includes(`${BABEL_RUNTIME_PREFIX_1}helpers`) || normalize(p).includes(`${BABEL_RUNTIME_PREFIX_2}helpers`))
 	);
 }
 
 /**
  * Returns true if the given path represents @babel/preset-env
  */
-export function isBabelPresetEnv(path: string): boolean {
-	return normalize(path).includes("@babel/preset-env") || normalize(path).includes("babel-preset-env");
+export function isBabelPresetEnv(p: string): boolean {
+	return normalize(p).includes("@babel/preset-env") || normalize(p).includes("babel-preset-env");
 }
 
 /**
  * Returns true if the given path represents the entry point for rollup-plugin-multi-entry
  */
-export function isRollupPluginMultiEntry(path: string): boolean {
-	return normalize(path) === ROLLUP_PLUGIN_MULTI_ENTRY;
+export function isRollupPluginMultiEntry(p: string): boolean {
+	return normalize(p) === ROLLUP_PLUGIN_MULTI_ENTRY;
 }
 
 /**
  * Returns true if the given path represents @babel/preset-es[2015|2016|2017]
  */
-export function isYearlyBabelPreset(path: string): boolean {
-	return normalize(path).includes("@babel/preset-es") || normalize(path).includes("babel-preset-es");
+export function isYearlyBabelPreset(p: string): boolean {
+	return normalize(p).includes("@babel/preset-es") || normalize(p).includes("babel-preset-es");
 }
 
 /**
  * Returns true if the given path represents @babel/plugin-transform-runtime
  */
-export function isBabelPluginTransformRuntime(path: string): boolean {
-	return normalize(path).includes("@babel/plugin-transform-runtime") || normalize(path).includes("babel-plugin-transform-runtime");
+export function isBabelPluginTransformRuntime(p: string): boolean {
+	return normalize(p).includes("@babel/plugin-transform-runtime") || normalize(p).includes("babel-plugin-transform-runtime");
 }
 
 export function somePathsAreRelated(paths: Iterable<string>, matchPath: string): boolean {
-	for (const path of paths) {
-		if (pathsAreRelated(path, matchPath)) return true;
+	for (const p of paths) {
+		if (pathsAreRelated(p, matchPath)) return true;
 	}
 	return false;
 }
@@ -225,10 +218,10 @@ export function setExtension(file: string, extension: string): string {
 /**
  * Ensure that the given path has a leading "."
  */
-export function ensureHasLeadingDotAndPosix(path: string, externalGuard: boolean = true): string {
-	if (externalGuard && isExternalLibrary(path)) return path;
+export function ensureHasLeadingDotAndPosix(p: string, externalGuard: boolean = true): string {
+	if (externalGuard && isExternalLibrary(p)) return p;
 
-	const posixPath = ensurePosix(path);
+	const posixPath = ensurePosix(p);
 	if (posixPath.startsWith(".")) return posixPath;
 	if (posixPath.startsWith("/")) return `.${posixPath}`;
 	return `./${posixPath}`;
@@ -237,25 +230,25 @@ export function ensureHasLeadingDotAndPosix(path: string, externalGuard: boolean
 /**
  * Ensures that the given path is relative
  */
-export function ensureRelative(root: string, path: string): string {
+export function ensureRelative(root: string, p: string): string {
 	// If the path is already relative, simply return it
-	if (!isAbsolute(path)) {
-		return normalize(path);
+	if (!isAbsolute(p)) {
+		return normalize(p);
 	}
 
 	// Otherwise, construct a relative path from the root
-	return relative(root, path);
+	return relative(root, p);
 }
 
 /**
  * Ensures that the given path is absolute
  */
-export function ensureAbsolute(root: string, path: string): string {
+export function ensureAbsolute(root: string, p: string): string {
 	// If the path is already absolute, simply return it
-	if (isAbsolute(path)) {
-		return normalize(path);
+	if (isAbsolute(p)) {
+		return normalize(p);
 	}
 
 	// Otherwise, construct an absolute path from the root
-	return join(root, path);
+	return join(root, p);
 }

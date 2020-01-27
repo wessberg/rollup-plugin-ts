@@ -38,11 +38,10 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
 
 <!-- SHADOW_SECTION_FEATURES_END -->
 
-In comparison with the [official plugin](https://github.com/rollup/plugins/tree/master/packages/typescript), this one has several significant improvements:
-
 - Compiler diagnostics are correctly emitted and brought into the Rollup build lifecycle
 - [Emit-less types](https://github.com/rollup/rollup-plugin-typescript/issues/28) are correctly handled
 - Generation and bundling of Definition files (`.d.ts`) are supported and fully supports code splitting
+- Incremental compilation is supported.
 - A [Browserslist](https://github.com/browserslist/browserslist) can be provided instead of a target version of ECMAScript such that your code is transpiled in relation to the baseline of browsers defined in your Browserslist instead.
 - Babel can be used as the transpiler, rather than Typescript, such that Typescript handles diagnostics, declarations, and stripping away types, and Babel is used for syntax transformation.
 
