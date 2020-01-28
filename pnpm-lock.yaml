@@ -25,7 +25,6 @@ devDependencies:
   "@rollup/plugin-commonjs": 11.0.1_rollup@1.30.0
   "@rollup/plugin-json": 4.0.1_rollup@1.30.0
   "@types/prettier": 1.19.0
-  "@wessberg/rollup-plugin-ts": 1.2.13_rollup@1.30.0+typescript@3.7.5
   "@wessberg/scaffold": 1.0.23_typescript@3.7.5
   "@wessberg/ts-config": 0.0.44_tslint@6.0.0+typescript@3.7.5
   ava: 3.1.0
@@ -38,6 +37,7 @@ devDependencies:
   pretty-quick: 2.0.1_prettier@1.19.1
   rimraf: 3.0.0
   rollup: 1.30.0
+  rollup-plugin-ts: /@wessberg/rollup-plugin-ts/1.2.14_rollup@1.30.0+typescript@3.7.5
   standard-changelog: 2.0.21
   ts-node: 8.6.2_typescript@3.7.5
   tslint: 6.0.0_typescript@3.7.5
@@ -992,7 +992,7 @@ packages:
       node: ">=8.0.0"
     resolution:
       integrity: sha512-Ba1Q36FZhe1KrLWDkxUetrWCEIdmyPvndKp4zTirWHYnTfNyvr4adDIrQaIq1h49DkPDgQEkBw7PcMRSvuFA3g==
-  /@wessberg/rollup-plugin-ts/1.2.13_rollup@1.30.0+typescript@3.7.5:
+  /@wessberg/rollup-plugin-ts/1.2.14_rollup@1.30.0+typescript@3.7.5:
     dependencies:
       "@babel/core": 7.8.3
       "@babel/plugin-proposal-async-generator-functions": 7.8.3_@babel+core@7.8.3
@@ -1021,10 +1021,10 @@ packages:
     engines:
       node: ">=8.0.0"
     peerDependencies:
-      rollup: ^1.29.0
+      rollup: ^1.30.0
       typescript: ^3.x
     resolution:
-      integrity: sha512-uIGWrz909d6zvVRyl6xwkAdbNhc82RkgeC0RS/8907PTIr3nqkYbVuLVpTZeoOg2cBCXIP5HKP4paBNNNGRgcA==
+      integrity: sha512-dLJuWdI71EkpSUpeBxSer1pD/Ss6scSF43b5dU/Gaf0beyA76/Xex3cIRf1SFKCDbd5KEjvbR/HMwpxFQHS9/g==
   /@wessberg/scaffold/1.0.23_typescript@3.7.5:
     dependencies:
       "@types/eslint": 6.1.7
@@ -6296,7 +6296,6 @@ specifiers:
   "@types/node": ^13.5.0
   "@types/prettier": ^1.19.0
   "@wessberg/browserslist-generator": ^1.0.30
-  "@wessberg/rollup-plugin-ts": ^1.2.13
   "@wessberg/scaffold": ^1.0.23
   "@wessberg/stringutil": ^1.0.19
   "@wessberg/ts-clone-node": ^0.3.3
@@ -6314,6 +6313,7 @@ specifiers:
   pretty-quick: ^2.0.1
   rimraf: ^3.0.0
   rollup: ^1.30.0
+  rollup-plugin-ts: "npm:@wessberg/rollup-plugin-ts"
   slash: ^3.0.0
   standard-changelog: ^2.0.21
   ts-node: 8.6.2

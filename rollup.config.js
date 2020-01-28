@@ -1,4 +1,4 @@
-import ts from "@wessberg/rollup-plugin-ts";
+import ts from "rollup-plugin-ts";
 import packageJson from "./package.json";
 
 import {builtinModules} from "module";

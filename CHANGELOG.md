@@ -320,7 +320,7 @@
 
 ### Features
 
-- **EcmaVersion:** adds support for generating browserslists for browsers with support for ES2019 ([2c8ea0c](https://github.com/wessberg/rollup-plugin-ts/commit/2c8ea0c685e25f6d11b1bca3c74ffbe1b0889a79))
+- **EcmaVersion:** adds support for generating browserslist for browsers with support for ES2019 ([2c8ea0c](https://github.com/wessberg/rollup-plugin-ts/commit/2c8ea0c685e25f6d11b1bca3c74ffbe1b0889a79))
 - **typescript:** makes it possible to detect and Ecma version for the ScriptTarget ES2019 ([b336547](https://github.com/wessberg/rollup-plugin-ts/commit/b336547f02657712e11eba5e3d168853be948652))
 
 ## [1.1.43](https://github.com/wessberg/rollup-plugin-ts/compare/v1.1.42...v1.1.43) (2019-03-28)

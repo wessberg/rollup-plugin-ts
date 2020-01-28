@@ -1,7 +1,7 @@
 {
-	"name": "@wessberg/rollup-plugin-ts",
+	"name": "rollup-plugin-ts",
 	"version": "1.2.14",
-	"description": "A Typescript Rollup plugin that bundles declarations and respects Browserslists",
+	"description": "A Typescript Rollup plugin that bundles declarations and respects Browserslist",
 	"scripts": {
 		"generate:scaffold": "scaffold all --yes",
 		"generate:changelog": "standard-changelog --first-release",
@@ -51,7 +51,7 @@
 		"@rollup/plugin-commonjs": "^11.0.1",
 		"@rollup/plugin-json": "^4.0.1",
 		"@types/prettier": "^1.19.0",
-		"@wessberg/rollup-plugin-ts": "^1.2.13",
+		"rollup-plugin-ts": "npm:@wessberg/rollup-plugin-ts",
 		"@wessberg/scaffold": "^1.0.23",
 		"@wessberg/ts-config": "^0.0.44",
 		"ava": "3.1.0",

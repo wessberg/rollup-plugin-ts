@@ -6,7 +6,7 @@
 
 <!-- SHADOW_SECTION_DESCRIPTION_SHORT_START -->
 
-> A Typescript Rollup plugin that bundles declarations and respects Browserslists
+> A Typescript Rollup plugin that bundles declarations and respects Browserslist
 
 <!-- SHADOW_SECTION_DESCRIPTION_SHORT_END -->
 
@@ -28,7 +28,7 @@
 
 <!-- SHADOW_SECTION_DESCRIPTION_LONG_END -->
 
-This is a Rollup plugin that enables integration between Typescript, Babel, Browserslists, and Rollup.
+This is a Rollup plugin that enables integration between Typescript, Babel, Browserslist, and Rollup.
 It is first and foremost a Typescript plugin that enables full interoperability with Rollup. With it comes
 very powerful bundling and tree-shaking of generated Typescript declaration files that works seamlessly with code splitting.
 
@@ -53,61 +53,19 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
 
 ## Table of Contents
 
-- [Description](#description)
-  - [Features](#features)
+- [Description](#description) - [Features](#features)
 - [Table of Contents](#table-of-contents)
-- [Install](#install)
-  - [npm](#npm)
-  - [Yarn](#yarn)
-  - [pnpm](#pnpm)
-- [Usage](#usage)
-  - [Using it with just Typescript](#using-it-with-just-typescript)
-    - [Typescript and tslib helpers](#typescript-and-tslib-helpers)
-  - [Combining Typescript with a Browserslist](#combining-typescript-with-a-browserslist)
-    - [Using the plugin with Typescript, but without Browserslists](#using-the-plugin-with-typescript-but-without-browserslists)
-  - [Combining Typescript with Babel](#combining-typescript-with-babel)
-    - [Special handling for minification plugins/presets](#special-handling-for-minification-pluginspresets)
-    - [`@babel/runtime` and external helpers](#babelruntime-and-external-helpers)
-    - [`@babel/runtime` and polyfills](#babelruntime-and-polyfills)
-  - [Using `CustomTransformers`](#using-customtransformers)
+- [Install](#install) - [npm](#npm) - [Yarn](#yarn) - [pnpm](#pnpm)
+- [Usage](#usage) - [Using it with just Typescript](#using-it-with-just-typescript) - [Typescript and tslib helpers](#typescript-and-tslib-helpers) - [Combining Typescript with a Browserslist](#combining-typescript-with-a-browserslist) - [Using the plugin with Typescript, but without Browserslist](#using-the-plugin-with-typescript-but-without-browserslist) - [Combining Typescript with Babel](#combining-typescript-with-babel) - [Special handling for minification plugins/presets](#special-handling-for-minification-pluginspresets) - [`@babel/runtime` and external helpers](#babelruntime-and-external-helpers) - [`@babel/runtime` and polyfills](#babelruntime-and-polyfills) - [Using `CustomTransformers`](#using-customtransformers)
 - [Declaration files](#declaration-files)
-- [Examples](#examples)
-  - [Pure Typescript example](#pure-typescript-example)
-  - [Typescript with Browserslist example](#typescript-with-browserslist-example)
-  - [Typescript, Babel, and Browserslist example](#typescript-babel-and-browserslist-example)
-  - [Pure Typescript with CustomTransformers](#pure-typescript-with-customtransformers)
-  - [Advanced example of using Typescript, Babel, and Browserslists together](#advanced-example-of-using-typescript-babel-and-browserslists-together)
-  - [Passing a specific TypeScript version](#passing-a-specific-typescript-version)
-- [Hooks](#hooks)
-  - [The `outputPath` hook](#the-outputpath-hook)
-  - [The `diagnostics` hook](#the-diagnostics-hook)
-- [Full list of plugin options](#full-list-of-plugin-options)
-  - [`transpiler`](#transpiler)
-  - [`babelConfig`](#babelconfig)
-  - [`tsconfig`](#tsconfig)
-  - [`browserslist`](#browserslist)
-  - [`cwd`](#cwd)
-  - [`typescript`](#typescript)
-  - [`transformers`](#transformers)
-  - [`include`](#include)
-  - [`exclude`](#exclude)
-  - [`transpileOnly`](#transpileonly)
-  - [`fileSystem`](#filesystem)
-  - [`hook`](#hook)
-- [Ignored/overridden options](#ignoredoverridden-options)
-  - [Ignored/overridden Typescript options](#ignoredoverridden-typescript-options)
-  - [Ignored/overridden Babel options](#ignoredoverridden-babel-options)
-  - [Default Babel plugins](#default-babel-plugins)
+- [Examples](#examples) - [Pure Typescript example](#pure-typescript-example) - [Typescript with Browserslist example](#typescript-with-browserslist-example) - [Typescript, Babel, and Browserslist example](#typescript-babel-and-browserslist-example) - [Pure Typescript with CustomTransformers](#pure-typescript-with-customtransformers) - [Advanced example of using Typescript, Babel, and Browserslist together](#advanced-example-of-using-typescript-babel-and-browserslist-together) - [Passing a specific TypeScript version](#passing-a-specific-typescript-version)
+- [Hooks](#hooks) - [The `outputPath` hook](#the-outputpath-hook) - [The `diagnostics` hook](#the-diagnostics-hook)
+- [Full list of plugin options](#full-list-of-plugin-options) - [`transpiler`](#transpiler) - [`babelConfig`](#babelconfig) - [`tsconfig`](#tsconfig) - [`browserslist`](#browserslist) - [`cwd`](#cwd) - [`typescript`](#typescript) - [`transformers`](#transformers) - [`include`](#include) - [`exclude`](#exclude) - [`transpileOnly`](#transpileonly) - [`fileSystem`](#filesystem) - [`hook`](#hook)
+- [Ignored/overridden options](#ignoredoverridden-options) - [Ignored/overridden Typescript options](#ignoredoverridden-typescript-options) - [Ignored/overridden Babel options](#ignoredoverridden-babel-options) - [Default Babel plugins](#default-babel-plugins)
 - [Contributing](#contributing)
 - [Maintainers](#maintainers)
-- [Backers](#backers)
-  - [Patreon](#patreon)
-- [FAQ](#faq)
-  - [Does this plugin work with Code Splitting?](#does-this-plugin-work-with-code-splitting)
-  - [Why wouldn't you use just Typescript?](#why-wouldnt-you-use-just-typescript)
-  - [Okay, then why wouldn't you use just babel?](#okay-then-why-wouldnt-you-use-just-babel)
-  - [When combined with Babel, what does Typescript do, and what does Babel do?](#when-combined-with-babel-what-does-typescript-do-and-what-does-babel-do)
-  - [Why is @babel/plugin-transform-runtime and tslib included by default?](#why-is-babelplugin-transform-runtime-and-tslib-included-by-default)
+- [Backers](#backers) - [Patreon](#patreon)
+- [FAQ](#faq) - [Does this plugin work with Code Splitting?](#does-this-plugin-work-with-code-splitting) - [Why wouldn't you use just Typescript?](#why-wouldnt-you-use-just-typescript) - [Okay, then why wouldn't you use just babel?](#okay-then-why-wouldnt-you-use-just-babel) - [When combined with Babel, what does Typescript do, and what does Babel do?](#when-combined-with-babel-what-does-typescript-do-and-what-does-babel-do) - [Why is @babel/plugin-transform-runtime and tslib included by default?](#why-is-babelplugin-transform-runtime-and-tslib-included-by-default)
 - [License](#license)
 
 <!-- SHADOW_SECTION_TOC_END -->
@@ -119,19 +77,19 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
 ### npm
 
 ```
-$ npm install @wessberg/rollup-plugin-ts
+$ npm install rollup-plugin-ts
 ```
 
 ### Yarn
 
 ```
-$ yarn add @wessberg/rollup-plugin-ts
+$ yarn add rollup-plugin-ts
 ```
 
 ### pnpm
 
 ```
-$ pnpm add @wessberg/rollup-plugin-ts
+$ pnpm add rollup-plugin-ts
 ```
 
 <!-- SHADOW_SECTION_INSTALL_END -->
@@ -145,7 +103,7 @@ $ pnpm add @wessberg/rollup-plugin-ts
 Using the plugin is as simple as it can be. Here's an example within a Rollup config:
 
 ```javascript
-import ts from "@wessberg/rollup-plugin-ts";
+import ts from "rollup-plugin-ts";
 export default {
 	// ...
 	plugins: [
@@ -206,7 +164,7 @@ ts({
 ```
 
 If there is a `.browserslistrc` file or the nearest `package.json` contains a Browserslist configuration, a target ECMAScript version will be decided based on that one, rather than respecting the `target` property of the matched `tsconfig`.
-If you do not want this behavior, you can [disable it as described here](#using-the-plugin-with-typescript-but-without-browserslists).
+If you do not want this behavior, you can [disable it as described here](#using-the-plugin-with-typescript-but-without-browserslist).
 
 #### Typescript and tslib helpers
 
@@ -245,7 +203,7 @@ ts({
 });
 ```
 
-#### Using the plugin with Typescript, but without Browserslists
+#### Using the plugin with Typescript, but without Browserslist
 
 If no Browserslist can be found, or if you simply don't want to use one, that's completely OK!
 In such cases, the `target` property of the nearest `tsconfig` will be used (or use the Typescript default setting if no such file exists).
@@ -343,7 +301,7 @@ ts({
 ### Typescript, Babel, and Browserslist example
 
 [As described here](#combining-typescript-with-babel), a `babel.config.js` or `.babelrc` file will automatically be found by the plugin if available. This example shows how you can provide one explicitly.
-And, [as described here](#typescript-with-browserslist-example), the same goes for Browserslists.
+And, [as described here](#typescript-with-browserslist-example), the same goes for Browserslist.
 
 ```javascript
 ts({
@@ -367,7 +325,7 @@ ts({
 });
 ```
 
-### Advanced example of using Typescript, Babel, and Browserslists together
+### Advanced example of using Typescript, Babel, and Browserslist together
 
 This example shows how you can use this plugin to accomplish quite advanced things:
 
