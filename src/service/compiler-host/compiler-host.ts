@@ -39,7 +39,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		return this.options.allowTransformingDeclarations === true;
 	}
 
-	isSupportedFileName(fileName: string, ignoreFilter: boolean = false): boolean {
+	isSupportedFileName(fileName: string, ignoreFilter = false): boolean {
 		return (ignoreFilter || this.options.filter(fileName)) && this.getSupportedExtensions().has(getExtension(fileName));
 	}
 
@@ -79,7 +79,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		return this.popEmitOutput();
 	}
 
-	emit(fileName?: string, onlyDts: boolean = false, transformers?: CustomTransformersInput): TS.EmitOutput {
+	emit(fileName?: string, onlyDts = false, transformers?: CustomTransformersInput): TS.EmitOutput {
 		this.popEmitOutput();
 
 		const sourceFile = fileName == null ? undefined : this.getSourceFile(fileName);
@@ -203,7 +203,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		return dependencies;
 	}
 
-	getDependenciesForFile(fileName: string, deep: boolean = false): Set<ExtendedResolvedModule> | undefined {
+	getDependenciesForFile(fileName: string, deep = false): Set<ExtendedResolvedModule> | undefined {
 		if (deep) {
 			return this.getDependenciesForFileDeep(fileName);
 		}
@@ -471,7 +471,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		const resolvedTypeReferenceDirectives: (TS.ResolvedTypeReferenceDirective | undefined)[] = [];
 		for (const typeReferenceDirectiveName of typeReferenceDirectiveNames) {
 			// try to use standard resolution
-			let result = resolveId({
+			const result = resolveId({
 				moduleResolutionHost: this,
 				parent: containingFile,
 				id: typeReferenceDirectiveName,

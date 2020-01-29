@@ -14,8 +14,6 @@ import {BabelConfigFactory, FullConfig} from "./get-babel-config-result";
 import {ITypescriptPluginBabelOptions} from "../../plugin/i-typescript-plugin-options";
 import {isDefined} from "../is-defined/is-defined";
 
-// tslint:disable:no-any
-
 /**
  * Returns true if the given babelConfig is IBabelInputOptions
  */
@@ -129,7 +127,9 @@ export function getBabelConfig({
 
 		// If users have provided presets of their own, ensure that they are using respecting the forced options
 		if (options.presets != null) {
-			options.presets = options.presets.map((preset: any) => {
+			options.presets = options.presets.map((preset: ConfigItem) => {
+				if (preset.file == null) return preset;
+
 				// Apply the forced @babel/preset-env options here
 				if (isBabelPresetEnv(preset.file.resolved)) {
 					return createConfigItem(
@@ -140,7 +140,7 @@ export function getBabelConfig({
 								...FORCED_BABEL_PRESET_ENV_OPTIONS,
 								// If targets have already been provided by the user options, accept them.
 								// Otherwise, apply the browserslist as the preset-env target
-								...(preset.options != null && preset.options.targets != null
+								...(preset.options != null && (preset.options as {targets?: {}}).targets != null
 									? {}
 									: {
 											targets: {
@@ -173,7 +173,9 @@ export function getBabelConfig({
 
 		// If users have provided plugins of their own, ensure that they are using respecting the forced options
 		if (options.plugins != null) {
-			options.plugins = options.plugins.map((plugin: any) => {
+			options.plugins = options.plugins.map((plugin: ConfigItem) => {
+				if (plugin.file == null) return plugin;
+
 				// Apply the forced @babel/preset-env options here
 				if (isBabelPluginTransformRuntime(plugin.file.resolved)) {
 					return createConfigItem(

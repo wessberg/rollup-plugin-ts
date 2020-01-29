@@ -10,7 +10,6 @@ import * as TS341 from "typescript-3-4-1";
 import * as TS351 from "typescript-3-5-1";
 import * as TS362 from "typescript-3-6-2";
 import * as TS372 from "typescript-3-7-2";
-// tslint:disable:no-duplicate-string
 
 test("Supports multiple TypeScript versions. #1", async t => {
 	for (const [TS, version] of [

@@ -40,12 +40,8 @@ export function treeShaker(options: SourceFileBundlerVisitorOptions): TS.SourceF
 	// Prepare some VisitorOptions
 	const visitorOptions = {
 		...options,
-		isReferenced: <U extends TS.Node>(node: U): boolean => {
-			return isReferenced({...visitorOptions, node});
-		},
-		continuation: <U extends TS.Node>(node: U): U | undefined => {
-			return visitor(node) as U | undefined;
-		}
+		isReferenced: <U extends TS.Node>(node: U): boolean => isReferenced({...visitorOptions, node}),
+		continuation: <U extends TS.Node>(node: U): U | undefined => visitor(node) as U | undefined
 	};
 
 	function visitor(node: TS.Node): TS.Node | undefined {

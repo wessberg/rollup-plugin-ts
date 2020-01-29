@@ -3,8 +3,6 @@ import {generateRollupBundle} from "./setup/setup-rollup";
 import json from "@rollup/plugin-json";
 import {formatCode} from "./util/format-code";
 
-// tslint:disable:no-duplicate-string
-
 test("Handles .JSON files that has been pre-transformed by other plugins. #1", async t => {
 	const bundle = await generateRollupBundle(
 		[

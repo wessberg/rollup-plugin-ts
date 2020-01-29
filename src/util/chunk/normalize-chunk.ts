@@ -49,7 +49,7 @@ export function normalizeChunk(
 	}
 
 	const visitableModules = chunk.modules.filter(module => host.isSupportedFileName(module, true));
-	let entryModules = chunk.isEntry ? [visitableModules.slice(-1)[0]] : [...visitableModules].reverse();
+	const entryModules = chunk.isEntry ? [visitableModules.slice(-1)[0]] : [...visitableModules].reverse();
 
 	return {
 		isEntry: chunk.isEntry,

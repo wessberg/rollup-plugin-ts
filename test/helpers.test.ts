@@ -1,7 +1,6 @@
 import test from "ava";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {formatCode} from "./util/format-code";
-// tslint:disable:no-duplicate-string
 
 test("Will treat every file as a module with tslib. #1", async t => {
 	const bundle = await generateRollupBundle(

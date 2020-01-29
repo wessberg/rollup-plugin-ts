@@ -1,6 +1,0 @@
-{
-	"extends": "./node_modules/@wessberg/ts-config/tslint.json",
-	"linterOptions": {
-		"exclude": ["test-app/**"]
-	}
-}

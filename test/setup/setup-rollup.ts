@@ -8,8 +8,6 @@ import {getRealFileSystem} from "../../src/util/file-system/file-system";
 import {TS} from "../../src/type/ts";
 import {isAbsolute, nativeDirname, nativeJoin, nativeNormalize, parse} from "../../src/util/path/path-util";
 
-// tslint:disable:no-any
-
 export interface ITestFile {
 	fileName: string;
 	text: string;

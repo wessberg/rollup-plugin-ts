@@ -5,7 +5,6 @@ import * as TS321 from "typescript-3-2-1";
 import * as TS331 from "typescript-3-3-1";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-// tslint:disable:no-duplicate-string
 test("Can generate .tsbuildinfo for a compilation unit. #1", async t => {
 	const bundle = await generateRollupBundle(
 		[

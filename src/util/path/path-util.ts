@@ -218,7 +218,7 @@ export function setExtension(file: string, extension: string): string {
 /**
  * Ensure that the given path has a leading "."
  */
-export function ensureHasLeadingDotAndPosix(p: string, externalGuard: boolean = true): string {
+export function ensureHasLeadingDotAndPosix(p: string, externalGuard = true): string {
 	if (externalGuard && isExternalLibrary(p)) return p;
 
 	const posixPath = ensurePosix(p);

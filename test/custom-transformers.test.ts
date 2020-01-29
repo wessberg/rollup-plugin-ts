@@ -3,7 +3,6 @@ import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {TS} from "../src/type/ts";
 
-// tslint:disable:no-duplicate-string
 test("Supports Custom Transformers, including on bundled declarations. #1", async t => {
 	const transformer: (typescript: typeof TS) => TS.TransformerFactory<TS.SourceFile> = typescript => context => sourceFile => {
 		function visitNode(node: TS.Node): TS.VisitResult<TS.Node> {

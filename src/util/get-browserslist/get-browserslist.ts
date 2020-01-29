@@ -1,7 +1,6 @@
 import {IGetBrowserslistOptions} from "./i-get-browserslist-options";
 import {normalizeBrowserslist} from "@wessberg/browserslist-generator";
 import {ensureAbsolute, nativeNormalize} from "../path/path-util";
-// @ts-ignore
 import {findConfig, readConfig} from "browserslist";
 import {IBrowserslistPathConfig, IBrowserslistQueryConfig} from "../../plugin/i-typescript-plugin-options";
 import {ensureArray} from "../ensure-array/ensure-array";

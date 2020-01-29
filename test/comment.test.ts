@@ -1,7 +1,6 @@
 import test from "ava";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
-// tslint:disable:no-duplicate-string
 
 test("Preserves JSDoc comments in bundled declarations. #1", async t => {
 	const bundle = await generateRollupBundle(

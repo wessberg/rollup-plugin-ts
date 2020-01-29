@@ -4,4 +4,7 @@ import {TraceIdentifiersVisitorOptions} from "../trace-identifiers-visitor-optio
 /**
  * Traces identifiers for the given CallExpression.
  */
-export function traceIdentifiersForCallExpression(_options: TraceIdentifiersVisitorOptions<TS.CallExpression>): void {}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function traceIdentifiersForCallExpression(_options: TraceIdentifiersVisitorOptions<TS.CallExpression>): void {
+	// Do nothing
+}

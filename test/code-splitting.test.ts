@@ -2,7 +2,6 @@ import test from "ava";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {stripKnownExtension} from "../src/util/path/path-util";
-// tslint:disable:no-duplicate-string
 
 test("Declaration bundling supports code splitting. #1", async t => {
 	const bundle = await generateRollupBundle(

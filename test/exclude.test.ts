@@ -1,7 +1,6 @@
 import test from "ava";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
-// tslint:disable:no-duplicate-string
 
 test("Is still capable of resolving SourceFiles when needed for when a file path is matched by the 'exclude' glob. #1", async t => {
 	const bundle = await generateRollupBundle(

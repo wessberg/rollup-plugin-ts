@@ -6,10 +6,6 @@ import {createTemporaryConfigFile} from "./util/create-temporary-config-file";
 import {normalize} from "../src/util/path/path-util";
 import {getAppropriateEcmaVersionForBrowserslist} from "@wessberg/browserslist-generator";
 
-// tslint:disable:no-duplicate-string
-
-// tslint:disable:no-identical-functions
-
 test("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usage' option. #1", async t => {
 	const bundle = await generateRollupBundle(
 		[

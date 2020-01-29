@@ -271,7 +271,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 			// Only pass the file through Typescript if it's extension is supported. Otherwise, if we're going to continue on with Babel,
 			// Mock a SourceDescription. Otherwise, return bind undefined
-			let sourceDescription =
+			const sourceDescription =
 				!host.isSupportedFileName(normalizedFile) || isJsInDisguise
 					? babelConfigResult != null
 						? {code, map: undefined}

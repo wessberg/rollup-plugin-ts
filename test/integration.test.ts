@@ -3,8 +3,6 @@ import {generateRollupBundle} from "./setup/setup-rollup";
 import alias from "@rollup/plugin-alias";
 import {formatCode} from "./util/format-code";
 
-// tslint:disable:no-duplicate-string
-
 test("Integrates with @rollup/plugin-alias without problems. #1", async t => {
 	const bundle = await generateRollupBundle(
 		[

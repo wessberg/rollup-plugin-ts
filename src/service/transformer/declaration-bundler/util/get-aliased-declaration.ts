@@ -7,7 +7,8 @@ export interface GetAliasedDeclarationOptions extends SourceFileBundlerVisitorOp
 }
 
 export function getDeclarationFromSymbol(symbol: TS.Symbol): (TS.Declaration & {id: number}) | undefined {
-	let valueDeclaration = symbol.valueDeclaration != null ? symbol.valueDeclaration : symbol.declarations != null ? symbol.declarations[0] : undefined;
+	const valueDeclaration =
+		symbol.valueDeclaration != null ? symbol.valueDeclaration : symbol.declarations != null ? symbol.declarations[0] : undefined;
 	return valueDeclaration as TS.Declaration & {id: number};
 }
 

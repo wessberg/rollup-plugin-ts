@@ -2,7 +2,6 @@ import test from "ava";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-// tslint:disable:no-duplicate-string
 test("Won't fail for .js extensions when allowJs is false. #1", async t => {
 	const bundle = await generateRollupBundle(
 		[
