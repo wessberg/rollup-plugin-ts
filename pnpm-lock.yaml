@@ -12,7 +12,7 @@ dependencies:
   "@rollup/pluginutils": 3.0.6_rollup@1.30.1
   "@types/babel__core": 7.1.3
   "@types/node": 13.5.1
-  "@wessberg/browserslist-generator": 1.0.31
+  "@wessberg/browserslist-generator": 1.0.32
   "@wessberg/stringutil": 1.0.19
   "@wessberg/ts-clone-node": 0.3.3_typescript@3.7.5
   browserslist: 4.8.5
@@ -29,7 +29,7 @@ devDependencies:
   "@typescript-eslint/parser": 2.18.0_eslint@6.8.0+typescript@3.7.5
   "@wessberg/rollup-plugin-ts": 1.2.14_rollup@1.30.1+typescript@3.7.5
   "@wessberg/scaffold": 1.0.23_typescript@3.7.5
-  "@wessberg/ts-config": 1.0.6
+  "@wessberg/ts-config": 1.0.7
   ava: 3.1.0
   babel-preset-minify: 0.5.1
   core-js: 3.6.4
@@ -1063,7 +1063,7 @@ packages:
         optional: true
     resolution:
       integrity: sha512-gVHylf7FDb8VSi2ypFuEL3hOtoC4HkZZ5dOjXvVjoyKdRrvXAOPSzpNRnKMfaUUEiSLP8UF9j9X9EDLxC0lfZg==
-  /@wessberg/browserslist-generator/1.0.31:
+  /@wessberg/browserslist-generator/1.0.32:
     dependencies:
       "@types/object-path": 0.11.0
       "@types/semver": 7.1.0
@@ -1077,7 +1077,7 @@ packages:
     engines:
       node: ">=8.0.0"
     resolution:
-      integrity: sha512-I0wNaeKsGMhpCkkO+9NBTriU9xGXAkWA1eQ6b3O0qG2WolwIliE5mS3FOMRD10et/yFmERObzWxvovGrpUZwtw==
+      integrity: sha512-UDL6b1zTuuaz7EtLFAoGxIocAs3sxQ8hD533AVi+ee3maKVMxmbn0VcIjwMqNawq1DkDTTLX9RKsz6MW9Bo8qg==
   /@wessberg/rollup-plugin-ts/1.2.14_rollup@1.30.1+typescript@3.7.5:
     dependencies:
       "@babel/core": 7.8.3
@@ -1093,7 +1093,7 @@ packages:
       "@rollup/pluginutils": 3.0.6_rollup@1.30.1
       "@types/babel__core": 7.1.3
       "@types/node": 13.5.1
-      "@wessberg/browserslist-generator": 1.0.31
+      "@wessberg/browserslist-generator": 1.0.32
       "@wessberg/stringutil": 1.0.19
       "@wessberg/ts-clone-node": 0.3.3_typescript@3.7.5
       browserslist: 4.8.5
@@ -1149,10 +1149,10 @@ packages:
       typescript: ^3.x
     resolution:
       integrity: sha512-uIXVqknaTwtI7PLRSwWAFOOa1olrqhRIYGyej2BuYUAr6Wys18hAJmA7AVewZJmqY5dEJSoFOxOOmelU6Q7Avg==
-  /@wessberg/ts-config/1.0.6:
+  /@wessberg/ts-config/1.0.7:
     dev: true
     resolution:
-      integrity: sha512-zDZPWEuHJQpmWoMYlsbCHxnPHgjumE10Xx2ysit/sfPU5u/h/Rx11zXjru8raNk3PrafmN9qjqiEQnOkhWvIYg==
+      integrity: sha512-RT6yACqXBh8QOvleoBj6K8Qe3YWqujt0BX/FoXo6RupwYoGD+9YgEnHVPzVE+0TFfPWaRLB2Cx5NRzaoYV6mQg==
   /JSONStream/1.3.5:
     dependencies:
       jsonparse: 1.3.1
@@ -3484,6 +3484,12 @@ packages:
       node: ">=0.10.0"
     resolution:
       integrity: sha1-YTObbyR1/Hcv2cnYP1yFddwVSuE=
+  /is-docker/2.0.0:
+    dev: true
+    engines:
+      node: ">=8"
+    resolution:
+      integrity: sha512-pJEdRugimx4fBMra5z2/5iRdZ63OhYV0vr0Dwm5+xtW4D1FvRkB8hamMIhnWfyJeDdyr/aa7BDyNbtG38VxgoQ==
   /is-error/2.2.2:
     dev: true
     resolution:
@@ -4532,7 +4538,7 @@ packages:
       meow: 5.0.0
       npm-name: 5.5.0
       onetime: 5.1.0
-      open: 7.0.0
+      open: 7.0.1
       ow: 0.15.1
       p-memoize: 3.1.0
       p-timeout: 3.2.0
@@ -4674,14 +4680,15 @@ packages:
       node: ">=6"
     resolution:
       integrity: sha512-5NcSkPHhwTVFIQN+TUqXoS5+dlElHXdpAWu9I0HP20YOtIi+aZ0Ct82jdlILDxjLEAWwvm+qj1m6aEtsDVmm6Q==
-  /open/7.0.0:
+  /open/7.0.1:
     dependencies:
+      is-docker: 2.0.0
       is-wsl: 2.1.1
     dev: true
     engines:
       node: ">=8"
     resolution:
-      integrity: sha512-K6EKzYqnwQzk+/dzJAQSBORub3xlBTxMz+ntpZpH/LyCa1o6KjXhuN+2npAaI9jaSmU3R1Q8NWf4KUWcyytGsQ==
+      integrity: sha512-/fVm742AZt6bZ3NpbmBzGpZksDiGbo+xz8RylegKSAnTCgT5u5tvJe0cre3QxICphqHhJHc0OFtFyvU7rNx8+Q==
   /opencollective-postinstall/2.0.2:
     dev: true
     hasBin: true
@@ -6623,12 +6630,12 @@ specifiers:
   "@types/prettier": ^1.19.0
   "@typescript-eslint/eslint-plugin": ^2.18.0
   "@typescript-eslint/parser": ^2.18.0
-  "@wessberg/browserslist-generator": ^1.0.31
+  "@wessberg/browserslist-generator": ^1.0.32
   "@wessberg/rollup-plugin-ts": ^1.2.14
   "@wessberg/scaffold": ^1.0.23
   "@wessberg/stringutil": ^1.0.19
   "@wessberg/ts-clone-node": ^0.3.3
-  "@wessberg/ts-config": ^1.0.6
+  "@wessberg/ts-config": ^1.0.7
   ava: 3.1.0
   babel-preset-minify: ^0.5.1
   browserslist: ^4.8.5
