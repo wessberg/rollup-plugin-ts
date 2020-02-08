@@ -121,6 +121,8 @@ test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM.
 		formatCode(file.code),
 		formatCode(`\
 		function _typeof(obj) {
+  "@babel/helpers - typeof";
+
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
     _typeof = function _typeof(obj) {
       return typeof obj;
@@ -867,6 +869,7 @@ _regeneratorRuntime.mark(function _callee() {
     }
   }, _callee);
 }))();
+
 			`)
 	);
 });
