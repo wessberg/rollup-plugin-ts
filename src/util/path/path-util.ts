@@ -67,6 +67,7 @@ export function ensureHasDriveLetter(p: string): string {
 	if (PLATFORM !== "win32") return p;
 	if (p.match(DRIVE_LETTER_REGEXP)) return p;
 	if (p.startsWith(ROOT_DIRECTORY)) return p;
+	if (!isAbsolute(p)) return p;
 	return nativeJoin(ROOT_DIRECTORY, p);
 }
 
