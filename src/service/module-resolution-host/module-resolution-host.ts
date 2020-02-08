@@ -20,19 +20,24 @@ export class ModuleResolutionHost implements TS.ModuleSpecifierResolutionHost {
 			transformedText: "transformedText" in fileInput && fileInput.transformedText != null ? fileInput.transformedText : fileInput.text
 		};
 		this.files.set(file.fileName, file);
-		this.fileExistsCache.delete(file.fileName);
-		this.directoryExistsCache.delete(dirname(file.fileName));
-		this.currentFileNames = undefined;
-		this.currentDirectories = undefined;
+		this.clearCaches(file.fileName);
 		return file;
 	}
 
-	clearCaches(): void {
-		this.directoryExistsCache.clear();
-		this.fileExistsCache.clear();
+	clearCaches(fileName?: string): void {
+		if (fileName != null) {
+			this.fileExistsCache.delete(fileName);
+			this.directoryExistsCache.delete(dirname(fileName));
+			this.currentFileNames = undefined;
+			this.currentDirectories = undefined;
+		} else {
+			this.directoryExistsCache.clear();
+			this.fileExistsCache.clear();
+		}
 	}
 
 	delete(fileName: string): boolean {
+		this.clearCaches(fileName);
 		return this.files.delete(fileName);
 	}
 

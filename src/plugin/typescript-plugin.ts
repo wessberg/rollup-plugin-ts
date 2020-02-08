@@ -15,6 +15,7 @@ import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description
 import {emitDiagnostics} from "../service/emit/diagnostics/emit-diagnostics";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
 import {
+	ensureHasDriveLetter,
 	ensureRelative,
 	getExtension,
 	isBabelHelper,
@@ -245,7 +246,8 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		/**
 		 * Transforms the given code and file
 		 */
-		async transform(this: PluginContext, code: string, file: string): Promise<TransformSourceDescription | undefined> {
+		async transform(this: PluginContext, code: string, fileInput: string): Promise<TransformSourceDescription | undefined> {
+			const file = ensureHasDriveLetter(fileInput);
 			const normalizedFile = normalize(file);
 			// If this file represents ROLLUP_PLUGIN_MULTI_ENTRY, we need to parse its' contents to understand which files it aliases.
 			// Following that, there's nothing more to do

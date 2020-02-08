@@ -1,4 +1,5 @@
 import path, {ParsedPath} from "path";
+import {platform} from "os";
 import {
 	BABEL_RUNTIME_PREFIX_1,
 	BABEL_RUNTIME_PREFIX_2,
@@ -11,6 +12,10 @@ import {
 	TSLIB_NAME
 } from "../../constant/constant";
 import slash from "slash";
+
+export const ROOT_DIRECTORY = path.parse(process.cwd()).root;
+export const PLATFORM = platform();
+export const DRIVE_LETTER_REGEXP = /^\w:/;
 
 export function relative(from: string, to: string): string {
 	return ensurePosix(path.relative(from, to));
@@ -53,6 +58,16 @@ export function parse(p: string): ParsedPath {
 
 export function isTypeScriptLib(p: string): boolean {
 	return p.startsWith(`lib.`) && p.endsWith(D_TS_EXTENSION);
+}
+
+/**
+ * On Windows, it is important that all absolute paths are absolute, including the drive letter, because TypeScript assumes this
+ */
+export function ensureHasDriveLetter(p: string): string {
+	if (PLATFORM !== "win32") return p;
+	if (p.match(DRIVE_LETTER_REGEXP)) return p;
+	if (p.startsWith(ROOT_DIRECTORY)) return p;
+	return nativeJoin(ROOT_DIRECTORY, p);
 }
 
 /**
