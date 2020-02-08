@@ -1,3 +1,11 @@
+## [1.2.16](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.15...v1.2.16) (2020-02-08)
+
+### Bug Fixes
+
+- don't force drive letter on relative paths ([69350c7](https://github.com/wessberg/rollup-plugin-ts/commit/69350c76e784385bf2815bfa69afdc1297eb8b4c))
+- ensure that absolute paths on Windows always include the drive letter before passing it on to TypeScript ([6713cb1](https://github.com/wessberg/rollup-plugin-ts/commit/6713cb1305d68c6356d425153f2834253a6e8602))
+- fix bug on windows where paths weren't always normalized ([c0b136b](https://github.com/wessberg/rollup-plugin-ts/commit/c0b136b7af21bf0cd5087573459c65b3aab23138))
+
 ## [1.2.15](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.14...v1.2.15) (2020-01-29)
 
 ## [1.2.14](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.13...v1.2.14) (2020-01-27)
