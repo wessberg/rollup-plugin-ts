@@ -19,17 +19,29 @@ export function visitImportDeclaration(
 	// Otherwise, replace this ImportDeclaration with merged imports from the module
 	const replacements = options.preserveImportedModuleIfNeeded(node.moduleSpecifier.text);
 
-	if (replacements == null) return undefined;
+	if (replacements == null || replacements.length === 0) return undefined;
 	const [first, ...other] = replacements;
+
+	// Again, don't include binding-less imports. This doesn't make sense inside ambient modules
+	if (first == null || first.importClause == null) {
+		return undefined;
+	}
+
+	// If there is neither a default name or a single named binding, don't preserve the import
+	if (
+		first.importClause.name == null &&
+		(first.importClause.namedBindings == null ||
+			(!typescript.isNamespaceImport(first.importClause.namedBindings) && first.importClause.namedBindings.elements.length < 1))
+	) {
+		return other;
+	}
 
 	return [
 		typescript.updateImportDeclaration(
 			node,
 			node.decorators,
 			node.modifiers,
-			first.importClause == null
-				? first.importClause
-				: typescript.updateImportClause(node.importClause, first.importClause.name, first.importClause.namedBindings),
+			typescript.updateImportClause(node.importClause, first.importClause.name, first.importClause.namedBindings),
 			node.moduleSpecifier
 		),
 		...other

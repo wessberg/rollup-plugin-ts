@@ -6,6 +6,7 @@ import {ensureHasDeclareModifier} from "../../../util/modifier-util";
 import {generateIdentifierName} from "../../../util/generate-identifier-name";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
 import {preserveMeta, preserveSymbols} from "../../../util/clone-node-with-meta";
+import {statementMerger} from "../../statement-merger/statement-merger";
 
 export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.ImportTypeNode>): VisitResult<TS.ImportTypeNode> {
 	const {node} = options;
@@ -65,7 +66,7 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 					...options.includeSourceFile(matchingSourceFile, {
 						allowDuplicate: true,
 						lexicalEnvironment: cloneLexicalEnvironment(),
-						transformers: [ensureNoDeclareModifierTransformer]
+						transformers: [ensureNoDeclareModifierTransformer, statementMerger({markAsModuleIfNeeded: false})]
 					})
 				]),
 				options.typescript.NodeFlags.Namespace

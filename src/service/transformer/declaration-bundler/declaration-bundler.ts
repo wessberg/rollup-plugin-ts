@@ -46,7 +46,7 @@ export function declarationBundler(options: DeclarationBundlerOptions): TS.Custo
 				treeShaker,
 
 				// Merge related statements
-				statementMerger,
+				statementMerger({markAsModuleIfNeeded: true}),
 
 				// Collects type references
 				typeReferenceCollector

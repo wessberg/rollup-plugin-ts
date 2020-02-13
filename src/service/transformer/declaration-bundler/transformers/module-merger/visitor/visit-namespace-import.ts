@@ -4,6 +4,7 @@ import {getImportedSymbolFromNamespaceImport} from "../../../util/create-export-
 import {ensureHasDeclareModifier} from "../../../util/modifier-util";
 import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifier-transformer/ensure-no-declare-modifier-transformer";
+import {statementMerger} from "../../statement-merger/statement-merger";
 
 export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.NamespaceImport>): VisitResult<TS.NamespaceImport> {
 	const {node, payload} = options;
@@ -26,7 +27,7 @@ export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.Name
 				...options.includeSourceFile(payload.matchingSourceFile, {
 					allowDuplicate: true,
 					lexicalEnvironment: cloneLexicalEnvironment(),
-					transformers: [ensureNoDeclareModifierTransformer]
+					transformers: [ensureNoDeclareModifierTransformer, statementMerger({markAsModuleIfNeeded: false})]
 				})
 			]),
 			options.typescript.NodeFlags.Namespace

@@ -13,7 +13,7 @@ export function visitExportDeclaration(
 
 	// Otherwise, replace this ExportDeclaration with merged exports from the module
 	const replacements = options.preserveExportedModuleIfNeeded(node.moduleSpecifier?.text);
-	if (replacements == null) return undefined;
+	if (replacements == null || replacements.length === 0) return undefined;
 	const [first, ...other] = replacements;
 
 	return [
