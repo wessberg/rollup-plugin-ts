@@ -1,3 +1,10 @@
+## [1.2.17](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.16...v1.2.17) (2020-02-13)
+
+### Bug Fixes
+
+- respect declaration merging when identifiers are declared in the same SourceFile. Closes [#81](https://github.com/wessberg/rollup-plugin-ts/issues/81) ([7e44925](https://github.com/wessberg/rollup-plugin-ts/commit/7e4492574dec4f43debf52823b45a0c4c063f24d))
+- use statement merger on nested namespace declarations to remove binding-less imports/exports for prettier declaration output under some circumstances ([d23a86e](https://github.com/wessberg/rollup-plugin-ts/commit/d23a86e04193b3bfd562f7f42e0f39c7f2f664ca))
+
 ## [1.2.16](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.15...v1.2.16) (2020-02-08)
 
 ### Bug Fixes
