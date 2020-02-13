@@ -1,7 +1,14 @@
 import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options";
 
-export function isIdentifierFree(lexicalEnvironment: LexicalEnvironment, identifier: string): boolean {
+export function isIdentifierFree(lexicalEnvironment: LexicalEnvironment, identifier: string, originalSourceFileName: string): boolean {
 	// So long as the current lexical environment doesn't already define the provided identifier,
 	// it can be declared, even if it may shadow an existing identifier from the parent chain of Lexical environments
-	return !lexicalEnvironment.bindings.has(identifier);
+	const binding = lexicalEnvironment.bindings.get(identifier);
+
+	// if there is no binding, the identifier is free
+	if (binding == null) return true;
+
+	// Otherwise, the identifier is free if and only if it was originally declared in the same SourceFile (in which case it follows the
+	// declaration merging rules outlined here: https://www.typescriptlang.org/docs/handbook/declaration-merging.html
+	return binding.originalSourceFileName === originalSourceFileName;
 }
