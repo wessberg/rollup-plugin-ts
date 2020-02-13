@@ -35,7 +35,7 @@ test("Handles namespace exports. #1", async t => {
 				`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]

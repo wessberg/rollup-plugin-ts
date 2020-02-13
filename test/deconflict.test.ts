@@ -1065,3 +1065,70 @@ test("Deconflicts symbols. #20", async t => {
 		`)
 	);
 });
+
+test("Will merge declarations declared in same SourceFile rather than deconflict. #1", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\	
+				export interface Something {
+					type: string;
+				}
+				
+				export namespace Something {
+				}
+				`
+			}
+		],
+		{debug: false}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			interface Something {
+				type: string;
+			}	
+			declare namespace Something {
+			}
+			export {Something};
+		`)
+	);
+});
+
+test("Won't deconflict overloaded function signatures #1", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+        export function foo (arg: number): number;
+				export function foo (arg: string): string;
+				export function foo (arg: number|string): number|string {
+					return arg;
+				}
+			`
+			}
+		],
+		{
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare function foo(arg: number): number;
+		declare function foo(arg: string): string;
+		export { foo };
+		`)
+	);
+});

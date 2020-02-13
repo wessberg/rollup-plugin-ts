@@ -4,28 +4,30 @@ import {isIdentifierFree} from "../../../util/is-identifier-free";
 import {generateUniqueBinding} from "../../../util/generate-unique-binding";
 import {TS} from "../../../../../../type/ts";
 import {preserveMeta} from "../../../util/clone-node-with-meta";
+import {getOriginalSourceFile} from "../../../util/get-original-source-file";
 
 /**
  * Deconflicts the given BindingElement.
  */
 export function deconflictBindingElement(options: DeconflicterVisitorOptions<TS.BindingElement>): TS.BindingElement | undefined {
-	const {node, continuation, lexicalEnvironment, typescript} = options;
+	const {node, continuation, lexicalEnvironment, typescript, sourceFile} = options;
 
 	let nameContResult: TS.BindingElement["name"];
+	const originalSourceFile = getOriginalSourceFile(node, sourceFile, typescript);
 
 	if (typescript.isIdentifier(node.name)) {
-		if (isIdentifierFree(lexicalEnvironment, node.name.text)) {
+		if (isIdentifierFree(lexicalEnvironment, node.name.text, originalSourceFile.fileName)) {
 			nameContResult = node.name;
 
 			// The name creates a new local binding within the current LexicalEnvironment
-			addBindingToLexicalEnvironment(lexicalEnvironment, node.name.text);
+			addBindingToLexicalEnvironment(lexicalEnvironment, originalSourceFile.fileName, node.name.text);
 		} else {
 			// Otherwise, deconflict it
 			const uniqueBinding = generateUniqueBinding(lexicalEnvironment, node.name.text);
 			nameContResult = typescript.createIdentifier(uniqueBinding);
 
 			// The name creates a new local binding within the current LexicalEnvironment
-			addBindingToLexicalEnvironment(lexicalEnvironment, uniqueBinding, node.name.text);
+			addBindingToLexicalEnvironment(lexicalEnvironment, originalSourceFile.fileName, uniqueBinding, node.name.text);
 		}
 	} else {
 		// Otherwise, deconflict it
