@@ -38,5 +38,5 @@ export function deconflictImportClause(options: DeconflicterVisitorOptions<TS.Im
 		return node;
 	}
 
-	return preserveMeta(typescript.updateImportClause(node, nameContResult, namedBindingsContResult), node, options);
+	return preserveMeta(typescript.updateImportClause(node, nameContResult, namedBindingsContResult, node.isTypeOnly), node, options);
 }

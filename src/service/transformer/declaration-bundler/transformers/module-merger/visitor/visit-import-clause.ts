@@ -26,7 +26,7 @@ export function visitImportClause(options: ModuleMergerVisitorOptions<TS.ImportC
 		}
 
 		// Otherwise, remove the default import and remove the named bindings that was retrieved from the continuation.
-		return preserveMeta(typescript.updateImportClause(contResult, undefined, contResult.namedBindings), contResult, options);
+		return preserveMeta(typescript.updateImportClause(contResult, undefined, contResult.namedBindings, contResult.isTypeOnly), contResult, options);
 	}
 
 	// Otherwise, prepend the nodes for the SourceFile

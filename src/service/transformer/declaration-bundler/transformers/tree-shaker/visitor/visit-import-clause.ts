@@ -12,5 +12,10 @@ export function visitImportClause({node, continuation, typescript}: TreeShakerVi
 		return undefined;
 	}
 
-	return typescript.updateImportClause(node, removeName ? undefined : node.name, removeNamedBindings ? undefined : namedBindingsContinuationResult);
+	return typescript.updateImportClause(
+		node,
+		removeName ? undefined : node.name,
+		removeNamedBindings ? undefined : namedBindingsContinuationResult,
+		node.isTypeOnly
+	);
 }

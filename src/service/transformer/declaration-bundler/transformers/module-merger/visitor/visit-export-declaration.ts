@@ -104,7 +104,8 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 			contResult.decorators,
 			contResult.modifiers,
 			contResult.exportClause,
-			typescript.createStringLiteral(updatedModuleSpecifier)
+			typescript.createStringLiteral(updatedModuleSpecifier),
+			contResult.isTypeOnly
 		);
 	}
 
@@ -119,5 +120,12 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 	}
 
 	// Otherwise, preserve the continuation result, but without the ModuleSpecifier
-	return typescript.updateExportDeclaration(contResult, contResult.decorators, contResult.modifiers, contResult.exportClause, undefined);
+	return typescript.updateExportDeclaration(
+		contResult,
+		contResult.decorators,
+		contResult.modifiers,
+		contResult.exportClause,
+		undefined,
+		contResult.isTypeOnly
+	);
 }

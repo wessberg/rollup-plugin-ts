@@ -41,7 +41,7 @@ export function visitImportDeclaration(
 			node,
 			node.decorators,
 			node.modifiers,
-			typescript.updateImportClause(node.importClause, first.importClause.name, first.importClause.namedBindings),
+			typescript.updateImportClause(node.importClause, first.importClause.name, first.importClause.namedBindings, first.importClause.isTypeOnly),
 			node.moduleSpecifier
 		),
 		...other

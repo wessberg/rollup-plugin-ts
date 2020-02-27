@@ -24,7 +24,8 @@ export function visitExportDeclaration(
 			node.exportClause == null || first.exportClause == null
 				? first.exportClause
 				: typescript.updateNamedExports(node.exportClause, first.exportClause.elements),
-			node.moduleSpecifier
+			node.moduleSpecifier,
+			node.isTypeOnly
 		),
 		...other
 	];
