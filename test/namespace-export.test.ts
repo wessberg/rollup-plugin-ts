@@ -57,7 +57,7 @@ test("Handles namespace exports. #1", async t => {
 	);
 });
 
-test.only("Handles namespace exports. #2", async t => {
+test("Handles namespace exports. #2", async t => {
 	const bundle = await generateRollupBundle(
 		[
 			{
