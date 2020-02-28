@@ -2,6 +2,10 @@ import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-
 import {TS} from "../../../../../../type/ts";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
 import {preserveSymbols} from "../../../util/clone-node-with-meta";
+import {ensureHasDeclareModifier} from "../../../util/modifier-util";
+import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
+import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifier-transformer/ensure-no-declare-modifier-transformer";
+import {statementMerger} from "../../statement-merger/statement-merger";
 
 export interface GenerateExportDeclarationsOptions extends Omit<ModuleMergerVisitorOptions<TS.ExportDeclaration>, "node"> {}
 
@@ -109,7 +113,7 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 		);
 	}
 
-	// If it is a NamespaceExport, we'll need to add explicit named ExportSpecifiers for all of the re-exported bindings instead
+	// If it is a binding-less NamespaceExport (such as 'export * from "..."), we'll need to add explicit named ExportSpecifiers for all of the re-exported bindings instead
 	if (contResult.exportClause == null) {
 		options.prependNodes(...options.includeSourceFile(matchingSourceFile));
 		return generateExportDeclarations({
@@ -117,6 +121,34 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 			typescript,
 			sourceFile: matchingSourceFile
 		});
+	}
+
+	// Otherwise, it if is a named NamespaceExport (such as 'export * as Foo from ".."), we can't just lose the module specifier since 'export * as Foo' isn't valid.
+	// Instead, we must declare inline the namespace and add an ExportDeclaration with a named export for it
+	else if (typescript.isNamespaceExport?.(contResult.exportClause)) {
+		// Otherwise, prepend the nodes for the SourceFile in a namespace declaration
+		options.prependNodes(
+			options.typescript.createModuleDeclaration(
+				undefined,
+				ensureHasDeclareModifier(undefined, options.typescript),
+				options.typescript.createIdentifier(contResult.exportClause.name.text),
+				options.typescript.createModuleBlock([
+					...options.includeSourceFile(matchingSourceFile, {
+						allowDuplicate: true,
+						lexicalEnvironment: cloneLexicalEnvironment(),
+						transformers: [ensureNoDeclareModifierTransformer, statementMerger({markAsModuleIfNeeded: false})]
+					})
+				]),
+				options.typescript.NodeFlags.Namespace
+			),
+			options.typescript.createExportDeclaration(
+				undefined,
+				undefined,
+				typescript.createNamedExports([typescript.createExportSpecifier(undefined, typescript.createIdentifier(contResult.exportClause.name.text))]),
+				undefined,
+				contResult.isTypeOnly
+			)
+		);
 	}
 
 	// Otherwise, preserve the continuation result, but without the ModuleSpecifier

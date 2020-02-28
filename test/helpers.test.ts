@@ -76,8 +76,7 @@ test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM.
 		import _asyncToGenerator from '@babel/runtime/helpers/esm/asyncToGenerator';
 		
 		_asyncToGenerator(
-		/*#__PURE__*/
-		_regeneratorRuntime.mark(function _callee() {
+		/*#__PURE__*/ _regeneratorRuntime.mark(function _callee() {
 			return _regeneratorRuntime.wrap(function _callee$(_context) {
 				while (1) {
 					switch (_context.prev = _context.next) {
@@ -857,8 +856,7 @@ function _asyncToGenerator(fn) {
 }
 
 _asyncToGenerator(
-/*#__PURE__*/
-_regeneratorRuntime.mark(function _callee() {
+/*#__PURE__*/ _regeneratorRuntime.mark(function _callee() {
   return _regeneratorRuntime.wrap(function _callee$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
@@ -914,8 +912,7 @@ test("Will use the proper @babel/runtime/helpers helpers when format is CJS. #1"
 		var _asyncToGenerator = _interopDefault(require('@babel/runtime/helpers/asyncToGenerator'));
 		
 		_asyncToGenerator(
-		/*#__PURE__*/
-		_regeneratorRuntime.mark(function _callee() {
+		/*#__PURE__*/ _regeneratorRuntime.mark(function _callee() {
 			return _regeneratorRuntime.wrap(function _callee$(_context) {
 				while (1) {
 					switch (_context.prev = _context.next) {
