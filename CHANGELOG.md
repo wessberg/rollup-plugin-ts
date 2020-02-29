@@ -1,3 +1,10 @@
+## [1.2.18](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.17...v1.2.18) (2020-02-29)
+
+### Bug Fixes
+
+- **namespace-export:** add support for named namespace exports ([8aece24](https://github.com/wessberg/rollup-plugin-ts/commit/8aece24d1de3e4d7cf6721026961f0e5caee5e4b))
+- add 'isTypeOnly' to 'updateImportClause' helpers ([9688e0e](https://github.com/wessberg/rollup-plugin-ts/commit/9688e0eb4354650459f142dea6d3fdcd2bb02cf0))
+
 ## [1.2.17](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.16...v1.2.17) (2020-02-13)
 
 ### Bug Fixes
