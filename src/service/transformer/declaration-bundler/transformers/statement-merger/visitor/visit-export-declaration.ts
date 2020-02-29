@@ -16,16 +16,19 @@ export function visitExportDeclaration(
 	if (replacements == null || replacements.length === 0) return undefined;
 	const [first, ...other] = replacements;
 
-	return [
-		typescript.updateExportDeclaration(
-			node,
-			node.decorators,
-			node.modifiers,
-			node.exportClause == null || first.exportClause == null
-				? first.exportClause
-				: typescript.updateNamedExports(node.exportClause, first.exportClause.elements),
-			node.moduleSpecifier
-		),
-		...other
-	];
+	let exportClause: TS.NamedExports | TS.NamespaceExport | undefined;
+
+	if (first.exportClause != null && typescript.isNamedExports(first.exportClause)) {
+		exportClause =
+			node.exportClause != null && typescript.isNamedExports(node.exportClause)
+				? typescript.updateNamedExports(node.exportClause, first.exportClause.elements)
+				: typescript.createNamedExports(first.exportClause.elements);
+	} else if (first.exportClause != null && typescript.isNamespaceExport?.(first.exportClause)) {
+		exportClause =
+			node.exportClause != null && typescript.isNamespaceExport?.(node.exportClause)
+				? typescript.updateNamespaceExport(node.exportClause, typescript.createIdentifier(first.exportClause.name.text))
+				: typescript.createNamespaceExport(typescript.createIdentifier(first.exportClause.name.text));
+	}
+
+	return [typescript.updateExportDeclaration(node, node.decorators, node.modifiers, exportClause, node.moduleSpecifier, node.isTypeOnly), ...other];
 }

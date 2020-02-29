@@ -12,6 +12,7 @@ export function getMergedExportDeclarationsForModules(sourceFile: TS.SourceFile,
 
 	const moduleToExportDeclarations: MergedExportDeclarationsMap = new Map();
 	const moduleSpecifierToAliasedExportedBindings: Map<string | undefined, Map<string, Set<string>>> = new Map();
+	const namedNamespaceExportsFromModulesMap: Map<string, Set<string>> = new Map();
 	const reExportedSpecifiers = new Set<string | undefined>();
 
 	for (const exportAssignment of exportAssignments) {
@@ -46,23 +47,36 @@ export function getMergedExportDeclarationsForModules(sourceFile: TS.SourceFile,
 		const specifierText = exportDeclaration.moduleSpecifier?.text;
 
 		let aliasedExportedBindings = moduleSpecifierToAliasedExportedBindings.get(specifierText);
+		let namedNamespaceExports = specifierText == null ? undefined : namedNamespaceExportsFromModulesMap.get(specifierText);
 
 		if (aliasedExportedBindings == null) {
 			aliasedExportedBindings = new Map();
 			moduleSpecifierToAliasedExportedBindings.set(specifierText, aliasedExportedBindings);
 		}
 
+		if (namedNamespaceExports == null && specifierText != null) {
+			namedNamespaceExports = new Set();
+			namedNamespaceExportsFromModulesMap.set(specifierText, namedNamespaceExports);
+		}
+
 		if (exportDeclaration.exportClause != null) {
-			// Take all aliased exports
-			for (const element of exportDeclaration.exportClause.elements) {
-				const propertyName = element.propertyName != null ? element.propertyName.text : element.name.text;
-				const alias = element.name.text;
-				let setForExportedBinding = aliasedExportedBindings.get(propertyName);
-				if (setForExportedBinding == null) {
-					setForExportedBinding = new Set();
-					aliasedExportedBindings.set(propertyName, setForExportedBinding);
+			if (typescript.isNamedExports(exportDeclaration.exportClause)) {
+				// Take all aliased exports
+				for (const element of exportDeclaration.exportClause.elements) {
+					const propertyName = element.propertyName != null ? element.propertyName.text : element.name.text;
+					const alias = element.name.text;
+					let setForExportedBinding = aliasedExportedBindings.get(propertyName);
+					if (setForExportedBinding == null) {
+						setForExportedBinding = new Set();
+						aliasedExportedBindings.set(propertyName, setForExportedBinding);
+					}
+					setForExportedBinding.add(alias);
 				}
-				setForExportedBinding.add(alias);
+			}
+
+			// Otherwise, it must be a named NamespaceExport (such as 'export * as Foo from "..."')
+			else if (namedNamespaceExports != null) {
+				namedNamespaceExports.add(exportDeclaration.exportClause.name.text);
 			}
 		}
 		// If it has no exportClause, it's a reexport (such as export * from "./<specifier>").
@@ -113,6 +127,26 @@ export function getMergedExportDeclarationsForModules(sourceFile: TS.SourceFile,
 				specifier == null ? undefined : typescript.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
 			)
 		);
+	}
+
+	// Add all named namespace exports from the module (They may have different local names)
+	for (const [specifier, names] of namedNamespaceExportsFromModulesMap) {
+		let exportDeclarationsForModule = moduleToExportDeclarations.get(specifier);
+		if (exportDeclarationsForModule == null) {
+			exportDeclarationsForModule = [];
+			moduleToExportDeclarations.set(specifier, exportDeclarationsForModule);
+		}
+
+		for (const name of names) {
+			exportDeclarationsForModule.push(
+				typescript.createExportDeclaration(
+					undefined,
+					undefined,
+					typescript.createNamespaceExport(typescript.createIdentifier(name)),
+					typescript.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
+				)
+			);
+		}
 	}
 
 	return moduleToExportDeclarations;

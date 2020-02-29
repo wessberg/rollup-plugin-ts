@@ -89,7 +89,7 @@ export function getMergedImportDeclarationsForModules(sourceFile: TS.SourceFile,
 					undefined,
 					undefined,
 					typescript.createImportClause(typescript.createIdentifier(name), undefined),
-					typescript.createStringLiteral(module)
+					typescript.createStringLiteral(ensureHasLeadingDotAndPosix(module))
 				)
 			);
 		}
@@ -109,7 +109,7 @@ export function getMergedImportDeclarationsForModules(sourceFile: TS.SourceFile,
 					undefined,
 					undefined,
 					typescript.createImportClause(undefined, typescript.createNamespaceImport(typescript.createIdentifier(name))),
-					typescript.createStringLiteral(module)
+					typescript.createStringLiteral(ensureHasLeadingDotAndPosix(module))
 				)
 			);
 		}

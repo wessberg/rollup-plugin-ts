@@ -14,6 +14,8 @@ export interface NamespaceExportedSymbol extends ExportedSymbolBase {
 	// The raw module specifier with no modifications
 	moduleSpecifier: string;
 	isNamespaceExport: true;
+	// If it has a name, it isn't a barrel export, but instead an export of the entire namespace under a given binding name
+	name: TS.Identifier | undefined;
 }
 
 export type ExportedSymbol = NamedExportedSymbol | NamespaceExportedSymbol;
