@@ -123,7 +123,7 @@ test("Handles namespace exports. #3", async t => {
         	`
 			}
 		],
-		{debug: true}
+		{debug: false}
 	);
 	const {
 		declarations: [file]

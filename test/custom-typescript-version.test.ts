@@ -10,6 +10,7 @@ import * as TS341 from "typescript-3-4-1";
 import * as TS351 from "typescript-3-5-1";
 import * as TS362 from "typescript-3-6-2";
 import * as TS372 from "typescript-3-7-2";
+import * as TS383 from "typescript-3-8-3";
 
 test("Supports multiple TypeScript versions. #1", async t => {
 	for (const [TS, version] of [
@@ -20,7 +21,8 @@ test("Supports multiple TypeScript versions. #1", async t => {
 		[TS341, "v3.4.1"],
 		[TS351, "v3.5.1"],
 		[TS362, "v3.6.2"],
-		[TS372, "v3.7.2"]
+		[TS372, "v3.7.2"],
+		[TS383, "v3.8.3"]
 	]) {
 		const bundle = await generateRollupBundle(
 			[

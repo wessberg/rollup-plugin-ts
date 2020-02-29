@@ -55,6 +55,7 @@ devDependencies:
   typescript-3-5-1: /typescript/3.5.1
   typescript-3-6-2: /typescript/3.6.2
   typescript-3-7-2: /typescript/3.7.2
+  typescript-3-8-3: /typescript/3.8.3
 lockfileVersion: 5.1
 packages:
   /@babel/code-frame/7.8.3:
@@ -6651,3 +6652,4 @@ specifiers:
   typescript-3-5-1: "npm:typescript@3.5.1"
   typescript-3-6-2: "npm:typescript@3.6.2"
   typescript-3-7-2: "npm:typescript@3.7.2"
+  typescript-3-8-3: "npm:typescript@3.8.3"
