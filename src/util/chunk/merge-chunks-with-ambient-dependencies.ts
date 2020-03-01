@@ -1,3 +1,4 @@
+import {ModuleFormat} from "rollup";
 import {PreNormalizedChunk} from "./normalize-chunk";
 import {getChunkForModule} from "../../service/transformer/declaration-bundler/util/get-chunk-filename";
 import {basename, stripKnownExtension} from "../path/path-util";
@@ -6,9 +7,14 @@ import {SourceFileToDependenciesMap} from "../../service/transformer/declaration
 import {CompilerHost} from "../../service/compiler-host/compiler-host";
 import {pickResolvedModule} from "../pick-resolved-module";
 
-function createCommonChunk(module: string, code: string): PreNormalizedChunk {
+function createCommonChunk(module: string, code: string, format: ModuleFormat, chunkFileNames: string = `[name]-[hash].js`): PreNormalizedChunk {
+	const name = stripKnownExtension(basename(module));
+	const hash = generateRandomHash({key: code});
 	return {
-		fileName: `${stripKnownExtension(basename(module))}-${generateRandomHash({key: code})}.js`,
+		fileName: chunkFileNames
+			.replace(/\[format]/g, format)
+			.replace(/\[hash]/g, hash)
+			.replace(/\[name]/g, name),
 		modules: [module],
 		isEntry: false
 	};
@@ -18,7 +24,9 @@ function ensureChunkForModule(
 	module: string,
 	code: string,
 	chunks: PreNormalizedChunk[],
-	moduleDependencyMap: SourceFileToDependenciesMap
+	moduleDependencyMap: SourceFileToDependenciesMap,
+	format: ModuleFormat,
+	chunkFileNames: string | undefined
 ): PreNormalizedChunk {
 	let chunk = getChunkForModule(module, chunks);
 	const [firstChunk] = chunks;
@@ -47,7 +55,7 @@ function ensureChunkForModule(
 
 			// Otherwise, create a new chunk
 			else {
-				chunk = createCommonChunk(module, code);
+				chunk = createCommonChunk(module, code, format, chunkFileNames);
 				chunks.push(chunk);
 				return chunk;
 			}
@@ -57,7 +65,12 @@ function ensureChunkForModule(
 	}
 }
 
-export function mergeChunksWithAmbientDependencies(chunks: PreNormalizedChunk[], host: CompilerHost): void {
+export function mergeChunksWithAmbientDependencies(
+	chunks: PreNormalizedChunk[],
+	host: CompilerHost,
+	format: ModuleFormat = "esm",
+	chunkFileNames: string | undefined
+): void {
 	const dependencyToModulesMap: Map<string, Set<string>> = new Map();
 	const sourceFileToDependenciesMap = host.getAllDependencies();
 
@@ -77,10 +90,12 @@ export function mergeChunksWithAmbientDependencies(chunks: PreNormalizedChunk[],
 	for (const [dependency, modulesForDependency] of dependencyToModulesMap.entries()) {
 		const text = host.readFile(dependency);
 		if (text == null) continue;
-		const chunkWithDependency = ensureChunkForModule(dependency, text, chunks, sourceFileToDependenciesMap);
+		const chunkWithDependency = ensureChunkForModule(dependency, text, chunks, sourceFileToDependenciesMap, format, chunkFileNames);
 
 		const chunksForModulesForDependency = new Set<PreNormalizedChunk>(
-			[...modulesForDependency].map(moduleForDependency => ensureChunkForModule(moduleForDependency, text, chunks, sourceFileToDependenciesMap))
+			[...modulesForDependency].map(moduleForDependency =>
+				ensureChunkForModule(moduleForDependency, text, chunks, sourceFileToDependenciesMap, format, chunkFileNames)
+			)
 		);
 
 		// If the modules that refer to the dependency are divided across multiple chunks, and one of those chunks contain the dependency,
@@ -89,7 +104,7 @@ export function mergeChunksWithAmbientDependencies(chunks: PreNormalizedChunk[],
 			const containingChunk = [...chunksForModulesForDependency].find(chunkForModuleDependency => chunkForModuleDependency === chunkWithDependency);
 			if (containingChunk != null) {
 				containingChunk.modules.splice(containingChunk.modules.indexOf(dependency), 1);
-				chunks.push(createCommonChunk(dependency, text));
+				chunks.push(createCommonChunk(dependency, text, format, chunkFileNames));
 			}
 		}
 	}

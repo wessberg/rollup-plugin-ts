@@ -6,7 +6,7 @@ import {HookRecord, InputCompilerOptions, ITypescriptPluginBabelOptions, Typescr
 import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, TSBUILDINFO_EXTENSION} from "../../src/constant/constant";
 import {getRealFileSystem} from "../../src/util/file-system/file-system";
 import {TS} from "../../src/type/ts";
-import {isAbsolute, nativeDirname, nativeJoin, nativeNormalize, parse} from "../../src/util/path/path-util";
+import {isAbsolute, nativeDirname, nativeJoin, nativeNormalize, parse, relative} from "../../src/util/path/path-util";
 
 export interface ITestFile {
 	fileName: string;
@@ -48,6 +48,8 @@ export interface GenerateRollupBundleOptions {
 	transformers: TypescriptPluginOptions["transformers"];
 	babelConfig: ITypescriptPluginBabelOptions["babelConfig"];
 	browserslist: TypescriptPluginOptions["browserslist"];
+	chunkFileNames: string;
+	entryFileNames: string;
 }
 
 /**
@@ -71,6 +73,8 @@ export async function generateRollupBundle(
 		typescript = TSModule,
 		debug = false,
 		babelConfig,
+		chunkFileNames,
+		entryFileNames,
 		hook = {outputPath: path => path}
 	}: Partial<GenerateRollupBundleOptions> = {}
 ): Promise<GenerateRollupBundleResult> {
@@ -192,7 +196,7 @@ export async function generateRollupBundle(
 					writeFile(fileName, text) {
 						extraFiles.push({
 							type: "asset",
-							fileName,
+							fileName: relative(dir ?? cwd, fileName),
 							source: text
 						});
 					},
@@ -240,7 +244,9 @@ export async function generateRollupBundle(
 	const bundle = await result.generate({
 		dir,
 		format,
-		sourcemap: true
+		sourcemap: true,
+		...(entryFileNames == null ? {} : {entryFileNames}),
+		...(chunkFileNames == null ? {} : {chunkFileNames})
 	});
 
 	for (const file of [...bundle.output, ...extraFiles]) {

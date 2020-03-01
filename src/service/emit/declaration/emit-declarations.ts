@@ -41,7 +41,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 		.map(preNormalizeChunk);
 
 	// Merge ambient dependencies into the chunks
-	mergeChunksWithAmbientDependencies(chunks, options.host);
+	mergeChunksWithAmbientDependencies(chunks, options.host, options.outputOptions.format, options.outputOptions.chunkFileNames);
 	// Normalize the chunks
 	const normalizedChunks = chunks.map(chunk => normalizeChunk(chunk, {...options, relativeOutDir}));
 
@@ -145,8 +145,8 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 			}
 		}
 
-		const emitFileDeclarationFilename = join(relative(relativeOutDir, dirname(declarationPaths.relative)), declarationPaths.fileName);
-		const emitFileDeclarationMapFilename = join(relative(relativeOutDir, dirname(declarationMapPaths.relative)), declarationMapPaths.fileName);
+		const emitFileDeclarationFilename = relative(relativeOutDir, declarationPaths.relative);
+		const emitFileDeclarationMapFilename = relative(relativeOutDir, declarationMapPaths.relative);
 
 		// Rollup does not allow emitting files outside of the root of the whatever 'dist' directory that has been provided.
 		// Under such circumstances, unfortunately, we'll have to default to using whatever FileSystem was provided to write the files to disk
