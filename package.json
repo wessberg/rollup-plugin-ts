@@ -6,12 +6,11 @@
 		"generate:scaffold": "scaffold all --yes",
 		"generate:changelog": "standard-changelog --first-release",
 		"generate:all": "pnpm run generate:scaffold && pnpm run generate:changelog",
-		"clean:dist": "rimraf dist",
-		"clean": "pnpm run clean:dist",
+		"clean": "rimraf dist",
 		"lint": "tsc --noEmit && eslint \"src/**/*.ts\" --color",
 		"prettier": "prettier --write '{src,test,documentation}/**/*.{js,ts,json,html,xml,css,md}'",
 		"test": "ava",
-		"prebuild": "pnpm run clean:dist",
+		"prebuild": "pnpm run clean",
 		"build": "pnpm run rollup",
 		"watch": "pnpm run rollup -- --watch",
 		"rollup": "rollup -c rollup.config.js",
@@ -117,6 +116,10 @@
 	"types": "./dist/esm/index.d.ts",
 	"typings": "./dist/esm/index.d.ts",
 	"es2015": "./dist/esm/index.js",
+	"funding": {
+		"type": "github",
+		"url": "https://github.com/wessberg/rollup-plugin-ts?sponsor=1"
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/wessberg/rollup-plugin-ts.git"
