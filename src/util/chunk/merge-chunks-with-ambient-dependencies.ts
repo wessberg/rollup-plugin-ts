@@ -7,7 +7,7 @@ import {SourceFileToDependenciesMap} from "../../service/transformer/declaration
 import {CompilerHost} from "../../service/compiler-host/compiler-host";
 import {pickResolvedModule} from "../pick-resolved-module";
 
-function createCommonChunk(module: string, code: string, format: ModuleFormat, chunkFileNames: string = `[name]-[hash].js`): PreNormalizedChunk {
+function createCommonChunk(module: string, code: string, format: ModuleFormat, chunkFileNames = `[name]-[hash].js`): PreNormalizedChunk {
 	const name = stripKnownExtension(basename(module));
 	const hash = generateRandomHash({key: code});
 	return {
