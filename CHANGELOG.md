@@ -1,3 +1,9 @@
+## [1.2.19](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.18...v1.2.19) (2020-03-01)
+
+### Bug Fixes
+
+- make sure to respect entryFileNames and chunkFileNames when naming common declaration chunks ([a98fe69](https://github.com/wessberg/rollup-plugin-ts/commit/a98fe696d997149a0b5ce08e1f7dcc69019d509a))
+
 ## [1.2.18](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.17...v1.2.18) (2020-02-29)
 
 ### Bug Fixes
