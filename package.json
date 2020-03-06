@@ -47,10 +47,11 @@
 	],
 	"license": "MIT",
 	"devDependencies": {
+		"@types/prettier": "^1.19.0",
+		"@types/node": "^13.9.0",
 		"@rollup/plugin-alias": "^3.0.1",
 		"@rollup/plugin-commonjs": "^11.0.2",
 		"@rollup/plugin-json": "^4.0.2",
-		"@types/prettier": "^1.19.0",
 		"@typescript-eslint/eslint-plugin": "^2.22.0",
 		"@typescript-eslint/parser": "^2.22.0",
 		"@wessberg/rollup-plugin-ts": "^1.2.19",
@@ -84,6 +85,7 @@
 		"typescript-3-8-3": "npm:typescript@3.8.3"
 	},
 	"dependencies": {
+		"@types/babel__core": "^7.1.6",
 		"@babel/core": "^7.8.7",
 		"@babel/plugin-proposal-async-generator-functions": "^7.8.3",
 		"@babel/plugin-proposal-json-strings": "^7.8.3",
@@ -95,8 +97,6 @@
 		"@babel/preset-env": "^7.8.7",
 		"@babel/runtime": "^7.8.7",
 		"@rollup/pluginutils": "^3.0.8",
-		"@types/babel__core": "^7.1.6",
-		"@types/node": "^13.9.0",
 		"@wessberg/browserslist-generator": "^1.0.34",
 		"@wessberg/stringutil": "^1.0.19",
 		"@wessberg/ts-clone-node": "^0.3.4",
