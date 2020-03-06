@@ -12,6 +12,7 @@ export function getModuleKindFromRollupFormat(format: ModuleFormat, typescript: 
 		case "commonjs":
 			return typescript.ModuleKind.CommonJS;
 		case "system":
+		case "systemjs":
 			return typescript.ModuleKind.System;
 		case "es":
 		case "esm":

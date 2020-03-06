@@ -1,14 +1,4 @@
-import {
-	InputOptions,
-	OutputBundle,
-	OutputOptions,
-	Plugin,
-	PluginContext,
-	RenderedChunk,
-	ExistingRawSourceMap,
-	SourceDescription,
-	TransformSourceDescription
-} from "rollup";
+import {InputOptions, OutputBundle, OutputOptions, Plugin, PluginContext, RenderedChunk, ExistingRawSourceMap, SourceDescription} from "rollup";
 import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line";
 import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options";
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
@@ -246,7 +236,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		/**
 		 * Transforms the given code and file
 		 */
-		async transform(this: PluginContext, code: string, fileInput: string): Promise<TransformSourceDescription | undefined> {
+		async transform(this: PluginContext, code: string, fileInput: string): Promise<SourceDescription | undefined> {
 			const file = ensureHasDriveLetter(fileInput);
 			const normalizedFile = normalize(file);
 			// If this file represents ROLLUP_PLUGIN_MULTI_ENTRY, we need to parse its' contents to understand which files it aliases.
