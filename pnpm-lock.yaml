@@ -11,7 +11,6 @@ dependencies:
   "@babel/runtime": 7.8.7
   "@rollup/pluginutils": 3.0.8_rollup@2.0.0
   "@types/babel__core": 7.1.6
-  "@types/node": 13.9.0
   "@wessberg/browserslist-generator": 1.0.34
   "@wessberg/stringutil": 1.0.19
   "@wessberg/ts-clone-node": 0.3.4_typescript@3.8.3
@@ -24,7 +23,9 @@ devDependencies:
   "@rollup/plugin-alias": 3.0.1_rollup@2.0.0
   "@rollup/plugin-commonjs": 11.0.2_rollup@2.0.0
   "@rollup/plugin-json": 4.0.2_rollup@2.0.0
+  "@types/node": 13.9.0
   "@types/prettier": 1.19.0
+  "@types/semver": 7.1.0
   "@typescript-eslint/eslint-plugin": 2.22.0_5fc37458f7af86d127d807b1f2a4d108
   "@typescript-eslint/parser": 2.22.0_eslint@6.8.0+typescript@3.8.3
   "@wessberg/rollup-plugin-ts": 1.2.19_rollup@2.0.0+typescript@3.8.3
@@ -6610,6 +6611,7 @@ specifiers:
   "@types/babel__core": ^7.1.6
   "@types/node": ^13.9.0
   "@types/prettier": ^1.19.0
+  "@types/semver": ^7.1.0
   "@typescript-eslint/eslint-plugin": ^2.22.0
   "@typescript-eslint/parser": ^2.22.0
   "@wessberg/browserslist-generator": ^1.0.34
