@@ -60,6 +60,7 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
   - [npm](#npm)
   - [Yarn](#yarn)
   - [pnpm](#pnpm)
+  - [Peer Dependencies](#peer-dependencies)
 - [Usage](#usage)
   - [Using it with just Typescript](#using-it-with-just-typescript)
     - [Typescript and tslib helpers](#typescript-and-tslib-helpers)
@@ -119,20 +120,24 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
 ### npm
 
 ```
-$ npm install @wessberg/rollup-plugin-ts
+$ npm install @wessberg/rollup-plugin-ts --save-dev
 ```
 
 ### Yarn
 
 ```
-$ yarn add @wessberg/rollup-plugin-ts
+$ yarn add @wessberg/rollup-plugin-ts --dev
 ```
 
 ### pnpm
 
 ```
-$ pnpm add @wessberg/rollup-plugin-ts
+$ pnpm add @wessberg/rollup-plugin-ts --save-dev
 ```
+
+### Peer Dependencies
+
+`@wessberg/rollup-plugin-ts` depends on `rollup` and `typescript`, so you need to manually install these as development dependencies as well.
 
 <!-- SHADOW_SECTION_INSTALL_END -->
 
@@ -619,6 +624,8 @@ Do you want to contribute? Awesome! Please follow [these recommendations](./CONT
 
 ## Backers
 
+[Become a sponsor/backer](https://github.com/wessberg/rollup-plugin-ts?sponsor=1) and get your logo listed here.
+
 | <a href="https://usebubbles.com"><img alt="Bubbles" src="https://uploads-ssl.webflow.com/5d682047c28b217055606673/5e5360be16879c1d0dca6514_icon-thin-128x128%402x.png" height="70"   /></a> |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [Bubbles](https://usebubbles.com)<br><strong>Twitter</strong>: [@use_bubbles](https://twitter.com/use_bubbles)                                                                              |
@@ -678,6 +685,12 @@ Babel will then be used for all other syntax transformation from then on, depend
 #### Why is @babel/plugin-transform-runtime and tslib included by default?
 
 [See this explainer](./documentation/explainer/why_is_babel-plugin-transform-runtime_and_tslib_included_by_default.md).
+
+## Starter templates
+
+The following is an evolving list of starter templates for new projects using Rollup, TypeScript, and `@wessberg/rollup-plugin-ts` that you can take a look at and draw inspiration from.
+
+- [Library with CommonJS and ESM output and TypeScript declarations](https://repl.it/@wessberg/rollup-plugin-ts-library-cjs-esm-declarations-1)
 
 <!-- SHADOW_SECTION_LICENSE_START -->
 
