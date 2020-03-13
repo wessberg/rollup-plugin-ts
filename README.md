@@ -109,6 +109,7 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
   - [Okay, then why wouldn't you use just babel?](#okay-then-why-wouldnt-you-use-just-babel)
   - [When combined with Babel, what does Typescript do, and what does Babel do?](#when-combined-with-babel-what-does-typescript-do-and-what-does-babel-do)
   - [Why is @babel/plugin-transform-runtime and tslib included by default?](#why-is-babelplugin-transform-runtime-and-tslib-included-by-default)
+- [Starter templates](#starter-templates)
 - [License](#license)
 
 <!-- SHADOW_SECTION_TOC_END -->
