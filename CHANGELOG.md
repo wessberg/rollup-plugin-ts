@@ -1,3 +1,9 @@
+## [1.2.22](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.21...v1.2.22) (2020-03-28)
+
+### Features
+
+- **typescript:** add TypeScript v3.9 support ([785dfa1](https://github.com/wessberg/rollup-plugin-ts/commit/785dfa149a3cccd0c7c6deaf79023f035dcf9837))
+
 ## [1.2.21](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.20...v1.2.21) (2020-03-06)
 
 ### Bug Fixes
