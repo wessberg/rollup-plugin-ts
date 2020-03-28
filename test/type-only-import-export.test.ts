@@ -1,6 +1,6 @@
 import test from "ava";
 import {generateRollupBundle} from "./setup/setup-rollup";
-import {NEW_LINE} from "./util/new-line";
+import {formatCode} from "./util/format-code";
 
 test("Handles type-only imports and exports. #1", async t => {
 	const bundle = await generateRollupBundle(
@@ -28,8 +28,10 @@ test("Handles type-only imports and exports. #1", async t => {
 		declarations: [file]
 	} = bundle;
 	t.deepEqual(
-		file.code,
-		`\
-interface Foo {${NEW_LINE}}${NEW_LINE}export type { Foo };${NEW_LINE}`
+		formatCode(file.code),
+		formatCode(`\
+		interface Foo {}
+		export type {Foo};
+		`)
 	);
 });

@@ -1,7 +1,6 @@
 import test from "ava";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
-import {NEW_LINE} from "./util/new-line";
 
 test("Handles namespace exports. #1", async t => {
 	const bundle = await generateRollupBundle(
@@ -128,5 +127,5 @@ test("Handles namespace exports. #3", async t => {
 	const {
 		declarations: [file]
 	} = bundle;
-	t.deepEqual(file.code, `export * as Foo from "typescript";${NEW_LINE}`);
+	t.deepEqual(formatCode(file.code), formatCode(`export * as Foo from "typescript";`));
 });

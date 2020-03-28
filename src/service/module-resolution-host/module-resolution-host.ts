@@ -6,7 +6,7 @@ import {SupportedExtensions} from "../../util/get-supported-extensions/get-suppo
 import {VirtualFile, VirtualFileInput} from "./virtual-file";
 import {D_TS_EXTENSION, D_TS_MAP_EXTENSION} from "../../constant/constant";
 
-export class ModuleResolutionHost implements TS.ModuleSpecifierResolutionHost {
+export class ModuleResolutionHost implements TS.ModuleResolutionHost {
 	private readonly directoryExistsCache: Map<string, boolean> = new Map();
 	private readonly fileExistsCache: Map<string, boolean> = new Map();
 	private currentFileNames: Set<string> | undefined;
@@ -164,8 +164,6 @@ export class ModuleResolutionHost implements TS.ModuleSpecifierResolutionHost {
 	 * Gets all directories within the given directory path
 	 */
 	getDirectories(directoryName: string): string[] {
-		return this.getFileSystem()
-			.getDirectories(nativeNormalize(directoryName))
-			.map(normalize);
+		return this.getFileSystem().getDirectories(nativeNormalize(directoryName)).map(normalize);
 	}
 }

@@ -437,9 +437,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		include: readonly string[],
 		depth?: number
 	): string[] {
-		return this.getFileSystem()
-			.readDirectory(nativeNormalize(path), extensions, exclude, include, depth)
-			.map(normalize);
+		return this.getFileSystem().readDirectory(nativeNormalize(path), extensions, exclude, include, depth).map(normalize);
 	}
 
 	resolve(moduleName: string, containingFile: string): ExtendedResolvedModule | null {
