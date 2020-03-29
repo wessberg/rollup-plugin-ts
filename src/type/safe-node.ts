@@ -6,4 +6,6 @@ export interface SafeNode extends TS.Node {
 
 	_original?: SafeNode;
 	original?: SafeNode;
+
+	_parent?: SafeNode;
 }

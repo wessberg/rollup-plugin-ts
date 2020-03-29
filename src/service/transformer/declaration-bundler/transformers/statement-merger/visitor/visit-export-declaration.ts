@@ -1,5 +1,6 @@
 import {TS} from "../../../../../../type/ts";
 import {StatementMergerVisitorOptions} from "../statement-merger-visitor-options";
+import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 export function visitExportDeclaration(
 	options: StatementMergerVisitorOptions<TS.ExportDeclaration>
@@ -30,5 +31,12 @@ export function visitExportDeclaration(
 				: typescript.createNamespaceExport(typescript.createIdentifier(first.exportClause.name.text));
 	}
 
-	return [typescript.updateExportDeclaration(node, node.decorators, node.modifiers, exportClause, node.moduleSpecifier, node.isTypeOnly), ...other];
+	return [
+		preserveMeta(
+			typescript.updateExportDeclaration(node, node.decorators, node.modifiers, exportClause, node.moduleSpecifier, node.isTypeOnly),
+			node,
+			options
+		),
+		...other
+	];
 }

@@ -2,7 +2,7 @@ import {TS} from "../../../../../../type/ts";
 import {ToExportDeclarationTransformerVisitorOptions} from "../to-export-declaration-transformer-visitor-options";
 import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers";
 import {hasExportModifier} from "../../../util/modifier-util";
-import {preserveSymbols} from "../../../util/clone-node-with-meta";
+import {preserveParents, preserveSymbols} from "../../../util/clone-node-with-meta";
 
 export function visitInterfaceDeclaration(options: ToExportDeclarationTransformerVisitorOptions<TS.InterfaceDeclaration>): TS.InterfaceDeclaration {
 	const {node, typescript, appendNodes} = options;
@@ -12,7 +12,9 @@ export function visitInterfaceDeclaration(options: ToExportDeclarationTransforme
 	const {exportSpecifier} = createExportSpecifierFromNameAndModifiers({...options, name: node.name.text, modifiers: node.modifiers});
 
 	// Append an ExportDeclaration
-	appendNodes(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([exportSpecifier])));
+	appendNodes(
+		preserveParents(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([exportSpecifier])), {typescript})
+	);
 
 	const propertyName = exportSpecifier.propertyName ?? exportSpecifier.name;
 	preserveSymbols(propertyName, node, options);

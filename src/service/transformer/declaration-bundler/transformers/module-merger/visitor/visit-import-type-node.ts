@@ -5,8 +5,9 @@ import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifi
 import {ensureHasDeclareModifier} from "../../../util/modifier-util";
 import {generateIdentifierName} from "../../../util/generate-identifier-name";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
-import {preserveMeta, preserveSymbols} from "../../../util/clone-node-with-meta";
+import {preserveMeta, preserveParents, preserveSymbols} from "../../../util/clone-node-with-meta";
 import {statementMerger} from "../../statement-merger/statement-merger";
+import {getParentNode, setParentNode} from "../../../util/get-parent-node";
 
 export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.ImportTypeNode>): VisitResult<TS.ImportTypeNode> {
 	const {node} = options;
@@ -58,18 +59,21 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 		const innerContent = options.typescript.createIdentifier(namespaceName);
 
 		options.prependNodes(
-			options.typescript.createModuleDeclaration(
-				undefined,
-				ensureHasDeclareModifier(undefined, options.typescript),
-				options.typescript.createIdentifier(namespaceName),
-				options.typescript.createModuleBlock([
-					...options.includeSourceFile(matchingSourceFile, {
-						allowDuplicate: true,
-						lexicalEnvironment: cloneLexicalEnvironment(),
-						transformers: [ensureNoDeclareModifierTransformer, statementMerger({markAsModuleIfNeeded: false})]
-					})
-				]),
-				options.typescript.NodeFlags.Namespace
+			preserveParents(
+				options.typescript.createModuleDeclaration(
+					undefined,
+					ensureHasDeclareModifier(undefined, options.typescript),
+					options.typescript.createIdentifier(namespaceName),
+					options.typescript.createModuleBlock([
+						...options.includeSourceFile(matchingSourceFile, {
+							allowDuplicate: true,
+							lexicalEnvironment: cloneLexicalEnvironment(),
+							transformers: [ensureNoDeclareModifierTransformer, statementMerger({markAsModuleIfNeeded: false})]
+						})
+					]),
+					options.typescript.NodeFlags.Namespace
+				),
+				options
 			)
 		);
 
@@ -84,5 +88,6 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 	}
 
 	preserveSymbols(returnNode, contResult.qualifier ?? contResult, options);
+	setParentNode(returnNode, getParentNode(node));
 	return returnNode;
 }

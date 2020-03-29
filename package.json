@@ -100,7 +100,7 @@
 		"@types/babel__core": "^7.1.6",
 		"@wessberg/browserslist-generator": "^1.0.34",
 		"@wessberg/stringutil": "^1.0.19",
-		"@wessberg/ts-clone-node": "^0.3.4",
+		"@wessberg/ts-clone-node": "^0.3.8",
 		"browserslist": "^4.11.0",
 		"chalk": "^3.0.0",
 		"magic-string": "^0.25.7",

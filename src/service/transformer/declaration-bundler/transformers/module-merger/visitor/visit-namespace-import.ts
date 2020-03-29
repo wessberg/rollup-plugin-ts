@@ -5,6 +5,7 @@ import {ensureHasDeclareModifier} from "../../../util/modifier-util";
 import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifier-transformer/ensure-no-declare-modifier-transformer";
 import {statementMerger} from "../../statement-merger/statement-merger";
+import {preserveParents} from "../../../util/clone-node-with-meta";
 
 export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.NamespaceImport>): VisitResult<TS.NamespaceImport> {
 	const {node, payload} = options;
@@ -19,18 +20,21 @@ export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.Name
 
 	// Otherwise, prepend the nodes for the SourceFile in a namespace declaration
 	options.prependNodes(
-		options.typescript.createModuleDeclaration(
-			undefined,
-			ensureHasDeclareModifier(undefined, options.typescript),
-			options.typescript.createIdentifier(contResult.name.text),
-			options.typescript.createModuleBlock([
-				...options.includeSourceFile(payload.matchingSourceFile, {
-					allowDuplicate: true,
-					lexicalEnvironment: cloneLexicalEnvironment(),
-					transformers: [ensureNoDeclareModifierTransformer, statementMerger({markAsModuleIfNeeded: false})]
-				})
-			]),
-			options.typescript.NodeFlags.Namespace
+		preserveParents(
+			options.typescript.createModuleDeclaration(
+				undefined,
+				ensureHasDeclareModifier(undefined, options.typescript),
+				options.typescript.createIdentifier(contResult.name.text),
+				options.typescript.createModuleBlock([
+					...options.includeSourceFile(payload.matchingSourceFile, {
+						allowDuplicate: true,
+						lexicalEnvironment: cloneLexicalEnvironment(),
+						transformers: [ensureNoDeclareModifierTransformer, statementMerger({markAsModuleIfNeeded: false})]
+					})
+				]),
+				options.typescript.NodeFlags.Namespace
+			),
+			options
 		)
 	);
 

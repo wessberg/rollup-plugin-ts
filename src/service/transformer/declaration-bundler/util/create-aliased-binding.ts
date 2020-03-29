@@ -3,6 +3,7 @@ import {ensureHasDeclareModifier} from "./modifier-util";
 import {getAliasedDeclarationFromSymbol, isSymbol} from "./get-aliased-declaration";
 import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options";
 import {generateUniqueBinding} from "./generate-unique-binding";
+import {preserveParents} from "./clone-node-with-meta";
 
 export function createAliasedBinding(
 	node: TS.Node | TS.Symbol | undefined,
@@ -18,24 +19,30 @@ export function createAliasedBinding(
 		case typescript.SyntaxKind.ClassDeclaration:
 		case typescript.SyntaxKind.ClassExpression: {
 			return [
-				typescript.createModuleDeclaration(
-					undefined,
-					undefined,
-					typescript.createIdentifier(moduleBinding),
-					typescript.createModuleBlock([
-						typescript.createExportDeclaration(
-							undefined,
-							undefined,
-							typescript.createNamedExports([typescript.createExportSpecifier(undefined, typescript.createIdentifier(propertyName))])
-						)
-					])
+				preserveParents(
+					typescript.createModuleDeclaration(
+						undefined,
+						undefined,
+						typescript.createIdentifier(moduleBinding),
+						typescript.createModuleBlock([
+							typescript.createExportDeclaration(
+								undefined,
+								undefined,
+								typescript.createNamedExports([typescript.createExportSpecifier(undefined, typescript.createIdentifier(propertyName))])
+							)
+						])
+					),
+					{typescript}
 				),
 
-				typescript.createImportEqualsDeclaration(
-					undefined,
-					undefined,
-					typescript.createIdentifier(name),
-					typescript.createQualifiedName(typescript.createIdentifier(moduleBinding), typescript.createIdentifier(propertyName))
+				preserveParents(
+					typescript.createImportEqualsDeclaration(
+						undefined,
+						undefined,
+						typescript.createIdentifier(name),
+						typescript.createQualifiedName(typescript.createIdentifier(moduleBinding), typescript.createIdentifier(propertyName))
+					),
+					{typescript}
 				)
 			];
 		}
@@ -46,29 +53,35 @@ export function createAliasedBinding(
 		case typescript.SyntaxKind.VariableStatement:
 		case typescript.SyntaxKind.ExportAssignment: {
 			return [
-				typescript.createVariableStatement(
-					ensureHasDeclareModifier(undefined, typescript),
-					typescript.createVariableDeclarationList(
-						[
-							typescript.createVariableDeclaration(
-								typescript.createIdentifier(name),
-								typescript.createTypeQueryNode(typescript.createIdentifier(propertyName))
-							)
-						],
-						typescript.NodeFlags.Const
-					)
+				preserveParents(
+					typescript.createVariableStatement(
+						ensureHasDeclareModifier(undefined, typescript),
+						typescript.createVariableDeclarationList(
+							[
+								typescript.createVariableDeclaration(
+									typescript.createIdentifier(name),
+									typescript.createTypeQueryNode(typescript.createIdentifier(propertyName))
+								)
+							],
+							typescript.NodeFlags.Const
+						)
+					),
+					{typescript}
 				)
 			];
 		}
 
 		default: {
 			return [
-				typescript.createTypeAliasDeclaration(
-					undefined,
-					undefined,
-					typescript.createIdentifier(name),
-					undefined,
-					typescript.createTypeReferenceNode(typescript.createIdentifier(propertyName), undefined)
+				preserveParents(
+					typescript.createTypeAliasDeclaration(
+						undefined,
+						undefined,
+						typescript.createIdentifier(name),
+						undefined,
+						typescript.createTypeReferenceNode(typescript.createIdentifier(propertyName), undefined)
+					),
+					{typescript}
 				)
 			];
 		}

@@ -1,5 +1,6 @@
 import {ensureHasLeadingDotAndPosix} from "../../../../util/path/path-util";
 import {TS} from "../../../../type/ts";
+import {preserveParents} from "./clone-node-with-meta";
 
 export type MergedExportDeclarationsMap = Map<string | undefined, TS.ExportDeclaration[]>;
 
@@ -120,11 +121,14 @@ export function getMergedExportDeclarationsForModules(sourceFile: TS.SourceFile,
 			moduleToExportDeclarations.set(specifier, exportDeclarationsForModule);
 		}
 		exportDeclarationsForModule.push(
-			typescript.createExportDeclaration(
-				undefined,
-				undefined,
-				typescript.createNamedExports(exportSpecifiers),
-				specifier == null ? undefined : typescript.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
+			preserveParents(
+				typescript.createExportDeclaration(
+					undefined,
+					undefined,
+					typescript.createNamedExports(exportSpecifiers),
+					specifier == null ? undefined : typescript.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
+				),
+				{typescript}
 			)
 		);
 	}
@@ -139,11 +143,14 @@ export function getMergedExportDeclarationsForModules(sourceFile: TS.SourceFile,
 
 		for (const name of names) {
 			exportDeclarationsForModule.push(
-				typescript.createExportDeclaration(
-					undefined,
-					undefined,
-					typescript.createNamespaceExport(typescript.createIdentifier(name)),
-					typescript.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
+				preserveParents(
+					typescript.createExportDeclaration(
+						undefined,
+						undefined,
+						typescript.createNamespaceExport(typescript.createIdentifier(name)),
+						typescript.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
+					),
+					{typescript}
 				)
 			);
 		}

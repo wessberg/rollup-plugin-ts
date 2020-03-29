@@ -1,6 +1,6 @@
 import {SourceFileBundlerVisitorOptions} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
 import {TS} from "../../../../type/ts";
-import {cloneNode, preserveNode} from "@wessberg/ts-clone-node";
+import {cloneNode, preserveNode, setParentNodes} from "@wessberg/ts-clone-node";
 import {getSymbolAtLocation} from "./get-symbol-at-location";
 import {SafeNode} from "../../../../type/safe-node";
 
@@ -15,6 +15,10 @@ export function preserveSymbols<T extends TS.Node>(node: T, otherNode: TS.Node, 
 
 export function preserveMeta<T extends TS.Node>(newNode: T, oldNode: T, options: PreserveMetaOptions): T {
 	return preserveNode(newNode, oldNode, options);
+}
+
+export function preserveParents<T extends TS.Node>(node: T, options: Pick<SourceFileBundlerVisitorOptions, "typescript">): T {
+	return setParentNodes(node, {typescript: options.typescript, propertyName: "_parent", deep: true});
 }
 
 export function cloneNodeWithMeta<T extends TS.Node>(node: T, options: PreserveMetaOptions): T {

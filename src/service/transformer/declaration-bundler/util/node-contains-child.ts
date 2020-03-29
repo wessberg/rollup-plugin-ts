@@ -1,4 +1,5 @@
 import {TS} from "../../../../type/ts";
+import {getParentNode} from "./get-parent-node";
 
 /**
  * Returns true if the given Node contains the given Child Node
@@ -8,7 +9,7 @@ export function nodeContainsChild(parent: TS.Node, potentialChild: TS.Node): boo
 
 	let candidate = potentialChild;
 	while (candidate != null) {
-		candidate = candidate.parent;
+		candidate = getParentNode(candidate);
 		if (candidate === parent) return true;
 	}
 

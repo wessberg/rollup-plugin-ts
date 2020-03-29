@@ -13,7 +13,7 @@ dependencies:
   "@types/babel__core": 7.1.6
   "@wessberg/browserslist-generator": 1.0.34
   "@wessberg/stringutil": 1.0.19
-  "@wessberg/ts-clone-node": 0.3.4_typescript@3.9.0-dev.20200328
+  "@wessberg/ts-clone-node": 0.3.8_typescript@3.9.0-dev.20200328
   browserslist: 4.11.0
   chalk: 3.0.0
   magic-string: 0.25.7
@@ -1136,12 +1136,23 @@ packages:
   /@wessberg/ts-clone-node/0.3.4_typescript@3.9.0-dev.20200328:
     dependencies:
       typescript: 3.9.0-dev.20200328
+    dev: true
     engines:
       node: ">=8.0.0"
     peerDependencies:
       typescript: ^3.x
     resolution:
       integrity: sha512-/JWk3eBbE/Og/42DNdwiWX7YhPPiPvoI5ZxW9xXsy9poRNH55gd4bwsJTNZSkgjmkv5xzq39JNZWQ2+MqfskkA==
+  /@wessberg/ts-clone-node/0.3.8_typescript@3.9.0-dev.20200328:
+    dependencies:
+      typescript: 3.9.0-dev.20200328
+    dev: false
+    engines:
+      node: ">=8.0.0"
+    peerDependencies:
+      typescript: ^3.x
+    resolution:
+      integrity: sha512-m/+1ox7e2K/KwWFe1K7OpiqTHZnraCG6urhCt4Y5Dxw8dr1NMcV52Q8qvJd0lGfhGhZiVD/SWbUj9i2wKzdK6w==
   /@wessberg/ts-config/1.0.8:
     dev: true
     resolution:
@@ -6639,7 +6650,7 @@ specifiers:
   "@wessberg/rollup-plugin-ts": ^1.2.21
   "@wessberg/scaffold": ^1.0.29
   "@wessberg/stringutil": ^1.0.19
-  "@wessberg/ts-clone-node": ^0.3.4
+  "@wessberg/ts-clone-node": ^0.3.8
   "@wessberg/ts-config": ^1.0.8
   ava: 3.5.1
   babel-preset-minify: ^0.5.1

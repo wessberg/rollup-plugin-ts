@@ -1,7 +1,7 @@
 import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options";
 import {TS} from "../../../../../../type/ts";
 import {getImportedSymbolFromImportClauseName} from "../../../util/create-export-specifier-from-name-and-modifiers";
-import {preserveMeta} from "../../../util/clone-node-with-meta";
+import {preserveMeta, preserveParents} from "../../../util/clone-node-with-meta";
 import {createAliasedBinding} from "../../../util/create-aliased-binding";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
 import {locateExportedSymbolForSourceFile} from "../../../util/locate-exported-symbol";
@@ -55,11 +55,14 @@ export function visitImportClause(options: ModuleMergerVisitorOptions<TS.ImportC
 			options.getMatchingSourceFile(defaultExportedSymbol.moduleSpecifier, payload.matchingSourceFile) == null
 		) {
 			options.prependNodes(
-				typescript.createImportDeclaration(
-					undefined,
-					undefined,
-					typescript.createImportClause(typescript.createIdentifier(contResult.name.text), undefined),
-					typescript.createStringLiteral(generatedModuleSpecifier)
+				preserveParents(
+					typescript.createImportDeclaration(
+						undefined,
+						undefined,
+						typescript.createImportClause(typescript.createIdentifier(contResult.name.text), undefined),
+						typescript.createStringLiteral(generatedModuleSpecifier)
+					),
+					{typescript}
 				)
 			);
 		}

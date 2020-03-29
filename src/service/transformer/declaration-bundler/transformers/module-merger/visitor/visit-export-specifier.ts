@@ -1,6 +1,6 @@
 import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options";
 import {TS} from "../../../../../../type/ts";
-import {preserveMeta} from "../../../util/clone-node-with-meta";
+import {preserveMeta, preserveParents} from "../../../util/clone-node-with-meta";
 import {locateExportedSymbolForSourceFile} from "../../../util/locate-exported-symbol";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
 
@@ -45,20 +45,23 @@ export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.Expo
 			options.getMatchingSourceFile(exportedSymbol.moduleSpecifier, payload.matchingSourceFile) == null
 		) {
 			options.prependNodes(
-				typescript.createExportDeclaration(
-					undefined,
-					undefined,
-					typescript.createNamedExports([
-						typescript.createExportSpecifier(
-							propertyName.text === "default"
-								? typescript.createIdentifier("default")
-								: exportedSymbol.propertyName.text === contResult.name.text
-								? undefined
-								: typescript.createIdentifier(exportedSymbol.propertyName.text),
-							typescript.createIdentifier(contResult.name.text)
-						)
-					]),
-					typescript.createStringLiteral(generatedModuleSpecifier)
+				preserveParents(
+					typescript.createExportDeclaration(
+						undefined,
+						undefined,
+						typescript.createNamedExports([
+							typescript.createExportSpecifier(
+								propertyName.text === "default"
+									? typescript.createIdentifier("default")
+									: exportedSymbol.propertyName.text === contResult.name.text
+									? undefined
+									: typescript.createIdentifier(exportedSymbol.propertyName.text),
+								typescript.createIdentifier(contResult.name.text)
+							)
+						]),
+						typescript.createStringLiteral(generatedModuleSpecifier)
+					),
+					options
 				)
 			);
 

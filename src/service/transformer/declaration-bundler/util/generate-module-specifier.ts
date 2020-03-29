@@ -11,6 +11,10 @@ export interface GenerateModuleSpecifierOptions {
 	chunks: NormalizedChunk[];
 }
 
+export function isSameChunk(options: GenerateModuleSpecifierOptions): boolean {
+	return generateModuleSpecifier(options) == null;
+}
+
 export function generateModuleSpecifier(options: GenerateModuleSpecifierOptions): string | undefined {
 	const {chunk, moduleSpecifier, resolveSourceFile, from} = options;
 	const sourceFile = resolveSourceFile(moduleSpecifier, from);

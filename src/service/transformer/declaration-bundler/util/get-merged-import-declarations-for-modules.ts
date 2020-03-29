@@ -1,5 +1,6 @@
 import {ensureHasLeadingDotAndPosix} from "../../../../util/path/path-util";
 import {TS} from "../../../../type/ts";
+import {preserveParents} from "./clone-node-with-meta";
 
 export type MergedImportDeclarationsMap = Map<string, TS.ImportDeclaration[]>;
 
@@ -85,11 +86,14 @@ export function getMergedImportDeclarationsForModules(sourceFile: TS.SourceFile,
 
 		for (const name of names) {
 			importDeclarationsForModule.push(
-				typescript.createImportDeclaration(
-					undefined,
-					undefined,
-					typescript.createImportClause(typescript.createIdentifier(name), undefined),
-					typescript.createStringLiteral(ensureHasLeadingDotAndPosix(module))
+				preserveParents(
+					typescript.createImportDeclaration(
+						undefined,
+						undefined,
+						typescript.createImportClause(typescript.createIdentifier(name), undefined),
+						typescript.createStringLiteral(ensureHasLeadingDotAndPosix(module))
+					),
+					{typescript}
 				)
 			);
 		}
@@ -105,11 +109,14 @@ export function getMergedImportDeclarationsForModules(sourceFile: TS.SourceFile,
 
 		for (const name of names) {
 			importDeclarationsForModule.push(
-				typescript.createImportDeclaration(
-					undefined,
-					undefined,
-					typescript.createImportClause(undefined, typescript.createNamespaceImport(typescript.createIdentifier(name))),
-					typescript.createStringLiteral(ensureHasLeadingDotAndPosix(module))
+				preserveParents(
+					typescript.createImportDeclaration(
+						undefined,
+						undefined,
+						typescript.createImportClause(undefined, typescript.createNamespaceImport(typescript.createIdentifier(name))),
+						typescript.createStringLiteral(ensureHasLeadingDotAndPosix(module))
+					),
+					{typescript}
 				)
 			);
 		}
@@ -128,20 +135,23 @@ export function getMergedImportDeclarationsForModules(sourceFile: TS.SourceFile,
 			if (collection.length < 1) continue;
 
 			importDeclarationsForModule.push(
-				typescript.createImportDeclaration(
-					undefined,
-					undefined,
-					typescript.createImportClause(
+				preserveParents(
+					typescript.createImportDeclaration(
 						undefined,
-						typescript.createNamedImports(
-							collection.map(record =>
-								record.propertyName !== record.alias
-									? typescript.createImportSpecifier(typescript.createIdentifier(record.propertyName), typescript.createIdentifier(record.alias))
-									: typescript.createImportSpecifier(undefined, typescript.createIdentifier(record.alias))
+						undefined,
+						typescript.createImportClause(
+							undefined,
+							typescript.createNamedImports(
+								collection.map(record =>
+									record.propertyName !== record.alias
+										? typescript.createImportSpecifier(typescript.createIdentifier(record.propertyName), typescript.createIdentifier(record.alias))
+										: typescript.createImportSpecifier(undefined, typescript.createIdentifier(record.alias))
+								)
 							)
-						)
+						),
+						typescript.createStringLiteral(ensureHasLeadingDotAndPosix(module))
 					),
-					typescript.createStringLiteral(ensureHasLeadingDotAndPosix(module))
+					{typescript}
 				)
 			);
 		}

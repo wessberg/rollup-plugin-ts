@@ -5,6 +5,7 @@ import {getImportedSymbolFromImportSpecifier} from "../../../util/create-export-
 import {locateExportedSymbolForSourceFile} from "../../../util/locate-exported-symbol";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
 import {getAliasedDeclaration} from "../../../util/get-aliased-declaration";
+import {preserveParents} from "../../../util/clone-node-with-meta";
 
 export function visitImportSpecifier(options: ModuleMergerVisitorOptions<TS.ImportSpecifier>): VisitResult<TS.ImportSpecifier> {
 	const {node, payload, typescript} = options;
@@ -47,23 +48,26 @@ export function visitImportSpecifier(options: ModuleMergerVisitorOptions<TS.Impo
 			options.getMatchingSourceFile(exportedSymbol.moduleSpecifier, payload.matchingSourceFile) == null
 		) {
 			options.prependNodes(
-				typescript.createImportDeclaration(
-					undefined,
-					undefined,
-					typescript.createImportClause(
+				preserveParents(
+					typescript.createImportDeclaration(
 						undefined,
-						typescript.createNamedImports([
-							typescript.createImportSpecifier(
-								propertyName.text === "default"
-									? typescript.createIdentifier("default")
-									: exportedSymbol.propertyName.text === contResult.name.text
-									? undefined
-									: typescript.createIdentifier(exportedSymbol.propertyName.text),
-								typescript.createIdentifier(contResult.name.text)
-							)
-						])
+						undefined,
+						typescript.createImportClause(
+							undefined,
+							typescript.createNamedImports([
+								typescript.createImportSpecifier(
+									propertyName.text === "default"
+										? typescript.createIdentifier("default")
+										: exportedSymbol.propertyName.text === contResult.name.text
+										? undefined
+										: typescript.createIdentifier(exportedSymbol.propertyName.text),
+									typescript.createIdentifier(contResult.name.text)
+								)
+							])
+						),
+						typescript.createStringLiteral(generatedModuleSpecifier)
 					),
-					typescript.createStringLiteral(generatedModuleSpecifier)
+					options
 				)
 			);
 		} else if (contResult.propertyName != null) {

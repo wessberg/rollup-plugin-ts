@@ -1,7 +1,7 @@
 import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options";
 import {TS} from "../../../../../../type/ts";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
-import {preserveSymbols} from "../../../util/clone-node-with-meta";
+import {preserveMeta, preserveParents, preserveSymbols} from "../../../util/clone-node-with-meta";
 import {ensureHasDeclareModifier} from "../../../util/modifier-util";
 import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifier-transformer/ensure-no-declare-modifier-transformer";
@@ -33,7 +33,10 @@ function generateExportDeclarations(
 			// in favor of all other named export bindings that will included anyway
 			if (matchingSourceFile == null && generatedModuleSpecifier != null) {
 				exportDeclarations.push(
-					typescript.createExportDeclaration(undefined, undefined, undefined, typescript.createStringLiteral(generatedModuleSpecifier))
+					preserveParents(
+						typescript.createExportDeclaration(undefined, undefined, undefined, typescript.createStringLiteral(generatedModuleSpecifier)),
+						{typescript}
+					)
 				);
 			}
 
@@ -57,13 +60,16 @@ function generateExportDeclarations(
 			);
 
 			exportDeclarations.push(
-				typescript.createExportDeclaration(
-					undefined,
-					undefined,
-					typescript.createNamedExports([exportSpecifier]),
-					symbol.moduleSpecifier == null || generatedModuleSpecifier == null || matchingSourceFile != null
-						? undefined
-						: typescript.createStringLiteral(generatedModuleSpecifier)
+				preserveParents(
+					typescript.createExportDeclaration(
+						undefined,
+						undefined,
+						typescript.createNamedExports([exportSpecifier]),
+						symbol.moduleSpecifier == null || generatedModuleSpecifier == null || matchingSourceFile != null
+							? undefined
+							: typescript.createStringLiteral(generatedModuleSpecifier)
+					),
+					{typescript}
 				)
 			);
 			const propertyName = exportSpecifier.propertyName ?? exportSpecifier.name;
@@ -103,13 +109,17 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 		}
 
 		// Otherwise, update the module specifier
-		return typescript.updateExportDeclaration(
+		return preserveMeta(
+			typescript.updateExportDeclaration(
+				contResult,
+				contResult.decorators,
+				contResult.modifiers,
+				contResult.exportClause,
+				typescript.createStringLiteral(updatedModuleSpecifier),
+				contResult.isTypeOnly
+			),
 			contResult,
-			contResult.decorators,
-			contResult.modifiers,
-			contResult.exportClause,
-			typescript.createStringLiteral(updatedModuleSpecifier),
-			contResult.isTypeOnly
+			options
 		);
 	}
 
@@ -128,36 +138,48 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 	else if (typescript.isNamespaceExport?.(contResult.exportClause)) {
 		// Otherwise, prepend the nodes for the SourceFile in a namespace declaration
 		options.prependNodes(
-			options.typescript.createModuleDeclaration(
-				undefined,
-				ensureHasDeclareModifier(undefined, options.typescript),
-				options.typescript.createIdentifier(contResult.exportClause.name.text),
-				options.typescript.createModuleBlock([
-					...options.includeSourceFile(matchingSourceFile, {
-						allowDuplicate: true,
-						lexicalEnvironment: cloneLexicalEnvironment(),
-						transformers: [ensureNoDeclareModifierTransformer, statementMerger({markAsModuleIfNeeded: false})]
-					})
-				]),
-				options.typescript.NodeFlags.Namespace
+			preserveParents(
+				options.typescript.createModuleDeclaration(
+					undefined,
+					ensureHasDeclareModifier(undefined, options.typescript),
+					options.typescript.createIdentifier(contResult.exportClause.name.text),
+					options.typescript.createModuleBlock([
+						...options.includeSourceFile(matchingSourceFile, {
+							allowDuplicate: true,
+							lexicalEnvironment: cloneLexicalEnvironment(),
+							transformers: [ensureNoDeclareModifierTransformer, statementMerger({markAsModuleIfNeeded: false})]
+						})
+					]),
+					options.typescript.NodeFlags.Namespace
+				),
+				options
 			),
-			options.typescript.createExportDeclaration(
-				undefined,
-				undefined,
-				typescript.createNamedExports([typescript.createExportSpecifier(undefined, typescript.createIdentifier(contResult.exportClause.name.text))]),
-				undefined,
-				contResult.isTypeOnly
+			preserveParents(
+				options.typescript.createExportDeclaration(
+					undefined,
+					undefined,
+					typescript.createNamedExports([
+						typescript.createExportSpecifier(undefined, typescript.createIdentifier(contResult.exportClause.name.text))
+					]),
+					undefined,
+					contResult.isTypeOnly
+				),
+				options
 			)
 		);
 	}
 
 	// Otherwise, preserve the continuation result, but without the ModuleSpecifier
-	return typescript.updateExportDeclaration(
+	return preserveMeta(
+		typescript.updateExportDeclaration(
+			contResult,
+			contResult.decorators,
+			contResult.modifiers,
+			contResult.exportClause,
+			undefined,
+			contResult.isTypeOnly
+		),
 		contResult,
-		contResult.decorators,
-		contResult.modifiers,
-		contResult.exportClause,
-		undefined,
-		contResult.isTypeOnly
+		options
 	);
 }

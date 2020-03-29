@@ -1072,7 +1072,7 @@ test("Will merge declarations declared in same SourceFile rather than deconflict
 			{
 				entry: true,
 				fileName: "index.ts",
-				text: `\	
+				text: `\
 				export interface Something {
 					type: string;
 				}
@@ -1129,6 +1129,207 @@ test("Won't deconflict overloaded function signatures #1", async t => {
 		declare function foo(arg: number): number;
 		declare function foo(arg: string): string;
 		export { foo };
+		`)
+	);
+});
+
+test("Will allow local conflicting symbols with external module symbols. #1", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+        export * from "./b";
+        export * from "./utils";
+				export * from "./a";
+			`
+			},
+			{
+				entry: false,
+				fileName: "a.ts",
+				text: `\
+        import * as fs from "fs";
+
+				export class Foo {
+					bar: typeof fs.Stats;
+				}
+			`
+			},
+			{
+				entry: false,
+				fileName: "b.ts",
+				text: `\
+					import * as fs from "fs";
+					export const stats = new fs.Stats();
+				`
+			},
+			{
+				entry: false,
+				fileName: "utils.ts",
+				text: `\
+					export namespace fs {
+						export function blah() { return "I'm a string!"; }
+					}
+				`
+			}
+		],
+		{
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			/// <reference types="node" />
+			import * as fs from "fs";
+			declare const stats: fs.Stats;
+			declare namespace fs$0 {
+					function blah(): string;
+			}
+			declare class Foo {
+					bar: typeof fs.Stats;
+			}
+			export { stats, fs$0 as fs, Foo };
+		`)
+	);
+});
+
+test("Will allow local conflicting symbols with external module symbols. #2", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+        export * from "./b";
+        export * from "./utils";
+				export * from "./a";
+			`
+			},
+			{
+				entry: false,
+				fileName: "a.ts",
+				text: `\
+        import fs from "fs";
+
+				export class Foo {
+					bar: typeof fs.Stats;
+				}
+			`
+			},
+			{
+				entry: false,
+				fileName: "b.ts",
+				text: `\
+					import fs from "fs";
+					export const stats = new fs.Stats();
+				`
+			},
+			{
+				entry: false,
+				fileName: "utils.ts",
+				text: `\
+					export namespace fs {
+						export function blah() { return "I'm a string!"; }
+					}
+				`
+			}
+		],
+		{
+			debug: false,
+			tsconfig: {
+				allowSyntheticDefaultImports: true
+			}
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			/// <reference types="node" />
+			import fs from "fs";
+			declare const stats: fs.Stats;
+			declare namespace fs$0 {
+					function blah(): string;
+			}
+			declare class Foo {
+					bar: typeof fs.Stats;
+			}
+			export { stats, fs$0 as fs, Foo };
+		`)
+	);
+});
+
+test("Will allow local conflicting symbols with external module symbols. #3", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+        export * from "./b";
+        export * from "./utils";
+				export * from "./a";
+			`
+			},
+			{
+				entry: false,
+				fileName: "a.ts",
+				text: `\
+        import {truncate} from "fs";
+
+				export class Foo {
+					bar: typeof truncate.__promisify__;
+				}
+			`
+			},
+			{
+				entry: false,
+				fileName: "b.ts",
+				text: `\
+					import {truncate} from "fs";
+					export const foo = truncate.__promisify__;
+				`
+			},
+			{
+				entry: false,
+				fileName: "utils.ts",
+				text: `\
+					export namespace truncate {
+						export function blah() { return "I'm a string!"; }
+					}
+				`
+			}
+		],
+		{
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			/// <reference types="node" />
+			import {truncate} from "fs";
+			declare const foo: typeof truncate.__promisify__;
+			declare namespace truncate$0 {
+					function blah(): string;
+			}
+			declare class Foo {
+					bar: typeof truncate.__promisify__;
+			}
+			export { foo, truncate$0 as truncate, Foo };
 		`)
 	);
 });
