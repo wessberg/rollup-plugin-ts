@@ -1,3 +1,9 @@
+## [1.2.23](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.22...v1.2.23) (2020-03-30)
+
+### Bug Fixes
+
+- **deconflicting:** fix issue where local symbols could conflict with external ones under some circumstances. [#88](https://github.com/wessberg/rollup-plugin-ts/issues/88) ([1f837f3](https://github.com/wessberg/rollup-plugin-ts/commit/1f837f377f98f5a179e7b4cf0722e5ed17ec8826))
+
 ## [1.2.22](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.21...v1.2.22) (2020-03-28)
 
 ### Features
