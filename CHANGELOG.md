@@ -1,3 +1,9 @@
+## [1.2.24](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.23...v1.2.24) (2020-04-06)
+
+### Bug Fixes
+
+- **regenerator:** update inlined regenerator-runtime code to align with v0.13.5 ([ab869f2](https://github.com/wessberg/rollup-plugin-ts/commit/ab869f2584b06e10d480833d52373122119ae904))
+
 ## [1.2.23](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.22...v1.2.23) (2020-03-30)
 
 ### Bug Fixes
