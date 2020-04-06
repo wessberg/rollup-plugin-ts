@@ -66,7 +66,7 @@
 		"eslint-plugin-import": "^2.20.2",
 		"eslint-plugin-jsdoc": "^22.1.0",
 		"husky": "^4.2.3",
-		"np": "6.2.0",
+		"np": "5.2.1",
 		"pnpm": "^4.12.5",
 		"prettier": "^2.0.4",
 		"pretty-quick": "^2.0.1",
@@ -108,7 +108,7 @@
 		"tslib": "^1.11.1"
 	},
 	"peerDependencies": {
-		"rollup": ">=2.x",
+		"rollup": ">=1.x",
 		"typescript": ">= 3.x"
 	},
 	"main": "./dist/cjs/index.js",
