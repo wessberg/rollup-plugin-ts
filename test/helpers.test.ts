@@ -253,11 +253,10 @@ function mark(genFun) {
 
   genFun.prototype = Object.create(Gp);
   return genFun;
-} // Within the body of any async function, \`await x\` is transformed to
+}
 // \`yield regeneratorRuntime.awrap(x)\`, so that the runtime can test
 // \`hasOwn.call(value, "__await")\` to determine if the yielded value is
 // meant to be awaited.
-
 
 function awrap(arg) {
   return {
@@ -265,7 +264,7 @@ function awrap(arg) {
   };
 }
 
-function AsyncIterator(generator) {
+function AsyncIterator(generator, PromiseImpl) {
   function invoke(method, arg, resolve, reject) {
     var record = tryCatch(generator[method], generator, arg);
 
@@ -276,14 +275,14 @@ function AsyncIterator(generator) {
       var value = result.value;
 
       if (value && _typeof(value) === "object" && hasOwn.call(value, "__await")) {
-        return Promise.resolve(value.__await).then(function (value) {
+        return PromiseImpl.resolve(value.__await).then(function (value) {
           invoke("next", value, resolve, reject);
         }, function (err) {
           invoke("throw", err, resolve, reject);
         });
       }
 
-      return Promise.resolve(value).then(function (unwrapped) {
+      return PromiseImpl.resolve(value).then(function (unwrapped) {
         // When a yielded Promise is resolved, its final value becomes
         // the .value of the Promise<{value,done}> result for the
         // current iteration.
@@ -301,7 +300,7 @@ function AsyncIterator(generator) {
 
   function enqueue(method, arg) {
     function callInvokeWithMethodAndArg() {
-      return new Promise(function (resolve, reject) {
+      return new PromiseImpl(function (resolve, reject) {
         invoke(method, arg, resolve, reject);
       });
     }
@@ -337,8 +336,12 @@ AsyncIterator.prototype[asyncIteratorSymbol] = function () {
 // the final result produced by the iterator.
 
 
-function async(innerFn, outerFn, self, tryLocsList) {
-  var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList));
+function async(innerFn, outerFn, self, tryLocsList, PromiseImpl) {
+	 if (PromiseImpl === void 0) PromiseImpl = Promise;
+  var iter = new AsyncIterator(
+    wrap(innerFn, outerFn, self, tryLocsList),
+    PromiseImpl
+  );
   return isGeneratorFunction(outerFn) ? iter // If outerFn is a generator, return the full iterator.
   : iter.next().then(function (result) {
     return result.done ? result.value : iter.next();
@@ -432,6 +435,7 @@ function maybeInvokeDelegate(delegate, context) {
     context.delegate = null;
 
     if (context.method === "throw") {
+    	 // Note: ["return"] must be used for ES3 parsing compatibility.
       if (delegate.iterator["return"]) {
         // If the delegate iterator has a return method, give it a
         // chance to clean up.
