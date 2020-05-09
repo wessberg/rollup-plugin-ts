@@ -1,4 +1,4 @@
-import {ensureAbsolute} from "../path/path-util";
+import {dirname, ensureAbsolute} from "../path/path-util";
 import {D_TS_EXTENSION, DEFAULT_TSCONFIG_FILE_NAME} from "../../constant/constant";
 import {ParsedCommandLineResult} from "./parsed-command-line-result";
 import {
@@ -122,20 +122,11 @@ export function getParsedCommandLine(options: GetParsedCommandLineOptions): Pars
 			throw new ReferenceError(`The given tsconfig: '${tsconfigPath}' doesn't exist!`);
 		}
 
-		originalCompilerOptions = typescript.parseJsonConfigFileContent(
-			typescript.parseConfigFileTextToJson(tsconfigPath, tsconfigContent).config,
-			fileSystem,
-			cwd,
-			{},
-			tsconfigPath
-		).options;
-		parsedCommandLine = typescript.parseJsonConfigFileContent(
-			typescript.parseConfigFileTextToJson(tsconfigPath, tsconfigContent).config,
-			fileSystem,
-			cwd,
-			forcedCompilerOptions,
-			tsconfigPath
-		);
+		const tsconfigJson = typescript.parseConfigFileTextToJson(tsconfigPath, tsconfigContent).config;
+		const basePath = tsconfigPath ? dirname(tsconfigPath) : cwd;
+
+		originalCompilerOptions = typescript.parseJsonConfigFileContent(tsconfigJson, fileSystem, basePath, {}, tsconfigPath).options;
+		parsedCommandLine = typescript.parseJsonConfigFileContent(tsconfigJson, fileSystem, basePath, forcedCompilerOptions, tsconfigPath);
 
 		// If an extension hook has been provided. Make sure to still apply the forced CompilerOptions
 		if (isTsConfigResolver(tsconfig)) {
