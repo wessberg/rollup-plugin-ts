@@ -123,7 +123,7 @@ export function getParsedCommandLine(options: GetParsedCommandLineOptions): Pars
 		}
 
 		const tsconfigJson = typescript.parseConfigFileTextToJson(tsconfigPath, tsconfigContent).config;
-		const basePath = tsconfigPath ? dirname(tsconfigPath) : cwd;
+		const basePath = dirname(tsconfigPath);
 
 		originalCompilerOptions = typescript.parseJsonConfigFileContent(tsconfigJson, fileSystem, basePath, {}, tsconfigPath).options;
 		parsedCommandLine = typescript.parseJsonConfigFileContent(tsconfigJson, fileSystem, basePath, forcedCompilerOptions, tsconfigPath);
