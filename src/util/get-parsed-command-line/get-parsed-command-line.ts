@@ -1,4 +1,4 @@
-import {dirname, ensureAbsolute} from "../path/path-util";
+import {ensureAbsolute, nativeDirname} from "../path/path-util";
 import {D_TS_EXTENSION, DEFAULT_TSCONFIG_FILE_NAME} from "../../constant/constant";
 import {ParsedCommandLineResult} from "./parsed-command-line-result";
 import {
@@ -123,7 +123,7 @@ export function getParsedCommandLine(options: GetParsedCommandLineOptions): Pars
 		}
 
 		const tsconfigJson = typescript.parseConfigFileTextToJson(tsconfigPath, tsconfigContent).config;
-		const basePath = dirname(tsconfigPath);
+		const basePath = nativeDirname(tsconfigPath);
 
 		originalCompilerOptions = typescript.parseJsonConfigFileContent(tsconfigJson, fileSystem, basePath, {}, tsconfigPath).options;
 		parsedCommandLine = typescript.parseJsonConfigFileContent(tsconfigJson, fileSystem, basePath, forcedCompilerOptions, tsconfigPath);
