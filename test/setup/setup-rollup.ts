@@ -3,6 +3,7 @@ import {rollup, RollupOptions, RollupOutput, Plugin} from "rollup";
 import commonjs from "@rollup/plugin-commonjs";
 import fastGlob from "fast-glob";
 import FS, {Dirent} from "fs";
+import Path from "path";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
 import {HookRecord, InputCompilerOptions, ITypescriptPluginBabelOptions, TypescriptPluginOptions} from "../../src/plugin/i-typescript-plugin-options";
 import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, TSBUILDINFO_EXTENSION} from "../../src/constant/constant";
@@ -235,12 +236,14 @@ export async function generateRollupBundle(
 								ignore: [...(excludes ?? [])],
 								fs: {
 									readdirSync: (((path: string, {withFileTypes}: {withFileTypes?: boolean}) => {
+										path = nativeNormalize(path);
+
 										return files
-											.filter(file => file.fileName.startsWith(path as string))
+											.filter(file => file.fileName.startsWith(path))
 											.map(file => {
 												const fileName = file.fileName.slice(
 													path.length + 1,
-													file.fileName.includes("/", path.length + 1) ? file.fileName.indexOf("/", path.length + 1) : undefined
+													file.fileName.includes(Path.sep, path.length + 1) ? file.fileName.indexOf(Path.sep, path.length + 1) : undefined
 												);
 
 												const isDirectory = !file.fileName.endsWith(fileName);
