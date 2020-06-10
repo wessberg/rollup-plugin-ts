@@ -1,3 +1,12 @@
+## [1.2.25](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.24...v1.2.25) (2020-06-10)
+
+### Bug Fixes
+
+- fix incompatibility with Windows ([f3a1045](https://github.com/wessberg/rollup-plugin-ts/commit/f3a10451f76918ddaea6a745cdc1d4c02f7ef411))
+- fixed incorrect base path of tsconfig.json if it's inside a subdirectory ([0cfbf70](https://github.com/wessberg/rollup-plugin-ts/commit/0cfbf704f040fe2f06b8c4d438995ffe0c775bf7))
+- use `nativeDirname` instead of `dirname` ([9efe47d](https://github.com/wessberg/rollup-plugin-ts/commit/9efe47d7d8d7aa6d3c605cce780d88b356aef391))
+- **test:** fixed the glob filter of the virtual file system ([46ee07f](https://github.com/wessberg/rollup-plugin-ts/commit/46ee07ff5b40c381b4d0e80dd047af0fb4099c71))
+
 ## [1.2.24](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.23...v1.2.24) (2020-04-06)
 
 ### Bug Fixes
