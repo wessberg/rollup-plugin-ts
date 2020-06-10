@@ -1,8 +1,4 @@
-import {
-	NamedExportedSymbol,
-	NamespaceExportedSymbol,
-	SourceFileToExportedSymbolSet
-} from "../transformers/track-exports-transformer/track-exports-transformer-visitor-options";
+import {NamedExportedSymbol, NamespaceExportedSymbol, SourceFileToExportedSymbolSet} from "../transformers/track-exports-transformer/track-exports-transformer-visitor-options";
 import {CompilerHost} from "../../../compiler-host/compiler-host";
 import {SourceFileResolver} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
 
@@ -31,10 +27,7 @@ export interface LocateNamespaceExportedSymbolOptions extends LocateExportedSymb
 	namespaceExport: true;
 }
 
-export type LocateExportedSymbolOptions =
-	| LocateNamespaceExportedSymbolOptions
-	| LocateNamedExportedSymbolOptions
-	| LocateDefaultNamedExportedSymbolOptions;
+export type LocateExportedSymbolOptions = LocateNamespaceExportedSymbolOptions | LocateNamedExportedSymbolOptions | LocateDefaultNamedExportedSymbolOptions;
 
 export function locateExportedSymbolForSourceFile(
 	options: LocateDefaultNamedExportedSymbolOptions,
@@ -69,16 +62,13 @@ export function locateExportedSymbolForSourceFile(
 	if ("defaultExport" in options && options.defaultExport) {
 		return exportedSymbolsArr.find(
 			exportedSymbol =>
-				"isDefaultExport" in exportedSymbol &&
-				exportedSymbol.isDefaultExport &&
-				(!("moduleSpecifier" in options) || exportedSymbol.moduleSpecifier === options.moduleSpecifier)
+				"isDefaultExport" in exportedSymbol && exportedSymbol.isDefaultExport && (!("moduleSpecifier" in options) || exportedSymbol.moduleSpecifier === options.moduleSpecifier)
 		);
 	}
 
 	if ("namespaceExport" in options) {
 		return exportedSymbolsArr.find(
-			exportedSymbol =>
-				"isNamespaceExport" in exportedSymbol && (!("moduleSpecifier" in options) || exportedSymbol.moduleSpecifier === options.moduleSpecifier)
+			exportedSymbol => "isNamespaceExport" in exportedSymbol && (!("moduleSpecifier" in options) || exportedSymbol.moduleSpecifier === options.moduleSpecifier)
 		);
 	} else {
 		const matchedNamedExport = exportedSymbolsArr.find(
@@ -92,9 +82,7 @@ export function locateExportedSymbolForSourceFile(
 		if (matchedNamedExport != null) {
 			return matchedNamedExport;
 		} else {
-			for (const namespaceExport of exportedSymbolsArr.filter(
-				(exportedSymbol): exportedSymbol is NamespaceExportedSymbol => "isNamespaceExport" in exportedSymbol
-			)) {
+			for (const namespaceExport of exportedSymbolsArr.filter((exportedSymbol): exportedSymbol is NamespaceExportedSymbol => "isNamespaceExport" in exportedSymbol)) {
 				const sourceFile = context.resolveSourceFile(namespaceExport.moduleSpecifier, context.sourceFile);
 				if (sourceFile != null && !seenSourceFiles.has(sourceFile.fileName)) {
 					const recursiveResult = locateExportedSymbolForSourceFile(options, {...context, sourceFile: sourceFile.fileName}, seenSourceFiles);

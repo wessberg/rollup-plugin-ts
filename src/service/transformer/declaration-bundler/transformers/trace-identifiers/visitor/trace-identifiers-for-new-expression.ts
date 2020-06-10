@@ -4,7 +4,7 @@ import {TraceIdentifiersVisitorOptions} from "../trace-identifiers-visitor-optio
 /**
  * Traces identifiers for the given NewExpression.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/naming-convention
 export function traceIdentifiersForNewExpression(_options: TraceIdentifiersVisitorOptions<TS.NewExpression>): void {
 	// Do nothing
 }

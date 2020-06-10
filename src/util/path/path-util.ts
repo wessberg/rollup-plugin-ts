@@ -115,12 +115,7 @@ export function isExternalLibrary(p: string): boolean {
  * Returns true if the given id represents tslib
  */
 export function isTslib(p: string): boolean {
-	return (
-		p === "tslib" ||
-		normalize(p).endsWith(`/tslib/${TSLIB_NAME}`) ||
-		normalize(p).endsWith("/tslib/tslib.es6.js") ||
-		normalize(p).endsWith("/tslib/tslib.js")
-	);
+	return p === "tslib" || normalize(p).endsWith(`/tslib/${TSLIB_NAME}`) || normalize(p).endsWith("/tslib/tslib.es6.js") || normalize(p).endsWith("/tslib/tslib.js");
 }
 
 /**
@@ -150,10 +145,7 @@ export function includesBabelEsmHelper(p: string): boolean {
  * Returns true if the given path represents a Babel CJS helper
  */
 export function isBabelCjsHelper(p: string): boolean {
-	return (
-		!includesBabelEsmHelper(p) &&
-		(normalize(p).includes(`${BABEL_RUNTIME_PREFIX_1}helpers`) || normalize(p).includes(`${BABEL_RUNTIME_PREFIX_2}helpers`))
-	);
+	return !includesBabelEsmHelper(p) && (normalize(p).includes(`${BABEL_RUNTIME_PREFIX_1}helpers`) || normalize(p).includes(`${BABEL_RUNTIME_PREFIX_2}helpers`));
 }
 
 /**
@@ -191,16 +183,16 @@ export function somePathsAreRelated(paths: Iterable<string>, matchPath: string):
 	return false;
 }
 
-export function pathsAreRelated(pathA: string, pathB: string): boolean {
-	if (pathA === pathB) return true;
+export function pathsAreRelated(a: string, b: string): boolean {
+	if (a === b) return true;
 
 	// A node_modules folder may contain one or more nested node_modules
-	if (pathA.includes(NODE_MODULES) || pathB.includes(NODE_MODULES)) {
-		const pathAFromNodeModules = pathA.includes(NODE_MODULES) ? pathA.slice(pathA.indexOf(NODE_MODULES)) : pathA;
-		const pathBFromNodeModules = pathB.includes(NODE_MODULES) ? pathB.slice(pathB.indexOf(NODE_MODULES)) : pathB;
+	if (a.includes(NODE_MODULES) || b.includes(NODE_MODULES)) {
+		const firstPathFromNodeModules = a.includes(NODE_MODULES) ? a.slice(a.indexOf(NODE_MODULES)) : a;
+		const secondPathFromNodeModules = b.includes(NODE_MODULES) ? b.slice(b.indexOf(NODE_MODULES)) : b;
 
-		if (pathAFromNodeModules.includes(pathBFromNodeModules)) return true;
-		if (pathBFromNodeModules.includes(pathAFromNodeModules)) return true;
+		if (firstPathFromNodeModules.includes(secondPathFromNodeModules)) return true;
+		if (secondPathFromNodeModules.includes(firstPathFromNodeModules)) return true;
 	}
 
 	return false;

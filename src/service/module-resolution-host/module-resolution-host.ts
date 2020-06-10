@@ -87,9 +87,7 @@ export class ModuleResolutionHost implements TS.ModuleResolutionHost {
 
 	getSupportedNonAmbientExtensions(): SupportedExtensions {
 		if (this.currentNonAmbientSupportedExtensions == null) {
-			this.currentNonAmbientSupportedExtensions = new Set(
-				[...this.options.extensions].filter(extension => extension !== D_TS_EXTENSION && extension !== D_TS_MAP_EXTENSION)
-			);
+			this.currentNonAmbientSupportedExtensions = new Set([...this.options.extensions].filter(extension => extension !== D_TS_EXTENSION && extension !== D_TS_MAP_EXTENSION));
 		}
 		return this.currentNonAmbientSupportedExtensions;
 	}

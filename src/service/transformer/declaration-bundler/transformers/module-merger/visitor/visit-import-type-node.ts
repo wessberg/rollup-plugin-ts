@@ -12,9 +12,7 @@ import {getParentNode, setParentNode} from "../../../util/get-parent-node";
 export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.ImportTypeNode>): VisitResult<TS.ImportTypeNode> {
 	const {node} = options;
 	const moduleSpecifier =
-		!options.typescript.isLiteralTypeNode(node.argument) || !options.typescript.isStringLiteralLike(node.argument.literal)
-			? undefined
-			: node.argument.literal.text;
+		!options.typescript.isLiteralTypeNode(node.argument) || !options.typescript.isStringLiteralLike(node.argument.literal) ? undefined : node.argument.literal.text;
 
 	const matchingSourceFile = moduleSpecifier == null ? undefined : options.getMatchingSourceFile(moduleSpecifier, options.sourceFile);
 	const payload = {

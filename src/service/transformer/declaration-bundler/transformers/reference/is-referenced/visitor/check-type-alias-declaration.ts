@@ -1,11 +1,7 @@
 import {ReferenceVisitorOptions} from "../reference-visitor-options";
 import {TS} from "../../../../../../../type/ts";
 
-export function checkTypeAliasDeclaration({
-	node,
-	continuation,
-	markIdentifiersAsReferenced
-}: ReferenceVisitorOptions<TS.TypeAliasDeclaration>): string[] {
+export function checkTypeAliasDeclaration({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<TS.TypeAliasDeclaration>): string[] {
 	const referencedIdentifiers: string[] = [];
 
 	if (node.typeParameters != null) {

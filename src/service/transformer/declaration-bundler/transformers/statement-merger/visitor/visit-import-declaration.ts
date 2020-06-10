@@ -1,9 +1,7 @@
 import {TS} from "../../../../../../type/ts";
 import {StatementMergerVisitorOptions} from "../statement-merger-visitor-options";
 
-export function visitImportDeclaration(
-	options: StatementMergerVisitorOptions<TS.ImportDeclaration>
-): TS.ImportDeclaration[] | TS.ImportDeclaration | undefined {
+export function visitImportDeclaration(options: StatementMergerVisitorOptions<TS.ImportDeclaration>): TS.ImportDeclaration[] | TS.ImportDeclaration | undefined {
 	const {node, typescript} = options;
 
 	// If the ModuleSpecifier is given and it isn't a string literal, leave it as it is
@@ -30,8 +28,7 @@ export function visitImportDeclaration(
 	// If there is neither a default name or a single named binding, don't preserve the import
 	if (
 		first.importClause.name == null &&
-		(first.importClause.namedBindings == null ||
-			(!typescript.isNamespaceImport(first.importClause.namedBindings) && first.importClause.namedBindings.elements.length < 1))
+		(first.importClause.namedBindings == null || (!typescript.isNamespaceImport(first.importClause.namedBindings) && first.importClause.namedBindings.elements.length < 1))
 	) {
 		return other;
 	}

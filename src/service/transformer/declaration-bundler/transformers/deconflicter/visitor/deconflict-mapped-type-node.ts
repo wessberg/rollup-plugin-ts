@@ -21,9 +21,5 @@ export function deconflictMappedTypeNode(options: DeconflicterVisitorOptions<TS.
 		return node;
 	}
 
-	return preserveMeta(
-		typescript.updateMappedTypeNode(node, node.readonlyToken, typeParameterContResult, node.questionToken, typeContResult),
-		node,
-		options
-	);
+	return preserveMeta(typescript.updateMappedTypeNode(node, node.readonlyToken, typeParameterContResult, node.questionToken, typeContResult), node, options);
 }

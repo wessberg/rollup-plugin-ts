@@ -3,9 +3,7 @@ import {EnsureNoDeclareModifierTransformerVisitorOptions} from "../ensure-no-dec
 import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {hasDeclareModifier, removeDeclareModifier} from "../../../util/modifier-util";
 
-export function visitInterfaceDeclaration(
-	options: EnsureNoDeclareModifierTransformerVisitorOptions<TS.InterfaceDeclaration>
-): TS.InterfaceDeclaration {
+export function visitInterfaceDeclaration(options: EnsureNoDeclareModifierTransformerVisitorOptions<TS.InterfaceDeclaration>): TS.InterfaceDeclaration {
 	const {node, typescript} = options;
 	if (!hasDeclareModifier(node, typescript)) return node;
 

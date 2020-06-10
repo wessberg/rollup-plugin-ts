@@ -8,13 +8,7 @@ export interface FileSystem {
 	fileExists(path: string): boolean;
 	readFile(path: string, encoding?: string): string | undefined;
 	writeFile(path: string, data: string, writeByteOrderMark?: boolean): void;
-	readDirectory(
-		rootDir: string,
-		extensions: readonly string[],
-		excludes: readonly string[] | undefined,
-		includes: readonly string[],
-		depth?: number
-	): readonly string[];
+	readDirectory(rootDir: string, extensions: readonly string[], excludes: readonly string[] | undefined, includes: readonly string[], depth?: number): readonly string[];
 	ensureDirectory(path: string): string;
 	realpath(path: string): string;
 	getDirectories(path: string): string[];

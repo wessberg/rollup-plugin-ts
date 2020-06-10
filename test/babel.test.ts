@@ -232,9 +232,7 @@ test("Will auto-generate a Browserslist based on the 'target' from the tsconfig 
 				babelConfig: (config, _, phase) => {
 					if (phase === "chunk") return config;
 					const matchingPreset =
-						config == null || config.presets == null
-							? undefined
-							: config.presets.find((preset: ConfigItem) => preset.file != null && preset.file.resolved.includes("preset-env"));
+						config == null || config.presets == null ? undefined : config.presets.find((preset: ConfigItem) => preset.file != null && preset.file.resolved.includes("preset-env"));
 					if (matchingPreset != null) {
 						browserslist = (matchingPreset as {options: {targets: {browsers: string[]}}}).options.targets.browsers;
 					}

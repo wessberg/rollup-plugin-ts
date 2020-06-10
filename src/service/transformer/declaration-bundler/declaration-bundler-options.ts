@@ -7,7 +7,7 @@ import {CompilerHost} from "../../compiler-host/compiler-host";
 import {PathsResult} from "./util/prepare-paths/prepare-paths";
 import {SourceFileToExportedSymbolSet} from "./transformers/track-exports-transformer/track-exports-transformer-visitor-options";
 import {SourceFileToImportedSymbolSet} from "./transformers/track-imports-transformer/track-imports-transformer-visitor-options";
-import {ExtendedResolvedModule} from "../../cache/resolve-cache/i-resolve-cache";
+import {ExtendedResolvedModule} from "../../cache/resolve-cache/extended-resolved-module";
 
 export type SourceFileToDependenciesMap = Map<string, Set<ExtendedResolvedModule>>;
 export type ModuleSpecifierToSourceFileMap = Map<string, TS.SourceFile>;

@@ -1,5 +1,5 @@
-import {IGetResolvedIdWithCachingOptions} from "./i-get-resolved-id-with-caching-options";
-import {ExtendedResolvedModule, IResolveCache} from "./i-resolve-cache";
+import {GetResolvedIdWithCachingOptions} from "./get-resolved-id-with-caching-options";
+import {ExtendedResolvedModule} from "./extended-resolved-module";
 import {ensureAbsolute, isTslib, nativeNormalize, normalize, setExtension} from "../../../util/path/path-util";
 
 import {D_TS_EXTENSION, JS_EXTENSION} from "../../../constant/constant";
@@ -13,7 +13,7 @@ export interface ResolveCacheOptions {
 /**
  * A Cache over resolved modules
  */
-export class ResolveCache implements IResolveCache {
+export class ResolveCache {
 	/**
 	 * A memory-persistent cache of resolved modules for files over time
 	 */
@@ -74,7 +74,7 @@ export class ResolveCache implements IResolveCache {
 	 * Gets a cached module result for the given file from the given parent and returns it if it exists already.
 	 * If not, it will compute it, update the cache, and then return it
 	 */
-	get(options: IGetResolvedIdWithCachingOptions): ExtendedResolvedModule | null {
+	get(options: GetResolvedIdWithCachingOptions): ExtendedResolvedModule | null {
 		const {id, parent, moduleResolutionHost} = options;
 		let cacheResult = this.getFromCache(id, parent);
 		const typescript = moduleResolutionHost.getTypescript();

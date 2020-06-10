@@ -1,5 +1,5 @@
 import {RollupError, RollupWarning, PluginContext} from "rollup";
-import {IExtendedDiagnostic} from "../../../diagnostic/i-extended-diagnostic";
+import {ExtendedDiagnostic} from "../../../diagnostic/extended-diagnostic";
 import {TS} from "../../../type/ts";
 import {CompilerHost} from "../../compiler-host/compiler-host";
 import {TypescriptPluginOptions} from "../../../plugin/i-typescript-plugin-options";
@@ -25,10 +25,9 @@ export function emitDiagnostics({host, context, pluginOptions}: EmitDiagnosticsO
 	// Don't proceed if the hook returned null or undefined
 	if (diagnostics == null) return;
 
-	diagnostics.forEach((diagnostic: IExtendedDiagnostic) => {
+	diagnostics.forEach((diagnostic: ExtendedDiagnostic) => {
 		const message = typescript.flattenDiagnosticMessageText(diagnostic.messageText, "\n");
-		const position =
-			diagnostic.start == null || diagnostic.file == null ? undefined : diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+		const position = diagnostic.start == null || diagnostic.file == null ? undefined : diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
 
 		// Color-format the diagnostics
 		const colorFormatted = typescript.formatDiagnosticsWithColorAndContext([diagnostic], host);

@@ -1,37 +1,35 @@
-import {IGetBrowserslistOptions} from "./i-get-browserslist-options";
+import {GetBrowserslistOptions} from "./get-browserslist-options";
 import {normalizeBrowserslist} from "@wessberg/browserslist-generator";
 import {ensureAbsolute, nativeNormalize} from "../path/path-util";
 import {findConfig, readConfig} from "browserslist";
-import {IBrowserslistPathConfig, IBrowserslistQueryConfig} from "../../plugin/i-typescript-plugin-options";
+import {BrowserslistPathConfig, BrowserslistQueryConfig} from "../../plugin/i-typescript-plugin-options";
 import {ensureArray} from "../ensure-array/ensure-array";
 
 /**
  * Returns true if the given browserslist is raw input for a Browserslist
  */
-function isBrowserslistInput(browserslist: IGetBrowserslistOptions["browserslist"]): browserslist is string[] | string {
+function isBrowserslistInput(browserslist: GetBrowserslistOptions["browserslist"]): browserslist is string[] | string {
 	return typeof browserslist === "string" || Array.isArray(browserslist);
 }
 
 /**
  * Returns true if the given browserslist is an IBrowserslistQueryConfig
  */
-function isBrowserslistQueryConfig(browserslist: IGetBrowserslistOptions["browserslist"]): browserslist is IBrowserslistQueryConfig {
-	return (
-		browserslist != null && !isBrowserslistInput(browserslist) && browserslist !== false && "query" in browserslist && browserslist.query != null
-	);
+function isBrowserslistQueryConfig(browserslist: GetBrowserslistOptions["browserslist"]): browserslist is BrowserslistQueryConfig {
+	return browserslist != null && !isBrowserslistInput(browserslist) && browserslist !== false && "query" in browserslist && browserslist.query != null;
 }
 
 /**
  * Returns true if the given browserslist is an IBrowserslistPathConfig
  */
-function isBrowserslistPathConfig(browserslist: IGetBrowserslistOptions["browserslist"]): browserslist is IBrowserslistPathConfig {
+function isBrowserslistPathConfig(browserslist: GetBrowserslistOptions["browserslist"]): browserslist is BrowserslistPathConfig {
 	return browserslist != null && !isBrowserslistInput(browserslist) && browserslist !== false && "path" in browserslist && browserslist.path != null;
 }
 
 /**
  * Gets a Browserslist based on the given options
  */
-export function getBrowserslist({browserslist, cwd, fileSystem}: IGetBrowserslistOptions): string[] | false | undefined {
+export function getBrowserslist({browserslist, cwd, fileSystem}: GetBrowserslistOptions): string[] | false | undefined {
 	// If a Browserslist is provided directly from the options, use that
 	if (browserslist != null) {
 		// If the Browserslist is equal to false, it should never be used. Return undefined

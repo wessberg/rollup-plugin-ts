@@ -6,9 +6,5 @@ import {hasExportModifier, removeExportModifier} from "../../../util/modifier-ut
 export function visitEnumDeclaration(options: EnsureNoExportModifierTransformerVisitorOptions<TS.EnumDeclaration>): TS.EnumDeclaration {
 	const {node, typescript} = options;
 	if (!hasExportModifier(node, typescript)) return node;
-	return preserveMeta(
-		typescript.updateEnumDeclaration(node, node.decorators, removeExportModifier(node.modifiers, typescript), node.name, node.members),
-		node,
-		options
-	);
+	return preserveMeta(typescript.updateEnumDeclaration(node, node.decorators, removeExportModifier(node.modifiers, typescript), node.name, node.members), node, options);
 }

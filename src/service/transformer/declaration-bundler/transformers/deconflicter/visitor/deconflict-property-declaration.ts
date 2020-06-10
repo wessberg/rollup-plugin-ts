@@ -19,15 +19,7 @@ export function deconflictPropertyDeclaration(options: DeconflicterVisitorOption
 	}
 
 	return preserveMeta(
-		typescript.updateProperty(
-			node,
-			node.decorators,
-			node.modifiers,
-			nameContResult,
-			node.questionToken ?? node.exclamationToken,
-			typeContResult,
-			initializerContResult
-		),
+		typescript.updateProperty(node, node.decorators, node.modifiers, nameContResult, node.questionToken ?? node.exclamationToken, typeContResult, initializerContResult),
 		node,
 		options
 	);

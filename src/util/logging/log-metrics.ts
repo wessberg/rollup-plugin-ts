@@ -5,9 +5,7 @@ export interface LogMetrics {
 	finish(): void;
 }
 export function logMetrics(message: string, fileName?: string): LogMetrics {
-	const uniqueMessage = `${getFormattedDateTimePrefix()}${chalk.green(`metrics: ${message}`)}${
-		fileName == null ? "" : ` ${chalk.gray(`(${fileName})`)}`
-	}`;
+	const uniqueMessage = `${getFormattedDateTimePrefix()}${chalk.green(`metrics: ${message}`)}${fileName == null ? "" : ` ${chalk.gray(`(${fileName})`)}`}`;
 	console.time(uniqueMessage);
 
 	return {

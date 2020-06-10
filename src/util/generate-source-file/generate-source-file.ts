@@ -9,11 +9,5 @@ export interface GenerateSourceFileOptions {
 }
 
 export function generateSourceFile({code, compilerOptions, file, typescript}: GenerateSourceFileOptions): TS.SourceFile {
-	return typescript.createSourceFile(
-		file,
-		code,
-		compilerOptions.target ?? typescript.ScriptTarget.ES3,
-		true,
-		getScriptKindFromPath(file, typescript)
-	);
+	return typescript.createSourceFile(file, code, compilerOptions.target ?? typescript.ScriptTarget.ES3, true, getScriptKindFromPath(file, typescript));
 }

@@ -8,9 +8,7 @@ import {preserveMeta} from "../../../util/clone-node-with-meta";
 /**
  * Deconflicts the given SetAccessorDeclaration.
  */
-export function deconflictSetAccessorDeclaration(
-	options: DeconflicterVisitorOptions<TS.SetAccessorDeclaration>
-): TS.SetAccessorDeclaration | undefined {
+export function deconflictSetAccessorDeclaration(options: DeconflicterVisitorOptions<TS.SetAccessorDeclaration>): TS.SetAccessorDeclaration | undefined {
 	const {node, continuation, lexicalEnvironment, typescript} = options;
 	const nameContResult = typescript.isIdentifier(node.name) ? node.name : continuation(node.name, {lexicalEnvironment});
 
@@ -25,9 +23,5 @@ export function deconflictSetAccessorDeclaration(
 	if (isIdentical) {
 		return node;
 	}
-	return preserveMeta(
-		typescript.updateSetAccessor(node, node.decorators, node.modifiers, nameContResult, parametersContResult, bodyContResult),
-		node,
-		options
-	);
+	return preserveMeta(typescript.updateSetAccessor(node, node.decorators, node.modifiers, nameContResult, parametersContResult, bodyContResult), node, options);
 }

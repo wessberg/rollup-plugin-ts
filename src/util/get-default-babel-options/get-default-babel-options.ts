@@ -1,4 +1,4 @@
-import {IGetDefaultBabelOptionsOptions} from "./i-get-default-babel-options-options";
+import {GetDefaultBabelOptionsOptions} from "./get-default-babel-options-options";
 import {FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS, FORCED_BABEL_PRESET_ENV_OPTIONS} from "../../constant/constant";
 import {TransformOptions} from "@babel/core";
 
@@ -6,7 +6,7 @@ import {TransformOptions} from "@babel/core";
  * Retrieves the Babel config options that will be used by default. If the user provides the same keys/presets/plugins, *they*
  * will take precedence
  */
-export function getDefaultBabelOptions({browserslist}: IGetDefaultBabelOptionsOptions): TransformOptions {
+export function getDefaultBabelOptions({browserslist}: GetDefaultBabelOptionsOptions): TransformOptions {
 	const includePresetEnv = browserslist != null;
 
 	return {

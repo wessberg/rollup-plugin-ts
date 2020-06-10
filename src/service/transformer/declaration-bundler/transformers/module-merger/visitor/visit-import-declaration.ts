@@ -5,8 +5,7 @@ import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 export function visitImportDeclaration(options: ModuleMergerVisitorOptions<TS.ImportDeclaration>): VisitResult<TS.ImportDeclaration> {
 	const {node, typescript} = options;
-	const moduleSpecifier =
-		node.moduleSpecifier == null || !options.typescript.isStringLiteralLike(node.moduleSpecifier) ? undefined : node.moduleSpecifier.text;
+	const moduleSpecifier = node.moduleSpecifier == null || !options.typescript.isStringLiteralLike(node.moduleSpecifier) ? undefined : node.moduleSpecifier.text;
 	const updatedModuleSpecifier =
 		moduleSpecifier == null
 			? undefined
@@ -37,13 +36,7 @@ export function visitImportDeclaration(options: ModuleMergerVisitorOptions<TS.Im
 
 	// Otherwise, update the ModuleSpecifier
 	return preserveMeta(
-		typescript.updateImportDeclaration(
-			contResult,
-			contResult.decorators,
-			contResult.modifiers,
-			contResult.importClause,
-			typescript.createStringLiteral(updatedModuleSpecifier)
-		),
+		typescript.updateImportDeclaration(contResult, contResult.decorators, contResult.modifiers, contResult.importClause, typescript.createStringLiteral(updatedModuleSpecifier)),
 		contResult,
 		options
 	);

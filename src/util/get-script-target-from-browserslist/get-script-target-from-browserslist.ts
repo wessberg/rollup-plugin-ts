@@ -23,13 +23,7 @@ export function getScriptTargetFromBrowserslist(browserslist: string[], typescri
 			return typescript.ScriptTarget.ES2018 ?? typescript.ScriptTarget.ES2017 ?? typescript.ScriptTarget.ES2016 ?? typescript.ScriptTarget.ES2015;
 		// Support older TypeScript versions that may not supported ES2016 as a ScriptTarget with nullish coalescing
 		case "es2019":
-			return (
-				typescript.ScriptTarget.ES2019 ??
-				typescript.ScriptTarget.ES2018 ??
-				typescript.ScriptTarget.ES2017 ??
-				typescript.ScriptTarget.ES2016 ??
-				typescript.ScriptTarget.ES2015
-			);
+			return typescript.ScriptTarget.ES2019 ?? typescript.ScriptTarget.ES2018 ?? typescript.ScriptTarget.ES2017 ?? typescript.ScriptTarget.ES2016 ?? typescript.ScriptTarget.ES2015;
 		// Support older TypeScript versions that may not supported ES2016 as a ScriptTarget with nullish coalescing
 		case "es2020":
 			return (

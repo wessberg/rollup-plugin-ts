@@ -18,8 +18,6 @@ export function takeBrowserslistOrComputeBasedOnCompilerOptions(
 		return undefined;
 	} else {
 		// Otherwise, generate a browserslist based on the tsconfig target if given
-		return compilerOptions.target == null
-			? undefined
-			: browsersWithSupportForEcmaVersion(getEcmaVersionForScriptTarget(compilerOptions.target, typescript));
+		return compilerOptions.target == null ? undefined : browsersWithSupportForEcmaVersion(getEcmaVersionForScriptTarget(compilerOptions.target, typescript));
 	}
 }

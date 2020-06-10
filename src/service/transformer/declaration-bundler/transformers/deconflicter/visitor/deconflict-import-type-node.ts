@@ -10,8 +10,7 @@ export function deconflictImportTypeNode(options: DeconflicterVisitorOptions<TS.
 	const {node, continuation, lexicalEnvironment, typescript} = options;
 
 	const argumentContResult = continuation(node.argument, {lexicalEnvironment});
-	const typeArgumentsContResult =
-		node.typeArguments == null ? undefined : node.typeArguments.map(typeArgument => continuation(typeArgument, {lexicalEnvironment}));
+	const typeArgumentsContResult = node.typeArguments == null ? undefined : node.typeArguments.map(typeArgument => continuation(typeArgument, {lexicalEnvironment}));
 
 	const isIdentical = argumentContResult === node.argument && nodeArraysAreEqual(typeArgumentsContResult, node.typeArguments);
 
@@ -19,9 +18,5 @@ export function deconflictImportTypeNode(options: DeconflicterVisitorOptions<TS.
 		return node;
 	}
 
-	return preserveMeta(
-		typescript.updateImportTypeNode(node, argumentContResult, node.qualifier, typeArgumentsContResult, node.isTypeOf),
-		node,
-		options
-	);
+	return preserveMeta(typescript.updateImportTypeNode(node, argumentContResult, node.qualifier, typeArgumentsContResult, node.isTypeOf), node, options);
 }

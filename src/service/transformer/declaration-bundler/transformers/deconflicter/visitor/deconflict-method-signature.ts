@@ -16,9 +16,7 @@ export function deconflictMethodSignature(options: DeconflicterVisitorOptions<TS
 	const nextContinuationOptions: ContinuationOptions = {lexicalEnvironment: cloneLexicalEnvironment(lexicalEnvironment)};
 
 	const typeParametersContResult =
-		node.typeParameters == null
-			? undefined
-			: typescript.createNodeArray(node.typeParameters.map(typeParameter => continuation(typeParameter, nextContinuationOptions)));
+		node.typeParameters == null ? undefined : typescript.createNodeArray(node.typeParameters.map(typeParameter => continuation(typeParameter, nextContinuationOptions)));
 	const parametersContResult = typescript.createNodeArray(node.parameters.map(parameter => continuation(parameter, nextContinuationOptions)));
 	const typeContResult = node.type == null ? undefined : continuation(node.type, nextContinuationOptions);
 
@@ -32,9 +30,5 @@ export function deconflictMethodSignature(options: DeconflicterVisitorOptions<TS
 		return node;
 	}
 
-	return preserveMeta(
-		typescript.updateMethodSignature(node, typeParametersContResult, parametersContResult, typeContResult, nameContResult, node.questionToken),
-		node,
-		options
-	);
+	return preserveMeta(typescript.updateMethodSignature(node, typeParametersContResult, parametersContResult, typeContResult, nameContResult, node.questionToken), node, options);
 }

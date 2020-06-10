@@ -11,15 +11,7 @@ export function visitInterfaceDeclaration(options: TreeShakerVisitorOptions<TS.I
 	return node.name === nameContinuationResult
 		? node
 		: preserveMeta(
-				typescript.updateInterfaceDeclaration(
-					node,
-					node.decorators,
-					node.modifiers,
-					nameContinuationResult,
-					node.typeParameters,
-					node.heritageClauses,
-					node.members
-				),
+				typescript.updateInterfaceDeclaration(node, node.decorators, node.modifiers, nameContinuationResult, node.typeParameters, node.heritageClauses, node.members),
 				node,
 				options
 		  );

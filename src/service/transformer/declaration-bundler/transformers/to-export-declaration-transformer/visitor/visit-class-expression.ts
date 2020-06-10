@@ -16,23 +16,14 @@ export function visitClassExpression(options: ToExportDeclarationTransformerVisi
 	const {exportSpecifier} = createExportSpecifierFromNameAndModifiers({...options, name: nameText, modifiers: node.modifiers});
 
 	// Append an ExportDeclaration
-	appendNodes(
-		preserveParents(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([exportSpecifier])), {typescript})
-	);
+	appendNodes(preserveParents(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([exportSpecifier])), {typescript}));
 
 	// Update the name if it changed
 	if (node.name != null && nameText === node.name.text) {
 		returnNode = node;
 	} else {
 		returnNode = preserveMeta(
-			typescript.updateClassExpression(
-				node,
-				node.modifiers,
-				typescript.createIdentifier(nameText),
-				node.typeParameters,
-				node.heritageClauses,
-				node.members
-			),
+			typescript.updateClassExpression(node, node.modifiers, typescript.createIdentifier(nameText), node.typeParameters, node.heritageClauses, node.members),
 			node,
 			options
 		);

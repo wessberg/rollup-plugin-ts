@@ -18,9 +18,7 @@ function getIdForNamespaceImportName(options: GetSymbolAtLocationOptions & {node
 	const moduleSpecifier = getParentNode(getParentNode(getParentNode(originalNode))).moduleSpecifier;
 
 	return generateRandomIntegerHash({
-		key: `NamespaceImport:${node.text}:${
-			moduleSpecifier == null || !options.typescript.isStringLiteralLike(moduleSpecifier) ? generateRandomHash() : moduleSpecifier.text
-		}`,
+		key: `NamespaceImport:${node.text}:${moduleSpecifier == null || !options.typescript.isStringLiteralLike(moduleSpecifier) ? generateRandomHash() : moduleSpecifier.text}`,
 		length: 100
 	});
 }
@@ -56,9 +54,7 @@ function getIdForImportedName(options: GetSymbolAtLocationOptions & {node: TS.Id
 	const moduleSpecifier = getParentNode(getParentNode(originalNode)).moduleSpecifier;
 
 	return generateRandomIntegerHash({
-		key: `name:${node.text}:${
-			moduleSpecifier == null || !options.typescript.isStringLiteralLike(moduleSpecifier) ? generateRandomHash() : moduleSpecifier.text
-		}`,
+		key: `name:${node.text}:${moduleSpecifier == null || !options.typescript.isStringLiteralLike(moduleSpecifier) ? generateRandomHash() : moduleSpecifier.text}`,
 		length: 100
 	});
 }

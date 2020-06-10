@@ -38,20 +38,14 @@ export function deconflictTypeAliasDeclaration(options: DeconflicterVisitorOptio
 	// The Type parameters, as well as the initializer, share the same lexical environment
 	const nextContinuationOptions: ContinuationOptions = {lexicalEnvironment: cloneLexicalEnvironment(lexicalEnvironment)};
 
-	const typeParametersContResult =
-		node.typeParameters == null ? undefined : node.typeParameters.map(typeParameter => continuation(typeParameter, nextContinuationOptions));
+	const typeParametersContResult = node.typeParameters == null ? undefined : node.typeParameters.map(typeParameter => continuation(typeParameter, nextContinuationOptions));
 	const typeContResult = continuation(node.type, nextContinuationOptions);
 
-	const isIdentical =
-		nameContResult === node.name && nodeArraysAreEqual(typeParametersContResult, node.typeParameters) && typeContResult === node.type;
+	const isIdentical = nameContResult === node.name && nodeArraysAreEqual(typeParametersContResult, node.typeParameters) && typeContResult === node.type;
 
 	if (isIdentical) {
 		return node;
 	}
 
-	return preserveMeta(
-		typescript.updateTypeAliasDeclaration(node, node.decorators, node.modifiers, nameContResult, typeParametersContResult, typeContResult),
-		node,
-		options
-	);
+	return preserveMeta(typescript.updateTypeAliasDeclaration(node, node.decorators, node.modifiers, nameContResult, typeParametersContResult, typeContResult), node, options);
 }

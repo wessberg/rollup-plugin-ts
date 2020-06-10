@@ -6,7 +6,5 @@ export function visitEnumDeclaration({node, continuation, typescript}: TreeShake
 	if (nameContinuationResult == null) {
 		return undefined;
 	}
-	return node.name === nameContinuationResult
-		? node
-		: typescript.updateEnumDeclaration(node, node.decorators, node.modifiers, nameContinuationResult, node.members);
+	return node.name === nameContinuationResult ? node : typescript.updateEnumDeclaration(node, node.decorators, node.modifiers, nameContinuationResult, node.members);
 }

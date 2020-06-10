@@ -20,9 +20,7 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 
 		const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile) ? logMetrics(`Merging modules`, sourceFile.fileName) : undefined;
 
-		const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile)
-			? logTransformer("Merging modules", sourceFile, printer)
-			: undefined;
+		const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile) ? logTransformer("Merging modules", sourceFile, printer) : undefined;
 
 		const nodePlacementQueue = getNodePlacementQueue({typescript});
 
@@ -86,9 +84,7 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 				sourceFileToInclude: TS.SourceFile,
 				{
 					allowDuplicate = false,
-					allowExports = options.otherEntrySourceFilesForChunk.some(
-						otherEntrySourceFileForChunk => otherEntrySourceFileForChunk.fileName === sourceFileToInclude.fileName
-					),
+					allowExports = options.otherEntrySourceFilesForChunk.some(otherEntrySourceFileForChunk => otherEntrySourceFileForChunk.fileName === sourceFileToInclude.fileName),
 					transformers: extraTransformers = [],
 					...otherOptions
 				}: Partial<IncludeSourceFileOptions> = {}

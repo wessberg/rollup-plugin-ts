@@ -38,10 +38,8 @@ export function deconflictInterfaceDeclaration(options: DeconflicterVisitorOptio
 	// The Type parameters, as well as the heritage clauses share the same lexical environment
 	const nextContinuationOptions: ContinuationOptions = {lexicalEnvironment: cloneLexicalEnvironment(lexicalEnvironment)};
 
-	const typeParametersContResult =
-		node.typeParameters == null ? undefined : node.typeParameters.map(typeParameter => continuation(typeParameter, nextContinuationOptions));
-	const heritageClausesContResult =
-		node.heritageClauses == null ? undefined : node.heritageClauses.map(heritageClause => continuation(heritageClause, nextContinuationOptions));
+	const typeParametersContResult = node.typeParameters == null ? undefined : node.typeParameters.map(typeParameter => continuation(typeParameter, nextContinuationOptions));
+	const heritageClausesContResult = node.heritageClauses == null ? undefined : node.heritageClauses.map(heritageClause => continuation(heritageClause, nextContinuationOptions));
 	const membersContResult = node.members.map(member => continuation(member, {lexicalEnvironment}));
 
 	const isIdentical =
@@ -55,15 +53,7 @@ export function deconflictInterfaceDeclaration(options: DeconflicterVisitorOptio
 	}
 
 	return preserveMeta(
-		typescript.updateInterfaceDeclaration(
-			node,
-			node.decorators,
-			node.modifiers,
-			nameContResult,
-			typeParametersContResult,
-			heritageClausesContResult,
-			membersContResult
-		),
+		typescript.updateInterfaceDeclaration(node, node.decorators, node.modifiers, nameContResult, typeParametersContResult, heritageClausesContResult, membersContResult),
 		node,
 		options
 	);

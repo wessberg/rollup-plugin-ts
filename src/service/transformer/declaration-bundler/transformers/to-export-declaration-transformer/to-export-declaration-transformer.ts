@@ -11,13 +11,9 @@ import {preserveMeta} from "../../util/clone-node-with-meta";
 export function toExportDeclarationTransformer(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
 	const {typescript, context, sourceFile, pluginOptions, printer} = options;
 
-	const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile)
-		? logMetrics(`Adding ExportDeclarations`, sourceFile.fileName)
-		: undefined;
+	const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile) ? logMetrics(`Adding ExportDeclarations`, sourceFile.fileName) : undefined;
 
-	const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile)
-		? logTransformer("Adding ExportDeclarations", sourceFile, printer)
-		: undefined;
+	const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile) ? logTransformer("Adding ExportDeclarations", sourceFile, printer) : undefined;
 
 	const nodePlacementQueue = getNodePlacementQueue({typescript});
 

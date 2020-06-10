@@ -3,9 +3,7 @@ import {EnsureNoExportModifierTransformerVisitorOptions} from "../ensure-no-expo
 import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {hasExportModifier, removeExportModifier} from "../../../util/modifier-util";
 
-export function visitInterfaceDeclaration(
-	options: EnsureNoExportModifierTransformerVisitorOptions<TS.InterfaceDeclaration>
-): TS.InterfaceDeclaration {
+export function visitInterfaceDeclaration(options: EnsureNoExportModifierTransformerVisitorOptions<TS.InterfaceDeclaration>): TS.InterfaceDeclaration {
 	const {node, typescript} = options;
 	if (!hasExportModifier(node, typescript)) return node;
 

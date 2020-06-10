@@ -9,8 +9,7 @@ export interface GetAliasedDeclarationOptions extends SourceFileBundlerVisitorOp
 }
 
 export function getDeclarationFromSymbol(symbol: TS.Symbol): (TS.Declaration & {id: number}) | undefined {
-	const valueDeclaration =
-		symbol.valueDeclaration != null ? symbol.valueDeclaration : symbol.declarations != null ? symbol.declarations[0] : undefined;
+	const valueDeclaration = symbol.valueDeclaration != null ? symbol.valueDeclaration : symbol.declarations != null ? symbol.declarations[0] : undefined;
 	return valueDeclaration as TS.Declaration & {id: number};
 }
 
@@ -18,10 +17,7 @@ export function getAliasedDeclarationFromSymbol(symbol: TS.Symbol, typeChecker: 
 	let valueDeclaration = getDeclarationFromSymbol(symbol);
 	try {
 		const aliasedDeclaration = typeChecker.getAliasedSymbol(symbol);
-		if (
-			aliasedDeclaration != null &&
-			(aliasedDeclaration.valueDeclaration != null || (aliasedDeclaration.declarations != null && aliasedDeclaration.declarations.length > 0))
-		) {
+		if (aliasedDeclaration != null && (aliasedDeclaration.valueDeclaration != null || (aliasedDeclaration.declarations != null && aliasedDeclaration.declarations.length > 0))) {
 			valueDeclaration = (aliasedDeclaration.valueDeclaration != null
 				? aliasedDeclaration.valueDeclaration
 				: symbol.declarations != null
@@ -84,11 +80,7 @@ export function getBestDeclaration(options: GetAliasedDeclarationOptions & GetSy
 		moduleSpecifier = getParentNode(getParentNode(declaration)).moduleSpecifier;
 	} else if (options.typescript.isImportClause(declaration)) {
 		moduleSpecifier = getParentNode(declaration).moduleSpecifier;
-	} else if (
-		options.typescript.isIdentifier(declaration) &&
-		getParentNode(declaration) != null &&
-		options.typescript.isImportClause(getParentNode(declaration))
-	) {
+	} else if (options.typescript.isIdentifier(declaration) && getParentNode(declaration) != null && options.typescript.isImportClause(getParentNode(declaration))) {
 		moduleSpecifier = getParentNode(getParentNode(declaration) as TS.ImportClause).moduleSpecifier;
 	}
 

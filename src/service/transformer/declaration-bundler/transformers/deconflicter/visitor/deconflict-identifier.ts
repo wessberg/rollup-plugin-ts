@@ -14,10 +14,7 @@ export function deconflictIdentifier(options: DeconflicterVisitorOptions<TS.Iden
 
 	const envLookupResult = getBindingFromLexicalEnvironment(lexicalEnvironment, node.text);
 	const deconflictedBindingMapLookupResult = id == null ? undefined : declarationToDeconflictedBindingMap.get(id);
-	const textResult =
-		deconflictedBindingMapLookupResult != null && deconflictedBindingMapLookupResult.startsWith(node.text)
-			? deconflictedBindingMapLookupResult
-			: envLookupResult;
+	const textResult = deconflictedBindingMapLookupResult != null && deconflictedBindingMapLookupResult.startsWith(node.text) ? deconflictedBindingMapLookupResult : envLookupResult;
 	const isIdentical = textResult === node.text;
 
 	if (isIdentical || textResult == null) {

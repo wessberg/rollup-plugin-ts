@@ -26,10 +26,7 @@ export function visitImportSpecifier(options: ModuleMergerVisitorOptions<TS.Impo
 	const exportedSymbol =
 		propertyName.text === "default"
 			? locateExportedSymbolForSourceFile({defaultExport: true}, {...options, sourceFile: payload.matchingSourceFile.fileName})
-			: locateExportedSymbolForSourceFile(
-					{defaultExport: false, name: propertyName.text},
-					{...options, sourceFile: payload.matchingSourceFile.fileName}
-			  );
+			: locateExportedSymbolForSourceFile({defaultExport: false, name: propertyName.text}, {...options, sourceFile: payload.matchingSourceFile.fileName});
 
 	if (exportedSymbol != null) {
 		// If the export exports a binding from another module *that points to a file that isn't part of the current chunk*,
@@ -73,14 +70,7 @@ export function visitImportSpecifier(options: ModuleMergerVisitorOptions<TS.Impo
 		} else if (contResult.propertyName != null) {
 			const declaration = getAliasedDeclaration({...options, node: contResult.propertyName});
 			options.prependNodes(
-				...createAliasedBinding(
-					declaration,
-					exportedSymbol.propertyName.text,
-					contResult.name.text,
-					typescript,
-					options.typeChecker,
-					options.lexicalEnvironment
-				)
+				...createAliasedBinding(declaration, exportedSymbol.propertyName.text, contResult.name.text, typescript, options.typeChecker, options.lexicalEnvironment)
 			);
 		}
 	}

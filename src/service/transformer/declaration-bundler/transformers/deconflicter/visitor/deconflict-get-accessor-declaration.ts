@@ -8,9 +8,7 @@ import {preserveMeta} from "../../../util/clone-node-with-meta";
 /**
  * Deconflicts the given GetAccessorDeclaration.
  */
-export function deconflictGetAccessorDeclaration(
-	options: DeconflicterVisitorOptions<TS.GetAccessorDeclaration>
-): TS.GetAccessorDeclaration | undefined {
+export function deconflictGetAccessorDeclaration(options: DeconflicterVisitorOptions<TS.GetAccessorDeclaration>): TS.GetAccessorDeclaration | undefined {
 	const {node, continuation, lexicalEnvironment, typescript} = options;
 	const nameContResult = typescript.isIdentifier(node.name) ? node.name : continuation(node.name, {lexicalEnvironment});
 
@@ -21,19 +19,11 @@ export function deconflictGetAccessorDeclaration(
 	const typeContResult = node.type == null ? undefined : continuation(node.type, nextContinuationOptions);
 	const bodyContResult = node.body == null ? undefined : continuation(node.body, nextContinuationOptions);
 
-	const isIdentical =
-		nameContResult === node.name &&
-		nodeArraysAreEqual(parametersContResult, node.parameters) &&
-		typeContResult === node.type &&
-		bodyContResult === node.body;
+	const isIdentical = nameContResult === node.name && nodeArraysAreEqual(parametersContResult, node.parameters) && typeContResult === node.type && bodyContResult === node.body;
 
 	if (isIdentical) {
 		return node;
 	}
 
-	return preserveMeta(
-		typescript.updateGetAccessor(node, node.decorators, node.modifiers, nameContResult, parametersContResult, typeContResult, bodyContResult),
-		node,
-		options
-	);
+	return preserveMeta(typescript.updateGetAccessor(node, node.decorators, node.modifiers, nameContResult, parametersContResult, typeContResult, bodyContResult), node, options);
 }

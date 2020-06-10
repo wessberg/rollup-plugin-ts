@@ -9,13 +9,9 @@ import {preserveMeta} from "../../util/clone-node-with-meta";
 export function ensureNoDeclareModifierTransformer(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
 	const {typescript, context, sourceFile, pluginOptions, printer} = options;
 
-	const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile)
-		? logMetrics(`Ensuring no declare modifiers`, sourceFile.fileName)
-		: undefined;
+	const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile) ? logMetrics(`Ensuring no declare modifiers`, sourceFile.fileName) : undefined;
 
-	const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile)
-		? logTransformer("Ensuring no declare modifiers", sourceFile, printer)
-		: undefined;
+	const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile) ? logTransformer("Ensuring no declare modifiers", sourceFile, printer) : undefined;
 
 	// Prepare some VisitorOptions
 	const visitorOptions = {

@@ -35,11 +35,7 @@ export function deconflictBindingElement(options: DeconflicterVisitorOptions<TS.
 	}
 
 	const propertyNameContResult =
-		node.propertyName == null
-			? undefined
-			: typescript.isIdentifier(node.propertyName)
-			? node.propertyName
-			: continuation(node.propertyName, {lexicalEnvironment});
+		node.propertyName == null ? undefined : typescript.isIdentifier(node.propertyName) ? node.propertyName : continuation(node.propertyName, {lexicalEnvironment});
 	const initializerContResult = node.initializer == null ? undefined : continuation(node.initializer, {lexicalEnvironment});
 
 	const isIdentical = nameContResult === node.name && propertyNameContResult === node.propertyName && initializerContResult === node.initializer;
@@ -48,9 +44,5 @@ export function deconflictBindingElement(options: DeconflicterVisitorOptions<TS.
 		return node;
 	}
 
-	return preserveMeta(
-		typescript.updateBindingElement(node, node.dotDotDotToken, propertyNameContResult, nameContResult, initializerContResult),
-		node,
-		options
-	);
+	return preserveMeta(typescript.updateBindingElement(node, node.dotDotDotToken, propertyNameContResult, nameContResult, initializerContResult), node, options);
 }

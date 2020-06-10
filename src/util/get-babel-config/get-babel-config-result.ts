@@ -1,6 +1,6 @@
 import {TransformOptions, PluginObj} from "@babel/core";
 
-export interface PluginObject<S = {}> extends PluginObj<S> {
+export interface PluginObject<S = unknown> extends PluginObj<S> {
 	key: string;
 }
 

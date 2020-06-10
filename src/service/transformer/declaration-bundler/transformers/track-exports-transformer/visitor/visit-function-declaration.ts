@@ -3,12 +3,7 @@ import {TrackExportsTransformerVisitorOptions} from "../track-exports-transforme
 import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers";
 import {hasExportModifier} from "../../../util/modifier-util";
 
-export function visitFunctionDeclaration({
-	node,
-	typescript,
-	markAsExported,
-	...options
-}: TrackExportsTransformerVisitorOptions<TS.FunctionDeclaration>): void {
+export function visitFunctionDeclaration({node, typescript, markAsExported, ...options}: TrackExportsTransformerVisitorOptions<TS.FunctionDeclaration>): void {
 	// If the node has no export modifier, leave it as it is
 	if (!hasExportModifier(node, typescript) || node.name == null) return;
 

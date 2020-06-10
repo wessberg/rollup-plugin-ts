@@ -7,7 +7,5 @@ export function visitBindingElement({node, continuation, typescript}: TreeShaker
 		return undefined;
 	}
 
-	return node.name === nameContinuationResult
-		? node
-		: typescript.updateBindingElement(node, node.dotDotDotToken, node.propertyName, nameContinuationResult, node.initializer);
+	return node.name === nameContinuationResult ? node : typescript.updateBindingElement(node, node.dotDotDotToken, node.propertyName, nameContinuationResult, node.initializer);
 }

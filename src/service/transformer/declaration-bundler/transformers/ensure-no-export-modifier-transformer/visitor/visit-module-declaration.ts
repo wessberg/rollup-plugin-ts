@@ -6,9 +6,5 @@ import {hasExportModifier, removeExportModifier} from "../../../util/modifier-ut
 export function visitModuleDeclaration(options: EnsureNoExportModifierTransformerVisitorOptions<TS.ModuleDeclaration>): TS.ModuleDeclaration {
 	const {node, typescript} = options;
 	if (!hasExportModifier(node, typescript)) return node;
-	return preserveMeta(
-		typescript.updateModuleDeclaration(node, node.decorators, removeExportModifier(node.modifiers, typescript), node.name, node.body),
-		node,
-		options
-	);
+	return preserveMeta(typescript.updateModuleDeclaration(node, node.decorators, removeExportModifier(node.modifiers, typescript), node.name, node.body), node, options);
 }

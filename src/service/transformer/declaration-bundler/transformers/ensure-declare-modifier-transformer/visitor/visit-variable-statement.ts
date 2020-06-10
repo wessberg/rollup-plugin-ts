@@ -7,9 +7,5 @@ export function visitVariableStatement(options: EnsureDeclareModifierTransformer
 	const {node, typescript} = options;
 	if (hasDeclareModifier(node, typescript)) return node;
 
-	return preserveMeta(
-		typescript.updateVariableStatement(node, ensureHasDeclareModifier(node.modifiers, typescript), node.declarationList),
-		node,
-		options
-	);
+	return preserveMeta(typescript.updateVariableStatement(node, ensureHasDeclareModifier(node.modifiers, typescript), node.declarationList), node, options);
 }

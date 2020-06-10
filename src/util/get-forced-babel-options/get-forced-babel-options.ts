@@ -1,10 +1,10 @@
-import {IGetForcedBabelOptionsOptions} from "./i-get-forced-babel-options-options";
+import {GetForcedBabelOptionsOptions} from "./get-forced-babel-options-options";
 import {TransformOptions} from "@babel/core";
 
 /**
  * Retrieves the Babel config options that will be forced
  */
-export function getForcedBabelOptions({cwd}: IGetForcedBabelOptionsOptions): TransformOptions {
+export function getForcedBabelOptions({cwd}: GetForcedBabelOptionsOptions): TransformOptions {
 	return {
 		// Always produce sourcemaps. Rollup will be the decider of what to do with them.
 		sourceMaps: true,

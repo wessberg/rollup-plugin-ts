@@ -8,14 +8,7 @@ export function visitClassExpression(options: EnsureNoDeclareModifierTransformer
 	if (!hasDeclareModifier(node, typescript)) return node;
 
 	return preserveMeta(
-		typescript.updateClassExpression(
-			node,
-			removeDeclareModifier(node.modifiers, typescript),
-			node.name,
-			node.typeParameters,
-			node.heritageClauses,
-			node.members
-		),
+		typescript.updateClassExpression(node, removeDeclareModifier(node.modifiers, typescript), node.name, node.typeParameters, node.heritageClauses, node.members),
 		node,
 		options
 	);

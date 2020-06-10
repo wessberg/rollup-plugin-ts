@@ -11,6 +11,7 @@ import * as TS351 from "typescript-3-5-1";
 import * as TS362 from "typescript-3-6-2";
 import * as TS372 from "typescript-3-7-2";
 import * as TS383 from "typescript-3-8-3";
+import * as TS392 from "typescript-3-9-2";
 
 test("Supports multiple TypeScript versions. #1", async t => {
 	for (const [TS, version] of [
@@ -22,7 +23,8 @@ test("Supports multiple TypeScript versions. #1", async t => {
 		[TS351, "v3.5.1"],
 		[TS362, "v3.6.2"],
 		[TS372, "v3.7.2"],
-		[TS383, "v3.8.3"]
+		[TS383, "v3.8.3"],
+		[TS392, "v3.9.2"]
 	]) {
 		const bundle = await generateRollupBundle(
 			[
@@ -39,8 +41,8 @@ test("Supports multiple TypeScript versions. #1", async t => {
 					text: `\
 				import { Action } from "../action/action";
 				import { DefaultAsyncActionCreatorWithMeta } from "./default-async-action-creator";
-				export const tryCatchDispatch = (dispatch: ((action: Action) => void)) =>
-					async <Success, Meta> (actionCreator: DefaultAsyncActionCreatorWithMeta<Success, Meta>) => {
+				export const tryCatchDispatch = <Success, Meta> (dispatch: ((action: Action<Success, Meta>) => void)) =>
+					async (actionCreator: DefaultAsyncActionCreatorWithMeta<Success, Meta>) => {
 				};
 			`
 				},
@@ -57,7 +59,7 @@ test("Supports multiple TypeScript versions. #1", async t => {
 					FAILURE = "FAILURE"
 				}
 
-				export type Action<Payload = unknown, Meta = unknown> = {
+				export type Action<Payload, Meta> = {
 					type: string;
 					id: ActionIdType;
 					status: ActionStatusKind;
@@ -134,7 +136,7 @@ test("Supports multiple TypeScript versions. #1", async t => {
 					SUCCESS = "SUCCESS",
 					FAILURE = "FAILURE"
 			}
-			type Action<Payload = unknown, Meta = unknown> = {
+			type Action<Payload, Meta> = {
 					type: string;
 					id: ActionIdType;
 					status: ActionStatusKind;
@@ -167,7 +169,7 @@ test("Supports multiple TypeScript versions. #1", async t => {
 			type DefaultAsyncActionCreatorWithMeta<Success = DefaultActionPayloadType, Meta = DefaultActionMetaType> = AsyncActionCreatorWithMeta<void, Success, Error, Meta> & {
 					foo: string;
 			};
-			declare const tryCatchDispatch: (dispatch: (action: Action<unknown, unknown>) => void) => <Success, Meta>(actionCreator: DefaultAsyncActionCreatorWithMeta<Success, Meta>) => Promise<void>;
+			declare const tryCatchDispatch: <Success, Meta>(dispatch: (action: Action<Success, Meta>) => void) => (actionCreator: DefaultAsyncActionCreatorWithMeta<Success, Meta>) => Promise<void>;
 			export { tryCatchDispatch };
 		`),
 			`Did not produce correct output for TypeScript ${version}`

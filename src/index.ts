@@ -1,10 +1,10 @@
-export {ICustomTransformerOptions, CustomTransformersFunction} from "./util/merge-transformers/i-custom-transformer-options";
+export {CustomTransformerOptions, CustomTransformersFunction} from "./util/merge-transformers/custom-transformer-options";
 export {default} from "./plugin/typescript-plugin";
 export {
 	TypescriptPluginOptions,
 	BrowserslistConfig,
-	IBrowserslistPathConfig,
-	IBrowserslistQueryConfig,
-	ITypescriptPluginBabelOptions,
-	ITypescriptPluginTypescriptOptions
+	BrowserslistPathConfig,
+	BrowserslistQueryConfig,
+	TypescriptPluginBabelOptions,
+	TypescriptPluginTypescriptOptions
 } from "./plugin/i-typescript-plugin-options";

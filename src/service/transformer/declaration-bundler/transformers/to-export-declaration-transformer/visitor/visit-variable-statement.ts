@@ -20,9 +20,7 @@ export function visitVariableStatement(options: ToExportDeclarationTransformerVi
 				modifiers: node.modifiers
 			});
 			// Append an ExportDeclaration
-			appendNodes(
-				preserveParents(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([exportSpecifier])), {typescript})
-			);
+			appendNodes(preserveParents(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([exportSpecifier])), {typescript}));
 
 			const propertyName = exportSpecifier.propertyName ?? exportSpecifier.name;
 			preserveSymbols(propertyName, declaration, options);

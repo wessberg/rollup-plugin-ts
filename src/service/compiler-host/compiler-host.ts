@@ -9,7 +9,7 @@ import {VirtualFile, VirtualFileInput} from "../module-resolution-host/virtual-f
 import {mergeTransformers} from "../../util/merge-transformers/merge-transformers";
 import {ensureModuleTransformer} from "../transformer/ensure-module/ensure-module-transformer";
 import {SourceFileToDependenciesMap} from "../transformer/declaration-bundler/declaration-bundler-options";
-import {ExtendedResolvedModule} from "../cache/resolve-cache/i-resolve-cache";
+import {ExtendedResolvedModule} from "../cache/resolve-cache/extended-resolved-module";
 import {getModuleDependencies} from "../../util/get-module-dependencies/get-module-dependencies";
 
 export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHost {
@@ -133,12 +133,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 				host: this
 			});
 		} else {
-			return typescript.createEmitAndSemanticDiagnosticsBuilderProgram(
-				[...this.getFileNames()],
-				this.getCompilationSettings(),
-				this,
-				this.previousProgram
-			);
+			return typescript.createEmitAndSemanticDiagnosticsBuilderProgram([...this.getFileNames()], this.getCompilationSettings(), this, this.previousProgram);
 		}
 	}
 
@@ -175,11 +170,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		return this.options.transformers;
 	}
 
-	private getDependenciesForFileDeep(
-		fileName: string,
-		dependencies: Set<ExtendedResolvedModule> = new Set(),
-		seenModules: Set<string> = new Set()
-	): Set<ExtendedResolvedModule> {
+	private getDependenciesForFileDeep(fileName: string, dependencies: Set<ExtendedResolvedModule> = new Set(), seenModules: Set<string> = new Set()): Set<ExtendedResolvedModule> {
 		if (seenModules.has(fileName)) return dependencies;
 		seenModules.add(fileName);
 		const localDependencies = this.sourceFileToDependenciesMap.get(fileName);
@@ -188,8 +179,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 			for (const dependency of localDependencies) {
 				if (
 					!dependenciesArr.some(
-						({resolvedFileName, resolvedAmbientFileName}) =>
-							resolvedFileName === dependency.resolvedFileName && resolvedAmbientFileName === dependency.resolvedAmbientFileName
+						({resolvedFileName, resolvedAmbientFileName}) => resolvedFileName === dependency.resolvedFileName && resolvedAmbientFileName === dependency.resolvedAmbientFileName
 					)
 				) {
 					dependencies.add(dependency);
@@ -422,21 +412,13 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 	 */
 	getNewLine(): string {
 		const compilationSettings = this.getCompilationSettings();
-		return compilationSettings.newLine != null
-			? getNewLineCharacter(compilationSettings.newLine, this.getTypescript())
-			: this.getFileSystem().newLine;
+		return compilationSettings.newLine != null ? getNewLineCharacter(compilationSettings.newLine, this.getTypescript()) : this.getFileSystem().newLine;
 	}
 
 	/**
 	 * Reads the given directory
 	 */
-	readDirectory(
-		path: string,
-		extensions: readonly string[],
-		exclude: readonly string[] | undefined,
-		include: readonly string[],
-		depth?: number
-	): string[] {
+	readDirectory(path: string, extensions: readonly string[], exclude: readonly string[] | undefined, include: readonly string[], depth?: number): string[] {
 		return this.getFileSystem().readDirectory(nativeNormalize(path), extensions, exclude, include, depth).map(normalize);
 	}
 

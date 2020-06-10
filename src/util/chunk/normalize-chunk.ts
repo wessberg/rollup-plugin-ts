@@ -33,10 +33,7 @@ export function preNormalizeChunk(chunk: OutputChunk): PreNormalizedChunk {
 	};
 }
 
-export function normalizeChunk(
-	chunk: PreNormalizedChunk,
-	{host, outputOptions, relativeOutDir, multiEntryFileNames}: NormalizeChunkOptions
-): NormalizedChunk {
+export function normalizeChunk(chunk: PreNormalizedChunk, {host, outputOptions, relativeOutDir, multiEntryFileNames}: NormalizeChunkOptions): NormalizedChunk {
 	const cwd = host.getCwd();
 
 	for (let i = 0; i < chunk.modules.length; i++) {

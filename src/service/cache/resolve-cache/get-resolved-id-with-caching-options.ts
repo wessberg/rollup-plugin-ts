@@ -1,6 +1,6 @@
 import {ModuleResolutionHost} from "../../module-resolution-host/module-resolution-host";
 
-export interface IGetResolvedIdWithCachingOptions {
+export interface GetResolvedIdWithCachingOptions {
 	id: string;
 	parent: string;
 	moduleResolutionHost: ModuleResolutionHost;

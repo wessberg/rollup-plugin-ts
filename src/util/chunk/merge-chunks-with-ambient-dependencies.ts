@@ -65,12 +65,7 @@ function ensureChunkForModule(
 	}
 }
 
-export function mergeChunksWithAmbientDependencies(
-	chunks: PreNormalizedChunk[],
-	host: CompilerHost,
-	format: ModuleFormat = "esm",
-	chunkFileNames: string | undefined
-): void {
+export function mergeChunksWithAmbientDependencies(chunks: PreNormalizedChunk[], host: CompilerHost, format: ModuleFormat = "esm", chunkFileNames: string | undefined): void {
 	const dependencyToModulesMap: Map<string, Set<string>> = new Map();
 	const sourceFileToDependenciesMap = host.getAllDependencies();
 
@@ -93,9 +88,7 @@ export function mergeChunksWithAmbientDependencies(
 		const chunkWithDependency = ensureChunkForModule(dependency, text, chunks, sourceFileToDependenciesMap, format, chunkFileNames);
 
 		const chunksForModulesForDependency = new Set<PreNormalizedChunk>(
-			[...modulesForDependency].map(moduleForDependency =>
-				ensureChunkForModule(moduleForDependency, text, chunks, sourceFileToDependenciesMap, format, chunkFileNames)
-			)
+			[...modulesForDependency].map(moduleForDependency => ensureChunkForModule(moduleForDependency, text, chunks, sourceFileToDependenciesMap, format, chunkFileNames))
 		);
 
 		// If the modules that refer to the dependency are divided across multiple chunks, and one of those chunks contain the dependency,

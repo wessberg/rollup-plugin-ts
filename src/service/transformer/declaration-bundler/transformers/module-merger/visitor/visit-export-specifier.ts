@@ -23,10 +23,7 @@ export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.Expo
 	const exportedSymbol =
 		propertyName.text === "default"
 			? locateExportedSymbolForSourceFile({defaultExport: true}, {...options, sourceFile: payload.matchingSourceFile.fileName})
-			: locateExportedSymbolForSourceFile(
-					{defaultExport: false, name: propertyName.text},
-					{...options, sourceFile: payload.matchingSourceFile.fileName}
-			  );
+			: locateExportedSymbolForSourceFile({defaultExport: false, name: propertyName.text}, {...options, sourceFile: payload.matchingSourceFile.fileName});
 
 	if (exportedSymbol != null) {
 		// If the export exports a binding from another module *that points to a file that isn't part of the current chunk*,

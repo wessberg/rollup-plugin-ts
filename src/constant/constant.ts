@@ -85,6 +85,7 @@ export const FORCED_BABEL_YEARLY_PRESET_OPTIONS = {
 export const FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS = {
 	helpers: true,
 	regenerator: true,
+	// eslint-disable-next-line @typescript-eslint/naming-convention
 	useESModules: true
 };
 

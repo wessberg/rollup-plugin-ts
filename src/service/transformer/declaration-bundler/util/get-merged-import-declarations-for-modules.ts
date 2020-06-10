@@ -27,9 +27,7 @@ export function getMergedImportDeclarationsForModules(sourceFile: TS.SourceFile,
 		}
 
 		const addAliasForNamedImport = (propertyName: string, alias: string) => {
-			let collectionWithProperty = namedImportsFromModules!.find(records =>
-				records.some(record => propertyName === record.propertyName && alias === record.alias)
-			);
+			let collectionWithProperty = namedImportsFromModules!.find(records => records.some(record => propertyName === record.propertyName && alias === record.alias));
 			if (collectionWithProperty != null) return;
 
 			if (propertyName === alias) {

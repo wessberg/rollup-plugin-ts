@@ -1,4 +1,4 @@
-import {CustomTransformersFunction} from "./i-custom-transformer-options";
+import {CustomTransformersFunction} from "./custom-transformer-options";
 import {TS} from "../../type/ts";
 
 /**
@@ -8,9 +8,7 @@ export function mergeTransformers(...transformers: (TS.CustomTransformers | Cust
 	return options => {
 		const instantiatedTransformers = transformers
 			.filter(transformer => transformer != null)
-			.map((transformer: TS.CustomTransformers | CustomTransformersFunction) =>
-				typeof transformer === "function" ? transformer(options) : transformer
-			);
+			.map((transformer: TS.CustomTransformers | CustomTransformersFunction) => (typeof transformer === "function" ? transformer(options) : transformer));
 
 		const beforeTransformers = ([] as (TS.TransformerFactory<TS.SourceFile> | TS.CustomTransformerFactory)[]).concat.apply(
 			[],
@@ -24,9 +22,7 @@ export function mergeTransformers(...transformers: (TS.CustomTransformers | Cust
 
 		const afterDeclarationsTransformers = ([] as (TS.TransformerFactory<TS.Bundle | TS.SourceFile> | TS.CustomTransformerFactory)[]).concat.apply(
 			[],
-			instantiatedTransformers
-				.map(transformer => transformer.afterDeclarations!)
-				.filter(afterDeclarationTransformer => afterDeclarationTransformer != null)
+			instantiatedTransformers.map(transformer => transformer.afterDeclarations!).filter(afterDeclarationTransformer => afterDeclarationTransformer != null)
 		);
 
 		return {

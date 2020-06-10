@@ -12,9 +12,7 @@ export function moduleBlockExtractor(options: ModuleBlockExtractorOptions): TS.S
 
 	const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile) ? logMetrics(`Extracting module blocks`, sourceFile.fileName) : undefined;
 
-	const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile)
-		? logTransformer("Extracting module blocks", sourceFile, printer)
-		: undefined;
+	const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile) ? logTransformer("Extracting module blocks", sourceFile, printer) : undefined;
 
 	// Prepare some VisitorOptions
 	const visitorOptions: Omit<ModuleBlockExtractorVisitorOptions<TS.Node>, "node"> = {

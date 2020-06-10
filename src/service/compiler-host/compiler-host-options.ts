@@ -1,13 +1,13 @@
 import {ModuleResolutionHostOptions} from "../module-resolution-host/module-resolution-host-options";
-import {IResolveCache} from "../cache/resolve-cache/i-resolve-cache";
-import {CustomTransformersFunction} from "../../util/merge-transformers/i-custom-transformer-options";
+import {CustomTransformersFunction} from "../../util/merge-transformers/custom-transformer-options";
 import {TS} from "../../type/ts";
+import {ResolveCache} from "../cache/resolve-cache/resolve-cache";
 
 export type CustomTransformersInput = CustomTransformersFunction | TS.CustomTransformers | undefined;
 
 export interface CompilerHostOptions extends ModuleResolutionHostOptions {
 	filter(id: string): boolean;
-	resolveCache: IResolveCache;
+	resolveCache: ResolveCache;
 	transformers?: CustomTransformersInput;
 	allowTransformingDeclarations?: boolean;
 }

@@ -11,9 +11,5 @@ export function visitImportEqualsDeclaration(options: TreeShakerVisitorOptions<T
 	}
 	return node.name === nameContinuationResult
 		? node
-		: preserveMeta(
-				typescript.updateImportEqualsDeclaration(node, node.decorators, node.modifiers, nameContinuationResult, node.moduleReference),
-				node,
-				options
-		  );
+		: preserveMeta(typescript.updateImportEqualsDeclaration(node, node.decorators, node.modifiers, nameContinuationResult, node.moduleReference), node, options);
 }

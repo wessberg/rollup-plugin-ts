@@ -20,24 +20,14 @@ export function visitClassDeclaration(options: ToExportDeclarationTransformerVis
 	});
 
 	// Append an ExportDeclaration
-	appendNodes(
-		preserveParents(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([exportSpecifier])), {typescript})
-	);
+	appendNodes(preserveParents(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([exportSpecifier])), {typescript}));
 
 	// Update the name if it changed
 	if (node.name != null && nameText === node.name.text) {
 		returnNode = node;
 	} else {
 		returnNode = preserveMeta(
-			typescript.updateClassDeclaration(
-				node,
-				node.decorators,
-				node.modifiers,
-				typescript.createIdentifier(nameText),
-				node.typeParameters,
-				node.heritageClauses,
-				node.members
-			),
+			typescript.updateClassDeclaration(node, node.decorators, node.modifiers, typescript.createIdentifier(nameText), node.typeParameters, node.heritageClauses, node.members),
 			node,
 			options
 		);

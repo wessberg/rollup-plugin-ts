@@ -18,9 +18,5 @@ export function deconflictPropertySignature(options: DeconflicterVisitorOptions<
 		return node;
 	}
 
-	return preserveMeta(
-		typescript.updatePropertySignature(node, node.modifiers, nameContResult, node.questionToken, typeContResult, initializerContResult),
-		node,
-		options
-	);
+	return preserveMeta(typescript.updatePropertySignature(node, node.modifiers, nameContResult, node.questionToken, typeContResult, initializerContResult), node, options);
 }

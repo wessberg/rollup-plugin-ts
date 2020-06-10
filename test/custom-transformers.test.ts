@@ -90,11 +90,9 @@ test("Supports Custom Transformers, including on bundled declarations. #2", asyn
 						return typescript.updateSourceFileNode(sourceFile, [
 							...sourceFile.statements,
 							typescript.createExpressionStatement(
-								typescript.createCall(
-									typescript.createPropertyAccess(typescript.createIdentifier("console"), typescript.createIdentifier("log")),
-									undefined,
-									[typescript.createStringLiteral("foo")]
-								)
+								typescript.createCall(typescript.createPropertyAccess(typescript.createIdentifier("console"), typescript.createIdentifier("log")), undefined, [
+									typescript.createStringLiteral("foo")
+								])
 							)
 						]);
 					}

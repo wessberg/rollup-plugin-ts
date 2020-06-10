@@ -7,15 +7,7 @@ export function visitClassDeclaration(options: EnsureNoExportModifierTransformer
 	const {node, typescript} = options;
 	if (!hasExportModifier(node, typescript)) return node;
 	return preserveMeta(
-		typescript.updateClassDeclaration(
-			node,
-			node.decorators,
-			removeExportModifier(node.modifiers, typescript),
-			node.name,
-			node.typeParameters,
-			node.heritageClauses,
-			node.members
-		),
+		typescript.updateClassDeclaration(node, node.decorators, removeExportModifier(node.modifiers, typescript), node.name, node.typeParameters, node.heritageClauses, node.members),
 		node,
 		options
 	);

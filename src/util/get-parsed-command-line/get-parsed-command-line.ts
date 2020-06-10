@@ -1,12 +1,7 @@
 import {ensureAbsolute, nativeDirname} from "../path/path-util";
 import {D_TS_EXTENSION, DEFAULT_TSCONFIG_FILE_NAME} from "../../constant/constant";
 import {ParsedCommandLineResult} from "./parsed-command-line-result";
-import {
-	InputCompilerOptions,
-	TsConfigResolver,
-	TsConfigResolverWithFileName,
-	TypescriptPluginOptions
-} from "../../plugin/i-typescript-plugin-options";
+import {InputCompilerOptions, TsConfigResolver, TsConfigResolverWithFileName, TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options";
 import {TS} from "../../type/ts";
 import {finalizeParsedCommandLine} from "../finalize-parsed-command-line/finalize-parsed-command-line";
 import {FileSystem} from "../file-system/file-system";
@@ -102,11 +97,7 @@ export function getParsedCommandLine(options: GetParsedCommandLineOptions): Pars
 	else {
 		tsconfigPath = ensureAbsolute(
 			cwd,
-			isTsConfigResolverWithFileName(tsconfig)
-				? tsconfig.fileName
-				: tsconfig != null && !isTsConfigResolver(tsconfig)
-				? tsconfig
-				: DEFAULT_TSCONFIG_FILE_NAME
+			isTsConfigResolverWithFileName(tsconfig) ? tsconfig.fileName : tsconfig != null && !isTsConfigResolver(tsconfig) ? tsconfig : DEFAULT_TSCONFIG_FILE_NAME
 		);
 
 		// If the file exists, read the tsconfig on that location

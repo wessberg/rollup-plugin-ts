@@ -6,10 +6,7 @@ import {getOutDir} from "../../../util/get-out-dir/get-out-dir";
 import {basename, dirname, join, nativeNormalize, relative, setExtension} from "../../../util/path/path-util";
 import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, JS_EXTENSION} from "../../../constant/constant";
 import {bundleDeclarationsForChunk} from "./bundle-declarations-for-chunk";
-import {
-	ReferenceCache,
-	SourceFileToNodeToReferencedIdentifiersCache
-} from "../../transformer/declaration-bundler/transformers/reference/cache/reference-cache";
+import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "../../transformer/declaration-bundler/transformers/reference/cache/reference-cache";
 import {normalizeChunk, preNormalizeChunk} from "../../../util/chunk/normalize-chunk";
 import {shouldDebugEmit, shouldDebugMetrics} from "../../../util/is-debug/should-debug";
 import {logMetrics} from "../../../util/logging/log-metrics";
@@ -148,8 +145,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 
 		// Rollup does not allow emitting files outside of the root of the whatever 'dist' directory that has been provided.
 		// Under such circumstances, unfortunately, we'll have to default to using whatever FileSystem was provided to write the files to disk
-		const declarationNeedsFileSystem =
-			emitFileDeclarationFilename.startsWith("../") || emitFileDeclarationFilename.startsWith("..\\") || options.pluginContext.emitFile == null;
+		const declarationNeedsFileSystem = emitFileDeclarationFilename.startsWith("../") || emitFileDeclarationFilename.startsWith("..\\") || options.pluginContext.emitFile == null;
 		const declarationMapNeedsFileSystem =
 			emitFileDeclarationMapFilename.startsWith("../") || emitFileDeclarationMapFilename.startsWith("..\\") || options.pluginContext.emitFile == null;
 

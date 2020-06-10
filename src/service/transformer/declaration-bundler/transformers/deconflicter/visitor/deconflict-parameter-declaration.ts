@@ -19,16 +19,7 @@ export function deconflictParameterDeclaration(options: DeconflicterVisitorOptio
 	}
 
 	return preserveMeta(
-		typescript.updateParameter(
-			node,
-			node.decorators,
-			node.modifiers,
-			node.dotDotDotToken,
-			nameContResult,
-			node.questionToken,
-			typeContResult,
-			initializerContResult
-		),
+		typescript.updateParameter(node, node.decorators, node.modifiers, node.dotDotDotToken, nameContResult, node.questionToken, typeContResult, initializerContResult),
 		node,
 		options
 	);

@@ -3,12 +3,7 @@ import {TrackExportsTransformerVisitorOptions} from "../track-exports-transforme
 import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers";
 import {hasExportModifier} from "../../../util/modifier-util";
 
-export function visitEnumDeclaration({
-	node,
-	typescript,
-	markAsExported,
-	...options
-}: TrackExportsTransformerVisitorOptions<TS.EnumDeclaration>): void {
+export function visitEnumDeclaration({node, typescript, markAsExported, ...options}: TrackExportsTransformerVisitorOptions<TS.EnumDeclaration>): void {
 	// If the node has no export modifier, leave it as it is
 	if (!hasExportModifier(node, typescript)) return;
 

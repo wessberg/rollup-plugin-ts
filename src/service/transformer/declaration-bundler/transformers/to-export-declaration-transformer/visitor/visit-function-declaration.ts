@@ -15,9 +15,7 @@ export function visitFunctionDeclaration(options: ToExportDeclarationTransformer
 	const {exportSpecifier} = createExportSpecifierFromNameAndModifiers({...options, name: nameText, modifiers: node.modifiers});
 
 	// Append an ExportDeclaration
-	appendNodes(
-		preserveParents(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([exportSpecifier])), {typescript})
-	);
+	appendNodes(preserveParents(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([exportSpecifier])), {typescript}));
 
 	// Update the name if it changed
 	if (node.name != null && nameText === node.name.text) {

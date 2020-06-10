@@ -17,9 +17,7 @@ export function statementMerger({markAsModuleIfNeeded}: StatementMergerOptions):
 
 		const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile) ? logMetrics(`Statement merging`, sourceFile.fileName) : undefined;
 
-		const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile)
-			? logTransformer("Statement merging", sourceFile, printer)
-			: undefined;
+		const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile) ? logTransformer("Statement merging", sourceFile, printer) : undefined;
 
 		// Merge all of the imports
 		const mergedImports = getMergedImportDeclarationsForModules(sourceFile, typescript);
@@ -63,14 +61,11 @@ export function statementMerger({markAsModuleIfNeeded}: StatementMergerOptions):
 
 		let result = typescript.visitEachChild(sourceFile, nextNode => visitorOptions.continuation(nextNode), context);
 		const importDeclarations = result.statements.filter(typescript.isImportDeclaration);
-		const exportDeclarations = result.statements.filter(
-			statement => typescript.isExportDeclaration(statement) || typescript.isExportAssignment(statement)
-		);
+		const exportDeclarations = result.statements.filter(statement => typescript.isExportDeclaration(statement) || typescript.isExportAssignment(statement));
 		const statementsWithExportModifier = result.statements.filter(statement => hasExportModifier(statement, typescript));
 
 		const otherStatements = result.statements.filter(
-			statement =>
-				!typescript.isImportDeclaration(statement) && !typescript.isExportDeclaration(statement) && !typescript.isExportAssignment(statement)
+			statement => !typescript.isImportDeclaration(statement) && !typescript.isExportDeclaration(statement) && !typescript.isExportAssignment(statement)
 		);
 		const importExportCount = importDeclarations.length + exportDeclarations.length + statementsWithExportModifier.length;
 

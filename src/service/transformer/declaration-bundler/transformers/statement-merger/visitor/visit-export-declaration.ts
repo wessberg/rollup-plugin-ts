@@ -2,9 +2,7 @@ import {TS} from "../../../../../../type/ts";
 import {StatementMergerVisitorOptions} from "../statement-merger-visitor-options";
 import {preserveMeta} from "../../../util/clone-node-with-meta";
 
-export function visitExportDeclaration(
-	options: StatementMergerVisitorOptions<TS.ExportDeclaration>
-): TS.ExportDeclaration[] | TS.ExportDeclaration | undefined {
+export function visitExportDeclaration(options: StatementMergerVisitorOptions<TS.ExportDeclaration>): TS.ExportDeclaration[] | TS.ExportDeclaration | undefined {
 	const {node, typescript} = options;
 
 	// If the ModuleSpecifier is given and it isn't a string literal, leave it as it is
@@ -31,12 +29,5 @@ export function visitExportDeclaration(
 				: typescript.createNamespaceExport(typescript.createIdentifier(first.exportClause.name.text));
 	}
 
-	return [
-		preserveMeta(
-			typescript.updateExportDeclaration(node, node.decorators, node.modifiers, exportClause, node.moduleSpecifier, node.isTypeOnly),
-			node,
-			options
-		),
-		...other
-	];
+	return [preserveMeta(typescript.updateExportDeclaration(node, node.decorators, node.modifiers, exportClause, node.moduleSpecifier, node.isTypeOnly), node, options), ...other];
 }

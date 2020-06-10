@@ -9,10 +9,7 @@ export function getChunkFilename(module: string, chunks: NormalizedChunk[]): str
 
 export function getChunkForModule(module: string, chunks: NormalizedChunk[]): NormalizedChunk | undefined;
 export function getChunkForModule(module: string, chunks: PreNormalizedChunk[]): PreNormalizedChunk | undefined;
-export function getChunkForModule(
-	module: string,
-	chunks: PreNormalizedChunk[] | NormalizedChunk[]
-): NormalizedChunk | PreNormalizedChunk | undefined {
+export function getChunkForModule(module: string, chunks: PreNormalizedChunk[] | NormalizedChunk[]): NormalizedChunk | PreNormalizedChunk | undefined {
 	for (const chunk of chunks) {
 		if ("has" in chunk.modules && chunk.modules.has(module)) {
 			return chunk;

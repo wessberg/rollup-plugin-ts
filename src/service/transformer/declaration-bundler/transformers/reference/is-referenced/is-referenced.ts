@@ -103,6 +103,7 @@ function checkNode({node, originalNode, ...options}: ReferenceVisitorOptions): s
  * Visits the given node. Returns true if it references the node to check for references, and false otherwise
  */
 function getReferencingNodes(originalNode: TS.Node, identifiers: Set<string>, cache: NodeToReferencedIdentifiersCache): TS.Node[] {
+	// TODO: Can all of this be replaced by typescript.FindAllReferences.Core.isSymbolReferencedInFile(identifier, typeChecker, sourceFile); ?
 	const referencingNodes = new Set<TS.Node>();
 
 	for (const identifier of identifiers) {
@@ -158,8 +159,7 @@ export function isReferenced<T extends TS.Node>({seenNodes = new Set(), ...optio
 	const referencingNodes = collectReferences(options, identifiers);
 
 	// Compute the result
-	const result =
-		referencingNodes.length > 0 && referencingNodes.some(referencingNode => isReferenced({...options, seenNodes, node: referencingNode}));
+	const result = referencingNodes.length > 0 && referencingNodes.some(referencingNode => isReferenced({...options, seenNodes, node: referencingNode}));
 
 	// Cache the result
 	options.referenceCache.set(options.node, result);

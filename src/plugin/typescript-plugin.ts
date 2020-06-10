@@ -4,23 +4,13 @@ import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
 import {emitDiagnostics} from "../service/emit/diagnostics/emit-diagnostics";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
-import {
-	ensureHasDriveLetter,
-	ensureRelative,
-	getExtension,
-	isBabelHelper,
-	isCoreJsInternals,
-	isRollupPluginMultiEntry,
-	nativeNormalize,
-	normalize
-} from "../util/path/path-util";
+import {ensureHasDriveLetter, ensureRelative, getExtension, isBabelHelper, isCoreJsInternals, isRollupPluginMultiEntry, nativeNormalize, normalize} from "../util/path/path-util";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
 import {TypescriptPluginOptions} from "./i-typescript-plugin-options";
 import {getPluginOptions} from "../util/plugin-options/get-plugin-options";
 import {getBabelConfig} from "../util/get-babel-config/get-babel-config";
 import {getForcedBabelOptions} from "../util/get-forced-babel-options/get-forced-babel-options";
 import {getBrowserslist} from "../util/get-browserslist/get-browserslist";
-import {IResolveCache} from "../service/cache/resolve-cache/i-resolve-cache";
 import {ResolveCache} from "../service/cache/resolve-cache/resolve-cache";
 import {JSON_EXTENSION, REGENERATOR_RUNTIME_NAME_1, REGENERATOR_RUNTIME_NAME_2} from "../constant/constant";
 import {REGENERATOR_SOURCE} from "../lib/regenerator/regenerator";
@@ -81,7 +71,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	/**
 	 * The ResolveCache to use
 	 */
-	const resolveCache: IResolveCache = new ResolveCache({fileSystem});
+	const resolveCache = new ResolveCache({fileSystem});
 
 	/**
 	 * The filter function to use
@@ -129,11 +119,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// Prepare a Babel config if Babel should be the transpiler
 			if (pluginOptions.transpiler === "babel") {
 				// A browserslist may already be provided, but if that is not the case, one can be computed based on the "target" from the tsconfig
-				const computedBrowserslist = takeBrowserslistOrComputeBasedOnCompilerOptions(
-					normalizedBrowserslist,
-					parsedCommandLineResult.originalCompilerOptions,
-					typescript
-				);
+				const computedBrowserslist = takeBrowserslistOrComputeBasedOnCompilerOptions(normalizedBrowserslist, parsedCommandLineResult.originalCompilerOptions, typescript);
 
 				const sharedBabelConfigFactoryOptions = {
 					cwd,
@@ -242,9 +228,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// If this file represents ROLLUP_PLUGIN_MULTI_ENTRY, we need to parse its' contents to understand which files it aliases.
 			// Following that, there's nothing more to do
 			if (isRollupPluginMultiEntry(normalizedFile)) {
-				MULTI_ENTRY_FILE_NAMES = new Set(
-					matchAll(code, /(import|export)\s*(\*\s*from\s*)?["'`]([^"'`]*)["'`]/).map(([, , , path]) => normalize(path))
-				);
+				MULTI_ENTRY_FILE_NAMES = new Set(matchAll(code, /(import|export)\s*(\*\s*from\s*)?["'`]([^"'`]*)["'`]/).map(([, , , path]) => normalize(path)));
 				return undefined;
 			}
 
@@ -368,10 +352,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			}
 
 			// Emit tsbuildinfo files if required
-			if (
-				Boolean(parsedCommandLineResult.parsedCommandLine.options.incremental) ||
-				Boolean(parsedCommandLineResult.parsedCommandLine.options.composite)
-			) {
+			if (Boolean(parsedCommandLineResult.parsedCommandLine.options.incremental) || Boolean(parsedCommandLineResult.parsedCommandLine.options.composite)) {
 				emitBuildInfo({
 					host,
 					bundle,

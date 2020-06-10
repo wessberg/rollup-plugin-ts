@@ -118,7 +118,7 @@ test("Handles namespace exports. #3", async t => {
 				entry: true,
 				fileName: "index.ts",
 				text: `\
-          		export * as Foo from "typescript";
+          		export * as Foo from "ava";
         	`
 			}
 		],
@@ -127,5 +127,5 @@ test("Handles namespace exports. #3", async t => {
 	const {
 		declarations: [file]
 	} = bundle;
-	t.deepEqual(formatCode(file.code), formatCode(`export * as Foo from "typescript";`));
+	t.deepEqual(formatCode(file.code), formatCode(`export * as Foo from "ava";`));
 });

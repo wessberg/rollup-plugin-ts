@@ -38,10 +38,6 @@ export function deconflictImportSpecifier(options: DeconflicterVisitorOptions<TS
 		// If the ImportSpecifier is something like '{Foo}' but 'Foo' is already bound in this SourceFile,
 		// we should re-write it to something like '{Foo as Foo$0}'
 		const propertyName = node.propertyName ?? node.name;
-		return preserveMeta(
-			typescript.updateImportSpecifier(node, typescript.createIdentifier(propertyName.text), typescript.createIdentifier(uniqueBinding)),
-			node,
-			options
-		);
+		return preserveMeta(typescript.updateImportSpecifier(node, typescript.createIdentifier(propertyName.text), typescript.createIdentifier(uniqueBinding)), node, options);
 	}
 }

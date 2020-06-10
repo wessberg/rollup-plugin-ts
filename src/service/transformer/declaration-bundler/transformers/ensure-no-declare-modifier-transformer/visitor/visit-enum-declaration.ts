@@ -7,9 +7,5 @@ export function visitEnumDeclaration(options: EnsureNoDeclareModifierTransformer
 	const {node, typescript} = options;
 	if (!hasDeclareModifier(node, typescript)) return node;
 
-	return preserveMeta(
-		typescript.updateEnumDeclaration(node, node.decorators, removeDeclareModifier(node.modifiers, typescript), node.name, node.members),
-		node,
-		options
-	);
+	return preserveMeta(typescript.updateEnumDeclaration(node, node.decorators, removeDeclareModifier(node.modifiers, typescript), node.name, node.members), node, options);
 }

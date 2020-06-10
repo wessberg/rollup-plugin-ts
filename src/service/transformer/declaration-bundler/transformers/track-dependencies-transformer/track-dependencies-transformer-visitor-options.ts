@@ -1,5 +1,5 @@
 import {TS} from "../../../../../type/ts";
-import {ExtendedResolvedModule} from "../../../../cache/resolve-cache/i-resolve-cache";
+import {ExtendedResolvedModule} from "../../../../cache/resolve-cache/extended-resolved-module";
 import {CompilerHost} from "../../../../compiler-host/compiler-host";
 
 export interface TrackDependenciesOptions {

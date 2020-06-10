@@ -41,8 +41,7 @@ export function deconflictFunctionDeclaration(options: DeconflicterVisitorOption
 	// The body, type, type parameters, as well as the parameters share the same lexical environment
 	const nextContinuationOptions: ContinuationOptions = {lexicalEnvironment: cloneLexicalEnvironment(lexicalEnvironment)};
 
-	const typeParametersContResult =
-		node.typeParameters == null ? undefined : node.typeParameters.map(typeParameter => continuation(typeParameter, nextContinuationOptions));
+	const typeParametersContResult = node.typeParameters == null ? undefined : node.typeParameters.map(typeParameter => continuation(typeParameter, nextContinuationOptions));
 	const parametersContResult = node.parameters.map(parameter => continuation(parameter, nextContinuationOptions));
 	const typeContResult = node.type == null ? undefined : continuation(node.type, nextContinuationOptions);
 	const bodyContResult = node.body == null ? undefined : continuation(node.body, nextContinuationOptions);

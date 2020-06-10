@@ -1,7 +1,7 @@
 import {TS} from "../../../../../type/ts";
 import {visitNode} from "./visitor/visit-node";
 import {TrackDependenciesOptions, TrackDependenciesTransformerVisitorOptions} from "./track-dependencies-transformer-visitor-options";
-import {ExtendedResolvedModule} from "../../../../cache/resolve-cache/i-resolve-cache";
+import {ExtendedResolvedModule} from "../../../../cache/resolve-cache/extended-resolved-module";
 
 export function trackDependenciesTransformer(options: TrackDependenciesOptions): Set<ExtendedResolvedModule> {
 	const {typescript} = options;

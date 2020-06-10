@@ -10,11 +10,7 @@ import {trackImportsTransformer} from "../track-imports-transformer/track-import
 import {trackExportsTransformer} from "../track-exports-transformer/track-exports-transformer";
 
 function needsInitialize(options: DeclarationBundlerOptions): boolean {
-	return (
-		options.sourceFileToExportedSymbolSet.size === 0 ||
-		options.sourceFileToImportedSymbolSet.size === 0 ||
-		options.moduleSpecifierToSourceFileMap.size === 0
-	);
+	return options.sourceFileToExportedSymbolSet.size === 0 || options.sourceFileToImportedSymbolSet.size === 0 || options.moduleSpecifierToSourceFileMap.size === 0;
 }
 
 export function sourceFileBundler(options: DeclarationBundlerOptions, ...transformers: DeclarationTransformer[]): TS.TransformerFactory<TS.Bundle> {
@@ -54,9 +50,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 		}
 
 		// Only consider those SourceFiles that are part of the current chunk to be emitted
-		const sourceFilesForChunk = sourceFiles.filter(
-			sourceFile => getChunkFilename(sourceFile.fileName, options.chunks) === options.chunk.paths.absolute
-		);
+		const sourceFilesForChunk = sourceFiles.filter(sourceFile => getChunkFilename(sourceFile.fileName, options.chunks) === options.chunk.paths.absolute);
 
 		// Visit only the entry SourceFile(s)
 		const entrySourceFiles = sourceFilesForChunk

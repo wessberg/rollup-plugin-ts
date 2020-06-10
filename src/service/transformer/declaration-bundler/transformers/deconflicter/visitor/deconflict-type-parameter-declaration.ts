@@ -10,9 +10,7 @@ import {getOriginalSourceFile} from "../../../util/get-original-source-file";
 /**
  * Deconflicts the given TypeParameterDeclaration.
  */
-export function deconflictTypeParameterDeclaration(
-	options: DeconflicterVisitorOptions<TS.TypeParameterDeclaration>
-): TS.TypeParameterDeclaration | undefined {
+export function deconflictTypeParameterDeclaration(options: DeconflicterVisitorOptions<TS.TypeParameterDeclaration>): TS.TypeParameterDeclaration | undefined {
 	const {node, continuation, lexicalEnvironment, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
 	let nameContResult: TS.TypeParameterDeclaration["name"];
 	const id = getIdForNode(options);

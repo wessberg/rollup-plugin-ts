@@ -1,4 +1,4 @@
-import {CustomTransformersFunction} from "../util/merge-transformers/i-custom-transformer-options";
+import {CustomTransformersFunction} from "../util/merge-transformers/custom-transformer-options";
 import {FileSystem} from "../util/file-system/file-system";
 import {TS} from "../type/ts";
 import {TransformOptions} from "@babel/core";
@@ -27,15 +27,15 @@ export type DebugData = DebugTransformerData | DebugEmitData | DebugMetricsData;
 
 export type DebugOptionCallback = (data: DebugData) => boolean;
 
-export interface IBrowserslistPathConfig {
+export interface BrowserslistPathConfig {
 	path: string;
 }
 
-export interface IBrowserslistQueryConfig {
+export interface BrowserslistQueryConfig {
 	query: string[] | string;
 }
 
-export type BrowserslistConfig = IBrowserslistPathConfig | IBrowserslistQueryConfig;
+export type BrowserslistConfig = BrowserslistPathConfig | BrowserslistQueryConfig;
 
 export interface TsConfigResolverWithFileName {
 	fileName: string;
@@ -49,11 +49,7 @@ export type TranspilationPhase = "file" | "chunk";
 export type EmitPathKind = OutputPathKind | "javascript";
 export type OutputPathHook = (path: string, kind: OutputPathKind) => string | undefined;
 export type DiagnosticsHook = (diagnostics: readonly TS.Diagnostic[]) => readonly TS.Diagnostic[] | undefined;
-export type BabelConfigHook = (
-	config: TransformOptions | undefined,
-	fileName: string | undefined,
-	phase: TranspilationPhase
-) => TransformOptions | undefined;
+export type BabelConfigHook = (config: TransformOptions | undefined, fileName: string | undefined, phase: TranspilationPhase) => TransformOptions | undefined;
 
 export interface HookRecord {
 	outputPath: OutputPathHook;
@@ -69,15 +65,9 @@ export interface InputCompilerOptions extends Omit<TS.CompilerOptions, "module" 
 	target: string;
 }
 
-export interface ITypescriptPluginBaseOptions {
+export interface TypescriptPluginBaseOptions {
 	transpiler: Transpiler;
-	tsconfig?:
-		| string
-		| Partial<TS.CompilerOptions>
-		| Partial<InputCompilerOptions>
-		| TS.ParsedCommandLine
-		| TsConfigResolver
-		| TsConfigResolverWithFileName;
+	tsconfig?: string | Partial<TS.CompilerOptions> | Partial<InputCompilerOptions> | TS.ParsedCommandLine | TsConfigResolver | TsConfigResolverWithFileName;
 	browserslist?: false | string[] | string | BrowserslistConfig;
 	cwd: string;
 	transformers?: (TS.CustomTransformers | CustomTransformersFunction)[] | TS.CustomTransformers | CustomTransformersFunction;
@@ -90,13 +80,13 @@ export interface ITypescriptPluginBaseOptions {
 	typescript: typeof TS;
 }
 
-export interface ITypescriptPluginTypescriptOptions extends ITypescriptPluginBaseOptions {
+export interface TypescriptPluginTypescriptOptions extends TypescriptPluginBaseOptions {
 	transpiler: "typescript";
 }
 
-export interface ITypescriptPluginBabelOptions extends ITypescriptPluginBaseOptions {
+export interface TypescriptPluginBabelOptions extends TypescriptPluginBaseOptions {
 	transpiler: "babel";
 	babelConfig?: string | Partial<TransformOptions>;
 }
 
-export type TypescriptPluginOptions = ITypescriptPluginTypescriptOptions | ITypescriptPluginBabelOptions;
+export type TypescriptPluginOptions = TypescriptPluginTypescriptOptions | TypescriptPluginBabelOptions;

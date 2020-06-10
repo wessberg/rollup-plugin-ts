@@ -40,8 +40,7 @@ export function deconflictFunctionExpression(options: DeconflicterVisitorOptions
 	// The body, type, type parameters, as well as the parameters share the same lexical environment
 	const nextContinuationOptions: ContinuationOptions = {lexicalEnvironment: cloneLexicalEnvironment(lexicalEnvironment)};
 
-	const typeParametersContResult =
-		node.typeParameters == null ? undefined : node.typeParameters.map(typeParameter => continuation(typeParameter, nextContinuationOptions));
+	const typeParametersContResult = node.typeParameters == null ? undefined : node.typeParameters.map(typeParameter => continuation(typeParameter, nextContinuationOptions));
 	const parametersContResult = node.parameters.map(parameter => continuation(parameter, nextContinuationOptions));
 	const typeContResult = node.type == null ? undefined : continuation(node.type, nextContinuationOptions);
 	const bodyContResult = continuation(node.body, nextContinuationOptions);
@@ -58,16 +57,7 @@ export function deconflictFunctionExpression(options: DeconflicterVisitorOptions
 	}
 
 	return preserveMeta(
-		typescript.updateFunctionExpression(
-			node,
-			node.modifiers,
-			node.asteriskToken,
-			nameContResult,
-			typeParametersContResult,
-			parametersContResult,
-			typeContResult,
-			bodyContResult
-		),
+		typescript.updateFunctionExpression(node, node.modifiers, node.asteriskToken, nameContResult, typeParametersContResult, parametersContResult, typeContResult, bodyContResult),
 		node,
 		options
 	);

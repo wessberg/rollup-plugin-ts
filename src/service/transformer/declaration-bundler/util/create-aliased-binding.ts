@@ -57,12 +57,7 @@ export function createAliasedBinding(
 					typescript.createVariableStatement(
 						ensureHasDeclareModifier(undefined, typescript),
 						typescript.createVariableDeclarationList(
-							[
-								typescript.createVariableDeclaration(
-									typescript.createIdentifier(name),
-									typescript.createTypeQueryNode(typescript.createIdentifier(propertyName))
-								)
-							],
+							[typescript.createVariableDeclaration(typescript.createIdentifier(name), typescript.createTypeQueryNode(typescript.createIdentifier(propertyName)))],
 							typescript.NodeFlags.Const
 						)
 					),

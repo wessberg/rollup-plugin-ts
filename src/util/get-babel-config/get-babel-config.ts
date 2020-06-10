@@ -11,25 +11,20 @@ import {
 import {ConfigItem, createConfigItem, loadOptions, loadPartialConfig, TransformOptions} from "@babel/core";
 import {GetBabelConfigOptions} from "./get-babel-config-options";
 import {BabelConfigFactory, FullConfig} from "./get-babel-config-result";
-import {ITypescriptPluginBabelOptions} from "../../plugin/i-typescript-plugin-options";
+import {TypescriptPluginBabelOptions} from "../../plugin/i-typescript-plugin-options";
 import {isDefined} from "../is-defined/is-defined";
 
 /**
  * Returns true if the given babelConfig is IBabelInputOptions
  */
-function isBabelInputOptions(babelConfig?: ITypescriptPluginBabelOptions["babelConfig"]): babelConfig is Partial<TransformOptions> {
+function isBabelInputOptions(babelConfig?: TypescriptPluginBabelOptions["babelConfig"]): babelConfig is Partial<TransformOptions> {
 	return babelConfig != null && typeof babelConfig !== "string";
 }
 
 /**
  * Combines the given two sets of presets
  */
-function combineConfigItems(
-	userItems: ConfigItem[],
-	defaultItems: ConfigItem[] = [],
-	forcedItems: ConfigItem[] = [],
-	inChunkPhase: boolean
-): ConfigItem[] {
+function combineConfigItems(userItems: ConfigItem[], defaultItems: ConfigItem[] = [], forcedItems: ConfigItem[] = [], inChunkPhase: boolean): ConfigItem[] {
 	const namesInUserItems = new Set(userItems.map(item => item.file?.resolved).filter(isDefined));
 	const namesInForcedItems = new Set(forcedItems.map(item => item.file?.resolved).filter(isDefined));
 	const userItemsHasYearlyPreset = [...namesInUserItems].some(isYearlyBabelPreset);
@@ -62,8 +57,7 @@ function combineConfigItems(
  */
 function configItemIsRelevantForChunkPhase(configItem: ConfigItem): boolean {
 	return (
-		BABEL_MINIFY_PRESET_NAMES.some(preset => configItem.file?.resolved.includes(preset)) ||
-		BABEL_MINIFY_PLUGIN_NAMES.some(plugin => configItem.file?.resolved.includes(plugin))
+		BABEL_MINIFY_PRESET_NAMES.some(preset => configItem.file?.resolved.includes(preset)) || BABEL_MINIFY_PLUGIN_NAMES.some(plugin => configItem.file?.resolved.includes(plugin))
 	);
 }
 
@@ -90,15 +84,7 @@ function configItemIsAllowedDuringFilePhase(configItem: ConfigItem): boolean {
 /**
  * Gets a Babel Config based on the given options
  */
-export function getBabelConfig({
-	babelConfig,
-	cwd,
-	forcedOptions = {},
-	defaultOptions = {},
-	browserslist,
-	phase,
-	hook
-}: GetBabelConfigOptions): BabelConfigFactory {
+export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOptions = {}, browserslist, phase, hook}: GetBabelConfigOptions): BabelConfigFactory {
 	return (filename: string) => {
 		// Load a partial Babel config based on the input options
 		const partialConfig = loadPartialConfig(
@@ -140,7 +126,7 @@ export function getBabelConfig({
 								...FORCED_BABEL_PRESET_ENV_OPTIONS,
 								// If targets have already been provided by the user options, accept them.
 								// Otherwise, apply the browserslist as the preset-env target
-								...(preset.options != null && (preset.options as {targets?: {}}).targets != null
+								...(preset.options != null && (preset.options as {targets?: unknown}).targets != null
 									? {}
 									: {
 											targets: {
@@ -201,29 +187,21 @@ export function getBabelConfig({
 			...otherForcedOptions,
 			presets: combineConfigItems(
 				(options.presets ?? []) as ConfigItem[],
-				defaultPresets == null
-					? undefined
-					: (loadPartialConfig({presets: defaultPresets, ...configFileOption})?.options.presets as ConfigItem[] | null) ?? undefined,
-				forcedPresets == null
-					? undefined
-					: (loadPartialConfig({presets: forcedPresets, ...configFileOption})?.options.presets as ConfigItem[] | null | undefined) ?? undefined,
+				defaultPresets == null ? undefined : (loadPartialConfig({presets: defaultPresets, ...configFileOption})?.options.presets as ConfigItem[] | null) ?? undefined,
+				forcedPresets == null ? undefined : (loadPartialConfig({presets: forcedPresets, ...configFileOption})?.options.presets as ConfigItem[] | null | undefined) ?? undefined,
 				phase === "chunk"
 			),
 			plugins: combineConfigItems(
 				(options.plugins ?? []) as ConfigItem[],
-				defaultPlugins == null
-					? undefined
-					: (loadPartialConfig({plugins: defaultPlugins, ...configFileOption})?.options.plugins as ConfigItem[] | null) ?? undefined,
-				forcedPlugins == null
-					? undefined
-					: (loadPartialConfig({plugins: forcedPlugins, ...configFileOption})?.options.plugins as ConfigItem[] | null | undefined) ?? undefined,
+				defaultPlugins == null ? undefined : (loadPartialConfig({plugins: defaultPlugins, ...configFileOption})?.options.plugins as ConfigItem[] | null) ?? undefined,
+				forcedPlugins == null ? undefined : (loadPartialConfig({plugins: forcedPlugins, ...configFileOption})?.options.plugins as ConfigItem[] | null | undefined) ?? undefined,
 				phase === "chunk"
 			)
 		};
 
 		// sourceMap is an alias for 'sourceMaps'. If the user provided it, make sure it is undefined. Otherwise, Babel will fail during validation
-		if ("sourceMap" in (combined as {sourceMap?: {}})) {
-			delete (combined as {sourceMap?: {}}).sourceMap;
+		if ("sourceMap" in (combined as {sourceMap?: unknown})) {
+			delete (combined as {sourceMap?: unknown}).sourceMap;
 		}
 
 		const combinedOptionsAfterHook = hook != null ? hook(combined, partialConfig.config ?? partialConfig.babelrc ?? undefined, phase) : combined;
@@ -234,8 +212,7 @@ export function getBabelConfig({
 		if (phase === "chunk") {
 			const hasRelevantConfigItems =
 				loadedOptions != null &&
-				[...(combined.plugins ?? []).filter(configItemIsRelevantForChunkPhase), ...(combined.presets ?? []).filter(configItemIsRelevantForChunkPhase)]
-					.length > 0;
+				[...(combined.plugins ?? []).filter(configItemIsRelevantForChunkPhase), ...(combined.presets ?? []).filter(configItemIsRelevantForChunkPhase)].length > 0;
 			return {
 				config: hasRelevantConfigItems ? loadedOptions : undefined
 			};

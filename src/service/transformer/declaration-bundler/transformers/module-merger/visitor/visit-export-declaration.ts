@@ -9,10 +9,7 @@ import {statementMerger} from "../../statement-merger/statement-merger";
 
 export interface GenerateExportDeclarationsOptions extends Omit<ModuleMergerVisitorOptions<TS.ExportDeclaration>, "node"> {}
 
-function generateExportDeclarations(
-	options: GenerateExportDeclarationsOptions,
-	exportDeclarations: TS.ExportDeclaration[] = []
-): TS.ExportDeclaration[] {
+function generateExportDeclarations(options: GenerateExportDeclarationsOptions, exportDeclarations: TS.ExportDeclaration[] = []): TS.ExportDeclaration[] {
 	const {sourceFile, sourceFileToExportedSymbolSet, typescript} = options;
 	const exportedSymbols = sourceFileToExportedSymbolSet.get(sourceFile.fileName) ?? [];
 	for (const symbol of exportedSymbols) {
@@ -33,10 +30,7 @@ function generateExportDeclarations(
 			// in favor of all other named export bindings that will included anyway
 			if (matchingSourceFile == null && generatedModuleSpecifier != null) {
 				exportDeclarations.push(
-					preserveParents(
-						typescript.createExportDeclaration(undefined, undefined, undefined, typescript.createStringLiteral(generatedModuleSpecifier)),
-						{typescript}
-					)
+					preserveParents(typescript.createExportDeclaration(undefined, undefined, undefined, typescript.createStringLiteral(generatedModuleSpecifier)), {typescript})
 				);
 			}
 
@@ -65,9 +59,7 @@ function generateExportDeclarations(
 						undefined,
 						undefined,
 						typescript.createNamedExports([exportSpecifier]),
-						symbol.moduleSpecifier == null || generatedModuleSpecifier == null || matchingSourceFile != null
-							? undefined
-							: typescript.createStringLiteral(generatedModuleSpecifier)
+						symbol.moduleSpecifier == null || generatedModuleSpecifier == null || matchingSourceFile != null ? undefined : typescript.createStringLiteral(generatedModuleSpecifier)
 					),
 					{typescript}
 				)
@@ -81,8 +73,7 @@ function generateExportDeclarations(
 
 export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.ExportDeclaration>): VisitResult<TS.ExportDeclaration> {
 	const {node, typescript} = options;
-	const moduleSpecifier =
-		node.moduleSpecifier == null || !typescript.isStringLiteralLike(node.moduleSpecifier) ? undefined : node.moduleSpecifier.text;
+	const moduleSpecifier = node.moduleSpecifier == null || !typescript.isStringLiteralLike(node.moduleSpecifier) ? undefined : node.moduleSpecifier.text;
 	const updatedModuleSpecifier =
 		moduleSpecifier == null
 			? undefined
@@ -158,9 +149,7 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 				options.typescript.createExportDeclaration(
 					undefined,
 					undefined,
-					typescript.createNamedExports([
-						typescript.createExportSpecifier(undefined, typescript.createIdentifier(contResult.exportClause.name.text))
-					]),
+					typescript.createNamedExports([typescript.createExportSpecifier(undefined, typescript.createIdentifier(contResult.exportClause.name.text))]),
 					undefined,
 					contResult.isTypeOnly
 				),
@@ -171,14 +160,7 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 
 	// Otherwise, preserve the continuation result, but without the ModuleSpecifier
 	return preserveMeta(
-		typescript.updateExportDeclaration(
-			contResult,
-			contResult.decorators,
-			contResult.modifiers,
-			contResult.exportClause,
-			undefined,
-			contResult.isTypeOnly
-		),
+		typescript.updateExportDeclaration(contResult, contResult.decorators, contResult.modifiers, contResult.exportClause, undefined, contResult.isTypeOnly),
 		contResult,
 		options
 	);

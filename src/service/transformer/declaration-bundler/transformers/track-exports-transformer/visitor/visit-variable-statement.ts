@@ -4,13 +4,7 @@ import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-ex
 import {hasExportModifier} from "../../../util/modifier-util";
 import {traceIdentifiers} from "../../trace-identifiers/trace-identifiers";
 
-export function visitVariableStatement({
-	node,
-	typescript,
-	sourceFile,
-	markAsExported,
-	...options
-}: TrackExportsTransformerVisitorOptions<TS.VariableStatement>): void {
+export function visitVariableStatement({node, typescript, sourceFile, markAsExported, ...options}: TrackExportsTransformerVisitorOptions<TS.VariableStatement>): void {
 	// If the node has no export modifier, leave it as it is
 	if (!hasExportModifier(node, typescript)) return;
 

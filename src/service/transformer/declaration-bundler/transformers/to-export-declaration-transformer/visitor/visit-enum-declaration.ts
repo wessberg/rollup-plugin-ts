@@ -12,9 +12,7 @@ export function visitEnumDeclaration(options: ToExportDeclarationTransformerVisi
 	const {exportSpecifier} = createExportSpecifierFromNameAndModifiers({...options, name: node.name.text, modifiers: node.modifiers});
 
 	// Append an ExportDeclaration
-	appendNodes(
-		preserveParents(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([exportSpecifier])), {typescript})
-	);
+	appendNodes(preserveParents(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([exportSpecifier])), {typescript}));
 
 	const propertyName = exportSpecifier.propertyName ?? exportSpecifier.name;
 	preserveSymbols(propertyName, node, options);
