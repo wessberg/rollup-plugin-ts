@@ -1,6 +1,9 @@
 import * as TSModule from "typescript";
 import {rollup, RollupOptions, RollupOutput, Plugin} from "rollup";
 import commonjs from "@rollup/plugin-commonjs";
+import fastGlob from "fast-glob";
+import FS, {Dirent} from "fs";
+import Path from "path";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
 import {HookRecord, InputCompilerOptions, ITypescriptPluginBabelOptions, TypescriptPluginOptions} from "../../src/plugin/i-typescript-plugin-options";
 import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, TSBUILDINFO_EXTENSION} from "../../src/constant/constant";
@@ -225,7 +228,47 @@ export async function generateRollupBundle(
 					): readonly string[] {
 						const nativeNormalizedRootDir = nativeNormalize(rootDir);
 						const realResult = typescript.sys.readDirectory(rootDir, extensions, excludes, includes, depth);
-						const virtualFiles = files.filter(file => file.fileName.includes(nativeNormalizedRootDir)).map(file => file.fileName);
+
+						// Making the glob filter of the virtual file system to match the behavior of TypeScript as close as possible.
+						const virtualFiles = fastGlob
+							.sync([...includes], {
+								cwd: nativeNormalizedRootDir,
+								ignore: [...(excludes ?? [])],
+								fs: {
+									readdirSync: (((path: string, {withFileTypes}: {withFileTypes?: boolean}) => {
+										path = nativeNormalize(path);
+
+										return files
+											.filter(file => file.fileName.startsWith(path))
+											.map(file => {
+												const fileName = file.fileName.slice(
+													path.length + 1,
+													file.fileName.includes(Path.sep, path.length + 1) ? file.fileName.indexOf(Path.sep, path.length + 1) : undefined
+												);
+
+												const isDirectory = !file.fileName.endsWith(fileName);
+												const isFile = file.fileName.endsWith(fileName);
+
+												return withFileTypes
+													? ({
+															name: fileName,
+															isDirectory() {
+																return isDirectory;
+															},
+															isFile() {
+																return isFile;
+															},
+															isSymbolicLink() {
+																return false;
+															}
+													  } as Partial<Dirent>)
+													: fileName;
+											});
+									}) as unknown) as typeof FS.readdirSync
+								}
+							})
+							.map(file => nativeJoin(nativeNormalizedRootDir, file));
+
 						return [...new Set([...realResult, ...virtualFiles])].map(nativeNormalize);
 					},
 
