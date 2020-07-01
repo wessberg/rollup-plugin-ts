@@ -1,3 +1,10 @@
+## [1.2.27](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.26...v1.2.27) (2020-07-01)
+
+### Bug Fixes
+
+- Augment and merge non-namespace ModuleDeclarations. Closes [#99](https://github.com/wessberg/rollup-plugin-ts/issues/99) ([c78bc52](https://github.com/wessberg/rollup-plugin-ts/commit/c78bc52c746b1d462623c6dd0a7be1aa1551e2b1))
+- generate new lexical environment for ConstructorDeclaration body. Closes [#100](https://github.com/wessberg/rollup-plugin-ts/issues/100) ([fe0aa94](https://github.com/wessberg/rollup-plugin-ts/commit/fe0aa948406a04922e9a80164ec41b39afb10d4b))
+
 ## [1.2.26](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.25...v1.2.26) (2020-06-22)
 
 ## [1.2.25](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.24...v1.2.25) (2020-06-10)
