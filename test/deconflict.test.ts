@@ -1415,3 +1415,59 @@ test("Won't deconflict shorthand PropertyAssignments. #1", async t => {
 		`)
 	);
 });
+
+test("Namespace declarations should be merged rather than deconflicted. #1", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+					export { a } from './a'
+					export { b } from './b'
+			`
+			},
+			{
+				entry: false,
+				fileName: "a.ts",
+				text: `\
+					declare global {
+						const good: string
+					}
+					export const a = good
+			`
+			},
+			{
+				entry: false,
+				fileName: "b.ts",
+				text: `\
+					declare global {
+						const bad: string
+					}
+					export const b = bad
+				`
+			}
+		],
+		{
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare global {
+					const good: string;
+			}
+			declare const a: string;
+			declare global {
+					const bad: string;
+			}
+			declare const b: string;
+			export { a, b };
+		`)
+	);
+});
