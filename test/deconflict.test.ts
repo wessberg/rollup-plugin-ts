@@ -1333,3 +1333,85 @@ test("Will allow local conflicting symbols with external module symbols. #3", as
 		`)
 	);
 });
+
+test("Won't deconflict shorthand PropertyAssignments. #1", async t => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+        export * from "./first";
+				export * from "./second";
+
+			`
+			},
+			{
+				entry: false,
+				fileName: "first.ts",
+				text: `\
+        interface ConstructorParams {
+					field: string;
+				}
+				
+				export class First {
+					private field: string;
+					constructor({ field }: ConstructorParams) {
+						this.field = field;
+					}
+				}
+
+			`
+			},
+			{
+				entry: false,
+				fileName: "second.ts",
+				text: `\
+					interface ConstructorParams {
+						field: string;
+						otherField: string;
+					}
+					
+					export class Second {
+						private field: string;
+						private otherField: string;
+						constructor({ field, otherField }: ConstructorParams) {
+							this.field = field;
+							this.otherField = otherField;
+						}
+					}
+
+				`
+			}
+		],
+		{
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			interface ConstructorParams {
+					field: string;
+			}
+			declare class First {
+					private field;
+					constructor({ field }: ConstructorParams);
+			}
+			interface ConstructorParams$0 {
+					field: string;
+					otherField: string;
+			}
+			declare class Second {
+					private field;
+					private otherField;
+					constructor({ field, otherField }: ConstructorParams$0);
+			}
+			export { First, Second };
+		`)
+	);
+});
