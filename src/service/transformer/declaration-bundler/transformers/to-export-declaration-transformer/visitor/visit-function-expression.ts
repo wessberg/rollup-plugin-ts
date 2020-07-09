@@ -4,9 +4,10 @@ import {generateIdentifierName} from "../../../util/generate-identifier-name";
 import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers";
 import {preserveMeta, preserveParents, preserveSymbols} from "../../../util/clone-node-with-meta";
 import {hasExportModifier} from "../../../util/modifier-util";
+import {isNodeFactory} from "../../../util/is-node-factory";
 
 export function visitFunctionExpression(options: ToExportDeclarationTransformerVisitorOptions<TS.FunctionExpression>): TS.FunctionExpression {
-	const {node, typescript, sourceFile, appendNodes} = options;
+	const {node, compatFactory, typescript, sourceFile, appendNodes} = options;
 	// If the node has no export modifier, leave it as it is
 	if (!hasExportModifier(node, typescript)) return node;
 
@@ -15,18 +16,25 @@ export function visitFunctionExpression(options: ToExportDeclarationTransformerV
 	const {exportSpecifier} = createExportSpecifierFromNameAndModifiers({...options, name: nameText, modifiers: node.modifiers});
 
 	// Append an ExportDeclaration
-	appendNodes(preserveParents(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([exportSpecifier])), {typescript}));
+	appendNodes(
+		preserveParents(
+			isNodeFactory(compatFactory)
+				? compatFactory.createExportDeclaration(undefined, undefined, false, compatFactory.createNamedExports([exportSpecifier]))
+				: compatFactory.createExportDeclaration(undefined, undefined, compatFactory.createNamedExports([exportSpecifier])),
+			{typescript}
+		)
+	);
 
 	// Update the name if it changed
 	if (node.name != null && nameText === node.name.text) {
 		returnNode = node;
 	} else {
 		returnNode = preserveMeta(
-			typescript.updateFunctionExpression(
+			compatFactory.updateFunctionExpression(
 				node,
 				node.modifiers,
 				node.asteriskToken,
-				typescript.createIdentifier(nameText),
+				compatFactory.createIdentifier(nameText),
 				node.typeParameters,
 				node.parameters,
 				node.type,

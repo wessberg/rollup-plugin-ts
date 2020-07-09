@@ -6,12 +6,13 @@ import {generateUniqueBinding} from "../../../util/generate-unique-binding";
 import {getIdForNode} from "../../../util/get-id-for-node";
 import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {getOriginalSourceFile} from "../../../util/get-original-source-file";
+import {isNodeFactory} from "../../../util/is-node-factory";
 
 /**
  * Deconflicts the given VariableDeclaration.
  */
 export function deconflictVariableDeclaration(options: DeconflicterVisitorOptions<TS.VariableDeclaration>): TS.VariableDeclaration | undefined {
-	const {node, continuation, lexicalEnvironment, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
+	const {node, continuation, lexicalEnvironment, compatFactory, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
 	let nameContResult: TS.VariableDeclaration["name"];
 
 	if (typescript.isIdentifier(node.name)) {
@@ -27,7 +28,7 @@ export function deconflictVariableDeclaration(options: DeconflicterVisitorOption
 		} else {
 			// Otherwise, deconflict it
 			const uniqueBinding = generateUniqueBinding(lexicalEnvironment, node.name.text);
-			nameContResult = typescript.createIdentifier(uniqueBinding);
+			nameContResult = compatFactory.createIdentifier(uniqueBinding);
 			if (id != null) declarationToDeconflictedBindingMap.set(id, uniqueBinding);
 
 			// The name creates a new local binding within the current LexicalEnvironment
@@ -47,5 +48,11 @@ export function deconflictVariableDeclaration(options: DeconflicterVisitorOption
 		return node;
 	}
 
-	return preserveMeta(typescript.updateVariableDeclaration(node, nameContResult, typeContResult, initializerContResult), node, options);
+	return preserveMeta(
+		isNodeFactory(compatFactory)
+			? compatFactory.updateVariableDeclaration(node, nameContResult, node.exclamationToken, typeContResult, initializerContResult)
+			: compatFactory.updateVariableDeclaration(node, nameContResult, typeContResult, initializerContResult),
+		node,
+		options
+	);
 }

@@ -4,8 +4,8 @@ import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {hasExportModifier, removeExportModifier} from "../../../util/modifier-util";
 
 export function visitVariableStatement(options: EnsureNoExportModifierTransformerVisitorOptions<TS.VariableStatement>): TS.VariableStatement {
-	const {node, typescript} = options;
+	const {node, compatFactory, typescript} = options;
 	if (!hasExportModifier(node, typescript)) return node;
 
-	return preserveMeta(typescript.updateVariableStatement(node, removeExportModifier(node.modifiers, typescript), node.declarationList), node, options);
+	return preserveMeta(compatFactory.updateVariableStatement(node, removeExportModifier(node.modifiers, typescript), node.declarationList), node, options);
 }

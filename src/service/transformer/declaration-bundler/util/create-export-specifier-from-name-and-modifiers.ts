@@ -2,11 +2,13 @@ import {TS} from "../../../../type/ts";
 import {hasDefaultExportModifier} from "./modifier-util";
 import {ExportedSymbol} from "../transformers/track-exports-transformer/track-exports-transformer-visitor-options";
 import {ImportedSymbol} from "../transformers/track-imports-transformer/track-imports-transformer-visitor-options";
+import {CompatFactory} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
 
 export interface CreateExportSpecifierFromNameAndModifiersOptions {
 	name: string;
 	modifiers: TS.ModifiersArray | undefined;
 	typescript: typeof TS;
+	compatFactory: CompatFactory;
 }
 
 export interface CreateExportSpecifierFromNameAndModifiersResult {
@@ -53,14 +55,15 @@ export function getExportedSymbolFromExportSpecifier(specifier: TS.ExportSpecifi
 export function createExportSpecifierFromNameAndModifiers({
 	name,
 	modifiers,
-	typescript
+	typescript,
+	compatFactory
 }: CreateExportSpecifierFromNameAndModifiersOptions): CreateExportSpecifierFromNameAndModifiersResult {
 	if (hasDefaultExportModifier(modifiers, typescript)) {
 		const propertyNameText = name;
 		const nameText = "default";
-		const exportSpecifier = typescript.createExportSpecifier(
-			propertyNameText === nameText ? undefined : typescript.createIdentifier(propertyNameText),
-			typescript.createIdentifier(nameText)
+		const exportSpecifier = compatFactory.createExportSpecifier(
+			propertyNameText === nameText ? undefined : compatFactory.createIdentifier(propertyNameText),
+			compatFactory.createIdentifier(nameText)
 		);
 
 		return {
@@ -70,9 +73,9 @@ export function createExportSpecifierFromNameAndModifiers({
 	} else {
 		const propertyNameText = name;
 		const nameText = propertyNameText;
-		const exportSpecifier = typescript.createExportSpecifier(
-			propertyNameText === nameText ? undefined : typescript.createIdentifier(propertyNameText),
-			typescript.createIdentifier(nameText)
+		const exportSpecifier = compatFactory.createExportSpecifier(
+			propertyNameText === nameText ? undefined : compatFactory.createIdentifier(propertyNameText),
+			compatFactory.createIdentifier(nameText)
 		);
 
 		return {

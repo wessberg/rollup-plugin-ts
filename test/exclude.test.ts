@@ -1,8 +1,8 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Is still capable of resolving SourceFiles when needed for when a file path is matched by the 'exclude' glob. #1", async t => {
+test("Is still capable of resolving SourceFiles when needed for when a file path is matched by the 'exclude' glob. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -16,6 +16,7 @@ test("Is still capable of resolving SourceFiles when needed for when a file path
 			}
 		],
 		{
+			typescript,
 			debug: false,
 			exclude: ["node_modules/**/*.*"]
 		}

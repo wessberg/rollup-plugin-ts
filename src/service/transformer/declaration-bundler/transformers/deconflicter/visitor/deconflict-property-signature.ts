@@ -6,7 +6,7 @@ import {preserveMeta} from "../../../util/clone-node-with-meta";
  * Deconflicts the given PropertySignature.
  */
 export function deconflictPropertySignature(options: DeconflicterVisitorOptions<TS.PropertySignature>): TS.PropertySignature | undefined {
-	const {node, continuation, lexicalEnvironment, typescript} = options;
+	const {node, continuation, lexicalEnvironment, compatFactory, typescript} = options;
 	const nameContResult = typescript.isIdentifier(node.name) ? node.name : continuation(node.name, {lexicalEnvironment});
 
 	const typeContResult = node.type == null ? undefined : continuation(node.type, {lexicalEnvironment});
@@ -18,5 +18,5 @@ export function deconflictPropertySignature(options: DeconflicterVisitorOptions<
 		return node;
 	}
 
-	return preserveMeta(typescript.updatePropertySignature(node, node.modifiers, nameContResult, node.questionToken, typeContResult, initializerContResult), node, options);
+	return preserveMeta(compatFactory.updatePropertySignature(node, node.modifiers, nameContResult, node.questionToken, typeContResult, initializerContResult), node, options);
 }

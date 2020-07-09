@@ -13,10 +13,11 @@ import {noExportDeclarationTransformer} from "../no-export-declaration-transform
 import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
 import {logMetrics} from "../../../../../util/logging/log-metrics";
 import {logTransformer} from "../../../../../util/logging/log-transformer";
+import {isNodeFactory} from "../../util/is-node-factory";
 
 export function moduleMerger(...transformers: DeclarationTransformer[]): DeclarationTransformer {
 	return options => {
-		const {typescript, context, sourceFile, pluginOptions, printer, preservedImports} = options;
+		const {typescript, context, compatFactory, sourceFile, pluginOptions, printer, preservedImports} = options;
 
 		const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile) ? logMetrics(`Merging modules`, sourceFile.fileName) : undefined;
 
@@ -32,7 +33,7 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 			payload: undefined,
 
 			childContinuation: <U extends TS.Node>(node: U, payload: PayloadMap[U["kind"]]): ChildVisitResult<U> =>
-				options.typescript.visitEachChild(
+				typescript.visitEachChild(
 					node,
 					nextNode =>
 						nodePlacementQueue.wrapVisitResult(
@@ -125,15 +126,25 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 		const [missingPrependNodes, missingAppendNodes] = nodePlacementQueue.flush();
 		if (missingPrependNodes.length > 0 || missingAppendNodes.length > 0) {
 			result = preserveMeta(
-				typescript.updateSourceFileNode(
-					result,
-					[...(missingPrependNodes as TS.Statement[]), ...result.statements, ...(missingAppendNodes as TS.Statement[])],
-					result.isDeclarationFile,
-					result.referencedFiles,
-					result.typeReferenceDirectives,
-					result.hasNoDefaultLib,
-					result.libReferenceDirectives
-				),
+				isNodeFactory(compatFactory)
+					? compatFactory.updateSourceFile(
+							result,
+							[...(missingPrependNodes as TS.Statement[]), ...result.statements, ...(missingAppendNodes as TS.Statement[])],
+							result.isDeclarationFile,
+							result.referencedFiles,
+							result.typeReferenceDirectives,
+							result.hasNoDefaultLib,
+							result.libReferenceDirectives
+					  )
+					: compatFactory.updateSourceFileNode(
+							result,
+							[...(missingPrependNodes as TS.Statement[]), ...result.statements, ...(missingAppendNodes as TS.Statement[])],
+							result.isDeclarationFile,
+							result.referencedFiles,
+							result.typeReferenceDirectives,
+							result.hasNoDefaultLib,
+							result.libReferenceDirectives
+					  ),
 				result,
 				options
 			);

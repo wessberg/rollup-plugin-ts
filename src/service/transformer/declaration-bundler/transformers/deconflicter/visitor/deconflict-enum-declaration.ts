@@ -12,7 +12,7 @@ import {getOriginalSourceFile} from "../../../util/get-original-source-file";
  * Deconflicts the given EnumDeclaration.
  */
 export function deconflictEnumDeclaration(options: DeconflicterVisitorOptions<TS.EnumDeclaration>): TS.EnumDeclaration | undefined {
-	const {node, continuation, lexicalEnvironment, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
+	const {node, continuation, lexicalEnvironment, typescript, sourceFile, compatFactory, declarationToDeconflictedBindingMap} = options;
 	let nameContResult: TS.EnumDeclaration["name"];
 	const id = getIdForNode(options);
 	const originalSourceFile = getOriginalSourceFile(node, sourceFile, typescript);
@@ -26,7 +26,7 @@ export function deconflictEnumDeclaration(options: DeconflicterVisitorOptions<TS
 	} else {
 		// Otherwise, deconflict it
 		const uniqueBinding = generateUniqueBinding(lexicalEnvironment, node.name.text);
-		nameContResult = typescript.createIdentifier(uniqueBinding);
+		nameContResult = compatFactory.createIdentifier(uniqueBinding);
 		if (id != null) declarationToDeconflictedBindingMap.set(id, uniqueBinding);
 
 		// The name creates a new local binding within the current LexicalEnvironment
@@ -41,5 +41,5 @@ export function deconflictEnumDeclaration(options: DeconflicterVisitorOptions<TS
 		return node;
 	}
 
-	return preserveMeta(typescript.updateEnumDeclaration(node, node.decorators, node.modifiers, nameContResult, membersContResult), node, options);
+	return preserveMeta(compatFactory.updateEnumDeclaration(node, node.decorators, node.modifiers, nameContResult, membersContResult), node, options);
 }

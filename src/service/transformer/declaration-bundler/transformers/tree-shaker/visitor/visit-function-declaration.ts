@@ -1,14 +1,14 @@
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
 import {TS} from "../../../../../../type/ts";
 
-export function visitFunctionDeclaration({node, continuation, typescript}: TreeShakerVisitorOptions<TS.FunctionDeclaration>): TS.FunctionDeclaration | undefined {
+export function visitFunctionDeclaration({node, continuation, compatFactory}: TreeShakerVisitorOptions<TS.FunctionDeclaration>): TS.FunctionDeclaration | undefined {
 	const nameContinuationResult = node.name == null ? undefined : continuation(node.name);
 	if (nameContinuationResult == null) {
 		return undefined;
 	}
 	return node.name === nameContinuationResult
 		? node
-		: typescript.updateFunctionDeclaration(
+		: compatFactory.updateFunctionDeclaration(
 				node,
 				node.decorators,
 				node.modifiers,

@@ -1,29 +1,32 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {TS} from "../src/type/ts";
+import {isNodeFactory} from "../src/service/transformer/declaration-bundler/util/is-node-factory";
 
-test("Supports Custom Transformers, including on bundled declarations. #1", async t => {
-	const transformer: (typescript: typeof TS) => TS.TransformerFactory<TS.SourceFile> = typescript => context => sourceFile => {
+test("Supports Custom Transformers, including on bundled declarations. #1", async (t, {typescript}) => {
+	const transformer: (ts: typeof TS) => TS.TransformerFactory<TS.SourceFile> = ts => context => sourceFile => {
+		const compatFactory = (context.factory as TS.NodeFactory | undefined) ?? ts;
+
 		function visitNode(node: TS.Node): TS.VisitResult<TS.Node> {
-			if (typescript.isClassDeclaration(node)) {
-				return typescript.updateClassDeclaration(
+			if (ts.isClassDeclaration(node)) {
+				return compatFactory.updateClassDeclaration(
 					node,
 					node.decorators,
 					node.modifiers,
-					typescript.createIdentifier("Bar"),
+					compatFactory.createIdentifier("Bar"),
 					node.typeParameters,
 					node.heritageClauses,
 					node.members
 				);
-			} else if (typescript.isExportSpecifier(node)) {
-				return typescript.updateExportSpecifier(node, node.propertyName, typescript.createIdentifier("Bar"));
+			} else if (ts.isExportSpecifier(node)) {
+				return compatFactory.updateExportSpecifier(node, node.propertyName, compatFactory.createIdentifier("Bar"));
 			} else {
-				return typescript.visitEachChild(node, visitNode, context);
+				return ts.visitEachChild(node, visitNode, context);
 			}
 		}
 
-		return typescript.visitEachChild(sourceFile, visitNode, context);
+		return ts.visitEachChild(sourceFile, visitNode, context);
 	};
 
 	const bundle = await generateRollupBundle(
@@ -37,10 +40,11 @@ test("Supports Custom Transformers, including on bundled declarations. #1", asyn
 			}
 		],
 		{
+			typescript,
 			debug: false,
-			transformers: ({typescript}) => ({
-				before: [transformer(typescript)],
-				afterDeclarations: [transformer(typescript)]
+			transformers: ({typescript: ts}) => ({
+				before: [transformer(ts)],
+				afterDeclarations: [transformer(ts) as TS.TransformerFactory<TS.SourceFile | TS.Bundle>]
 			})
 		}
 	);
@@ -71,7 +75,7 @@ test("Supports Custom Transformers, including on bundled declarations. #1", asyn
 	);
 });
 
-test("Supports Custom Transformers, including on bundled declarations. #2", async t => {
+test("Supports Custom Transformers, including on bundled declarations. #2", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -83,18 +87,34 @@ test("Supports Custom Transformers, including on bundled declarations. #2", asyn
 			}
 		],
 		{
+			typescript,
 			debug: false,
-			transformers: ({typescript}) => ({
+			transformers: ({typescript: ts}) => ({
 				after: [
-					_ => sourceFile => {
-						return typescript.updateSourceFileNode(sourceFile, [
-							...sourceFile.statements,
-							typescript.createExpressionStatement(
-								typescript.createCall(typescript.createPropertyAccess(typescript.createIdentifier("console"), typescript.createIdentifier("log")), undefined, [
-									typescript.createStringLiteral("foo")
-								])
-							)
-						]);
+					context => sourceFile => {
+						const compatFactory = (context.factory as TS.NodeFactory | undefined) ?? ts;
+
+						if (isNodeFactory(compatFactory)) {
+							return compatFactory.updateSourceFile(sourceFile, [
+								...sourceFile.statements,
+								compatFactory.createExpressionStatement(
+									compatFactory.createCallExpression(
+										compatFactory.createPropertyAccessExpression(compatFactory.createIdentifier("console"), compatFactory.createIdentifier("log")),
+										undefined,
+										[compatFactory.createStringLiteral("foo")]
+									)
+								)
+							]);
+						} else {
+							return compatFactory.updateSourceFileNode(sourceFile, [
+								...sourceFile.statements,
+								compatFactory.createExpressionStatement(
+									compatFactory.createCall(compatFactory.createPropertyAccess(compatFactory.createIdentifier("console"), compatFactory.createIdentifier("log")), undefined, [
+										compatFactory.createStringLiteral("foo")
+									])
+								)
+							]);
+						}
 					}
 				]
 			})
@@ -128,7 +148,7 @@ test("Supports Custom Transformers, including on bundled declarations. #2", asyn
 	);
 });
 
-test("Supports adding diagnostics from Custom Transformers. #1", async t => {
+test("Supports adding diagnostics from Custom Transformers. #1", async (t, {typescript}) => {
 	let hadDiagnostic = false;
 	await generateRollupBundle(
 		[
@@ -141,6 +161,7 @@ test("Supports adding diagnostics from Custom Transformers. #1", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false,
 			hook: {
 				diagnostics: diagnostics => {
@@ -148,12 +169,12 @@ test("Supports adding diagnostics from Custom Transformers. #1", async t => {
 					return [];
 				}
 			},
-			transformers: ({addDiagnostics, typescript}) => ({
+			transformers: ({addDiagnostics, typescript: ts}) => ({
 				before: [
-					_ => sourceFile => {
+					() => sourceFile => {
 						addDiagnostics({
 							code: 123,
-							category: typescript.DiagnosticCategory.Error,
+							category: ts.DiagnosticCategory.Error,
 							messageText: `This is a custom diagnostic`,
 							file: sourceFile,
 							start: 0,

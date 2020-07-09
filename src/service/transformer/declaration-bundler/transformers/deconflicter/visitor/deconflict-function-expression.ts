@@ -14,7 +14,7 @@ import {getOriginalSourceFile} from "../../../util/get-original-source-file";
  * Deconflicts the given FunctionExpression.
  */
 export function deconflictFunctionExpression(options: DeconflicterVisitorOptions<TS.FunctionExpression>): TS.FunctionExpression | undefined {
-	const {node, continuation, lexicalEnvironment, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
+	const {node, continuation, lexicalEnvironment, typescript, compatFactory, sourceFile, declarationToDeconflictedBindingMap} = options;
 	let nameContResult: TS.FunctionExpression["name"];
 
 	if (node.name != null) {
@@ -29,7 +29,7 @@ export function deconflictFunctionExpression(options: DeconflicterVisitorOptions
 		} else {
 			// Otherwise, deconflict it
 			const uniqueBinding = generateUniqueBinding(lexicalEnvironment, node.name.text);
-			nameContResult = typescript.createIdentifier(uniqueBinding);
+			nameContResult = compatFactory.createIdentifier(uniqueBinding);
 			if (id != null) declarationToDeconflictedBindingMap.set(id, uniqueBinding);
 
 			// The name creates a new local binding within the current LexicalEnvironment
@@ -57,7 +57,16 @@ export function deconflictFunctionExpression(options: DeconflicterVisitorOptions
 	}
 
 	return preserveMeta(
-		typescript.updateFunctionExpression(node, node.modifiers, node.asteriskToken, nameContResult, typeParametersContResult, parametersContResult, typeContResult, bodyContResult),
+		compatFactory.updateFunctionExpression(
+			node,
+			node.modifiers,
+			node.asteriskToken,
+			nameContResult,
+			typeParametersContResult,
+			parametersContResult,
+			typeContResult,
+			bodyContResult
+		),
 		node,
 		options
 	);

@@ -9,7 +9,7 @@ import {getIdForNode} from "../../../util/get-id-for-node";
  * Deconflicts the given Identifier.
  */
 export function deconflictIdentifier(options: DeconflicterVisitorOptions<TS.Identifier>): TS.Identifier | undefined {
-	const {node, lexicalEnvironment, declarationToDeconflictedBindingMap, typescript} = options;
+	const {node, lexicalEnvironment, declarationToDeconflictedBindingMap, compatFactory} = options;
 	const id = getIdForNode({...options, node: getBestDeclaration(options) ?? node});
 
 	const envLookupResult = getBindingFromLexicalEnvironment(lexicalEnvironment, node.text);
@@ -21,5 +21,5 @@ export function deconflictIdentifier(options: DeconflicterVisitorOptions<TS.Iden
 		return node;
 	}
 
-	return preserveMeta(typescript.createIdentifier(textResult), node, options);
+	return preserveMeta(compatFactory.createIdentifier(textResult), node, options);
 }

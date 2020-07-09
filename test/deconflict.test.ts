@@ -1,8 +1,9 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
+import {lt} from "semver";
 
-test("Deconflicts symbols. #1", async t => {
+test("Deconflicts symbols. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -21,7 +22,10 @@ test("Deconflicts symbols. #1", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -43,7 +47,7 @@ test("Deconflicts symbols. #1", async t => {
 	);
 });
 
-test("Deconflicts symbols. #2", async t => {
+test("Deconflicts symbols. #2", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -73,7 +77,10 @@ test("Deconflicts symbols. #2", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -94,7 +101,7 @@ test("Deconflicts symbols. #2", async t => {
 	);
 });
 
-test("Deconflicts symbols. #3", async t => {
+test("Deconflicts symbols. #3", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -137,7 +144,10 @@ test("Deconflicts symbols. #3", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -164,7 +174,7 @@ test("Deconflicts symbols. #3", async t => {
 	);
 });
 
-test("Deconflicts symbols. #4", async t => {
+test("Deconflicts symbols. #4", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -201,7 +211,10 @@ test("Deconflicts symbols. #4", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -219,7 +232,7 @@ test("Deconflicts symbols. #4", async t => {
 	);
 });
 
-test("Deconflicts symbols. #5", async t => {
+test("Deconflicts symbols. #5", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -250,7 +263,10 @@ test("Deconflicts symbols. #5", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -271,7 +287,7 @@ test("Deconflicts symbols. #5", async t => {
 	);
 });
 
-test("Deconflicts symbols. #6", async t => {
+test("Deconflicts symbols. #6", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -304,7 +320,10 @@ test("Deconflicts symbols. #6", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -325,7 +344,11 @@ test("Deconflicts symbols. #6", async t => {
 	);
 });
 
-test("Deconflicts symbols. #7", async t => {
+test("Deconflicts symbols. #7", async (t, {typescript}) => {
+	if (lt(typescript.version, "3.4.0")) {
+		t.pass(`Current TypeScript version (${typescript.version} does not support the 'as const' modifier. Skipping...`);
+		return;
+	}
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -355,7 +378,10 @@ test("Deconflicts symbols. #7", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -379,7 +405,7 @@ test("Deconflicts symbols. #7", async t => {
 	);
 });
 
-test("Deconflicts symbols. #8", async t => {
+test("Deconflicts symbols. #8", async (t, {typescript, typescriptModuleSpecifier}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -395,12 +421,15 @@ test("Deconflicts symbols. #8", async t => {
 				entry: false,
 				fileName: "bar.ts",
 				text: `\
-          import * as TS from "typescript";
+          import * as TS from "${typescriptModuleSpecifier}";
           export {TS};
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -409,14 +438,14 @@ test("Deconflicts symbols. #8", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		import * as TS from "typescript";
+		import * as TS from "${typescriptModuleSpecifier}";
 		declare function foo<T extends TS.Node>(): void;
 		export { foo };
 		`)
 	);
 });
 
-test("Deconflicts symbols. #9", async t => {
+test("Deconflicts symbols. #9", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -459,7 +488,10 @@ test("Deconflicts symbols. #9", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -485,7 +517,7 @@ test("Deconflicts symbols. #9", async t => {
 	);
 });
 
-test("Deconflicts symbols. #10", async t => {
+test("Deconflicts symbols. #10", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -515,7 +547,10 @@ test("Deconflicts symbols. #10", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -540,7 +575,7 @@ test("Deconflicts symbols. #10", async t => {
 	);
 });
 
-test("Deconflicts symbols. #11", async t => {
+test("Deconflicts symbols. #11", async (t, {typescript, typescriptModuleSpecifier}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -555,7 +590,7 @@ test("Deconflicts symbols. #11", async t => {
 				entry: false,
 				fileName: "a.ts",
 				text: `\
-					import {ModuleResolutionHost as TSModuleResolutionHost} from "typescript";
+					import {ModuleResolutionHost as TSModuleResolutionHost} from "${typescriptModuleSpecifier}";
 
 					export class ModuleResolutionHost implements TSModuleResolutionHost {
 						fileExists(_fileName: string): boolean {
@@ -571,7 +606,7 @@ test("Deconflicts symbols. #11", async t => {
 				entry: false,
 				fileName: "b.ts",
 				text: `\
-					import {ModuleResolutionHost} from "typescript";
+					import {ModuleResolutionHost} from "${typescriptModuleSpecifier}";
 
 					export interface Bar {
 						moduleResolutionHost: ModuleResolutionHost;
@@ -579,7 +614,10 @@ test("Deconflicts symbols. #11", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -588,8 +626,8 @@ test("Deconflicts symbols. #11", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			import { ModuleResolutionHost as TSModuleResolutionHost } from "typescript";
-			import { ModuleResolutionHost as ModuleResolutionHost$0 } from "typescript";
+			import { ModuleResolutionHost as TSModuleResolutionHost } from "${typescriptModuleSpecifier}";
+			import { ModuleResolutionHost as ModuleResolutionHost$0 } from "${typescriptModuleSpecifier}";
 			declare class ModuleResolutionHost implements TSModuleResolutionHost {
 					fileExists(_fileName: string): boolean;
 					readFile(_fileName: string, _encoding?: string): string | undefined;
@@ -602,14 +640,14 @@ test("Deconflicts symbols. #11", async t => {
 	);
 });
 
-test("Deconflicts symbols. #12", async t => {
+test("Deconflicts symbols. #12", async (t, {typescript, typescriptModuleSpecifier}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
 				entry: true,
 				fileName: "index.ts",
 				text: `\
-					import {CustomTransformers} from "typescript";
+					import {CustomTransformers} from "${typescriptModuleSpecifier}";
 					export {Foo} from "./a";
 					export interface Bar {
 						transformers: CustomTransformers;
@@ -620,7 +658,7 @@ test("Deconflicts symbols. #12", async t => {
 				entry: false,
 				fileName: "a.ts",
 				text: `\
-					import {CustomTransformers} from "typescript";
+					import {CustomTransformers} from "${typescriptModuleSpecifier}";
 
 					export interface Foo {
 						transformers: CustomTransformers;
@@ -628,7 +666,10 @@ test("Deconflicts symbols. #12", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -637,7 +678,7 @@ test("Deconflicts symbols. #12", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			import { CustomTransformers } from "typescript";
+			import { CustomTransformers } from "${typescriptModuleSpecifier}";
 			interface Foo {
 					transformers: CustomTransformers;
 			}
@@ -649,7 +690,7 @@ test("Deconflicts symbols. #12", async t => {
 	);
 });
 
-test("Deconflicts symbols. #13", async t => {
+test("Deconflicts symbols. #13", async (t, {typescript, typescriptModuleSpecifier}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -671,7 +712,7 @@ test("Deconflicts symbols. #13", async t => {
 				entry: false,
 				fileName: "b.ts",
 				text: `\
-					import {ModuleResolutionHost as TSModuleResolutionHost} from "typescript";
+					import {ModuleResolutionHost as TSModuleResolutionHost} from "${typescriptModuleSpecifier}";
 
 					export class ModuleResolutionHost implements TSModuleResolutionHost {
 						fileExists(_fileName: string): boolean {
@@ -687,7 +728,7 @@ test("Deconflicts symbols. #13", async t => {
 				entry: false,
 				fileName: "c.ts",
 				text: `\
-					import {ModuleResolutionHost} from "typescript";
+					import {ModuleResolutionHost} from "${typescriptModuleSpecifier}";
 
 					export interface Bar {
 						moduleResolutionHost: ModuleResolutionHost;
@@ -695,7 +736,10 @@ test("Deconflicts symbols. #13", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -704,8 +748,8 @@ test("Deconflicts symbols. #13", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			import { ModuleResolutionHost as TSModuleResolutionHost } from "typescript";
-			import { ModuleResolutionHost as ModuleResolutionHost$0 } from "typescript";
+			import { ModuleResolutionHost as TSModuleResolutionHost } from "${typescriptModuleSpecifier}";
+			import { ModuleResolutionHost as ModuleResolutionHost$0 } from "${typescriptModuleSpecifier}";
 			declare class ModuleResolutionHost implements TSModuleResolutionHost {
 					fileExists(_fileName: string): boolean;
 					readFile(_fileName: string, _encoding?: string): string | undefined;
@@ -718,7 +762,7 @@ test("Deconflicts symbols. #13", async t => {
 	);
 });
 
-test("Deconflicts symbols. #14", async t => {
+test("Deconflicts symbols. #14", async (t, {typescript, typescriptModuleSpecifier}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -737,7 +781,7 @@ test("Deconflicts symbols. #14", async t => {
 				entry: false,
 				fileName: "bar.ts",
 				text: `\
-			import * as tsModuleType from "typescript";
+			import * as tsModuleType from "${typescriptModuleSpecifier}";
 			export const tsModule: { ts: typeof tsModuleType } = { ts: tsModuleType };
 			`
 			},
@@ -745,7 +789,7 @@ test("Deconflicts symbols. #14", async t => {
 				entry: false,
 				fileName: "baz.ts",
 				text: `\
-			import * as tsModule from "typescript";
+			import * as tsModule from "${typescriptModuleSpecifier}";
 			export class IFoo {
 				readonly otherTs: typeof tsModule;
 			}
@@ -755,14 +799,17 @@ test("Deconflicts symbols. #14", async t => {
 				entry: false,
 				fileName: "qux.ts",
 				text: `\
-			import * as tsModule from "typescript";
+			import * as tsModule from "${typescriptModuleSpecifier}";
 			export class IBar {
 				readonly yetAnotherTs: typeof tsModule;
 			}
 			`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -771,8 +818,8 @@ test("Deconflicts symbols. #14", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			import * as tsModuleType from "typescript";
-			import * as tsModule$0 from "typescript";
+			import * as tsModuleType from "${typescriptModuleSpecifier}";
+			import * as tsModule$0 from "${typescriptModuleSpecifier}";
 			declare const tsModule: {
 					ts: typeof tsModuleType;
 			};
@@ -787,7 +834,7 @@ test("Deconflicts symbols. #14", async t => {
 	);
 });
 
-test("Deconflicts symbols. #15", async t => {
+test("Deconflicts symbols. #15", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -818,7 +865,10 @@ test("Deconflicts symbols. #15", async t => {
 			`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -837,7 +887,7 @@ test("Deconflicts symbols. #15", async t => {
 	);
 });
 
-test("Deconflicts symbols. #16", async t => {
+test("Deconflicts symbols. #16", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -864,7 +914,10 @@ test("Deconflicts symbols. #16", async t => {
 			`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -882,7 +935,7 @@ test("Deconflicts symbols. #16", async t => {
 	);
 });
 
-test("Deconflicts symbols. #17", async t => {
+test("Deconflicts symbols. #17", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -902,7 +955,10 @@ test("Deconflicts symbols. #17", async t => {
 			`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -919,7 +975,7 @@ test("Deconflicts symbols. #17", async t => {
 	);
 });
 
-test("Deconflicts symbols. #18", async t => {
+test("Deconflicts symbols. #18", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -942,7 +998,10 @@ test("Deconflicts symbols. #18", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -962,7 +1021,7 @@ test("Deconflicts symbols. #18", async t => {
 	);
 });
 
-test("Deconflicts symbols. #19", async t => {
+test("Deconflicts symbols. #19", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -991,7 +1050,10 @@ test("Deconflicts symbols. #19", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -1020,7 +1082,7 @@ export { f2, fns };
 	);
 });
 
-test("Deconflicts symbols. #20", async t => {
+test("Deconflicts symbols. #20", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1048,6 +1110,7 @@ test("Deconflicts symbols. #20", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false
 		}
 	);
@@ -1066,7 +1129,7 @@ test("Deconflicts symbols. #20", async t => {
 	);
 });
 
-test("Will merge declarations declared in same SourceFile rather than deconflict. #1", async t => {
+test("Will merge declarations declared in same SourceFile rather than deconflict. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1082,7 +1145,10 @@ test("Will merge declarations declared in same SourceFile rather than deconflict
 				`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -1100,7 +1166,7 @@ test("Will merge declarations declared in same SourceFile rather than deconflict
 	);
 });
 
-test("Won't deconflict overloaded function signatures #1", async t => {
+test("Won't deconflict overloaded function signatures #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1116,6 +1182,7 @@ test("Won't deconflict overloaded function signatures #1", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false
 		}
 	);
@@ -1133,7 +1200,7 @@ test("Won't deconflict overloaded function signatures #1", async t => {
 	);
 });
 
-test("Will allow local conflicting symbols with external module symbols. #1", async t => {
+test("Will allow local conflicting symbols with external module symbols. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1175,6 +1242,7 @@ test("Will allow local conflicting symbols with external module symbols. #1", as
 			}
 		],
 		{
+			typescript,
 			debug: false
 		}
 	);
@@ -1199,7 +1267,7 @@ test("Will allow local conflicting symbols with external module symbols. #1", as
 	);
 });
 
-test("Will allow local conflicting symbols with external module symbols. #2", async t => {
+test("Will allow local conflicting symbols with external module symbols. #2", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1241,6 +1309,7 @@ test("Will allow local conflicting symbols with external module symbols. #2", as
 			}
 		],
 		{
+			typescript,
 			debug: false,
 			tsconfig: {
 				allowSyntheticDefaultImports: true
@@ -1268,7 +1337,7 @@ test("Will allow local conflicting symbols with external module symbols. #2", as
 	);
 });
 
-test("Will allow local conflicting symbols with external module symbols. #3", async t => {
+test("Will allow local conflicting symbols with external module symbols. #3", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1310,6 +1379,7 @@ test("Will allow local conflicting symbols with external module symbols. #3", as
 			}
 		],
 		{
+			typescript,
 			debug: false
 		}
 	);
@@ -1334,7 +1404,7 @@ test("Will allow local conflicting symbols with external module symbols. #3", as
 	);
 });
 
-test("Won't deconflict shorthand PropertyAssignments. #1", async t => {
+test("Won't deconflict shorthand PropertyAssignments. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1385,6 +1455,7 @@ test("Won't deconflict shorthand PropertyAssignments. #1", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false
 		}
 	);
@@ -1416,7 +1487,7 @@ test("Won't deconflict shorthand PropertyAssignments. #1", async t => {
 	);
 });
 
-test("Namespace declarations should be merged rather than deconflicted. #1", async t => {
+test("Namespace declarations should be merged rather than deconflicted. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1449,6 +1520,7 @@ test("Namespace declarations should be merged rather than deconflicted. #1", asy
 			}
 		],
 		{
+			typescript,
 			debug: false
 		}
 	);

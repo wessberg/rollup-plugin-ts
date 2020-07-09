@@ -1,11 +1,13 @@
-import test from "ava";
-import * as TS301 from "typescript-3-0-1";
-import * as TS311 from "typescript-3-1-1";
-import * as TS321 from "typescript-3-2-1";
-import * as TS331 from "typescript-3-3-1";
+import test from "./util/test-runner";
 import {generateRollupBundle} from "./setup/setup-rollup";
+import {lt} from "semver";
 
-test("Can generate .tsbuildinfo for a compilation unit. #1", async t => {
+test("Can generate .tsbuildinfo for a compilation unit. #1", async (t, {typescript}) => {
+	if (lt(typescript.version, "3.4.0")) {
+		t.pass(`Current TypeScript version (${typescript.version} does not support the 'incremental' option Skipping...`);
+		return;
+	}
+
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -18,6 +20,7 @@ test("Can generate .tsbuildinfo for a compilation unit. #1", async t => {
 		],
 		{
 			debug: false,
+			typescript,
 			tsconfig: {
 				outDir: "virtual-dist",
 				composite: true,
@@ -30,35 +33,28 @@ test("Can generate .tsbuildinfo for a compilation unit. #1", async t => {
 	t.true(buildInfo != null);
 });
 
-test("Won't break for older TypeScript versions. #1", async t => {
-	for (const [TS, version] of [
-		[TS301, "v3.0.1"],
-		[TS311, "v3.1.1"],
-		[TS321, "v3.2.1"],
-		[TS331, "v3.3.1"]
-	]) {
-		await t.notThrowsAsync(
-			generateRollupBundle(
-				[
-					{
-						entry: true,
-						fileName: "index.ts",
-						text: `\
+test("Won't break for older TypeScript versions. #1", async (t, {typescript}) => {
+	await t.notThrowsAsync(
+		generateRollupBundle(
+			[
+				{
+					entry: true,
+					fileName: "index.ts",
+					text: `\
 					export {};
 					`
-					}
-				],
-				{
-					debug: false,
-					typescript: (TS as unknown) as typeof import("typescript"),
-					tsconfig: {
-						outDir: "virtual-dist",
-						composite: true,
-						declaration: true
-					}
 				}
-			),
-			`Did throw for TypeScript ${version}`
-		);
-	}
+			],
+			{
+				debug: false,
+				typescript,
+				tsconfig: {
+					outDir: "virtual-dist",
+					composite: true,
+					declaration: true
+				}
+			}
+		),
+		`Did throw for TypeScript ${typescript.version}`
+	);
 });

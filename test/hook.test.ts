@@ -1,8 +1,8 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Declarations respect rewritten output paths. #1", async t => {
+test("Declarations respect rewritten output paths. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -22,6 +22,7 @@ test("Declarations respect rewritten output paths. #1", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false,
 			tsconfig: {
 				declarationMap: true,
@@ -46,7 +47,7 @@ test("Declarations respect rewritten output paths. #1", async t => {
 	);
 });
 
-test("Diagnostics can be filtered with the 'diagnostics' hook. #1", async t => {
+test("Diagnostics can be filtered with the 'diagnostics' hook. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -58,6 +59,7 @@ test("Diagnostics can be filtered with the 'diagnostics' hook. #1", async t => {
 			}
 		],
 		{
+			typescript,
 			hook: {
 				diagnostics: () => undefined
 			}

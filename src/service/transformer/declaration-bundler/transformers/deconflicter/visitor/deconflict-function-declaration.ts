@@ -14,7 +14,7 @@ import {getOriginalSourceFile} from "../../../util/get-original-source-file";
  * Deconflicts the given FunctionDeclaration.
  */
 export function deconflictFunctionDeclaration(options: DeconflicterVisitorOptions<TS.FunctionDeclaration>): TS.FunctionDeclaration | undefined {
-	const {node, continuation, lexicalEnvironment, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
+	const {node, continuation, lexicalEnvironment, typescript, compatFactory, sourceFile, declarationToDeconflictedBindingMap} = options;
 	let nameContResult: TS.FunctionDeclaration["name"];
 
 	if (node.name != null) {
@@ -30,7 +30,7 @@ export function deconflictFunctionDeclaration(options: DeconflicterVisitorOption
 		} else {
 			// Otherwise, deconflict it
 			const uniqueBinding = generateUniqueBinding(lexicalEnvironment, node.name.text);
-			nameContResult = typescript.createIdentifier(uniqueBinding);
+			nameContResult = compatFactory.createIdentifier(uniqueBinding);
 			if (id != null) declarationToDeconflictedBindingMap.set(id, uniqueBinding);
 
 			// The name creates a new local binding within the current LexicalEnvironment
@@ -58,7 +58,7 @@ export function deconflictFunctionDeclaration(options: DeconflicterVisitorOption
 	}
 
 	return preserveMeta(
-		typescript.updateFunctionDeclaration(
+		compatFactory.updateFunctionDeclaration(
 			node,
 			node.decorators,
 			node.modifiers,

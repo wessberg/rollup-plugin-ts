@@ -1,5 +1,6 @@
 import {CustomTransformersFunction} from "./custom-transformer-options";
 import {TS} from "../../type/ts";
+import {isDefined} from "../is-defined/is-defined";
 
 /**
  * Merges all of the given transformers
@@ -7,7 +8,7 @@ import {TS} from "../../type/ts";
 export function mergeTransformers(...transformers: (TS.CustomTransformers | CustomTransformersFunction | undefined)[]): CustomTransformersFunction {
 	return options => {
 		const instantiatedTransformers = transformers
-			.filter(transformer => transformer != null)
+			.filter(isDefined)
 			.map((transformer: TS.CustomTransformers | CustomTransformersFunction) => (typeof transformer === "function" ? transformer(options) : transformer));
 
 		const beforeTransformers = ([] as (TS.TransformerFactory<TS.SourceFile> | TS.CustomTransformerFactory)[]).concat.apply(

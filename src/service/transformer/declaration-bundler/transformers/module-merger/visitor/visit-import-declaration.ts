@@ -4,8 +4,8 @@ import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
 import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 export function visitImportDeclaration(options: ModuleMergerVisitorOptions<TS.ImportDeclaration>): VisitResult<TS.ImportDeclaration> {
-	const {node, typescript} = options;
-	const moduleSpecifier = node.moduleSpecifier == null || !options.typescript.isStringLiteralLike(node.moduleSpecifier) ? undefined : node.moduleSpecifier.text;
+	const {node, compatFactory, typescript} = options;
+	const moduleSpecifier = node.moduleSpecifier == null || !typescript.isStringLiteralLike(node.moduleSpecifier) ? undefined : node.moduleSpecifier.text;
 	const updatedModuleSpecifier =
 		moduleSpecifier == null
 			? undefined
@@ -36,7 +36,13 @@ export function visitImportDeclaration(options: ModuleMergerVisitorOptions<TS.Im
 
 	// Otherwise, update the ModuleSpecifier
 	return preserveMeta(
-		typescript.updateImportDeclaration(contResult, contResult.decorators, contResult.modifiers, contResult.importClause, typescript.createStringLiteral(updatedModuleSpecifier)),
+		compatFactory.updateImportDeclaration(
+			contResult,
+			contResult.decorators,
+			contResult.modifiers,
+			contResult.importClause,
+			compatFactory.createStringLiteral(updatedModuleSpecifier)
+		),
 		contResult,
 		options
 	);

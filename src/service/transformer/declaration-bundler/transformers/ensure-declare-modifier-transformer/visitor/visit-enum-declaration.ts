@@ -4,8 +4,12 @@ import {ensureHasDeclareModifier, hasDeclareModifier} from "../../../util/modifi
 import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 export function visitEnumDeclaration(options: EnsureDeclareModifierTransformerVisitorOptions<TS.EnumDeclaration>): TS.EnumDeclaration {
-	const {node, typescript} = options;
+	const {node, compatFactory, typescript} = options;
 	if (hasDeclareModifier(node, typescript)) return node;
 
-	return preserveMeta(typescript.updateEnumDeclaration(node, node.decorators, ensureHasDeclareModifier(node.modifiers, typescript), node.name, node.members), node, options);
+	return preserveMeta(
+		compatFactory.updateEnumDeclaration(node, node.decorators, ensureHasDeclareModifier(node.modifiers, compatFactory, typescript), node.name, node.members),
+		node,
+		options
+	);
 }

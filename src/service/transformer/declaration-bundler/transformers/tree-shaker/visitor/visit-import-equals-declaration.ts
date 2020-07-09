@@ -3,7 +3,7 @@ import {TS} from "../../../../../../type/ts";
 import {preserveMeta} from "../../../util/clone-node-with-meta";
 
 export function visitImportEqualsDeclaration(options: TreeShakerVisitorOptions<TS.ImportEqualsDeclaration>): TS.ImportEqualsDeclaration | undefined {
-	const {node, continuation, typescript} = options;
+	const {node, continuation, compatFactory} = options;
 	const nameContinuationResult = node.name == null ? undefined : continuation(node.name);
 
 	if (nameContinuationResult == null) {
@@ -11,5 +11,5 @@ export function visitImportEqualsDeclaration(options: TreeShakerVisitorOptions<T
 	}
 	return node.name === nameContinuationResult
 		? node
-		: preserveMeta(typescript.updateImportEqualsDeclaration(node, node.decorators, node.modifiers, nameContinuationResult, node.moduleReference), node, options);
+		: preserveMeta(compatFactory.updateImportEqualsDeclaration(node, node.decorators, node.modifiers, nameContinuationResult, node.moduleReference), node, options);
 }

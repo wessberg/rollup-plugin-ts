@@ -1,4 +1,5 @@
 import {TS} from "../../../../type/ts";
+import {CompatFactory} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
 
 export type Modifiers = TS.ModifiersArray | TS.Modifier[];
 
@@ -21,13 +22,6 @@ export function hasDeclareModifier(node: TS.Node, typescript: typeof TS): boolea
  */
 export function isExportModifier(node: TS.Modifier, typescript: typeof TS): boolean {
 	return node.kind === typescript.SyntaxKind.ExportKeyword;
-}
-
-/**
- * Returns true if the given modifier has a Const keyword in front of it
- */
-export function isConstModifier(node: TS.Modifier, typescript: typeof TS): boolean {
-	return node.kind === typescript.SyntaxKind.ConstKeyword;
 }
 
 /**
@@ -63,10 +57,10 @@ export function removeDeclareModifier(modifiers: Modifiers | undefined, typescri
 /**
  * Removes an export modifier from the given ModifiersArray
  */
-export function ensureHasDeclareModifier(modifiers: Modifiers | undefined, typescript: typeof TS): TS.Modifier[] | TS.ModifiersArray | undefined {
-	if (modifiers == null) return [typescript.createModifier(typescript.SyntaxKind.DeclareKeyword)];
+export function ensureHasDeclareModifier(modifiers: Modifiers | undefined, compatFactory: CompatFactory, typescript: typeof TS): TS.Modifier[] | TS.ModifiersArray | undefined {
+	if (modifiers == null) return [compatFactory.createModifier(typescript.SyntaxKind.DeclareKeyword)];
 	if (modifiers.some(m => m.kind === typescript.SyntaxKind.DeclareKeyword)) return modifiers;
-	return [typescript.createModifier(typescript.SyntaxKind.DeclareKeyword), ...modifiers];
+	return [compatFactory.createModifier(typescript.SyntaxKind.DeclareKeyword), ...modifiers];
 }
 
 /**

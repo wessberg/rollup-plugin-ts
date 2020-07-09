@@ -11,7 +11,7 @@ import {getOriginalSourceFile} from "../../../util/get-original-source-file";
  * Deconflicts the given TypeParameterDeclaration.
  */
 export function deconflictTypeParameterDeclaration(options: DeconflicterVisitorOptions<TS.TypeParameterDeclaration>): TS.TypeParameterDeclaration | undefined {
-	const {node, continuation, lexicalEnvironment, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
+	const {node, continuation, lexicalEnvironment, compatFactory, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
 	let nameContResult: TS.TypeParameterDeclaration["name"];
 	const id = getIdForNode(options);
 	const originalSourceFile = getOriginalSourceFile(node, sourceFile, typescript);
@@ -25,7 +25,7 @@ export function deconflictTypeParameterDeclaration(options: DeconflicterVisitorO
 	} else {
 		// Otherwise, deconflict it
 		const uniqueBinding = generateUniqueBinding(lexicalEnvironment, node.name.text);
-		nameContResult = typescript.createIdentifier(uniqueBinding);
+		nameContResult = compatFactory.createIdentifier(uniqueBinding);
 		if (id != null) declarationToDeconflictedBindingMap.set(id, uniqueBinding);
 
 		// The name creates a new local binding within the current LexicalEnvironment
@@ -41,5 +41,5 @@ export function deconflictTypeParameterDeclaration(options: DeconflicterVisitorO
 		return node;
 	}
 
-	return preserveMeta(typescript.updateTypeParameterDeclaration(node, nameContResult, constraintContResult, defaultContResult), node, options);
+	return preserveMeta(compatFactory.updateTypeParameterDeclaration(node, nameContResult, constraintContResult, defaultContResult), node, options);
 }

@@ -113,7 +113,7 @@ export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOpt
 
 		// If users have provided presets of their own, ensure that they are using respecting the forced options
 		if (options.presets != null) {
-			options.presets = options.presets.map((preset: ConfigItem) => {
+			options.presets = (options.presets as ConfigItem[]).map(preset => {
 				if (preset.file == null) return preset;
 
 				// Apply the forced @babel/preset-env options here
@@ -159,7 +159,7 @@ export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOpt
 
 		// If users have provided plugins of their own, ensure that they are using respecting the forced options
 		if (options.plugins != null) {
-			options.plugins = options.plugins.map((plugin: ConfigItem) => {
+			options.plugins = (options.plugins as ConfigItem[]).map((plugin: ConfigItem) => {
 				if (plugin.file == null) return plugin;
 
 				// Apply the forced @babel/preset-env options here
@@ -212,7 +212,10 @@ export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOpt
 		if (phase === "chunk") {
 			const hasRelevantConfigItems =
 				loadedOptions != null &&
-				[...(combined.plugins ?? []).filter(configItemIsRelevantForChunkPhase), ...(combined.presets ?? []).filter(configItemIsRelevantForChunkPhase)].length > 0;
+				[
+					...((combined.plugins as ConfigItem[]) ?? []).filter(configItemIsRelevantForChunkPhase),
+					...((combined.presets as ConfigItem[]) ?? []).filter(configItemIsRelevantForChunkPhase)
+				].length > 0;
 			return {
 				config: hasRelevantConfigItems ? loadedOptions : undefined
 			};

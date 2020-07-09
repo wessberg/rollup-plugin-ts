@@ -4,12 +4,13 @@ import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {nodeArraysAreEqual} from "../../../util/node-arrays-are-equal";
 import {ContinuationOptions} from "../deconflicter-options";
 import {preserveMeta} from "../../../util/clone-node-with-meta";
+import {isNodeFactory} from "../../../util/is-node-factory";
 
 /**
  * Deconflicts the given ConstructorDeclaration.
  */
 export function deconflictConstructorDeclaration(options: DeconflicterVisitorOptions<TS.ConstructorDeclaration>): TS.ConstructorDeclaration | undefined {
-	const {node, continuation, lexicalEnvironment, typescript} = options;
+	const {node, continuation, lexicalEnvironment, compatFactory} = options;
 
 	// The body and parameters share the same lexical environment
 	const nextContinuationOptions: ContinuationOptions = {lexicalEnvironment: cloneLexicalEnvironment(lexicalEnvironment)};
@@ -23,5 +24,11 @@ export function deconflictConstructorDeclaration(options: DeconflicterVisitorOpt
 		return node;
 	}
 
-	return preserveMeta(typescript.updateConstructor(node, node.decorators, node.modifiers, parametersContResult, bodyContResult), node, options);
+	return preserveMeta(
+		isNodeFactory(compatFactory)
+			? compatFactory.updateConstructorDeclaration(node, node.decorators, node.modifiers, parametersContResult, bodyContResult)
+			: compatFactory.updateConstructor(node, node.decorators, node.modifiers, parametersContResult, bodyContResult),
+		node,
+		options
+	);
 }

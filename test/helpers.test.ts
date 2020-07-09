@@ -1,8 +1,14 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {formatCode} from "./util/format-code";
+import {lt} from "semver";
 
-test("Will treat every file as a module with tslib. #1", async t => {
+test("Will treat every file as a module with tslib. #1", async (t, {typescript}) => {
+	if (lt(typescript.version, "3.6.0")) {
+		t.pass(`Current TypeScript version (${typescript.version} generates different tslib output. Skipping...`);
+		return;
+	}
+
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -14,6 +20,7 @@ test("Will treat every file as a module with tslib. #1", async t => {
 			}
 		],
 		{
+			typescript,
 			rollupOptions: {
 				external: ["tslib"]
 			},
@@ -41,7 +48,7 @@ test("Will treat every file as a module with tslib. #1", async t => {
 	);
 });
 
-test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #1", async t => {
+test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -53,6 +60,7 @@ test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM.
 			}
 		],
 		{
+			typescript,
 			transpiler: "babel",
 			rollupOptions: {
 				external: fileName => fileName.includes("@babel")
@@ -91,7 +99,7 @@ test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM.
 	);
 });
 
-test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #2", async t => {
+test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #2", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -103,6 +111,7 @@ test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM.
 			}
 		],
 		{
+			typescript,
 			transpiler: "babel",
 
 			tsconfig: {
@@ -876,7 +885,7 @@ _asyncToGenerator(
 	);
 });
 
-test("Will use the proper @babel/runtime/helpers helpers when format is CJS. #1", async t => {
+test("Will use the proper @babel/runtime/helpers helpers when format is CJS. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -888,6 +897,7 @@ test("Will use the proper @babel/runtime/helpers helpers when format is CJS. #1"
 			}
 		],
 		{
+			typescript,
 			transpiler: "babel",
 			format: "cjs",
 			rollupOptions: {

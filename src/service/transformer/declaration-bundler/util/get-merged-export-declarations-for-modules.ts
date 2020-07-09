@@ -1,13 +1,15 @@
 import {ensureHasLeadingDotAndPosix} from "../../../../util/path/path-util";
 import {TS} from "../../../../type/ts";
 import {preserveParents} from "./clone-node-with-meta";
+import {CompatFactory} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
+import {isNodeFactory} from "./is-node-factory";
 
 export type MergedExportDeclarationsMap = Map<string | undefined, TS.ExportDeclaration[]>;
 
 /**
  * Merges the exports based on the given Statements
  */
-export function getMergedExportDeclarationsForModules(sourceFile: TS.SourceFile, typescript: typeof TS): MergedExportDeclarationsMap {
+export function getMergedExportDeclarationsForModules(sourceFile: TS.SourceFile, compatFactory: CompatFactory, typescript: typeof TS): MergedExportDeclarationsMap {
 	const exports = sourceFile.statements.filter(typescript.isExportDeclaration);
 	const exportAssignments = sourceFile.statements.filter(typescript.isExportAssignment);
 
@@ -108,9 +110,9 @@ export function getMergedExportDeclarationsForModules(sourceFile: TS.SourceFile,
 				bindings.add(alias);
 
 				if (propertyName === alias) {
-					exportSpecifiers.push(typescript.createExportSpecifier(undefined, alias));
+					exportSpecifiers.push(compatFactory.createExportSpecifier(undefined, alias));
 				} else {
-					exportSpecifiers.push(typescript.createExportSpecifier(propertyName, alias));
+					exportSpecifiers.push(compatFactory.createExportSpecifier(propertyName, alias));
 				}
 			}
 		}
@@ -122,12 +124,20 @@ export function getMergedExportDeclarationsForModules(sourceFile: TS.SourceFile,
 		}
 		exportDeclarationsForModule.push(
 			preserveParents(
-				typescript.createExportDeclaration(
-					undefined,
-					undefined,
-					typescript.createNamedExports(exportSpecifiers),
-					specifier == null ? undefined : typescript.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
-				),
+				isNodeFactory(compatFactory)
+					? compatFactory.createExportDeclaration(
+							undefined,
+							undefined,
+							false,
+							compatFactory.createNamedExports(exportSpecifiers),
+							specifier == null ? undefined : compatFactory.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
+					  )
+					: compatFactory.createExportDeclaration(
+							undefined,
+							undefined,
+							compatFactory.createNamedExports(exportSpecifiers),
+							specifier == null ? undefined : compatFactory.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
+					  ),
 				{typescript}
 			)
 		);
@@ -144,12 +154,20 @@ export function getMergedExportDeclarationsForModules(sourceFile: TS.SourceFile,
 		for (const name of names) {
 			exportDeclarationsForModule.push(
 				preserveParents(
-					typescript.createExportDeclaration(
-						undefined,
-						undefined,
-						typescript.createNamespaceExport(typescript.createIdentifier(name)),
-						typescript.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
-					),
+					isNodeFactory(compatFactory)
+						? compatFactory.createExportDeclaration(
+								undefined,
+								undefined,
+								false,
+								compatFactory.createNamespaceExport(compatFactory.createIdentifier(name)),
+								compatFactory.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
+						  )
+						: compatFactory.createExportDeclaration(
+								undefined,
+								undefined,
+								compatFactory.createNamespaceExport(compatFactory.createIdentifier(name)),
+								compatFactory.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
+						  ),
 					{typescript}
 				)
 			);

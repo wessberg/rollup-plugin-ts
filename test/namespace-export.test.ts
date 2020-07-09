@@ -1,8 +1,9 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
+import {lt} from "semver";
 
-test("Handles namespace exports. #1", async t => {
+test("Handles namespace exports. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -35,7 +36,10 @@ test("Handles namespace exports. #1", async t => {
 				`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -57,7 +61,12 @@ test("Handles namespace exports. #1", async t => {
 	);
 });
 
-test("Handles namespace exports. #2", async t => {
+test("Handles namespace exports. #2", async (t, {typescript}) => {
+	if (lt(typescript.version, "3.8.0")) {
+		t.pass(`Current TypeScript version (${typescript.version} does not support 'export * as Foo from "..."' syntax. Skipping...`);
+		return;
+	}
+
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -89,7 +98,10 @@ test("Handles namespace exports. #2", async t => {
 				`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -111,7 +123,12 @@ test("Handles namespace exports. #2", async t => {
 	);
 });
 
-test("Handles namespace exports. #3", async t => {
+test("Handles namespace exports. #3", async (t, {typescript}) => {
+	if (lt(typescript.version, "3.8.0")) {
+		t.pass(`Current TypeScript version (${typescript.version} does not support 'export * as Foo from "..."' syntax. Skipping...`);
+		return;
+	}
+
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -122,7 +139,10 @@ test("Handles namespace exports. #3", async t => {
         	`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]

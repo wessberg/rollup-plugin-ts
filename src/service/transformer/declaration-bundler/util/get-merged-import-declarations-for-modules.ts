@@ -1,10 +1,12 @@
 import {ensureHasLeadingDotAndPosix} from "../../../../util/path/path-util";
 import {TS} from "../../../../type/ts";
 import {preserveParents} from "./clone-node-with-meta";
+import {CompatFactory} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
+import {isNodeFactory} from "./is-node-factory";
 
 export type MergedImportDeclarationsMap = Map<string, TS.ImportDeclaration[]>;
 
-export function getMergedImportDeclarationsForModules(sourceFile: TS.SourceFile, typescript: typeof TS): MergedImportDeclarationsMap {
+export function getMergedImportDeclarationsForModules(sourceFile: TS.SourceFile, compatFactory: CompatFactory, typescript: typeof TS): MergedImportDeclarationsMap {
 	const imports = sourceFile.statements.filter(typescript.isImportDeclaration);
 
 	const moduleToImportDeclarations: MergedImportDeclarationsMap = new Map();
@@ -85,11 +87,13 @@ export function getMergedImportDeclarationsForModules(sourceFile: TS.SourceFile,
 		for (const name of names) {
 			importDeclarationsForModule.push(
 				preserveParents(
-					typescript.createImportDeclaration(
+					compatFactory.createImportDeclaration(
 						undefined,
 						undefined,
-						typescript.createImportClause(typescript.createIdentifier(name), undefined),
-						typescript.createStringLiteral(ensureHasLeadingDotAndPosix(module))
+						isNodeFactory(compatFactory)
+							? compatFactory.createImportClause(false, compatFactory.createIdentifier(name), undefined)
+							: compatFactory.createImportClause(compatFactory.createIdentifier(name), undefined, false),
+						compatFactory.createStringLiteral(ensureHasLeadingDotAndPosix(module))
 					),
 					{typescript}
 				)
@@ -108,11 +112,13 @@ export function getMergedImportDeclarationsForModules(sourceFile: TS.SourceFile,
 		for (const name of names) {
 			importDeclarationsForModule.push(
 				preserveParents(
-					typescript.createImportDeclaration(
+					compatFactory.createImportDeclaration(
 						undefined,
 						undefined,
-						typescript.createImportClause(undefined, typescript.createNamespaceImport(typescript.createIdentifier(name))),
-						typescript.createStringLiteral(ensureHasLeadingDotAndPosix(module))
+						isNodeFactory(compatFactory)
+							? compatFactory.createImportClause(false, undefined, compatFactory.createNamespaceImport(compatFactory.createIdentifier(name)))
+							: compatFactory.createImportClause(undefined, compatFactory.createNamespaceImport(compatFactory.createIdentifier(name)), false),
+						compatFactory.createStringLiteral(ensureHasLeadingDotAndPosix(module))
 					),
 					{typescript}
 				)
@@ -134,20 +140,33 @@ export function getMergedImportDeclarationsForModules(sourceFile: TS.SourceFile,
 
 			importDeclarationsForModule.push(
 				preserveParents(
-					typescript.createImportDeclaration(
+					compatFactory.createImportDeclaration(
 						undefined,
 						undefined,
-						typescript.createImportClause(
-							undefined,
-							typescript.createNamedImports(
-								collection.map(record =>
-									record.propertyName !== record.alias
-										? typescript.createImportSpecifier(typescript.createIdentifier(record.propertyName), typescript.createIdentifier(record.alias))
-										: typescript.createImportSpecifier(undefined, typescript.createIdentifier(record.alias))
-								)
-							)
-						),
-						typescript.createStringLiteral(ensureHasLeadingDotAndPosix(module))
+						isNodeFactory(compatFactory)
+							? compatFactory.createImportClause(
+									false,
+									undefined,
+									compatFactory.createNamedImports(
+										collection.map(record =>
+											record.propertyName !== record.alias
+												? compatFactory.createImportSpecifier(compatFactory.createIdentifier(record.propertyName), compatFactory.createIdentifier(record.alias))
+												: compatFactory.createImportSpecifier(undefined, compatFactory.createIdentifier(record.alias))
+										)
+									)
+							  )
+							: compatFactory.createImportClause(
+									undefined,
+									compatFactory.createNamedImports(
+										collection.map(record =>
+											record.propertyName !== record.alias
+												? compatFactory.createImportSpecifier(compatFactory.createIdentifier(record.propertyName), compatFactory.createIdentifier(record.alias))
+												: compatFactory.createImportSpecifier(undefined, compatFactory.createIdentifier(record.alias))
+										)
+									),
+									false
+							  ),
+						compatFactory.createStringLiteral(ensureHasLeadingDotAndPosix(module))
 					),
 					{typescript}
 				)

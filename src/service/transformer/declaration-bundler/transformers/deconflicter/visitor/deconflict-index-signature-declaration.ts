@@ -9,7 +9,7 @@ import {preserveMeta} from "../../../util/clone-node-with-meta";
  * Deconflicts the given IndexSignatureDeclaration.
  */
 export function deconflictIndexSignatureDeclaration(options: DeconflicterVisitorOptions<TS.IndexSignatureDeclaration>): TS.IndexSignatureDeclaration | undefined {
-	const {node, continuation, lexicalEnvironment, typescript} = options;
+	const {node, continuation, lexicalEnvironment, compatFactory, typescript} = options;
 	// The whole thing has its own lexical environment
 	const nextContinuationOptions: ContinuationOptions = {lexicalEnvironment: cloneLexicalEnvironment(lexicalEnvironment)};
 
@@ -28,5 +28,5 @@ export function deconflictIndexSignatureDeclaration(options: DeconflicterVisitor
 		return node;
 	}
 
-	return preserveMeta(typescript.updateIndexSignature(node, node.decorators, node.modifiers, parametersContResult, typeContResult!), node, options);
+	return preserveMeta(compatFactory.updateIndexSignature(node, node.decorators, node.modifiers, parametersContResult, typeContResult!), node, options);
 }

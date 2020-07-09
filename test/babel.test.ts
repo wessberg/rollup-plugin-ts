@@ -1,4 +1,4 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {ConfigItem} from "@babel/core";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {BABEL_CONFIG_JS_FILENAME, BABEL_CONFIG_JSON_FILENAME, BABELRC_FILENAME} from "../src/constant/constant";
@@ -6,7 +6,7 @@ import {createTemporaryConfigFile} from "./util/create-temporary-config-file";
 import {normalize} from "../src/util/path/path-util";
 import {getAppropriateEcmaVersionForBrowserslist} from "@wessberg/browserslist-generator";
 
-test("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usage' option. #1", async t => {
+test("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usage' option. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -19,6 +19,7 @@ test("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usag
 		],
 		{
 			debug: false,
+			typescript,
 			transpiler: "babel",
 			exclude: [],
 			tsconfig: {
@@ -43,7 +44,7 @@ test("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usag
 	t.true(file.code.includes(`addToUnscopables('includes')`));
 });
 
-test("Can resolve the nearest project-wide babel config. #1", async t => {
+test("Can resolve the nearest project-wide babel config. #1", async (t, {typescript}) => {
 	const unlinker = createTemporaryConfigFile(BABEL_CONFIG_JS_FILENAME, `exports = {}`);
 	let configFileName: string | undefined;
 	try {
@@ -59,6 +60,7 @@ test("Can resolve the nearest project-wide babel config. #1", async t => {
 			],
 			{
 				debug: false,
+				typescript,
 				cwd: unlinker.dir,
 				transpiler: "babel",
 				hook: {
@@ -78,7 +80,7 @@ test("Can resolve the nearest project-wide babel config. #1", async t => {
 	}
 });
 
-test("Can resolve the nearest project-wide babel config. #2", async t => {
+test("Can resolve the nearest project-wide babel config. #2", async (t, {typescript}) => {
 	const unlinker = createTemporaryConfigFile(BABEL_CONFIG_JSON_FILENAME, `{}`, "json");
 	let configFileName: string | undefined;
 	try {
@@ -94,6 +96,7 @@ test("Can resolve the nearest project-wide babel config. #2", async t => {
 			],
 			{
 				debug: false,
+				typescript,
 				cwd: unlinker.dir,
 				transpiler: "babel",
 				hook: {
@@ -113,7 +116,7 @@ test("Can resolve the nearest project-wide babel config. #2", async t => {
 	}
 });
 
-test("Can resolve the nearest file-relative babel config. #1", async t => {
+test("Can resolve the nearest file-relative babel config. #1", async (t, {typescript}) => {
 	const unlinker = createTemporaryConfigFile(BABELRC_FILENAME, `{}`, "json");
 	let configFileName: string | undefined;
 	try {
@@ -129,6 +132,7 @@ test("Can resolve the nearest file-relative babel config. #1", async t => {
 			],
 			{
 				debug: false,
+				typescript,
 				cwd: unlinker.dir,
 				transpiler: "babel",
 				hook: {
@@ -148,7 +152,7 @@ test("Can resolve the nearest file-relative babel config. #1", async t => {
 	}
 });
 
-test("Won't apply @babel/preset-env if the browserslist option is 'false'. #1", async t => {
+test("Won't apply @babel/preset-env if the browserslist option is 'false'. #1", async (t, {typescript}) => {
 	let hasPresetEnv: boolean | undefined;
 	await generateRollupBundle(
 		[
@@ -162,6 +166,7 @@ test("Won't apply @babel/preset-env if the browserslist option is 'false'. #1", 
 		],
 		{
 			debug: false,
+			typescript,
 			transpiler: "babel",
 			browserslist: false,
 			hook: {
@@ -170,7 +175,7 @@ test("Won't apply @babel/preset-env if the browserslist option is 'false'. #1", 
 					hasPresetEnv =
 						config != null &&
 						(config.presets ?? []).length > 0 &&
-						(config.presets ?? []).some((preset: ConfigItem) => preset.file != null && preset.file.resolved.includes("preset-env"));
+						((config.presets as ConfigItem[]) ?? []).some(preset => preset.file != null && preset.file.resolved.includes("preset-env"));
 					return config;
 				}
 			}
@@ -179,7 +184,7 @@ test("Won't apply @babel/preset-env if the browserslist option is 'false'. #1", 
 	t.true(hasPresetEnv === false);
 });
 
-test("Will apply @babel/preset-env if a Browserslist is provided or discovered. #1", async t => {
+test("Will apply @babel/preset-env if a Browserslist is provided or discovered. #1", async (t, {typescript}) => {
 	let hasPresetEnv: boolean | undefined;
 	await generateRollupBundle(
 		[
@@ -193,6 +198,7 @@ test("Will apply @babel/preset-env if a Browserslist is provided or discovered. 
 		],
 		{
 			debug: false,
+			typescript,
 			transpiler: "babel",
 			browserslist: ["> 3%"],
 			hook: {
@@ -201,7 +207,7 @@ test("Will apply @babel/preset-env if a Browserslist is provided or discovered. 
 					hasPresetEnv =
 						config != null &&
 						(config.presets ?? []).length > 0 &&
-						(config.presets ?? []).some((preset: ConfigItem) => preset.file != null && preset.file.resolved.includes("preset-env"));
+						((config.presets as ConfigItem[]) ?? []).some(preset => preset.file != null && preset.file.resolved.includes("preset-env"));
 					return config;
 				}
 			}
@@ -210,7 +216,7 @@ test("Will apply @babel/preset-env if a Browserslist is provided or discovered. 
 	t.true(hasPresetEnv === true);
 });
 
-test("Will auto-generate a Browserslist based on the 'target' from the tsconfig if none is discovered and babel is used as transpiler. #1", async t => {
+test("Will auto-generate a Browserslist based on the 'target' from the tsconfig if none is discovered and babel is used as transpiler. #1", async (t, {typescript}) => {
 	let browserslist: string[] | undefined;
 	await generateRollupBundle(
 		[
@@ -224,6 +230,7 @@ test("Will auto-generate a Browserslist based on the 'target' from the tsconfig 
 		],
 		{
 			debug: false,
+			typescript,
 			transpiler: "babel",
 			tsconfig: {
 				target: "es2015"
@@ -232,7 +239,9 @@ test("Will auto-generate a Browserslist based on the 'target' from the tsconfig 
 				babelConfig: (config, _, phase) => {
 					if (phase === "chunk") return config;
 					const matchingPreset =
-						config == null || config.presets == null ? undefined : config.presets.find((preset: ConfigItem) => preset.file != null && preset.file.resolved.includes("preset-env"));
+						config == null || config.presets == null
+							? undefined
+							: (config.presets as ConfigItem[]).find(preset => preset.file != null && preset.file.resolved.includes("preset-env"));
 					if (matchingPreset != null) {
 						browserslist = (matchingPreset as {options: {targets: {browsers: string[]}}}).options.targets.browsers;
 					}
@@ -245,7 +254,7 @@ test("Will auto-generate a Browserslist based on the 'target' from the tsconfig 
 	t.true(browserslist != null && getAppropriateEcmaVersionForBrowserslist(browserslist) === "es2015");
 });
 
-test("Will apply minification-related plugins only in the renderChunk phase. #1", async t => {
+test("Will apply minification-related plugins only in the renderChunk phase. #1", async (t, {typescript}) => {
 	let isMinifiedInTransformPhase: boolean | undefined;
 	let isMinifiedInChunkPhase: boolean | undefined;
 	await generateRollupBundle(
@@ -267,6 +276,7 @@ test("Will apply minification-related plugins only in the renderChunk phase. #1"
 		],
 		{
 			debug: false,
+			typescript,
 			transpiler: "babel",
 			browserslist: false,
 			postPlugins: [

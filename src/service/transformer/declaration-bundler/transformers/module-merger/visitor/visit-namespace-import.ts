@@ -8,7 +8,7 @@ import {statementMerger} from "../../statement-merger/statement-merger";
 import {preserveParents} from "../../../util/clone-node-with-meta";
 
 export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.NamespaceImport>): VisitResult<TS.NamespaceImport> {
-	const {node, payload} = options;
+	const {node, compatFactory, typescript, payload} = options;
 	if (payload.moduleSpecifier == null) return options.childContinuation(node, undefined);
 
 	const contResult = options.childContinuation(node, undefined);
@@ -21,18 +21,18 @@ export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.Name
 	// Otherwise, prepend the nodes for the SourceFile in a namespace declaration
 	options.prependNodes(
 		preserveParents(
-			options.typescript.createModuleDeclaration(
+			compatFactory.createModuleDeclaration(
 				undefined,
-				ensureHasDeclareModifier(undefined, options.typescript),
-				options.typescript.createIdentifier(contResult.name.text),
-				options.typescript.createModuleBlock([
+				ensureHasDeclareModifier(undefined, compatFactory, typescript),
+				compatFactory.createIdentifier(contResult.name.text),
+				compatFactory.createModuleBlock([
 					...options.includeSourceFile(payload.matchingSourceFile, {
 						allowDuplicate: true,
 						lexicalEnvironment: cloneLexicalEnvironment(),
 						transformers: [ensureNoDeclareModifierTransformer, statementMerger({markAsModuleIfNeeded: false})]
 					})
 				]),
-				options.typescript.NodeFlags.Namespace
+				typescript.NodeFlags.Namespace
 			),
 			options
 		)

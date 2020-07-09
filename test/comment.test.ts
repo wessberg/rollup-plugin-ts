@@ -1,8 +1,8 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Preserves JSDoc comments in bundled declarations. #1", async t => {
+test("Preserves JSDoc comments in bundled declarations. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -18,6 +18,7 @@ test("Preserves JSDoc comments in bundled declarations. #1", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false
 		}
 	);
@@ -37,7 +38,7 @@ test("Preserves JSDoc comments in bundled declarations. #1", async t => {
 	);
 });
 
-test("Preserves JSDoc comments in bundled declarations. #2", async t => {
+test("Preserves JSDoc comments in bundled declarations. #2", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -60,6 +61,7 @@ test("Preserves JSDoc comments in bundled declarations. #2", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false
 		}
 	);
@@ -79,7 +81,7 @@ test("Preserves JSDoc comments in bundled declarations. #2", async t => {
 	);
 });
 
-test("Preserves JSDoc comments in bundled declarations. #3", async t => {
+test("Preserves JSDoc comments in bundled declarations. #3", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -111,6 +113,7 @@ test("Preserves JSDoc comments in bundled declarations. #3", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false
 		}
 	);

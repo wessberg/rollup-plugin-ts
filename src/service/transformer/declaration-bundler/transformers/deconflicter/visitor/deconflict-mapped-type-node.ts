@@ -8,7 +8,7 @@ import {preserveMeta} from "../../../util/clone-node-with-meta";
  * Deconflicts the given MappedTypeNode.
  */
 export function deconflictMappedTypeNode(options: DeconflicterVisitorOptions<TS.MappedTypeNode>): TS.MappedTypeNode | undefined {
-	const {node, continuation, lexicalEnvironment, typescript} = options;
+	const {node, continuation, lexicalEnvironment, compatFactory} = options;
 	// The TypeParameter has its own lexical environment
 	const nextContinuationOptions: ContinuationOptions = {lexicalEnvironment: cloneLexicalEnvironment(lexicalEnvironment)};
 
@@ -21,5 +21,5 @@ export function deconflictMappedTypeNode(options: DeconflicterVisitorOptions<TS.
 		return node;
 	}
 
-	return preserveMeta(typescript.updateMappedTypeNode(node, node.readonlyToken, typeParameterContResult, node.questionToken, typeContResult), node, options);
+	return preserveMeta(compatFactory.updateMappedTypeNode(node, node.readonlyToken, typeParameterContResult, node.questionToken, typeContResult), node, options);
 }

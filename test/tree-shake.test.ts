@@ -1,20 +1,23 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Tree-shakes correctly. #1", async t => {
+test("Tree-shakes correctly. #1", async (t, {typescript, typescriptModuleSpecifier}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
 				entry: true,
 				fileName: "index.ts",
 				text: `\
-					import {SyntaxKind, EmitHint} from "typescript";
+					import {SyntaxKind, EmitHint} from "${typescriptModuleSpecifier}";
 					export type Baz = SyntaxKind;
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -22,14 +25,14 @@ test("Tree-shakes correctly. #1", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		import {SyntaxKind} from "typescript";
+		import {SyntaxKind} from "${typescriptModuleSpecifier}";
 		type Baz = SyntaxKind;
 		export {Baz};
 		`)
 	);
 });
 
-test("Tree-shakes correctly. #2", async t => {
+test("Tree-shakes correctly. #2", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -48,7 +51,10 @@ test("Tree-shakes correctly. #2", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -62,7 +68,7 @@ test("Tree-shakes correctly. #2", async t => {
 	);
 });
 
-test("Tree-shakes correctly. #3", async t => {
+test("Tree-shakes correctly. #3", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -93,7 +99,10 @@ test("Tree-shakes correctly. #3", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -113,7 +122,7 @@ test("Tree-shakes correctly. #3", async t => {
 	);
 });
 
-test("Tree-shakes correctly. #4", async t => {
+test("Tree-shakes correctly. #4", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -130,7 +139,10 @@ test("Tree-shakes correctly. #4", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -150,7 +162,7 @@ test("Tree-shakes correctly. #4", async t => {
 	);
 });
 
-test("Tree-shakes correctly. #5", async t => {
+test("Tree-shakes correctly. #5", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -162,7 +174,10 @@ test("Tree-shakes correctly. #5", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -177,7 +192,7 @@ test("Tree-shakes correctly. #5", async t => {
 	);
 });
 
-test("Tree-shakes correctly. #6", async t => {
+test("Tree-shakes correctly. #6", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -191,7 +206,11 @@ test("Tree-shakes correctly. #6", async t => {
 					}`
 			}
 		],
-		{debug: false, transpileOnly: true}
+		{
+			typescript,
+			debug: false,
+			transpileOnly: true
+		}
 	);
 	const {
 		declarations: [file]
@@ -209,7 +228,7 @@ test("Tree-shakes correctly. #6", async t => {
 	);
 });
 
-test("Tree-shakes correctly. #7", async t => {
+test("Tree-shakes correctly. #7", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -224,7 +243,10 @@ test("Tree-shakes correctly. #7", async t => {
 				`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -241,13 +263,13 @@ test("Tree-shakes correctly. #7", async t => {
 	);
 });
 
-test("Tree-shakes correctly. #8", async t => {
+test("Tree-shakes correctly. #8", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
 				entry: true,
 				fileName: "index.ts",
-				text: `\	
+				text: `\
 				const S = Symbol();
 				export default {
 					async [S] () {
@@ -257,7 +279,10 @@ test("Tree-shakes correctly. #8", async t => {
 				`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]

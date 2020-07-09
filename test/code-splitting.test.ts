@@ -1,9 +1,9 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {stripKnownExtension} from "../src/util/path/path-util";
 
-test("Declaration bundling supports code splitting. #1", async t => {
+test("Declaration bundling supports code splitting. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -38,7 +38,7 @@ test("Declaration bundling supports code splitting. #1", async t => {
         	`
 			}
 		],
-		{debug: false}
+		{typescript, debug: false}
 	);
 	const {declarations} = bundle;
 
@@ -82,7 +82,7 @@ test("Declaration bundling supports code splitting. #1", async t => {
 	);
 });
 
-test("Declaration bundling supports code splitting. #2", async t => {
+test("Declaration bundling supports code splitting. #2", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -120,7 +120,7 @@ test("Declaration bundling supports code splitting. #2", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{typescript, debug: false}
 	);
 	const {declarations} = bundle;
 
@@ -159,7 +159,7 @@ test("Declaration bundling supports code splitting. #2", async t => {
 	);
 });
 
-test("Declaration bundling supports code splitting. #3", async t => {
+test("Declaration bundling supports code splitting. #3", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -188,7 +188,7 @@ test("Declaration bundling supports code splitting. #3", async t => {
 			`
 			}
 		],
-		{debug: false}
+		{typescript, debug: false}
 	);
 	const {declarations} = bundle;
 
@@ -231,7 +231,7 @@ test("Declaration bundling supports code splitting. #3", async t => {
 	);
 });
 
-test("Declaration bundling supports code splitting. #4", async t => {
+test("Declaration bundling supports code splitting. #4", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -257,7 +257,7 @@ test("Declaration bundling supports code splitting. #4", async t => {
 			`
 			}
 		],
-		{debug: false}
+		{typescript, debug: false}
 	);
 
 	const {declarations} = bundle;

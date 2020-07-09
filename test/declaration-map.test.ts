@@ -1,8 +1,8 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Declaration maps correctly maps input sources. #1", async t => {
+test("Declaration maps correctly maps input sources. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -24,6 +24,7 @@ test("Declaration maps correctly maps input sources. #1", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false,
 			dir: "virtual-dist",
 			tsconfig: {declarationMap: true}
@@ -57,7 +58,7 @@ test("Declaration maps correctly maps input sources. #1", async t => {
 	);
 });
 
-test("Declaration maps correctly maps input sources. #2", async t => {
+test("Declaration maps correctly maps input sources. #2", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -77,6 +78,7 @@ test("Declaration maps correctly maps input sources. #2", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false,
 			tsconfig: {declarationMap: true, declarationDir: "./foobarbaz"}
 		}
@@ -95,7 +97,7 @@ test("Declaration maps correctly maps input sources. #2", async t => {
 	);
 });
 
-test("Declaration maps respect rewritten output paths. #1", async t => {
+test("Declaration maps respect rewritten output paths. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -115,6 +117,7 @@ test("Declaration maps respect rewritten output paths. #1", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false,
 			tsconfig: {
 				declarationMap: true,
@@ -139,7 +142,7 @@ test("Declaration maps respect rewritten output paths. #1", async t => {
 	);
 });
 
-test("Declaration maps respect rewritten output paths. #2", async t => {
+test("Declaration maps respect rewritten output paths. #2", async (t, {typescript, typescriptModuleSpecifier}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -161,11 +164,12 @@ test("Declaration maps respect rewritten output paths. #2", async t => {
 				fileName: "bar.ts",
 				text: `\
 					export * from "./bar";
-					export {SyntaxKind as Foo} from "typescript";
+					export {SyntaxKind as Foo} from "${typescriptModuleSpecifier}";
 					`
 			}
 		],
 		{
+			typescript,
 			debug: false,
 			tsconfig: {
 				declarationMap: true
@@ -186,7 +190,7 @@ test("Declaration maps respect rewritten output paths. #2", async t => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		export { SyntaxKind as Foo } from "typescript";
+		export { SyntaxKind as Foo } from "${typescriptModuleSpecifier}";
 		//# sourceMappingURL=index-rewritten.d.ts.map
 		`)
 	);

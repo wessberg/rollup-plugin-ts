@@ -1,8 +1,8 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {join, normalize} from "../src/util/path/path-util";
 
-test("Supports rewritten paths with entryFileNames and chunkFileNames. #1", async t => {
+test("Supports rewritten paths with entryFileNames and chunkFileNames. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -39,6 +39,7 @@ test("Supports rewritten paths with entryFileNames and chunkFileNames. #1", asyn
 			}
 		],
 		{
+			typescript,
 			debug: false,
 			dir: ".",
 			chunkFileNames: "shared/[name].js",

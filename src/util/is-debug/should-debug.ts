@@ -1,10 +1,5 @@
-import {DebugData, EmitPathKind, TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options";
+import {EmitPathKind, TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options";
 import {TS} from "../../type/ts";
-
-export function shouldDebug(debug: TypescriptPluginOptions["debug"], data: DebugData): boolean {
-	if (typeof debug === "boolean") return debug;
-	return Boolean(debug(data));
-}
 
 export function shouldDebugSourceFile(debug: TypescriptPluginOptions["debug"], {fileName, text}: TS.SourceFile): boolean {
 	if (typeof debug === "boolean") return debug;

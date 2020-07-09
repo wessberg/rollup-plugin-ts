@@ -1,9 +1,9 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import json from "@rollup/plugin-json";
 import {formatCode} from "./util/format-code";
 
-test("Handles .JSON files that has been pre-transformed by other plugins. #1", async t => {
+test("Handles .JSON files that has been pre-transformed by other plugins. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -25,6 +25,7 @@ test("Handles .JSON files that has been pre-transformed by other plugins. #1", a
 			}
 		],
 		{
+			typescript,
 			debug: false,
 			prePlugins: [json()],
 			tsconfig: {

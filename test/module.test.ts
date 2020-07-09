@@ -1,17 +1,23 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Files are always treated as modules when generating declarations. #1", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
+test("Files are always treated as modules when generating declarations. #1", async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
 					console.log(true);
 					`
+			}
+		],
+		{
+			typescript,
+			debug: false
 		}
-	]);
+	);
 	const {
 		declarations: [file]
 	} = bundle;
@@ -23,7 +29,7 @@ test("Files are always treated as modules when generating declarations. #1", asy
 	);
 });
 
-test("Files are always treated as modules when generating declarations. #2", async t => {
+test("Files are always treated as modules when generating declarations. #2", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -34,7 +40,10 @@ test("Files are always treated as modules when generating declarations. #2", asy
 					`
 			}
 		],
-		{}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]

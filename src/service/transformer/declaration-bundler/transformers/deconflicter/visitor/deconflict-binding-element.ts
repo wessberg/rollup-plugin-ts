@@ -10,7 +10,7 @@ import {getOriginalSourceFile} from "../../../util/get-original-source-file";
  * Deconflicts the given BindingElement.
  */
 export function deconflictBindingElement(options: DeconflicterVisitorOptions<TS.BindingElement>): TS.BindingElement | undefined {
-	const {node, continuation, lexicalEnvironment, typescript, sourceFile} = options;
+	const {node, continuation, lexicalEnvironment, typescript, compatFactory, sourceFile} = options;
 
 	let nameContResult: TS.BindingElement["name"];
 	const originalSourceFile = getOriginalSourceFile(node, sourceFile, typescript);
@@ -24,7 +24,7 @@ export function deconflictBindingElement(options: DeconflicterVisitorOptions<TS.
 		} else {
 			// Otherwise, deconflict it
 			const uniqueBinding = generateUniqueBinding(lexicalEnvironment, node.name.text);
-			nameContResult = typescript.createIdentifier(uniqueBinding);
+			nameContResult = compatFactory.createIdentifier(uniqueBinding);
 
 			// The name creates a new local binding within the current LexicalEnvironment
 			addBindingToLexicalEnvironment(lexicalEnvironment, originalSourceFile.fileName, uniqueBinding, node.name.text);
@@ -44,5 +44,5 @@ export function deconflictBindingElement(options: DeconflicterVisitorOptions<TS.
 		return node;
 	}
 
-	return preserveMeta(typescript.updateBindingElement(node, node.dotDotDotToken, propertyNameContResult, nameContResult, initializerContResult), node, options);
+	return preserveMeta(compatFactory.updateBindingElement(node, node.dotDotDotToken, propertyNameContResult, nameContResult, initializerContResult), node, options);
 }

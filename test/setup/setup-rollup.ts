@@ -133,7 +133,7 @@ export async function generateRollupBundle(
 		input = {};
 
 		// Ensure no conflicting chunk names
-		let seenNames = new Set<string>();
+		const seenNames = new Set<string>();
 		for (const entryFile of entryFiles) {
 			let candidateName = parse(entryFile.fileName).name;
 			let offset = 0;
@@ -158,6 +158,17 @@ export async function generateRollupBundle(
 	const result = await rollup({
 		input,
 		...rollupOptions,
+		onwarn: (warning, defaultHandler) => {
+			// Eat all irrelevant Rollup warnings (such as 'Generated an empty chunk: "index") while running tests
+			if (
+				!warning.message.includes("Generated an empty chunk") &&
+				!warning.message.includes("but could not be resolved") &&
+				!warning.message.includes(`Circular dependency:`) &&
+				!warning.message.includes(`Conflicting namespaces:`)
+			) {
+				defaultHandler(warning);
+			}
+		},
 		plugins: [
 			{
 				name: "VirtualFileResolver",
@@ -243,7 +254,7 @@ export async function generateRollupBundle(
 												const isDirectory = !file.fileName.endsWith(fileName);
 												const isFile = file.fileName.endsWith(fileName);
 
-												return withFileTypes
+												return withFileTypes === true
 													? ({
 															name: fileName,
 															isDirectory() {

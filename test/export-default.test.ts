@@ -1,8 +1,8 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Handles default export assignments. #1", async t => {
+test("Handles default export assignments. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -20,7 +20,10 @@ test("Handles default export assignments. #1", async t => {
 				`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -34,7 +37,7 @@ test("Handles default export assignments. #1", async t => {
 	);
 });
 
-test("Handles default export assignments. #2", async t => {
+test("Handles default export assignments. #2", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -55,7 +58,10 @@ test("Handles default export assignments. #2", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -72,7 +78,7 @@ test("Handles default export assignments. #2", async t => {
 	);
 });
 
-test("Handles default export assignments. #3", async t => {
+test("Handles default export assignments. #3", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -93,7 +99,10 @@ test("Handles default export assignments. #3", async t => {
             `
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -111,7 +120,7 @@ test("Handles default export assignments. #3", async t => {
 	);
 });
 
-test("Handles default export assignments. #4", async t => {
+test("Handles default export assignments. #4", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -129,7 +138,10 @@ test("Handles default export assignments. #4", async t => {
 				export default function foo (): string {return "";} `
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -145,7 +157,7 @@ test("Handles default export assignments. #4", async t => {
 	);
 });
 
-test("Handles default export assignments. #5", async t => {
+test("Handles default export assignments. #5", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -165,7 +177,10 @@ test("Handles default export assignments. #5", async t => {
 				`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -184,7 +199,7 @@ test("Handles default export assignments. #5", async t => {
 	);
 });
 
-test("Handles default export assignments. #6", async t => {
+test("Handles default export assignments. #6", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -204,7 +219,10 @@ test("Handles default export assignments. #6", async t => {
 				`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -221,23 +239,29 @@ test("Handles default export assignments. #6", async t => {
 	);
 });
 
-test("Handles default export assignments. #7", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
+test("Handles default export assignments. #7", async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
 							export {default} from "./foo";
         	`
-		},
-		{
-			entry: false,
-			fileName: "foo.ts",
-			text: `\
+			},
+			{
+				entry: false,
+				fileName: "foo.ts",
+				text: `\
 				export default function foo () {}
 				`
+			}
+		],
+		{
+			typescript,
+			debug: false
 		}
-	]);
+	);
 	const {
 		declarations: [file]
 	} = bundle;
@@ -251,7 +275,7 @@ test("Handles default export assignments. #7", async t => {
 	);
 });
 
-test("Handles default export assignments. #8", async t => {
+test("Handles default export assignments. #8", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -268,7 +292,10 @@ test("Handles default export assignments. #8", async t => {
         	`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -286,7 +313,7 @@ test("Handles default export assignments. #8", async t => {
 	);
 });
 
-test("Handles default exports inside ExportSpecifiers. #1", async t => {
+test("Handles default exports inside ExportSpecifiers. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -305,7 +332,10 @@ test("Handles default exports inside ExportSpecifiers. #1", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{
+			typescript,
+			debug: false
+		}
 	);
 	const {
 		declarations: [file]
@@ -320,24 +350,30 @@ test("Handles default exports inside ExportSpecifiers. #1", async t => {
 	);
 });
 
-test("Handles default exports inside ExportSpecifiers. #2", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
+test("Handles default exports inside ExportSpecifiers. #2", async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
           import magicString from './bar';
 					export const Foo = magicString;
 					`
-		},
-		{
-			entry: false,
-			fileName: "bar.ts",
-			text: `\
+			},
+			{
+				entry: false,
+				fileName: "bar.ts",
+				text: `\
           export {default as default} from 'magic-string';
 					`
+			}
+		],
+		{
+			typescript,
+			debug: false
 		}
-	]);
+	);
 	const {
 		declarations: [file]
 	} = bundle;
@@ -351,7 +387,7 @@ test("Handles default exports inside ExportSpecifiers. #2", async t => {
 	);
 });
 
-test("Handles default exports inside ExportSpecifiers. #3", async t => {
+test("Handles default exports inside ExportSpecifiers. #3", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -371,6 +407,7 @@ test("Handles default exports inside ExportSpecifiers. #3", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false
 		}
 	);

@@ -1,9 +1,10 @@
 import {TS} from "../../../../../../type/ts";
 import {StatementMergerVisitorOptions} from "../statement-merger-visitor-options";
 import {preserveMeta} from "../../../util/clone-node-with-meta";
+import {isNodeFactory} from "../../../util/is-node-factory";
 
 export function visitExportDeclaration(options: StatementMergerVisitorOptions<TS.ExportDeclaration>): TS.ExportDeclaration[] | TS.ExportDeclaration | undefined {
-	const {node, typescript} = options;
+	const {node, compatFactory, typescript} = options;
 
 	// If the ModuleSpecifier is given and it isn't a string literal, leave it as it is
 	if (node.moduleSpecifier != null && !typescript.isStringLiteralLike(node.moduleSpecifier)) {
@@ -20,14 +21,23 @@ export function visitExportDeclaration(options: StatementMergerVisitorOptions<TS
 	if (first.exportClause != null && typescript.isNamedExports(first.exportClause)) {
 		exportClause =
 			node.exportClause != null && typescript.isNamedExports(node.exportClause)
-				? typescript.updateNamedExports(node.exportClause, first.exportClause.elements)
-				: typescript.createNamedExports(first.exportClause.elements);
+				? compatFactory.updateNamedExports(node.exportClause, first.exportClause.elements)
+				: compatFactory.createNamedExports(first.exportClause.elements);
 	} else if (first.exportClause != null && typescript.isNamespaceExport?.(first.exportClause)) {
 		exportClause =
 			node.exportClause != null && typescript.isNamespaceExport?.(node.exportClause)
-				? typescript.updateNamespaceExport(node.exportClause, typescript.createIdentifier(first.exportClause.name.text))
-				: typescript.createNamespaceExport(typescript.createIdentifier(first.exportClause.name.text));
+				? compatFactory.updateNamespaceExport(node.exportClause, compatFactory.createIdentifier(first.exportClause.name.text))
+				: compatFactory.createNamespaceExport(compatFactory.createIdentifier(first.exportClause.name.text));
 	}
 
-	return [preserveMeta(typescript.updateExportDeclaration(node, node.decorators, node.modifiers, exportClause, node.moduleSpecifier, node.isTypeOnly), node, options), ...other];
+	return [
+		preserveMeta(
+			isNodeFactory(compatFactory)
+				? compatFactory.updateExportDeclaration(node, node.decorators, node.modifiers, node.isTypeOnly, exportClause, node.moduleSpecifier)
+				: compatFactory.updateExportDeclaration(node, node.decorators, node.modifiers, exportClause, node.moduleSpecifier, node.isTypeOnly),
+			node,
+			options
+		),
+		...other
+	];
 }

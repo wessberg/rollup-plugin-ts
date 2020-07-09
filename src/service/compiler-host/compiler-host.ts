@@ -212,7 +212,9 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 
 		if (fileInput.fromRollup) {
 			const sourceFile = this.constructSourceFile(fileInput.fileName, fileInput.text);
-			const transformedSourceFile = ensureModuleTransformer({typescript: this.getTypescript(), sourceFile});
+			const typescript = this.getTypescript();
+			const compatFactory = (typescript.factory as TS.NodeFactory | undefined) ?? typescript;
+			const transformedSourceFile = ensureModuleTransformer({typescript, compatFactory, sourceFile});
 			if (transformedSourceFile !== sourceFile) {
 				(fileInput as VirtualFile).transformedText = this.printer.printFile(transformedSourceFile);
 			}

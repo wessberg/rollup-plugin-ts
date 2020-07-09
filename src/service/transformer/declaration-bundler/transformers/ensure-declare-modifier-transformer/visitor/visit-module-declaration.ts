@@ -4,8 +4,12 @@ import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {ensureHasDeclareModifier, hasDeclareModifier} from "../../../util/modifier-util";
 
 export function visitModuleDeclaration(options: EnsureDeclareModifierTransformerVisitorOptions<TS.ModuleDeclaration>): TS.ModuleDeclaration {
-	const {node, typescript} = options;
+	const {node, compatFactory, typescript} = options;
 	if (hasDeclareModifier(node, typescript)) return node;
 
-	return preserveMeta(typescript.updateModuleDeclaration(node, node.decorators, ensureHasDeclareModifier(node.modifiers, typescript), node.name, node.body), node, options);
+	return preserveMeta(
+		compatFactory.updateModuleDeclaration(node, node.decorators, ensureHasDeclareModifier(node.modifiers, compatFactory, typescript), node.name, node.body),
+		node,
+		options
+	);
 }

@@ -1,8 +1,8 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {formatCode} from "./util/format-code";
 
-test("Correctly parse TypeScript config files within sub-directories. #1", async t => {
+test("Correctly parse TypeScript config files within sub-directories. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -47,6 +47,7 @@ test("Correctly parse TypeScript config files within sub-directories. #1", async
 			}
 		],
 		{
+			typescript,
 			debug: false,
 			tsconfig: "virtual-configs/tsconfig.json"
 		}
@@ -66,7 +67,7 @@ test("Correctly parse TypeScript config files within sub-directories. #1", async
 	);
 });
 
-test("Correctly parse TypeScript config files within sub-directories. #2", async t => {
+test("Correctly parse TypeScript config files within sub-directories. #2", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -122,6 +123,7 @@ test("Correctly parse TypeScript config files within sub-directories. #2", async
 			}
 		],
 		{
+			typescript,
 			debug: false,
 			tsconfig: "virtual-configs/tsconfig.build.json"
 		}

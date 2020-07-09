@@ -4,12 +4,13 @@ import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {nodeArraysAreEqual} from "../../../util/node-arrays-are-equal";
 import {ContinuationOptions} from "../deconflicter-options";
 import {preserveMeta} from "../../../util/clone-node-with-meta";
+import {isNodeFactory} from "../../../util/is-node-factory";
 
 /**
  * Deconflicts the given MethodDeclaration.
  */
 export function deconflictMethodDeclaration(options: DeconflicterVisitorOptions<TS.MethodDeclaration>): TS.MethodDeclaration | undefined {
-	const {node, continuation, lexicalEnvironment, typescript} = options;
+	const {node, continuation, lexicalEnvironment, compatFactory, typescript} = options;
 	const nameContResult = typescript.isIdentifier(node.name) ? node.name : continuation(node.name, {lexicalEnvironment});
 
 	// The body, type, type parameters, as well as the parameters share the same lexical environment
@@ -32,18 +33,31 @@ export function deconflictMethodDeclaration(options: DeconflicterVisitorOptions<
 	}
 
 	return preserveMeta(
-		typescript.updateMethod(
-			node,
-			node.decorators,
-			node.modifiers,
-			node.asteriskToken,
-			nameContResult,
-			node.questionToken,
-			typeParametersContResult,
-			parametersContResult,
-			typeContResult,
-			bodyContResult
-		),
+		isNodeFactory(compatFactory)
+			? compatFactory.updateMethodDeclaration(
+					node,
+					node.decorators,
+					node.modifiers,
+					node.asteriskToken,
+					nameContResult,
+					node.questionToken,
+					typeParametersContResult,
+					parametersContResult,
+					typeContResult,
+					bodyContResult
+			  )
+			: compatFactory.updateMethod(
+					node,
+					node.decorators,
+					node.modifiers,
+					node.asteriskToken,
+					nameContResult,
+					node.questionToken,
+					typeParametersContResult,
+					parametersContResult,
+					typeContResult,
+					bodyContResult
+			  ),
 		node,
 		options
 	);

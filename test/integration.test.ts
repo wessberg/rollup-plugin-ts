@@ -1,9 +1,9 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import alias from "@rollup/plugin-alias";
 import {formatCode} from "./util/format-code";
 
-test("Integrates with @rollup/plugin-alias without problems. #1", async t => {
+test("Integrates with @rollup/plugin-alias without problems. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -82,6 +82,7 @@ test("Integrates with @rollup/plugin-alias without problems. #1", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false,
 			tsconfig: "tsconfig.json",
 			prePlugins: [

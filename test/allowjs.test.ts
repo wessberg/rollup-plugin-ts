@@ -1,8 +1,9 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
+import {lt} from "semver";
 
-test("Won't fail for .js extensions when allowJs is false. #1", async t => {
+test("Won't fail for .js extensions when allowJs is false. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -22,6 +23,7 @@ test("Won't fail for .js extensions when allowJs is false. #1", async t => {
 		],
 		{
 			debug: false,
+			typescript,
 			tsconfig: {
 				allowJs: false
 			}
@@ -42,7 +44,12 @@ test("Won't fail for .js extensions when allowJs is false. #1", async t => {
 	);
 });
 
-test("Can generate declarations for .js sources when 'allowJs' is true. #1", async t => {
+test("Can generate declarations for .js sources when 'allowJs' is true. #1", async (t, {typescript}) => {
+	if (lt(typescript.version, "3.7.0")) {
+		t.pass(`Current TypeScript version (${typescript.version} does not support allowJs in combination with declarations. Skipping...`);
+		return;
+	}
+
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -62,6 +69,7 @@ test("Can generate declarations for .js sources when 'allowJs' is true. #1", asy
 		],
 		{
 			debug: false,
+			typescript,
 			tsconfig: {
 				allowJs: true,
 				declaration: true

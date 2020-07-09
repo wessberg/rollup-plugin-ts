@@ -4,8 +4,11 @@ import {LexicalEnvironment} from "../deconflicter/deconflicter-options";
 import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options";
 
 export type SourceFileResolver = (fileName: string, from: string) => TS.SourceFile | undefined;
+export type CompatFactory = TS.NodeFactory | typeof TS;
 
 export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptions {
+	factory: TS.NodeFactory | undefined;
+	compatFactory: CompatFactory;
 	resolveSourceFile: SourceFileResolver;
 	context: TS.TransformationContext;
 	sourceFile: TS.SourceFile;

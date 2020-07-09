@@ -4,12 +4,15 @@ import {getAliasedDeclarationFromSymbol, isSymbol} from "./get-aliased-declarati
 import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options";
 import {generateUniqueBinding} from "./generate-unique-binding";
 import {preserveParents} from "./clone-node-with-meta";
+import {CompatFactory} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
+import {isNodeFactory} from "./is-node-factory";
 
 export function createAliasedBinding(
 	node: TS.Node | TS.Symbol | undefined,
 	propertyName: string,
 	name: string,
 	typescript: typeof TS,
+	compatFactory: CompatFactory,
 	typeChecker: TS.TypeChecker,
 	lexicalEnvironment: LexicalEnvironment
 ): (TS.ImportDeclaration | TS.TypeAliasDeclaration | TS.VariableStatement | TS.ModuleDeclaration | TS.ImportEqualsDeclaration)[] {
@@ -20,27 +23,34 @@ export function createAliasedBinding(
 		case typescript.SyntaxKind.ClassExpression: {
 			return [
 				preserveParents(
-					typescript.createModuleDeclaration(
+					compatFactory.createModuleDeclaration(
 						undefined,
 						undefined,
-						typescript.createIdentifier(moduleBinding),
-						typescript.createModuleBlock([
-							typescript.createExportDeclaration(
-								undefined,
-								undefined,
-								typescript.createNamedExports([typescript.createExportSpecifier(undefined, typescript.createIdentifier(propertyName))])
-							)
+						compatFactory.createIdentifier(moduleBinding),
+						compatFactory.createModuleBlock([
+							isNodeFactory(compatFactory)
+								? compatFactory.createExportDeclaration(
+										undefined,
+										undefined,
+										false,
+										compatFactory.createNamedExports([compatFactory.createExportSpecifier(undefined, compatFactory.createIdentifier(propertyName))])
+								  )
+								: compatFactory.createExportDeclaration(
+										undefined,
+										undefined,
+										compatFactory.createNamedExports([compatFactory.createExportSpecifier(undefined, compatFactory.createIdentifier(propertyName))])
+								  )
 						])
 					),
 					{typescript}
 				),
 
 				preserveParents(
-					typescript.createImportEqualsDeclaration(
+					compatFactory.createImportEqualsDeclaration(
 						undefined,
 						undefined,
-						typescript.createIdentifier(name),
-						typescript.createQualifiedName(typescript.createIdentifier(moduleBinding), typescript.createIdentifier(propertyName))
+						compatFactory.createIdentifier(name),
+						compatFactory.createQualifiedName(compatFactory.createIdentifier(moduleBinding), compatFactory.createIdentifier(propertyName))
 					),
 					{typescript}
 				)
@@ -54,10 +64,18 @@ export function createAliasedBinding(
 		case typescript.SyntaxKind.ExportAssignment: {
 			return [
 				preserveParents(
-					typescript.createVariableStatement(
-						ensureHasDeclareModifier(undefined, typescript),
-						typescript.createVariableDeclarationList(
-							[typescript.createVariableDeclaration(typescript.createIdentifier(name), typescript.createTypeQueryNode(typescript.createIdentifier(propertyName)))],
+					compatFactory.createVariableStatement(
+						ensureHasDeclareModifier(undefined, compatFactory, typescript),
+						compatFactory.createVariableDeclarationList(
+							[
+								isNodeFactory(compatFactory)
+									? compatFactory.createVariableDeclaration(
+											compatFactory.createIdentifier(name),
+											undefined,
+											compatFactory.createTypeQueryNode(compatFactory.createIdentifier(propertyName))
+									  )
+									: compatFactory.createVariableDeclaration(compatFactory.createIdentifier(name), compatFactory.createTypeQueryNode(compatFactory.createIdentifier(propertyName)))
+							],
 							typescript.NodeFlags.Const
 						)
 					),
@@ -69,12 +87,12 @@ export function createAliasedBinding(
 		default: {
 			return [
 				preserveParents(
-					typescript.createTypeAliasDeclaration(
+					compatFactory.createTypeAliasDeclaration(
 						undefined,
 						undefined,
-						typescript.createIdentifier(name),
+						compatFactory.createIdentifier(name),
 						undefined,
-						typescript.createTypeReferenceNode(typescript.createIdentifier(propertyName), undefined)
+						compatFactory.createTypeReferenceNode(compatFactory.createIdentifier(propertyName), undefined)
 					),
 					{typescript}
 				)

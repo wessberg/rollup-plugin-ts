@@ -9,12 +9,13 @@ import {ContinuationOptions} from "../deconflicter-options";
 import {getIdForNode} from "../../../util/get-id-for-node";
 import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {getOriginalSourceFile} from "../../../util/get-original-source-file";
+import {isNodeFactory} from "../../../util/is-node-factory";
 
 /**
  * Deconflicts the given ClassExpression.
  */
 export function deconflictClassExpression(options: DeconflicterVisitorOptions<TS.ClassExpression>): TS.ClassExpression | undefined {
-	const {node, continuation, lexicalEnvironment, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
+	const {node, continuation, lexicalEnvironment, typescript, compatFactory, sourceFile, declarationToDeconflictedBindingMap} = options;
 	let nameContResult: TS.ClassExpression["name"];
 
 	if (node.name != null) {
@@ -30,7 +31,7 @@ export function deconflictClassExpression(options: DeconflicterVisitorOptions<TS
 		} else {
 			// Otherwise, deconflict it
 			const uniqueBinding = generateUniqueBinding(lexicalEnvironment, node.name.text);
-			nameContResult = typescript.createIdentifier(uniqueBinding);
+			nameContResult = compatFactory.createIdentifier(uniqueBinding);
 			if (id != null) declarationToDeconflictedBindingMap.set(id, uniqueBinding);
 
 			// The name creates a new local binding within the current LexicalEnvironment
@@ -56,7 +57,9 @@ export function deconflictClassExpression(options: DeconflicterVisitorOptions<TS
 	}
 
 	return preserveMeta(
-		typescript.updateClassExpression(node, node.modifiers, nameContResult, typeParametersContResult, heritageClausesContResult, membersContResult),
+		isNodeFactory(compatFactory)
+			? compatFactory.updateClassExpression(node, node.decorators, node.modifiers, nameContResult, typeParametersContResult, heritageClausesContResult, membersContResult)
+			: compatFactory.updateClassExpression(node, node.modifiers, nameContResult, typeParametersContResult, heritageClausesContResult, membersContResult),
 		node,
 		options
 	);

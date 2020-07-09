@@ -6,11 +6,12 @@ import {ensureHasDeclareModifier} from "../../../util/modifier-util";
 import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifier-transformer/ensure-no-declare-modifier-transformer";
 import {statementMerger} from "../../statement-merger/statement-merger";
+import {isNodeFactory} from "../../../util/is-node-factory";
 
 export interface GenerateExportDeclarationsOptions extends Omit<ModuleMergerVisitorOptions<TS.ExportDeclaration>, "node"> {}
 
 function generateExportDeclarations(options: GenerateExportDeclarationsOptions, exportDeclarations: TS.ExportDeclaration[] = []): TS.ExportDeclaration[] {
-	const {sourceFile, sourceFileToExportedSymbolSet, typescript} = options;
+	const {sourceFile, sourceFileToExportedSymbolSet, compatFactory, typescript} = options;
 	const exportedSymbols = sourceFileToExportedSymbolSet.get(sourceFile.fileName) ?? [];
 	for (const symbol of exportedSymbols) {
 		const matchingSourceFile = symbol.moduleSpecifier == null ? undefined : options.getMatchingSourceFile(symbol.moduleSpecifier, sourceFile);
@@ -30,7 +31,12 @@ function generateExportDeclarations(options: GenerateExportDeclarationsOptions, 
 			// in favor of all other named export bindings that will included anyway
 			if (matchingSourceFile == null && generatedModuleSpecifier != null) {
 				exportDeclarations.push(
-					preserveParents(typescript.createExportDeclaration(undefined, undefined, undefined, typescript.createStringLiteral(generatedModuleSpecifier)), {typescript})
+					preserveParents(
+						isNodeFactory(compatFactory)
+							? compatFactory.createExportDeclaration(undefined, undefined, false, undefined, compatFactory.createStringLiteral(generatedModuleSpecifier))
+							: compatFactory.createExportDeclaration(undefined, undefined, undefined, compatFactory.createStringLiteral(generatedModuleSpecifier), false),
+						{typescript}
+					)
 				);
 			}
 
@@ -48,19 +54,32 @@ function generateExportDeclarations(options: GenerateExportDeclarationsOptions, 
 
 		// Otherwise, we can just add an ExportDeclaration with an ExportSpecifier
 		else {
-			const exportSpecifier = typescript.createExportSpecifier(
-				symbol.propertyName.text === symbol.name.text ? undefined : typescript.createIdentifier(symbol.propertyName.text),
-				typescript.createIdentifier(symbol.name.text)
+			const exportSpecifier = compatFactory.createExportSpecifier(
+				symbol.propertyName.text === symbol.name.text ? undefined : compatFactory.createIdentifier(symbol.propertyName.text),
+				compatFactory.createIdentifier(symbol.name.text)
 			);
 
 			exportDeclarations.push(
 				preserveParents(
-					typescript.createExportDeclaration(
-						undefined,
-						undefined,
-						typescript.createNamedExports([exportSpecifier]),
-						symbol.moduleSpecifier == null || generatedModuleSpecifier == null || matchingSourceFile != null ? undefined : typescript.createStringLiteral(generatedModuleSpecifier)
-					),
+					isNodeFactory(compatFactory)
+						? compatFactory.createExportDeclaration(
+								undefined,
+								undefined,
+								false,
+								compatFactory.createNamedExports([exportSpecifier]),
+								symbol.moduleSpecifier == null || generatedModuleSpecifier == null || matchingSourceFile != null
+									? undefined
+									: compatFactory.createStringLiteral(generatedModuleSpecifier)
+						  )
+						: compatFactory.createExportDeclaration(
+								undefined,
+								undefined,
+								compatFactory.createNamedExports([exportSpecifier]),
+								symbol.moduleSpecifier == null || generatedModuleSpecifier == null || matchingSourceFile != null
+									? undefined
+									: compatFactory.createStringLiteral(generatedModuleSpecifier),
+								false
+						  ),
 					{typescript}
 				)
 			);
@@ -72,7 +91,7 @@ function generateExportDeclarations(options: GenerateExportDeclarationsOptions, 
 }
 
 export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.ExportDeclaration>): VisitResult<TS.ExportDeclaration> {
-	const {node, typescript} = options;
+	const {node, compatFactory, typescript} = options;
 	const moduleSpecifier = node.moduleSpecifier == null || !typescript.isStringLiteralLike(node.moduleSpecifier) ? undefined : node.moduleSpecifier.text;
 	const updatedModuleSpecifier =
 		moduleSpecifier == null
@@ -101,14 +120,23 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 
 		// Otherwise, update the module specifier
 		return preserveMeta(
-			typescript.updateExportDeclaration(
-				contResult,
-				contResult.decorators,
-				contResult.modifiers,
-				contResult.exportClause,
-				typescript.createStringLiteral(updatedModuleSpecifier),
-				contResult.isTypeOnly
-			),
+			isNodeFactory(compatFactory)
+				? compatFactory.updateExportDeclaration(
+						contResult,
+						contResult.decorators,
+						contResult.modifiers,
+						contResult.isTypeOnly,
+						contResult.exportClause,
+						compatFactory.createStringLiteral(updatedModuleSpecifier)
+				  )
+				: compatFactory.updateExportDeclaration(
+						contResult,
+						contResult.decorators,
+						contResult.modifiers,
+						contResult.exportClause,
+						compatFactory.createStringLiteral(updatedModuleSpecifier),
+						contResult.isTypeOnly
+				  ),
 			contResult,
 			options
 		);
@@ -130,29 +158,37 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 		// Otherwise, prepend the nodes for the SourceFile in a namespace declaration
 		options.prependNodes(
 			preserveParents(
-				options.typescript.createModuleDeclaration(
+				compatFactory.createModuleDeclaration(
 					undefined,
-					ensureHasDeclareModifier(undefined, options.typescript),
-					options.typescript.createIdentifier(contResult.exportClause.name.text),
-					options.typescript.createModuleBlock([
+					ensureHasDeclareModifier(undefined, compatFactory, typescript),
+					compatFactory.createIdentifier(contResult.exportClause.name.text),
+					compatFactory.createModuleBlock([
 						...options.includeSourceFile(matchingSourceFile, {
 							allowDuplicate: true,
 							lexicalEnvironment: cloneLexicalEnvironment(),
 							transformers: [ensureNoDeclareModifierTransformer, statementMerger({markAsModuleIfNeeded: false})]
 						})
 					]),
-					options.typescript.NodeFlags.Namespace
+					typescript.NodeFlags.Namespace
 				),
 				options
 			),
 			preserveParents(
-				options.typescript.createExportDeclaration(
-					undefined,
-					undefined,
-					typescript.createNamedExports([typescript.createExportSpecifier(undefined, typescript.createIdentifier(contResult.exportClause.name.text))]),
-					undefined,
-					contResult.isTypeOnly
-				),
+				isNodeFactory(compatFactory)
+					? compatFactory.createExportDeclaration(
+							undefined,
+							undefined,
+							false,
+							compatFactory.createNamedExports([compatFactory.createExportSpecifier(undefined, compatFactory.createIdentifier(contResult.exportClause.name.text))]),
+							undefined
+					  )
+					: compatFactory.createExportDeclaration(
+							undefined,
+							undefined,
+							compatFactory.createNamedExports([compatFactory.createExportSpecifier(undefined, compatFactory.createIdentifier(contResult.exportClause.name.text))]),
+							undefined,
+							contResult.isTypeOnly
+					  ),
 				options
 			)
 		);
@@ -160,7 +196,9 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 
 	// Otherwise, preserve the continuation result, but without the ModuleSpecifier
 	return preserveMeta(
-		typescript.updateExportDeclaration(contResult, contResult.decorators, contResult.modifiers, contResult.exportClause, undefined, contResult.isTypeOnly),
+		isNodeFactory(compatFactory)
+			? compatFactory.updateExportDeclaration(contResult, contResult.decorators, contResult.modifiers, contResult.isTypeOnly, contResult.exportClause, undefined)
+			: compatFactory.updateExportDeclaration(contResult, contResult.decorators, contResult.modifiers, contResult.exportClause, undefined, contResult.isTypeOnly),
 		contResult,
 		options
 	);

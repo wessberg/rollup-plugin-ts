@@ -4,9 +4,10 @@ import {generateIdentifierName} from "../../../util/generate-identifier-name";
 import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers";
 import {preserveMeta, preserveParents, preserveSymbols} from "../../../util/clone-node-with-meta";
 import {hasExportModifier} from "../../../util/modifier-util";
+import {isNodeFactory} from "../../../util/is-node-factory";
 
 export function visitClassDeclaration(options: ToExportDeclarationTransformerVisitorOptions<TS.ClassDeclaration>): TS.ClassDeclaration {
-	const {node, typescript, appendNodes, sourceFile} = options;
+	const {node, compatFactory, typescript, appendNodes, sourceFile} = options;
 	// If the node has no export modifier, leave it as it is
 	if (!hasExportModifier(node, typescript)) return node;
 
@@ -20,14 +21,29 @@ export function visitClassDeclaration(options: ToExportDeclarationTransformerVis
 	});
 
 	// Append an ExportDeclaration
-	appendNodes(preserveParents(typescript.createExportDeclaration(undefined, undefined, typescript.createNamedExports([exportSpecifier])), {typescript}));
+	appendNodes(
+		preserveParents(
+			isNodeFactory(compatFactory)
+				? compatFactory.createExportDeclaration(undefined, undefined, false, compatFactory.createNamedExports([exportSpecifier]))
+				: compatFactory.createExportDeclaration(undefined, undefined, compatFactory.createNamedExports([exportSpecifier])),
+			{typescript}
+		)
+	);
 
 	// Update the name if it changed
 	if (node.name != null && nameText === node.name.text) {
 		returnNode = node;
 	} else {
 		returnNode = preserveMeta(
-			typescript.updateClassDeclaration(node, node.decorators, node.modifiers, typescript.createIdentifier(nameText), node.typeParameters, node.heritageClauses, node.members),
+			compatFactory.updateClassDeclaration(
+				node,
+				node.decorators,
+				node.modifiers,
+				compatFactory.createIdentifier(nameText),
+				node.typeParameters,
+				node.heritageClauses,
+				node.members
+			),
 			node,
 			options
 		);

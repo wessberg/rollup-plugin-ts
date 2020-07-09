@@ -3,9 +3,10 @@ import {TS} from "../../../../../../type/ts";
 import {preserveMeta, preserveParents} from "../../../util/clone-node-with-meta";
 import {locateExportedSymbolForSourceFile} from "../../../util/locate-exported-symbol";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
+import {isNodeFactory} from "../../../util/is-node-factory";
 
 export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.ExportSpecifier>): VisitResult<TS.ExportSpecifier> {
-	const {node, payload, typescript} = options;
+	const {node, payload, compatFactory} = options;
 	if (payload.moduleSpecifier == null) return options.childContinuation(node, undefined);
 
 	const contResult = options.childContinuation(node, undefined);
@@ -43,21 +44,38 @@ export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.Expo
 		) {
 			options.prependNodes(
 				preserveParents(
-					typescript.createExportDeclaration(
-						undefined,
-						undefined,
-						typescript.createNamedExports([
-							typescript.createExportSpecifier(
-								propertyName.text === "default"
-									? typescript.createIdentifier("default")
-									: exportedSymbol.propertyName.text === contResult.name.text
-									? undefined
-									: typescript.createIdentifier(exportedSymbol.propertyName.text),
-								typescript.createIdentifier(contResult.name.text)
-							)
-						]),
-						typescript.createStringLiteral(generatedModuleSpecifier)
-					),
+					isNodeFactory(compatFactory)
+						? compatFactory.createExportDeclaration(
+								undefined,
+								undefined,
+								false,
+								compatFactory.createNamedExports([
+									compatFactory.createExportSpecifier(
+										propertyName.text === "default"
+											? compatFactory.createIdentifier("default")
+											: exportedSymbol.propertyName.text === contResult.name.text
+											? undefined
+											: compatFactory.createIdentifier(exportedSymbol.propertyName.text),
+										compatFactory.createIdentifier(contResult.name.text)
+									)
+								]),
+								compatFactory.createStringLiteral(generatedModuleSpecifier)
+						  )
+						: compatFactory.createExportDeclaration(
+								undefined,
+								undefined,
+								compatFactory.createNamedExports([
+									compatFactory.createExportSpecifier(
+										propertyName.text === "default"
+											? compatFactory.createIdentifier("default")
+											: exportedSymbol.propertyName.text === contResult.name.text
+											? undefined
+											: compatFactory.createIdentifier(exportedSymbol.propertyName.text),
+										compatFactory.createIdentifier(contResult.name.text)
+									)
+								]),
+								compatFactory.createStringLiteral(generatedModuleSpecifier)
+						  ),
 					options
 				)
 			);
@@ -65,10 +83,10 @@ export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.Expo
 			return undefined;
 		} else if (propertyName.text === "default") {
 			return preserveMeta(
-				typescript.updateExportSpecifier(
+				compatFactory.updateExportSpecifier(
 					contResult,
-					exportedSymbol.propertyName.text === contResult.name.text ? undefined : typescript.createIdentifier(exportedSymbol.propertyName.text),
-					typescript.createIdentifier(contResult.name.text)
+					exportedSymbol.propertyName.text === contResult.name.text ? undefined : compatFactory.createIdentifier(exportedSymbol.propertyName.text),
+					compatFactory.createIdentifier(contResult.name.text)
 				),
 				contResult,
 				options

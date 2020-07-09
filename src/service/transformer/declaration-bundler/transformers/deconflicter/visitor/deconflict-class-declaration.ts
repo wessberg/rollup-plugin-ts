@@ -14,7 +14,7 @@ import {getOriginalSourceFile} from "../../../util/get-original-source-file";
  * Deconflicts the given ClassDeclaration.
  */
 export function deconflictClassDeclaration(options: DeconflicterVisitorOptions<TS.ClassDeclaration>): TS.ClassDeclaration | undefined {
-	const {node, continuation, lexicalEnvironment, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
+	const {node, continuation, lexicalEnvironment, typescript, compatFactory, sourceFile, declarationToDeconflictedBindingMap} = options;
 
 	let nameContResult: TS.ClassDeclaration["name"];
 
@@ -31,7 +31,7 @@ export function deconflictClassDeclaration(options: DeconflicterVisitorOptions<T
 		} else {
 			// Otherwise, deconflict it
 			const uniqueBinding = generateUniqueBinding(lexicalEnvironment, node.name.text);
-			nameContResult = typescript.createIdentifier(uniqueBinding);
+			nameContResult = compatFactory.createIdentifier(uniqueBinding);
 			if (id != null) declarationToDeconflictedBindingMap.set(id, uniqueBinding);
 
 			// The name creates a new local binding within the current LexicalEnvironment
@@ -57,7 +57,7 @@ export function deconflictClassDeclaration(options: DeconflicterVisitorOptions<T
 	}
 
 	return preserveMeta(
-		typescript.updateClassDeclaration(node, node.decorators, node.modifiers, nameContResult, typeParametersContResult, heritageClausesContResult, membersContResult),
+		compatFactory.updateClassDeclaration(node, node.decorators, node.modifiers, nameContResult, typeParametersContResult, heritageClausesContResult, membersContResult),
 		node,
 		options
 	);

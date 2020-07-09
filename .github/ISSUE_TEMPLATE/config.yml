@@ -1,0 +1,12 @@
+---
+blank_issues_enabled: true
+contact_links:
+  - about: "Please check the FAQ before filing new issues"
+    name: "FAQ"
+    url: "https://github.com/wessberg/rollup-plugin-ts#faq"
+  - about: "Please read the Rollup documentation to ensure that the issue isn't related to the way Rollup works"
+    name: "Rollup documentation"
+    url: "http://rollupjs.org/guide/en/"
+  - about: "Please read the TypeScript documentation to ensure that the issue isn't related to the way TypeScript works"
+    name: "TypeScript documentation"
+    url: "https://www.typescriptlang.org/docs/home.html"

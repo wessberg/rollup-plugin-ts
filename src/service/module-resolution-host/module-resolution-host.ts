@@ -11,7 +11,7 @@ export class ModuleResolutionHost implements TS.ModuleResolutionHost {
 	private readonly fileExistsCache: Map<string, boolean> = new Map();
 	private currentFileNames: Set<string> | undefined;
 	private currentDirectories: Set<string> | undefined;
-	private currentNonAmbientSupportedExtensions: SupportedExtensions;
+	private currentNonAmbientSupportedExtensions: SupportedExtensions | undefined;
 	constructor(protected readonly options: ModuleResolutionHostOptions, protected readonly files: Map<string, VirtualFile> = new Map()) {}
 
 	add(fileInput: VirtualFileInput | VirtualFile): VirtualFile {

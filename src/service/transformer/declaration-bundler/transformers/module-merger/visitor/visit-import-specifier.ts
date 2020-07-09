@@ -6,9 +6,10 @@ import {locateExportedSymbolForSourceFile} from "../../../util/locate-exported-s
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
 import {getAliasedDeclaration} from "../../../util/get-aliased-declaration";
 import {preserveParents} from "../../../util/clone-node-with-meta";
+import {isNodeFactory} from "../../../util/is-node-factory";
 
 export function visitImportSpecifier(options: ModuleMergerVisitorOptions<TS.ImportSpecifier>): VisitResult<TS.ImportSpecifier> {
-	const {node, payload, typescript} = options;
+	const {node, payload, compatFactory, typescript} = options;
 	if (payload.moduleSpecifier == null) return options.childContinuation(node, undefined);
 
 	const contResult = options.childContinuation(node, undefined);
@@ -46,23 +47,38 @@ export function visitImportSpecifier(options: ModuleMergerVisitorOptions<TS.Impo
 		) {
 			options.prependNodes(
 				preserveParents(
-					typescript.createImportDeclaration(
+					compatFactory.createImportDeclaration(
 						undefined,
 						undefined,
-						typescript.createImportClause(
-							undefined,
-							typescript.createNamedImports([
-								typescript.createImportSpecifier(
-									propertyName.text === "default"
-										? typescript.createIdentifier("default")
-										: exportedSymbol.propertyName.text === contResult.name.text
-										? undefined
-										: typescript.createIdentifier(exportedSymbol.propertyName.text),
-									typescript.createIdentifier(contResult.name.text)
-								)
-							])
-						),
-						typescript.createStringLiteral(generatedModuleSpecifier)
+						isNodeFactory(compatFactory)
+							? compatFactory.createImportClause(
+									false,
+									undefined,
+									compatFactory.createNamedImports([
+										compatFactory.createImportSpecifier(
+											propertyName.text === "default"
+												? compatFactory.createIdentifier("default")
+												: exportedSymbol.propertyName.text === contResult.name.text
+												? undefined
+												: compatFactory.createIdentifier(exportedSymbol.propertyName.text),
+											compatFactory.createIdentifier(contResult.name.text)
+										)
+									])
+							  )
+							: compatFactory.createImportClause(
+									undefined,
+									compatFactory.createNamedImports([
+										compatFactory.createImportSpecifier(
+											propertyName.text === "default"
+												? compatFactory.createIdentifier("default")
+												: exportedSymbol.propertyName.text === contResult.name.text
+												? undefined
+												: compatFactory.createIdentifier(exportedSymbol.propertyName.text),
+											compatFactory.createIdentifier(contResult.name.text)
+										)
+									])
+							  ),
+						compatFactory.createStringLiteral(generatedModuleSpecifier)
 					),
 					options
 				)
@@ -70,7 +86,7 @@ export function visitImportSpecifier(options: ModuleMergerVisitorOptions<TS.Impo
 		} else if (contResult.propertyName != null) {
 			const declaration = getAliasedDeclaration({...options, node: contResult.propertyName});
 			options.prependNodes(
-				...createAliasedBinding(declaration, exportedSymbol.propertyName.text, contResult.name.text, typescript, options.typeChecker, options.lexicalEnvironment)
+				...createAliasedBinding(declaration, exportedSymbol.propertyName.text, contResult.name.text, typescript, compatFactory, options.typeChecker, options.lexicalEnvironment)
 			);
 		}
 	}

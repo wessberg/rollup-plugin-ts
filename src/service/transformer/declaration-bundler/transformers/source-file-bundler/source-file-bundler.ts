@@ -8,13 +8,23 @@ import {formatTypeReferenceDirective} from "../../util/format-type-reference-dir
 import {pickResolvedModule} from "../../../../../util/pick-resolved-module";
 import {trackImportsTransformer} from "../track-imports-transformer/track-imports-transformer";
 import {trackExportsTransformer} from "../track-exports-transformer/track-exports-transformer";
+import {isNodeFactory} from "../../util/is-node-factory";
 
 function needsInitialize(options: DeclarationBundlerOptions): boolean {
 	return options.sourceFileToExportedSymbolSet.size === 0 || options.sourceFileToImportedSymbolSet.size === 0 || options.moduleSpecifierToSourceFileMap.size === 0;
 }
 
-export function sourceFileBundler(options: DeclarationBundlerOptions, ...transformers: DeclarationTransformer[]): TS.TransformerFactory<TS.Bundle> {
+export function sourceFileBundler(options: DeclarationBundlerOptions, ...transformers: DeclarationTransformer[]): TS.TransformerFactory<TS.Bundle | TS.SourceFile> {
 	return context => bundle => {
+		const {typescript} = options;
+		const factory = context.factory ?? undefined;
+		const compatFactory = (context.factory as TS.NodeFactory | undefined) ?? typescript;
+
+		// A Bundle of SourceFiles is expected. In case the SourceFileBundler is invoked with something other than that, do an early return
+		if (typescript.isSourceFile(bundle)) {
+			return bundle;
+		}
+
 		const updatedSourceFiles: TS.SourceFile[] = [];
 		const entryModulesArr = [...options.chunk.entryModules];
 
@@ -26,7 +36,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 		if (needsInitialize(options)) {
 			sourceFiles.forEach(sourceFile => {
 				for (const statement of sourceFile.statements) {
-					if (options.typescript.isModuleDeclaration(statement)) {
+					if (typescript.isModuleDeclaration(statement)) {
 						options.moduleSpecifierToSourceFileMap.set(statement.name.text, sourceFile);
 					}
 				}
@@ -34,7 +44,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 				options.sourceFileToImportedSymbolSet.set(
 					sourceFile.fileName,
 					trackImportsTransformer({
-						typescript: options.typescript,
+						typescript: typescript,
 						sourceFile
 					})
 				);
@@ -42,7 +52,8 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 				options.sourceFileToExportedSymbolSet.set(
 					sourceFile.fileName,
 					trackExportsTransformer({
-						typescript: options.typescript,
+						typescript: typescript,
+						compatFactory,
 						sourceFile
 					})
 				);
@@ -67,6 +78,8 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 			const visitorOptions: SourceFileBundlerVisitorOptions = {
 				...options,
 				context,
+				factory,
+				compatFactory,
 				otherEntrySourceFilesForChunk,
 				sourceFile: firstEntrySourceFile,
 				lexicalEnvironment: {
@@ -121,7 +134,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 		}
 
 		for (const sourceFile of [...otherEntrySourceFilesForChunk, ...nonEntrySourceFiles]) {
-			updatedSourceFiles.push(options.typescript.updateSourceFileNode(sourceFile, [], true));
+			updatedSourceFiles.push(isNodeFactory(compatFactory) ? compatFactory.updateSourceFile(sourceFile, [], true) : compatFactory.updateSourceFileNode(sourceFile, [], true));
 		}
 
 		// Merge lib- and type reference directives.
@@ -151,12 +164,12 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 		}
 
 		for (const fileName of libReferenceDirectiveFileNames) {
-			prepends.push(options.typescript.createUnparsedSourceFile(formatLibReferenceDirective(fileName)));
+			prepends.push(typescript.createUnparsedSourceFile(formatLibReferenceDirective(fileName)));
 		}
 
 		for (const fileName of typeReferenceDirectiveFileNames) {
-			prepends.push(options.typescript.createUnparsedSourceFile(formatTypeReferenceDirective(fileName)));
+			prepends.push(typescript.createUnparsedSourceFile(formatTypeReferenceDirective(fileName)));
 		}
-		return options.typescript.updateBundle(bundle, updatedSourceFiles, prepends);
+		return compatFactory.updateBundle(bundle, updatedSourceFiles, prepends);
 	};
 }

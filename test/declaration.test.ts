@@ -1,27 +1,34 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
+import {lt} from "semver";
 
-test("Flattens declarations. #1", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
+test("Flattens declarations. #1", async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
 					import {Bar} from "./bar";
 					export interface Foo extends Bar {}
 					`
-		},
-		{
-			entry: false,
-			fileName: "bar.ts",
-			text: `\
+			},
+			{
+				entry: false,
+				fileName: "bar.ts",
+				text: `\
 					export interface Bar {
 						a: string;
 					}
 					`
+			}
+		],
+		{
+			typescript,
+			debug: false
 		}
-	]);
+	);
 	const {
 		declarations: [file]
 	} = bundle;
@@ -37,23 +44,29 @@ test("Flattens declarations. #1", async t => {
 	);
 });
 
-test("Flattens declarations. #2", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
+test("Flattens declarations. #2", async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
 					export * from "./bar";
 					`
-		},
-		{
-			entry: false,
-			fileName: "bar.ts",
-			text: `\
+			},
+			{
+				entry: false,
+				fileName: "bar.ts",
+				text: `\
 					export interface Foo {}
 					`
+			}
+		],
+		{
+			typescript,
+			debug: false
 		}
-	]);
+	);
 	const {
 		declarations: [file]
 	} = bundle;
@@ -66,7 +79,7 @@ test("Flattens declarations. #2", async t => {
 	);
 });
 
-test("Flattens declarations. #3", async t => {
+test("Flattens declarations. #3", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -91,7 +104,7 @@ test("Flattens declarations. #3", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{typescript, debug: false}
 	);
 	const {
 		declarations: [file]
@@ -106,7 +119,7 @@ test("Flattens declarations. #3", async t => {
 	);
 });
 
-test("Flattens declarations. #4", async t => {
+test("Flattens declarations. #4", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -144,7 +157,7 @@ test("Flattens declarations. #4", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{typescript, debug: false}
 	);
 	const {
 		declarations: [file]
@@ -163,7 +176,7 @@ test("Flattens declarations. #4", async t => {
 	);
 });
 
-test("Flattens declarations. #5", async t => {
+test("Flattens declarations. #5", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -182,7 +195,7 @@ test("Flattens declarations. #5", async t => {
 					`
 			}
 		],
-		{debug: false}
+		{typescript, debug: false}
 	);
 	const {
 		declarations: [file]
@@ -199,23 +212,29 @@ test("Flattens declarations. #5", async t => {
 	);
 });
 
-test("Flattens declarations. #6", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
+test("Flattens declarations. #6", async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
           		export * from "./foo";
         	`
-		},
-		{
-			entry: false,
-			fileName: "foo/index.ts",
-			text: `\
+			},
+			{
+				entry: false,
+				fileName: "foo/index.ts",
+				text: `\
 				export const Foo = "foo";
 				`
+			}
+		],
+		{
+			typescript,
+			debug: false
 		}
-	]);
+	);
 	const {
 		declarations: [file]
 	} = bundle;
@@ -228,31 +247,37 @@ test("Flattens declarations. #6", async t => {
 	);
 });
 
-test("Flattens declarations. #7", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
+test("Flattens declarations. #7", async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
           		export * from "./foo.baz";
           		export * from "./bar.baz";
         	`
-		},
-		{
-			entry: false,
-			fileName: "foo.baz.ts",
-			text: `\
+			},
+			{
+				entry: false,
+				fileName: "foo.baz.ts",
+				text: `\
 				export const Foo = "foo";
 				`
-		},
-		{
-			entry: false,
-			fileName: "bar.baz.ts",
-			text: `\
+			},
+			{
+				entry: false,
+				fileName: "bar.baz.ts",
+				text: `\
 				export const Bar = "bar";
 				`
+			}
+		],
+		{
+			typescript,
+			debug: false
 		}
-	]);
+	);
 	const {
 		declarations: [file]
 	} = bundle;
@@ -267,24 +292,30 @@ test("Flattens declarations. #7", async t => {
 	);
 });
 
-test("Flattens declarations. #8", async t => {
-	const bundle = await generateRollupBundle([
-		{
-			entry: true,
-			fileName: "index.ts",
-			text: `\
+test("Flattens declarations. #8", async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
 							import {Foo} from "./foo";
           		export const foo: Foo = 2;
         	`
-		},
-		{
-			entry: false,
-			fileName: "foo.ts",
-			text: `\
+			},
+			{
+				entry: false,
+				fileName: "foo.ts",
+				text: `\
 				export type Foo = number;
 				`
+			}
+		],
+		{
+			typescript,
+			debug: false
 		}
-	]);
+	);
 	const {
 		declarations: [file]
 	} = bundle;
@@ -299,7 +330,7 @@ test("Flattens declarations. #8", async t => {
 	);
 });
 
-test("Flattens declarations. #9", async t => {
+test("Flattens declarations. #9", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -318,7 +349,7 @@ test("Flattens declarations. #9", async t => {
 			`
 			}
 		],
-		{debug: false}
+		{typescript, debug: false}
 	);
 	const {
 		declarations: [file]
@@ -336,7 +367,7 @@ test("Flattens declarations. #9", async t => {
 	);
 });
 
-test("Flattens declarations. #10", async t => {
+test("Flattens declarations. #10", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -366,7 +397,7 @@ test("Flattens declarations. #10", async t => {
 			`
 			}
 		],
-		{debug: false}
+		{typescript, debug: false}
 	);
 	const {
 		declarations: [file]
@@ -386,7 +417,7 @@ test("Flattens declarations. #10", async t => {
 	);
 });
 
-test("Flattens declarations. #11", async t => {
+test("Flattens declarations. #11", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -407,6 +438,7 @@ test("Flattens declarations. #11", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false,
 			rollupOptions: {
 				external(id) {
@@ -431,7 +463,7 @@ test("Flattens declarations. #11", async t => {
 	);
 });
 
-test("Flattens declarations. #12", async t => {
+test("Flattens declarations. #12", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -450,6 +482,7 @@ test("Flattens declarations. #12", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false
 		}
 	);
@@ -468,7 +501,7 @@ test("Flattens declarations. #12", async t => {
 	);
 });
 
-test("Flattens declarations. #13", async t => {
+test("Flattens declarations. #13", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -488,6 +521,7 @@ test("Flattens declarations. #13", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false
 		}
 	);
@@ -510,7 +544,12 @@ test("Flattens declarations. #13", async t => {
 	);
 });
 
-test("Flattens declarations. #14", async t => {
+test("Flattens declarations. #14", async (t, {typescript}) => {
+	if (lt(typescript.version, "3.5.0")) {
+		t.pass(`Current TypeScript version (${typescript.version} does not support the 'Omit' type. Skipping...`);
+		return;
+	}
+
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -533,6 +572,7 @@ test("Flattens declarations. #14", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false
 		}
 	);
@@ -553,7 +593,12 @@ test("Flattens declarations. #14", async t => {
 	);
 });
 
-test("Flattens declarations. #15", async t => {
+test("Flattens declarations. #15", async (t, {typescript}) => {
+	if (lt(typescript.version, "3.5.0")) {
+		t.pass(`Current TypeScript version (${typescript.version} does not support the 'readonly' keyword in front of arrays (like 'readonly string[]'). Skipping...`);
+		return;
+	}
+
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -576,6 +621,7 @@ test("Flattens declarations. #15", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false
 		}
 	);

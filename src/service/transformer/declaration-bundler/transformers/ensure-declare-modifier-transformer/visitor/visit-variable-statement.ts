@@ -4,8 +4,8 @@ import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {ensureHasDeclareModifier, hasDeclareModifier} from "../../../util/modifier-util";
 
 export function visitVariableStatement(options: EnsureDeclareModifierTransformerVisitorOptions<TS.VariableStatement>): TS.VariableStatement {
-	const {node, typescript} = options;
+	const {node, compatFactory, typescript} = options;
 	if (hasDeclareModifier(node, typescript)) return node;
 
-	return preserveMeta(typescript.updateVariableStatement(node, ensureHasDeclareModifier(node.modifiers, typescript), node.declarationList), node, options);
+	return preserveMeta(compatFactory.updateVariableStatement(node, ensureHasDeclareModifier(node.modifiers, compatFactory, typescript), node.declarationList), node, options);
 }

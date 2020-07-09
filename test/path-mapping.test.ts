@@ -1,8 +1,8 @@
-import test from "ava";
+import test from "./util/test-runner";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Supports path mapping. #1", async t => {
+test("Supports path mapping. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -21,6 +21,7 @@ test("Supports path mapping. #1", async t => {
 			}
 		],
 		{
+			typescript,
 			transpileOnly: true,
 			tsconfig: {
 				paths: {
@@ -42,7 +43,7 @@ test("Supports path mapping. #1", async t => {
 	);
 });
 
-test("Supports path mapping. #2", async t => {
+test("Supports path mapping. #2", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -61,6 +62,7 @@ test("Supports path mapping. #2", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false,
 			transpileOnly: true,
 			tsconfig: {
@@ -83,7 +85,7 @@ test("Supports path mapping. #2", async t => {
 	);
 });
 
-test("Supports path mapping. #3", async t => {
+test("Supports path mapping. #3", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -103,6 +105,7 @@ test("Supports path mapping. #3", async t => {
 			}
 		],
 		{
+			typescript,
 			debug: false,
 			transpileOnly: true,
 			tsconfig: {
@@ -126,7 +129,7 @@ test("Supports path mapping. #3", async t => {
 	);
 });
 
-test("Supports path mapping. #4", async t => {
+test("Supports path mapping. #4", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -146,6 +149,7 @@ test("Supports path mapping. #4", async t => {
 			}
 		],
 		{
+			typescript,
 			transpileOnly: true,
 			tsconfig: {
 				paths: {
@@ -167,7 +171,7 @@ test("Supports path mapping. #4", async t => {
 	);
 });
 
-test("Supports path mapping. #5", async t => {
+test("Supports path mapping. #5", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -186,6 +190,7 @@ test("Supports path mapping. #5", async t => {
 			}
 		],
 		{
+			typescript,
 			transpileOnly: true,
 			tsconfig: {
 				paths: {
