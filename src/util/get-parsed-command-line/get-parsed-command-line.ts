@@ -130,6 +130,15 @@ export function getParsedCommandLine(options: GetParsedCommandLineOptions): Pars
 		}
 	}
 
+	// Ensure that the parsed command line, as well as the original CompilerOptions has a base URL
+	if (parsedCommandLine.options.baseUrl == null) {
+		parsedCommandLine.options.baseUrl = ".";
+	}
+
+	if (originalCompilerOptions.baseUrl == null) {
+		originalCompilerOptions.baseUrl = ".";
+	}
+
 	// Remove all non-declaration files from the default file names since these will be handled separately by Rollup
 	parsedCommandLine.fileNames = parsedCommandLine.fileNames.filter(file => file.endsWith(D_TS_EXTENSION));
 

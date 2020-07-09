@@ -212,3 +212,45 @@ test("Supports path mapping. #5", async (t, {typescript}) => {
 		`)
 	);
 });
+
+test("Supports path mapping. #6", async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+          		export * from "~utils/foo";
+        	`
+			},
+			{
+				entry: false,
+				fileName: "src/utils/foo.ts",
+				text: `\
+				export const Foo = 2;
+				`
+			}
+		],
+		{
+			typescript,
+			transpileOnly: true,
+			tsconfig: {
+				baseUrl: "src",
+				paths: {
+					"~utils/*": ["utils/*"]
+				}
+			}
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare const Foo = 2;
+			export { Foo };
+		`)
+	);
+});

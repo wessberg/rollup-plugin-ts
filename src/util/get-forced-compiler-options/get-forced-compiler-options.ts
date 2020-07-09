@@ -43,7 +43,6 @@ export function getForcedCompilerOptions(options: GetForcedCompilerOptionsOption
 		...getForcedModuleKindOption(options),
 		...getForcedScriptTargetOption(options),
 		outDir: getOutDir(options.pluginOptions.cwd, options.rollupOutputOptions),
-		baseUrl: ".",
 		// Rollup, not Typescript, is the decider of where to put files
 		outFile: undefined,
 		// Always generate SourceMaps. Rollup will then decide if it wants to use them or not
