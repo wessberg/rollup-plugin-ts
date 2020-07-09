@@ -148,7 +148,8 @@ test("Can resolve the nearest file-relative babel config. #1", async (t, {typesc
 		throw ex;
 	} finally {
 		unlinker.cleanup();
-		t.true(configFileName != null && normalize(configFileName) === normalize(unlinker.path));
+		t.true(configFileName != null);
+		t.deepEqual(normalize(configFileName!), normalize(unlinker.path));
 	}
 });
 

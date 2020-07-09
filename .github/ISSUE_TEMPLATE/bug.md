@@ -10,7 +10,7 @@ about: Something doesn't work as expected.
 - Does it work with `tsc` (if applicable):
 
 <!--
-  Do you depend on this plugin? Please consider supporting its development by becoming [a sponsor](https://github.com/wessberg/rollup-plugin-ts?sponsor=1).
+  Do you depend on this plugin? Please consider supporting its development by becoming a sponsor: https://github.com/wessberg/rollup-plugin-ts?sponsor=1.
   Thanks ❤️
 -->
 
