@@ -139,7 +139,7 @@
 	},
 	"ava": {
 		"files": [
-			"test/babel.test.ts"
+			"test/**.test.ts"
 		],
 		"verbose": true,
 		"timeout": "300s",
