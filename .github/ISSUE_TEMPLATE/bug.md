@@ -3,7 +3,7 @@ name: Bug Report
 about: Something doesn't work as expected.
 ---
 
-- `@wessberg/rollup-plugin-ts` Version:
+- Version:
 - Rollup Version:
 - Operating System and version (if applicable):
 - Node Version (if applicable):

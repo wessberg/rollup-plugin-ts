@@ -142,7 +142,7 @@
 			"test/**.test.ts"
 		],
 		"verbose": true,
-		"timeout": "160s",
+		"timeout": "200s",
 		"extensions": [
 			"ts"
 		],
