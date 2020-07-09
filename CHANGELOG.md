@@ -1,3 +1,14 @@
+## [1.2.28](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.27...v1.2.28) (2020-07-09)
+
+### Bug Fixes
+
+- **path-mapping:** fix an issue where path mapping for other baseUrls than '.' didn't work. Fixes [#96](https://github.com/wessberg/rollup-plugin-ts/issues/96) ([7f6c429](https://github.com/wessberg/rollup-plugin-ts/commit/7f6c42900454eaf5ae108bb289b3b83563071fef))
+
+### Features
+
+- **typescript:** add TypeScript v4 support. ([165b366](https://github.com/wessberg/rollup-plugin-ts/commit/165b3667e17074197b8370b35b7e9e238d4f93fe))
+- add Christopher Blanchard as sponsor ([a70d0e6](https://github.com/wessberg/rollup-plugin-ts/commit/a70d0e6200d4c439818943b1a29190b1238a70bd))
+
 ## [1.2.27](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.26...v1.2.27) (2020-07-01)
 
 ### Bug Fixes
