@@ -687,6 +687,10 @@ Babel will then be used for all other syntax transformation from then on, depend
 
 [See this explainer](./documentation/explainer/why_is_babel-plugin-transform-runtime_and_tslib_included_by_default.md).
 
+#### My declaration files are always empty.
+
+If `rollup-plugin-ts` generates empty declaration files and it shouldn't, this is most likely because your `tsconfig` file doesn't have a `include` property matchign your source directory or `exclude` property matching your destination directory, and so TypeScript will consider all files inside the project root and potentially produce an invalid internal folder structure when the entry file(s) to Rollup comes from a subdirectory (such as `src/`). For example, you may have all of your files inside of a `src` folder, and you may use `dist` as your output folder. If that folder isn't already empty, for example from a previous build, and that folder isn't excluded from TypeScript, you may end up in this situation. To resolve it, make sure to either clean up your destination directory for every build, or make sure to exclude it from TypeScript in your config file.
+
 ## Starter templates
 
 The following is an evolving list of starter templates for new projects using Rollup, TypeScript, and `@wessberg/rollup-plugin-ts` that you can take a look at and draw inspiration from.
