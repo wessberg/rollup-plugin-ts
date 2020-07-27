@@ -48,6 +48,8 @@ function getTsVersionFromEnv(): [typeof TS, string][] | undefined {
 		case "CURRENT":
 			return [[(TSCurrent as unknown) as typeof TS, "typescript"]];
 	}
+
+	return undefined;
 }
 
 export type ExtendedImplementation<Context = unknown> = (t: ExecutionContext<Context>, options: ExtendedImplementationArgumentOptions) => ImplementationResult;
