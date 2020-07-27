@@ -134,3 +134,79 @@ test("Preserves JSDoc comments in bundled declarations. #3", async (t, {typescri
 		`)
 	);
 });
+
+test("Won't leave JSDoc annotations for tree-shaken nodes. #1", async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: false,
+				fileName: "child.ts",
+				text: `\
+				export interface ChildParams {
+					/**
+					 * Name parameter.
+					 */
+					name: string;
+				}
+
+				/**
+				 * Child function.
+				 */
+				export default function child(options: ChildParams) {
+					return options.name;
+				}
+			`
+			},
+			{
+				entry: true,
+				fileName: "parent.ts",
+				text: `\
+					import child, {ChildParams} from './child';
+
+					export interface ParentParams {
+						/**
+						 * Child parameter.
+						 */
+						child: ChildParams;
+					}
+					
+					/**
+					 * Parent function.
+					 */
+					export default function parent(options: ParentParams) {
+						return child(options.child);
+					}
+					`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		interface ChildParams {
+				/**
+				 * Name parameter.
+				 */
+				name: string;
+		}
+		interface ParentParams {
+				/**
+				 * Child parameter.
+				 */
+				child: ChildParams;
+		}
+		/**
+		 * Parent function.
+		 */
+		declare function parent(options: ParentParams): string;
+		export { ParentParams, parent as default };
+		`)
+	);
+});
