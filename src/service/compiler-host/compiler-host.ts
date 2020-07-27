@@ -87,7 +87,18 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		let hasEmitted = false;
 
 		const runEmit = (program: TS.Program | TS.EmitAndSemanticDiagnosticsBuilderProgram) => {
-			program.emit(
+			// There is an extra, private, argument that can be given to emit internally in TypeScript
+			// which forces emit of declarations. Set this to true for dts emit.
+			(program as TS.Program & {
+				emit: (
+					targetSourceFile?: TS.SourceFile,
+					writeFile?: TS.WriteFileCallback,
+					cancellationToken?: TS.CancellationToken,
+					emitOnlyDtsFiles?: boolean,
+					customTransformers?: TS.CustomTransformers,
+					forceDtsEmit?: boolean
+				) => TS.EmitResult;
+			}).emit(
 				sourceFile,
 				(file, data, writeByteOrderMark) => {
 					hasEmitted = true;
@@ -95,7 +106,8 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 				},
 				undefined,
 				onlyDts,
-				customTransformers
+				customTransformers,
+				onlyDts == null || !onlyDts ? undefined : true
 			);
 		};
 
@@ -282,7 +294,11 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		return success;
 	}
 
-	clone(compilerOptions: TS.CompilerOptions, overrides: Partial<Omit<CompilerHostOptions, "parsedCommandLineResult">> = {}): CompilerHost {
+	clone(
+		compilerOptions: TS.CompilerOptions,
+		fileNameFilter: (file: string) => boolean = () => true,
+		overrides: Partial<Omit<CompilerHostOptions, "parsedCommandLineResult">> = {}
+	): CompilerHost {
 		return new CompilerHost(
 			{
 				...this.options,
@@ -291,6 +307,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 					...this.options.parsedCommandLineResult,
 					parsedCommandLine: {
 						...this.getParsedCommandLine(),
+						fileNames: this.getParsedCommandLine().fileNames.filter(fileNameFilter),
 						options: {
 							...this.getCompilationSettings(),
 							...compilerOptions
@@ -299,11 +316,11 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 				}
 			},
 			this.printer,
-			new Map(this.sourceFiles),
-			new Map(this.transformerDiagnostics),
-			new Map(this.fileToVersionMap),
-			new Map(this.sourceFileToDependenciesMap),
-			new Map(this.files)
+			new Map([...this.sourceFiles.entries()].filter(([path]) => fileNameFilter(path))),
+			new Map([...this.transformerDiagnostics.entries()].filter(([path]) => fileNameFilter(path))),
+			new Map([...this.fileToVersionMap.entries()].filter(([path]) => fileNameFilter(path))),
+			new Map([...this.sourceFileToDependenciesMap.entries()].filter(([path]) => fileNameFilter(path))),
+			new Map([...this.files.entries()].filter(([path]) => fileNameFilter(path)))
 		);
 	}
 

@@ -12,7 +12,8 @@ export default {
 		{
 			file: packageJson.main,
 			format: "cjs",
-			sourcemap: true
+			sourcemap: true,
+			exports: "default"
 		},
 		{
 			file: packageJson.module,
@@ -25,10 +26,5 @@ export default {
 			tsconfig: "tsconfig.build.json"
 		})
 	],
-	external: [
-		...builtinModules,
-		...Object.keys(packageJson.dependencies),
-		...Object.keys(packageJson.devDependencies),
-		...Object.keys(packageJson.peerDependencies)
-	]
+	external: [...builtinModules, ...Object.keys(packageJson.dependencies), ...Object.keys(packageJson.devDependencies), ...Object.keys(packageJson.peerDependencies)]
 };

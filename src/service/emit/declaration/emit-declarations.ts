@@ -15,6 +15,7 @@ import {mergeChunksWithAmbientDependencies} from "../../../util/chunk/merge-chun
 import {preparePaths} from "../../transformer/declaration-bundler/util/prepare-paths/prepare-paths";
 import {logEmit} from "../../../util/logging/log-emit";
 import {TS} from "../../../type/ts";
+import {createFilter} from "@rollup/pluginutils";
 
 export interface EmitDeclarationsOptions {
 	pluginContext: PluginContext;
@@ -65,6 +66,8 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 		}
 	}
 
+	const filter = createFilter(undefined, [setExtension(virtualOutFile.relative, D_TS_EXTENSION), setExtension(virtualOutFile.relative, D_TS_MAP_EXTENSION)]);
+
 	const host = options.host.clone(
 		{
 			...options.host.getCompilationSettings(),
@@ -80,6 +83,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 			incremental: false,
 			tsBuildInfoFile: undefined
 		},
+		filter,
 		{
 			allowTransformingDeclarations: true
 		}

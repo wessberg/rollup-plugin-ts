@@ -33,3 +33,16 @@ export function shouldDebugEmit(debug: TypescriptPluginOptions["debug"], fileNam
 		})
 	);
 }
+
+export function shouldDebugTsconfig(debug: TypescriptPluginOptions["debug"]): boolean {
+	if (typeof debug === "boolean") return debug;
+	return Boolean(
+		debug({
+			kind: "tsconfig"
+		})
+	);
+}
+
+export function shouldDebugVirtualFiles(debug: TypescriptPluginOptions["debug"]): boolean {
+	return debug != null && debug !== false;
+}

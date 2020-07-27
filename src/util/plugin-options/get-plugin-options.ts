@@ -1,7 +1,7 @@
 import * as TSModule from "typescript";
 import {TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options";
 import {getRealFileSystem} from "../file-system/file-system";
-import {normalize} from "../path/path-util";
+import {ensureAbsolute, normalize} from "../path/path-util";
 
 /**
  * Gets normalized PluginOptions based on the given ones
@@ -27,7 +27,7 @@ export function getPluginOptions(options: Partial<TypescriptPluginOptions>): Typ
 	const baseOptions = {
 		typescript,
 		browserslist,
-		cwd: normalize(cwd),
+		cwd: ensureAbsolute(process.cwd(), cwd),
 		exclude,
 		include,
 		transformers,

@@ -9,7 +9,9 @@ import {HookRecord, InputCompilerOptions, TypescriptPluginBabelOptions, Typescri
 import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, TSBUILDINFO_EXTENSION} from "../../src/constant/constant";
 import {getRealFileSystem} from "../../src/util/file-system/file-system";
 import {TS} from "../../src/type/ts";
-import {isAbsolute, nativeDirname, nativeJoin, nativeNormalize, parse, relative} from "../../src/util/path/path-util";
+import {ensureAbsolute, isAbsolute, nativeDirname, nativeJoin, nativeNormalize, parse, relative} from "../../src/util/path/path-util";
+import {logVirtualFiles} from "../../src/util/logging/log-virtual-files";
+import {shouldDebugVirtualFiles} from "../../src/util/is-debug/should-debug";
 
 export interface ITestFile {
 	fileName: string;
@@ -81,6 +83,7 @@ export async function generateRollupBundle(
 		hook = {outputPath: path => path}
 	}: Partial<GenerateRollupBundleOptions> = {}
 ): Promise<GenerateRollupBundleResult> {
+	cwd = ensureAbsolute(process.cwd(), cwd);
 	const files: ITestFile[] = (Array.isArray(inputFiles) ? inputFiles : [inputFiles])
 		.map(file =>
 			typeof file === "string"
@@ -98,6 +101,11 @@ export async function generateRollupBundle(
 	const entryFiles = files.filter(file => file.entry);
 	if (entryFiles.length === 0) {
 		throw new ReferenceError(`No entry could be found`);
+	}
+
+	// Print the virtual file names
+	if (shouldDebugVirtualFiles(debug)) {
+		logVirtualFiles(files.map(file => nativeNormalize(file.fileName)));
 	}
 
 	const resolveId = (fileName: string, parent: string | undefined): string | undefined => {
@@ -203,6 +211,7 @@ export async function generateRollupBundle(
 					readFile: fileName => {
 						const normalized = nativeNormalize(fileName);
 						const absoluteFileName = isAbsolute(normalized) ? normalized : nativeJoin(cwd, normalized);
+
 						const file = files.find(currentFile => currentFile.fileName === absoluteFileName);
 						if (file != null) return file.text;
 						return typescript.sys.readFile(absoluteFileName);

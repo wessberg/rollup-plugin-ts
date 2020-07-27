@@ -23,7 +23,11 @@ export interface DebugMetricsData {
 	fileName?: string;
 }
 
-export type DebugData = DebugTransformerData | DebugEmitData | DebugMetricsData;
+export interface DebugTsconfigData {
+	kind: "tsconfig";
+}
+
+export type DebugData = DebugTransformerData | DebugEmitData | DebugMetricsData | DebugTsconfigData;
 
 export type DebugOptionCallback = (data: DebugData) => boolean;
 

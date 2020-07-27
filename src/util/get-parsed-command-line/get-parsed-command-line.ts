@@ -5,6 +5,8 @@ import {InputCompilerOptions, TsConfigResolver, TsConfigResolverWithFileName, Ty
 import {TS} from "../../type/ts";
 import {finalizeParsedCommandLine} from "../finalize-parsed-command-line/finalize-parsed-command-line";
 import {FileSystem} from "../file-system/file-system";
+import {shouldDebugTsconfig} from "../is-debug/should-debug";
+import {logTsconfig} from "../logging/log-tsconfig";
 
 export interface GetParsedCommandLineOptions {
 	cwd: string;
@@ -12,6 +14,8 @@ export interface GetParsedCommandLineOptions {
 	forcedCompilerOptions?: TS.CompilerOptions;
 	fileSystem: FileSystem;
 	typescript: typeof TS;
+	filter: (file: string) => boolean;
+	pluginOptions: TypescriptPluginOptions;
 }
 
 /**
@@ -157,6 +161,12 @@ export function getParsedCommandLine(options: GetParsedCommandLineOptions): Pars
 
 	// Finalize the parsed command line
 	finalizeParsedCommandLine({...options, parsedCommandLineResult});
+	// Filter out all files that is matched by the include/exclude globs provided as plugin options
+	parsedCommandLine.fileNames = parsedCommandLineResult.parsedCommandLine.fileNames.filter(options.filter);
+
+	if (shouldDebugTsconfig(options.pluginOptions.debug)) {
+		logTsconfig(parsedCommandLine);
+	}
 
 	return parsedCommandLineResult;
 }

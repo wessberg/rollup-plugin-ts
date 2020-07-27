@@ -113,6 +113,8 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				cwd,
 				fileSystem,
 				typescript,
+				pluginOptions,
+				filter,
 				forcedCompilerOptions: getForcedCompilerOptions({pluginOptions, rollupInputOptions, browserslist: normalizedBrowserslist})
 			});
 
