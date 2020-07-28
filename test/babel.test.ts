@@ -116,6 +116,81 @@ test("Can resolve the nearest project-wide babel config. #2", async (t, {typescr
 	}
 });
 
+test("Can resolve a babel config file by file path. #1", async (t, {typescript}) => {
+	const unlinker = createTemporaryConfigFile(BABEL_CONFIG_JSON_FILENAME, `{}`, "json");
+	let configFileName: string | undefined;
+	try {
+		await generateRollupBundle(
+			[
+				{
+					entry: true,
+					fileName: "index.ts",
+					text: `\
+					console.log([].includes(2));
+					`
+				}
+			],
+			{
+				debug: false,
+				typescript,
+				transpiler: "babel",
+				babelConfig: unlinker.path,
+				hook: {
+					babelConfig: (config, fileName) => {
+						configFileName = fileName;
+						return config;
+					}
+				}
+			}
+		);
+	} catch (ex) {
+		t.fail(ex);
+		throw ex;
+	} finally {
+		unlinker.cleanup();
+		t.true(configFileName != null && normalize(configFileName) === normalize(unlinker.path));
+	}
+});
+
+test("Can find a babel config with rootMode: 'upward'. #1", async (t, {typescript}) => {
+	const unlinker = createTemporaryConfigFile(BABEL_CONFIG_JSON_FILENAME, `{}`, "json");
+	let configFileName: string | undefined;
+	try {
+		await generateRollupBundle(
+			[
+				{
+					entry: true,
+					fileName: "index.ts",
+					text: `\
+					console.log([].includes(2));
+					`
+				}
+			],
+			{
+				debug: false,
+				typescript,
+				transpiler: "babel",
+				cwd: unlinker.dir,
+				babelConfig: {
+					rootMode: "upward"
+				},
+				hook: {
+					babelConfig: (config, fileName) => {
+						configFileName = fileName;
+						return config;
+					}
+				}
+			}
+		);
+	} catch (ex) {
+		t.fail(ex);
+		throw ex;
+	} finally {
+		unlinker.cleanup();
+		t.true(configFileName != null && normalize(configFileName) === normalize(unlinker.path));
+	}
+});
+
 test("Can resolve the nearest file-relative babel config. #1", async (t, {typescript}) => {
 	const unlinker = createTemporaryConfigFile(BABELRC_FILENAME, `{}`, "json");
 	let configFileName: string | undefined;

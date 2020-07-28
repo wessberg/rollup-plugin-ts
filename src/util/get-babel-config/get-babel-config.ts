@@ -91,12 +91,13 @@ export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOpt
 			// If babel options are provided directly
 			isBabelInputOptions(babelConfig)
 				? // If the given babelConfig is an object of input options, use that as the basis for the full config
-				  {...babelConfig, cwd, root: cwd, configFile: false, babelrc: false}
+				  {cwd, root: cwd, ...babelConfig}
 				: // Load the path to a babel config provided to the plugin if any, otherwise try to resolve it
 				  {
 						cwd,
 						root: cwd,
-						filename
+						filename,
+						...(babelConfig == null ? {} : {configFile: babelConfig})
 				  }
 		);
 
