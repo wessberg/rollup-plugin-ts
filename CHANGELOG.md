@@ -1,3 +1,9 @@
+## [1.2.31](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.30...v1.2.31) (2020-07-28)
+
+### Bug Fixes
+
+- **cache:** invalidate cached Programs if SourceFiles are added while it is being generated. Closes [#83](https://github.com/wessberg/rollup-plugin-ts/issues/83) ([d1e9777](https://github.com/wessberg/rollup-plugin-ts/commit/d1e9777869c54dc6f2663f552de8344a50ffad35))
+
 ## [1.2.30](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.29...v1.2.30) (2020-07-28)
 
 ### Bug Fixes
