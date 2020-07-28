@@ -41,7 +41,7 @@ devDependencies:
   fast-glob: 3.2.4
   husky: 4.2.5
   np: 5.2.1
-  pnpm: 5.4.6
+  pnpm: 5.4.7
   prettier: 2.0.5
   pretty-quick: 2.0.1_prettier@2.0.5
   rimraf: 3.0.2
@@ -1801,7 +1801,7 @@ packages:
   /browserslist/4.12.0:
     dependencies:
       caniuse-lite: 1.0.30001107
-      electron-to-chromium: 1.3.509
+      electron-to-chromium: 1.3.510
       node-releases: 1.1.60
       pkg-up: 2.0.0
     hasBin: true
@@ -1810,7 +1810,7 @@ packages:
   /browserslist/4.13.0:
     dependencies:
       caniuse-lite: 1.0.30001107
-      electron-to-chromium: 1.3.509
+      electron-to-chromium: 1.3.510
       escalade: 3.0.2
       node-releases: 1.1.60
     engines:
@@ -2560,9 +2560,9 @@ packages:
     dev: true
     resolution:
       integrity: sha1-7gHdHKwO08vH/b6jfcCo8c4ALOI=
-  /electron-to-chromium/1.3.509:
+  /electron-to-chromium/1.3.510:
     resolution:
-      integrity: sha512-cN4lkjNRuTG8rtAqTOVgwpecEC2kbKA04PG6YijcKGHK/kD0xLjiqExcAOmLUwtXZRF8cBeam2I0VZcih919Ug==
+      integrity: sha512-sLtGB0znXdmo6lM8hy5wTVo+fLqvIuO8hEpgc0DvPmFZqvBu/WB7AarEwhxVKjf3rVbws/rC8Xf+AlsOb36lJQ==
   /elegant-spinner/1.0.1:
     dev: true
     engines:
@@ -5248,13 +5248,13 @@ packages:
       node: ">=10"
     resolution:
       integrity: sha512-4UGewrYgqDFw9vV6zNV+ADmPAUAfJPKtGvb/VdpQAx25X5f3xXdGdyOEVFwkl8Hl/tl7+xbeHqSEM+D5/TirUg==
-  /pnpm/5.4.6:
+  /pnpm/5.4.7:
     dev: true
     engines:
       node: ">=10.13"
     hasBin: true
     resolution:
-      integrity: sha512-UZXIBwIlYkT+YbW8QjobVoppYT/hVphu1eu+ed60mGf+Ulz+suAR21zunWUGoETbibvetIkj8HLebsmz5tow8A==
+      integrity: sha512-jhtvP0En0MOsdCyt2cEVyhk71vvQaN9f5K4iv8X8ekSCGpX/ApNXIJPxaXbVA53vKjzNCtdHtwRLTjgSC2zf5A==
   /prelude-ls/1.2.1:
     dev: true
     engines:
@@ -6854,7 +6854,7 @@ specifiers:
   husky: ^4.2.5
   magic-string: ^0.25.7
   np: 5.2.1
-  pnpm: ^5.4.6
+  pnpm: ^5.4.7
   prettier: ^2.0.5
   pretty-quick: ^2.0.1
   rimraf: ^3.0.2
