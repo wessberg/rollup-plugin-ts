@@ -76,7 +76,7 @@ export async function generateRollupBundle(
 		cwd = process.cwd(),
 		transpileOnly = false,
 		typescript = TSModule,
-		debug = false,
+		debug = process.env.DEBUG === "true",
 		babelConfig,
 		chunkFileNames,
 		entryFileNames,

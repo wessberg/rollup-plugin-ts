@@ -19,6 +19,8 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 	private currentProgramInstance: TS.Program | undefined;
 	private currentTypeChecker: TS.TypeChecker | undefined;
 	private emitOutput: TS.EmitOutput | undefined;
+	private creatingProgram = false;
+	private invalidateProgram = false;
 
 	constructor(
 		protected readonly options: CompilerHostOptions,
@@ -137,22 +139,40 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 	private createProgram(): TS.EmitAndSemanticDiagnosticsBuilderProgram {
 		const typescript = this.getTypescript();
 
+		const rootNames = [...this.getFileNames()];
+		const options = this.getCompilationSettings();
+
 		// The --incremental option is part of TypeScript 3.4 and up only
 		if ("createIncrementalProgram" in (typescript as Partial<typeof TS>)) {
 			return typescript.createIncrementalProgram({
-				rootNames: [...this.getFileNames()],
-				options: this.getCompilationSettings(),
+				rootNames,
+				options,
 				host: this
 			});
 		} else {
-			return typescript.createEmitAndSemanticDiagnosticsBuilderProgram([...this.getFileNames()], this.getCompilationSettings(), this, this.previousProgram);
+			return typescript.createEmitAndSemanticDiagnosticsBuilderProgram(rootNames, options, this, this.previousProgram);
 		}
 	}
 
 	getProgram(): TS.EmitAndSemanticDiagnosticsBuilderProgram {
+		// If there is no current program, or if the list of root names is out of sync with the actual list of files, construct a new Program
 		if (this.currentProgram == null) {
-			this.currentProgram = this.createProgram();
+			// Construct a new program.
+			this.creatingProgram = true;
+			try {
+				this.currentProgram = this.createProgram();
+			} finally {
+				this.creatingProgram = false;
+			}
+
+			// If the program was invalidated before it was ever finished being created,
+			// Try again to ensure all SourceFiles will be part of it
+			if (this.invalidateProgram) {
+				this.invalidateProgram = false;
+				this.currentProgram = this.createProgram();
+			}
 		}
+
 		return this.currentProgram;
 	}
 
@@ -218,7 +238,9 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 
 	add(fileInput: VirtualFileInput | VirtualFile): VirtualFile {
 		const existing = this.get(fileInput.fileName);
-		if (existing != null && existing.text === fileInput.text) return existing;
+		if (existing != null && existing.text === fileInput.text) {
+			return existing;
+		}
 
 		this.delete(fileInput.fileName);
 
@@ -262,6 +284,10 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 	}
 
 	private clearProgram(): void {
+		if (this.creatingProgram) {
+			this.invalidateProgram = true;
+		}
+
 		this.previousProgram = this.currentProgram;
 		this.currentProgram = undefined;
 		this.currentProgramInstance = undefined;

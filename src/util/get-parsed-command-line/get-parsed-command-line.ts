@@ -143,8 +143,9 @@ export function getParsedCommandLine(options: GetParsedCommandLineOptions): Pars
 		originalCompilerOptions.baseUrl = ".";
 	}
 
-	// Remove all non-declaration files from the default file names since these will be handled separately by Rollup
-	parsedCommandLine.fileNames = parsedCommandLine.fileNames.filter(file => file.endsWith(D_TS_EXTENSION));
+	// Remove all non-declaration files from the default file names since these will be handled separately by Rollup.
+	// Also filter out all files that is matched by the include/exclude globs provided as plugin options
+	parsedCommandLine.fileNames = parsedCommandLine.fileNames.filter(file => file.endsWith(D_TS_EXTENSION) && options.filter(file));
 
 	const parsedCommandLineResult: ParsedCommandLineResult = {
 		parsedCommandLine,
@@ -161,8 +162,6 @@ export function getParsedCommandLine(options: GetParsedCommandLineOptions): Pars
 
 	// Finalize the parsed command line
 	finalizeParsedCommandLine({...options, parsedCommandLineResult});
-	// Filter out all files that is matched by the include/exclude globs provided as plugin options
-	parsedCommandLine.fileNames = parsedCommandLineResult.parsedCommandLine.fileNames.filter(options.filter);
 
 	if (shouldDebugTsconfig(options.pluginOptions.debug)) {
 		logTsconfig(parsedCommandLine);

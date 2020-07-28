@@ -55,8 +55,6 @@ function getTsVersionFromEnv(): [typeof TS, string][] | undefined {
 export type ExtendedImplementation<Context = unknown> = (t: ExecutionContext<Context>, options: ExtendedImplementationArgumentOptions) => ImplementationResult;
 
 function sharedTest<Context = unknown>(title: string, implementation: ExtendedImplementation<Context>, subMethod?: "skip" | "only"): void {
-	if (process.env.TS_VERSION != null) {
-	}
 	for (const [typescript, typescriptModuleSpecifier] of getTsVersionFromEnv() ??
 		([
 			[TS321, "typescript-3-2-1"],
