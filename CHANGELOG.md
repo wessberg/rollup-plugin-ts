@@ -1,3 +1,11 @@
+## [1.2.29](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.28...v1.2.29) (2020-07-28)
+
+### Bug Fixes
+
+- **comments:** improve bundling and tree-shaking of comments. Fixes [#104](https://github.com/wessberg/rollup-plugin-ts/issues/104) ([559c420](https://github.com/wessberg/rollup-plugin-ts/commit/559c420adee0c044c7cd804aeb92c41191780d96))
+- add missing return statement ([ded2524](https://github.com/wessberg/rollup-plugin-ts/commit/ded252413ef9ea9d958d00f3dd0b2f886673595c))
+- declarations are sometimes empty. Closes [#105](https://github.com/wessberg/rollup-plugin-ts/issues/105) ([0e41f7c](https://github.com/wessberg/rollup-plugin-ts/commit/0e41f7c7cb0b400a12d9cac63597585e8d488e71))
+
 ## [1.2.28](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.27...v1.2.28) (2020-07-09)
 
 ### Bug Fixes
