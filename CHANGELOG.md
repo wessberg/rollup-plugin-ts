@@ -1,3 +1,9 @@
+## [1.2.30](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.29...v1.2.30) (2020-07-28)
+
+### Bug Fixes
+
+- **babel:** babel configs cannot be resolved correctly. Closes [#101](https://github.com/wessberg/rollup-plugin-ts/issues/101). Closes [#95](https://github.com/wessberg/rollup-plugin-ts/issues/95) ([044588e](https://github.com/wessberg/rollup-plugin-ts/commit/044588e67ff86791271f4f0e16d916b4ff5b9458))
+
 ## [1.2.29](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.28...v1.2.29) (2020-07-28)
 
 ### Bug Fixes
