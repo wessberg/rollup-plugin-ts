@@ -109,6 +109,8 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 					visitorOptions: {
 						...visitorOptions,
 						...otherOptions,
+						// If duplicates should be allowed, treat this context as empty
+						includedSourceFiles: allowDuplicate ? new Set() : options.includedSourceFiles,
 						sourceFile: sourceFileToInclude,
 						otherEntrySourceFilesForChunk: []
 					},

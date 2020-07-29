@@ -641,3 +641,109 @@ test("Flattens declarations. #15", async (t, {typescript}) => {
 		`)
 	);
 });
+
+test("Flattens declarations. #16", async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "virtual-src/index.ts",
+				text: `\
+        export * from './lib-ref';
+				export * from './problem-file';
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/lib-ref.ts",
+				text: `\
+        export {
+					Foo as F,
+					utils,
+					emitter
+				} from './main-lib';
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/problem-file.ts",
+				text: `\
+        import * as libRef from './lib-ref';
+
+				export interface Problem {
+					foo: libRef.F;
+					doAThing:(ref:typeof libRef) => void;
+				}
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/main-lib/index.ts",
+				text: `\
+				export * from './module-b';
+				export * from './utils';
+				export * from './module-a';
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/main-lib/module-a.ts",
+				text: `\
+				export class Foo {
+					public bar: () => {};
+				}
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/main-lib/module-b.ts",
+				text: `\
+				export const emitter = () => {};
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/main-lib/utils.ts",
+				text: `\
+				export namespace utils {
+					export function blah() { return "I'm a string!"; }
+				}
+			`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare const emitter: () => void;
+			declare namespace utils {
+					function blah(): string;
+			}
+			declare class Foo {
+					bar: () => {};
+			}
+			declare namespace libRef {
+					const emitter: () => void;
+					namespace utils {
+							function blah(): string;
+					}
+					class Foo {
+							bar: () => {};
+					}
+			}
+			interface Problem {
+					foo: libRef.Foo;
+					doAThing: (ref: typeof libRef) => void;
+			}
+			export { Foo as F, utils, emitter, Problem };
+		`)
+	);
+});
