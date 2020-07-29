@@ -1,6 +1,9 @@
-export interface DeclarationStats {
-	// A Record from chunk file names to their external type dependencies
-	externalTypes: Record<string, ExternalType[]>;
+// A Record from chunk file names to their stats
+export type DeclarationStats = Record<string, DeclarationChunkStats>;
+
+export interface DeclarationChunkStats {
+	// An array of the external type dependencies for a declaration chunk
+	externalTypes: ExternalType[];
 }
 
 export interface ExternalType {

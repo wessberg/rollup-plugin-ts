@@ -104,7 +104,9 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 		sourceFileToImportedSymbolSet: new Map(),
 		sourceFileToDependenciesMap: new Map(),
 		moduleSpecifierToSourceFileMap: new Map(),
-		printer: host.getPrinter()
+		printer: host.getPrinter(),
+		// Only prepare the record if a hook has been provided
+		declarationStats: options.pluginOptions.hook.declarationStats != null ? {} : undefined
 	};
 
 	for (const chunk of normalizedChunks) {
@@ -200,6 +202,10 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 				});
 			}
 		}
+	}
+
+	if (sharedOptions.declarationStats != null) {
+		options.pluginOptions.hook.declarationStats?.(sharedOptions.declarationStats);
 	}
 
 	if (fullBenchmark != null) fullBenchmark.finish();

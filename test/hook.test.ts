@@ -79,7 +79,7 @@ test("Diagnostics can be filtered with the 'diagnostics' hook. #1", async (t, {t
 	);
 });
 
-test("External types can be retrieved with the 'declarationStats' hook. #1", async (t, {typescript, typescriptModuleSpecifier}) => {
+test.only("External types can be retrieved with the 'declarationStats' hook. #1", async (t, {typescript, typescriptModuleSpecifier}) => {
 	let stats: DeclarationStats | undefined;
 
 	await generateRollupBundle(
@@ -102,11 +102,10 @@ test("External types can be retrieved with the 'declarationStats' hook. #1", asy
 		}
 	);
 
-	console.log(stats?.externalTypes);
 	t.true(stats != null);
-	t.true(stats?.externalTypes["index.d.ts"] != null);
-	t.true(stats?.externalTypes["index.d.ts"][0] != null);
-	t.true(stats?.externalTypes["index.d.ts"][0].library === "typescript");
-	t.true(stats?.externalTypes["index.d.ts"][1] != null);
-	t.true(stats?.externalTypes["index.d.ts"][1].library === "@types/node");
+	t.true(stats?.["index.d.ts"].externalTypes != null);
+	t.true(stats?.["index.d.ts"].externalTypes[0] != null);
+	t.true(stats?.["index.d.ts"].externalTypes[0].library === "typescript");
+	t.true(stats?.["index.d.ts"].externalTypes[1] != null);
+	t.true(stats?.["index.d.ts"].externalTypes[1].library === "@types/node");
 });

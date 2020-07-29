@@ -133,9 +133,10 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 			}
 
 			// If a declarationStats hook has been provided to the plugin, collect stats and invoke the hook with the information
-			if (options.pluginOptions.hook.declarationStats != null) {
-				const rawStats = statsCollector({...visitorOptions, sourceFile: transformedSourceFile});
-				options.pluginOptions.hook.declarationStats(rawStats);
+			if (options.declarationStats != null) {
+				Object.assign(options.declarationStats, {
+					[options.declarationPaths.fileName]: statsCollector({...visitorOptions, sourceFile: transformedSourceFile})
+				});
 			}
 
 			updatedSourceFiles.push(transformedSourceFile);

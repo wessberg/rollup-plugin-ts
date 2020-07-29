@@ -9,6 +9,7 @@ import {SourceFileToExportedSymbolSet} from "./transformers/track-exports-transf
 import {SourceFileToImportedSymbolSet} from "./transformers/track-imports-transformer/track-imports-transformer-visitor-options";
 import {ExtendedResolvedModule} from "../../cache/resolve-cache/extended-resolved-module";
 import {TypeReference} from "./util/get-type-reference-module-from-file-name";
+import {DeclarationStats} from "../../../type/declaration-stats";
 
 export type SourceFileToDependenciesMap = Map<string, Set<ExtendedResolvedModule>>;
 export type ModuleSpecifierToSourceFileMap = Map<string, TS.SourceFile>;
@@ -33,4 +34,5 @@ export interface DeclarationBundlerOptions {
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
 	sourceFileToImportedSymbolSet: SourceFileToImportedSymbolSet;
 	moduleSpecifierToSourceFileMap: ModuleSpecifierToSourceFileMap;
+	declarationStats: DeclarationStats | undefined;
 }

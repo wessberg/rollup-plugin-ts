@@ -1,13 +1,13 @@
 import {trackImportsTransformer} from "../track-imports-transformer/track-imports-transformer";
-import {DeclarationStats} from "../../../../../type/declaration-stats";
+import {DeclarationChunkStats} from "../../../../../type/declaration-stats";
 import {StatsCollectorOptions} from "./stats-collector-options";
 import {ExtendedResolvedModule} from "../../../../cache/resolve-cache/extended-resolved-module";
 
-export function statsCollector(options: StatsCollectorOptions): DeclarationStats {
+export function statsCollector(options: StatsCollectorOptions): DeclarationChunkStats {
 	const {typescript, sourceFile, declarationPaths, host, sourceFileToTypeReferencesSet} = options;
 
-	const stats: DeclarationStats = {
-		externalTypes: {}
+	const stats: DeclarationChunkStats = {
+		externalTypes: []
 	};
 
 	// Track all imports
@@ -40,10 +40,10 @@ export function statsCollector(options: StatsCollectorOptions): DeclarationStats
 	// For each resolveResult, check if they represent external dependencies, and if so, add them to the 'externalTypes' stats
 	for (const resolveResult of resolveResults) {
 		if (resolveResult.isExternalLibraryImport === true && resolveResult.packageId != null) {
-			if (stats.externalTypes[declarationPaths.relative] == null) {
-				stats.externalTypes[declarationPaths.relative] = [];
-			}
-			stats.externalTypes[declarationPaths.relative].push({
+			// If the external types already include this library, skip it
+			if (stats.externalTypes.some(({library}) => library === resolveResult.packageId?.name)) continue;
+
+			stats.externalTypes.push({
 				library: resolveResult.packageId.name,
 				version: resolveResult.packageId.version
 			});
