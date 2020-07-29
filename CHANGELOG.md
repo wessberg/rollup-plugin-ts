@@ -1,3 +1,9 @@
+## [1.2.34](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.33...v1.2.34) (2020-07-29)
+
+### Bug Fixes
+
+- **hook:** fix declarationPaths type signature ([b8d6e7e](https://github.com/wessberg/rollup-plugin-ts/commit/b8d6e7e90c542003f1fdd89df544a0c4167a5e4b))
+
 ## [1.2.33](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.32...v1.2.33) (2020-07-29)
 
 ### Features
