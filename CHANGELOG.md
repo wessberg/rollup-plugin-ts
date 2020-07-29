@@ -1,3 +1,9 @@
+## [1.2.32](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.31...v1.2.32) (2020-07-29)
+
+### Bug Fixes
+
+- ensure that includedSourceFiles are always empty when allowDuplicate: true is passed as an option to includeSourceFile in moduleMerger. Fixes [#90](https://github.com/wessberg/rollup-plugin-ts/issues/90) ([796b92a](https://github.com/wessberg/rollup-plugin-ts/commit/796b92a518bd86e07c1e9c8aaba13957e88905bd))
+
 ## [1.2.31](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.30...v1.2.31) (2020-07-28)
 
 ### Bug Fixes
