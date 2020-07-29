@@ -1,5 +1,5 @@
 import {TS} from "../../../type/ts";
-import {TypescriptPluginOptions} from "../../../plugin/i-typescript-plugin-options";
+import {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options";
 import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "./transformers/reference/cache/reference-cache";
 import {SourceFileBundlerVisitorOptions} from "./transformers/source-file-bundler/source-file-bundler-visitor-options";
 import {NormalizedChunk} from "../../../util/chunk/normalize-chunk";
@@ -8,6 +8,7 @@ import {PathsResult} from "./util/prepare-paths/prepare-paths";
 import {SourceFileToExportedSymbolSet} from "./transformers/track-exports-transformer/track-exports-transformer-visitor-options";
 import {SourceFileToImportedSymbolSet} from "./transformers/track-imports-transformer/track-imports-transformer-visitor-options";
 import {ExtendedResolvedModule} from "../../cache/resolve-cache/extended-resolved-module";
+import {TypeReference} from "./util/get-type-reference-module-from-file-name";
 
 export type SourceFileToDependenciesMap = Map<string, Set<ExtendedResolvedModule>>;
 export type ModuleSpecifierToSourceFileMap = Map<string, TS.SourceFile>;
@@ -28,7 +29,7 @@ export interface DeclarationBundlerOptions {
 	referenceCache: ReferenceCache;
 	pluginOptions: TypescriptPluginOptions;
 	sourceFileToNodeToReferencedIdentifiersCache: SourceFileToNodeToReferencedIdentifiersCache;
-	sourceFileToTypeReferencesSet: Map<string, Set<string>>;
+	sourceFileToTypeReferencesSet: Map<string, Set<TypeReference>>;
 	sourceFileToExportedSymbolSet: SourceFileToExportedSymbolSet;
 	sourceFileToImportedSymbolSet: SourceFileToImportedSymbolSet;
 	moduleSpecifierToSourceFileMap: ModuleSpecifierToSourceFileMap;

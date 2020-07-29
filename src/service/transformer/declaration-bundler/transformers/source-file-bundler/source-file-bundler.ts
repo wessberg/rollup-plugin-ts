@@ -9,6 +9,8 @@ import {pickResolvedModule} from "../../../../../util/pick-resolved-module";
 import {trackImportsTransformer} from "../track-imports-transformer/track-imports-transformer";
 import {trackExportsTransformer} from "../track-exports-transformer/track-exports-transformer";
 import {isNodeFactory} from "../../util/is-node-factory";
+import {statsCollector} from "../stats-collector/stats-collector";
+import {TypeReference} from "../../util/get-type-reference-module-from-file-name";
 
 function needsInitialize(options: DeclarationBundlerOptions): boolean {
 	return options.sourceFileToExportedSymbolSet.size === 0 || options.sourceFileToImportedSymbolSet.size === 0 || options.moduleSpecifierToSourceFileMap.size === 0;
@@ -130,6 +132,12 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 				}
 			}
 
+			// If a declarationStats hook has been provided to the plugin, collect stats and invoke the hook with the information
+			if (options.pluginOptions.hook.declarationStats != null) {
+				const rawStats = statsCollector({...visitorOptions, sourceFile: transformedSourceFile});
+				options.pluginOptions.hook.declarationStats(rawStats);
+			}
+
 			updatedSourceFiles.push(transformedSourceFile);
 		}
 
@@ -158,8 +166,8 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 				typeReferenceDirectiveFileNames.add(fileName);
 			}
 
-			for (const typeReferenceModule of options.sourceFileToTypeReferencesSet.get(updatedSourceFile.fileName) ?? new Set<string>()) {
-				typeReferenceDirectiveFileNames.add(typeReferenceModule);
+			for (const typeReferenceModule of options.sourceFileToTypeReferencesSet.get(updatedSourceFile.fileName) ?? new Set<TypeReference>()) {
+				typeReferenceDirectiveFileNames.add(typeReferenceModule.moduleSpecifier);
 			}
 		}
 

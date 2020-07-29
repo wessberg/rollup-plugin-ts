@@ -1,4 +1,4 @@
-import {TypescriptPluginBabelOptions} from "../../plugin/i-typescript-plugin-options";
+import {TypescriptPluginBabelOptions} from "../../plugin/typescript-plugin-options";
 import {InputOptions, OutputOptions} from "rollup";
 
 export interface GetDefaultBabelOptionsOptions {

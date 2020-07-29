@@ -1,6 +1,6 @@
 import {OutputBundle, OutputOptions, PluginContext} from "rollup";
 import {CompilerHost} from "../../compiler-host/compiler-host";
-import {TypescriptPluginOptions} from "../../../plugin/i-typescript-plugin-options";
+import {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options";
 import {join, nativeNormalize, relative} from "../../../util/path/path-util";
 import {getOutDir} from "../../../util/get-out-dir/get-out-dir";
 import {isBuildInfoOutputFile} from "../../../util/is-build-info-output-file/is-build-info-output-file";

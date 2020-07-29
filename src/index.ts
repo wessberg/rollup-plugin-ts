@@ -7,4 +7,4 @@ export {
 	BrowserslistQueryConfig,
 	TypescriptPluginBabelOptions,
 	TypescriptPluginTypescriptOptions
-} from "./plugin/i-typescript-plugin-options";
+} from "./plugin/typescript-plugin-options";

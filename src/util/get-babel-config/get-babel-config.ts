@@ -11,7 +11,7 @@ import {
 import {ConfigItem, createConfigItem, loadOptions, loadPartialConfig, TransformOptions} from "@babel/core";
 import {GetBabelConfigOptions} from "./get-babel-config-options";
 import {BabelConfigFactory, FullConfig} from "./get-babel-config-result";
-import {TypescriptPluginBabelOptions} from "../../plugin/i-typescript-plugin-options";
+import {TypescriptPluginBabelOptions} from "../../plugin/typescript-plugin-options";
 import {isDefined} from "../is-defined/is-defined";
 
 /**

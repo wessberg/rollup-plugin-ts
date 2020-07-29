@@ -2,10 +2,11 @@ import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-fil
 import {TS} from "../../../../../type/ts";
 import {TypeReferenceCollectorVisitorOptions} from "./type-reference-collector-visitor-options";
 import {visitNode} from "./visitor/visit-node";
+import {TypeReference} from "../../util/get-type-reference-module-from-file-name";
 
 export function typeReferenceCollector(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
 	const {typescript} = options;
-	const typeReferences = new Set<string>();
+	const typeReferences = new Set<TypeReference>();
 	options.sourceFileToTypeReferencesSet.set(options.sourceFile.fileName, typeReferences);
 
 	// Prepare some VisitorOptions
@@ -13,8 +14,8 @@ export function typeReferenceCollector(options: SourceFileBundlerVisitorOptions)
 		...options,
 		importDeclarations: options.sourceFile.statements.filter(options.typescript.isImportDeclaration),
 
-		addTypeReference(module: string): void {
-			typeReferences.add(module);
+		addTypeReference(typeReference: TypeReference): void {
+			typeReferences.add(typeReference);
 		},
 
 		childContinuation: <U extends TS.Node>(node: U): void =>

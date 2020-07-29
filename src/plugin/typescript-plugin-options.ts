@@ -2,6 +2,7 @@ import {CustomTransformersFunction} from "../util/merge-transformers/custom-tran
 import {FileSystem} from "../util/file-system/file-system";
 import {TS} from "../type/ts";
 import {TransformOptions} from "@babel/core";
+import {DeclarationStats} from "../type/declaration-stats";
 
 export type Transpiler = "typescript" | "babel";
 
@@ -54,11 +55,13 @@ export type EmitPathKind = OutputPathKind | "javascript";
 export type OutputPathHook = (path: string, kind: OutputPathKind) => string | undefined;
 export type DiagnosticsHook = (diagnostics: readonly TS.Diagnostic[]) => readonly TS.Diagnostic[] | undefined;
 export type BabelConfigHook = (config: TransformOptions | undefined, fileName: string | undefined, phase: TranspilationPhase) => TransformOptions | undefined;
+export type DeclarationStatsHook = (stats: DeclarationStats) => DeclarationStats | undefined;
 
 export interface HookRecord {
 	outputPath: OutputPathHook;
 	diagnostics: DiagnosticsHook;
 	babelConfig: BabelConfigHook;
+	declarationStats: DeclarationStatsHook;
 }
 
 export interface InputCompilerOptions extends Omit<TS.CompilerOptions, "module" | "moduleResolution" | "newLine" | "jsx" | "target"> {

@@ -460,6 +460,59 @@ Normally, Rollup will crash on the first discovered error, but there may be seve
 
 You can also use this hook if you want to silence specific kinds of Diagnostics or even add your own.
 
+### The `declarationStats` hook
+
+Type: `(stats: DeclarationStats) => DeclarationStats|undefined`
+
+The `declarationStats` hook can be used to get relevant stats produced while bundling declarations.
+The hook calls the given callback with a stats object as the first argument.
+The stats object has the following interface:
+
+```typescript
+interface DeclarationStats {
+	// A Record from chunk file names to their external type dependencies
+	externalTypes: Record<string, ExternalType[]>;
+}
+
+interface ExternalType {
+	// The name of the external library that provides the typings. For example, "typescript" or "@types/node"
+	library: string;
+	// The version of the referenced external library
+	version: string;
+}
+```
+
+##### The `externalTypes` property
+
+The `externalTypes` property of the stats object can be useful, for example, if you want to get a hook into which external type dependencies that remain
+after bundling and tree-shaking and that you should declare as `dependencies` of your library.
+
+Here's an example of how you might use the hook:
+
+```typescript
+ts({
+	hook: {
+		declarationStats: declarationStats => console.log(declarationStats.externalTypes)
+	}
+});
+```
+
+The example above could log something like the following to the console:
+
+```typescript
+{
+  "index.d.ts": [
+    { library: "typescript", version: "3.9.2" },
+    { library: "@types/node", version: "14.0.26" }
+  ],
+  "some-other-chunk.d.ts": [
+    { library: "some-other-external-library", version: "1.2.3" }
+  ]
+}
+```
+
+This gives you an easy way to track which external type dependencies remain in your bundled and tree-shaken declarations and that should be declared as dependencies of your library.
+
 ## Full list of plugin options
 
 The plugin options are documented in more detail across this README, but the full list of options is:

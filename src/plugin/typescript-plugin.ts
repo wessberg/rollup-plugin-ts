@@ -6,7 +6,7 @@ import {emitDiagnostics} from "../service/emit/diagnostics/emit-diagnostics";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
 import {ensureHasDriveLetter, ensureRelative, getExtension, isBabelHelper, isCoreJsInternals, isRollupPluginMultiEntry, nativeNormalize, normalize} from "../util/path/path-util";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
-import {TypescriptPluginOptions} from "./i-typescript-plugin-options";
+import {TypescriptPluginOptions} from "./typescript-plugin-options";
 import {getPluginOptions} from "../util/plugin-options/get-plugin-options";
 import {getBabelConfig} from "../util/get-babel-config/get-babel-config";
 import {getForcedBabelOptions} from "../util/get-forced-babel-options/get-forced-babel-options";

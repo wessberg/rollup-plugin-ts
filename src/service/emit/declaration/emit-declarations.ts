@@ -1,5 +1,5 @@
 import {OutputBundle, OutputOptions, PluginContext} from "rollup";
-import {TypescriptPluginOptions} from "../../../plugin/i-typescript-plugin-options";
+import {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options";
 import {isOutputChunk} from "../../../util/is-output-chunk/is-output-chunk";
 import {getDeclarationOutDir} from "../../../util/get-declaration-out-dir/get-declaration-out-dir";
 import {getOutDir} from "../../../util/get-out-dir/get-out-dir";

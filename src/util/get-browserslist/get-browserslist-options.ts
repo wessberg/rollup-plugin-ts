@@ -1,4 +1,4 @@
-import {TypescriptPluginBaseOptions} from "../../plugin/i-typescript-plugin-options";
+import {TypescriptPluginBaseOptions} from "../../plugin/typescript-plugin-options";
 import {FileSystem} from "../file-system/file-system";
 
 export interface GetBrowserslistOptions {

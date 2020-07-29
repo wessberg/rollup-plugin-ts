@@ -1,7 +1,7 @@
 import {ensureAbsolute, nativeDirname} from "../path/path-util";
 import {D_TS_EXTENSION, DEFAULT_TSCONFIG_FILE_NAME} from "../../constant/constant";
 import {ParsedCommandLineResult} from "./parsed-command-line-result";
-import {InputCompilerOptions, TsConfigResolver, TsConfigResolverWithFileName, TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options";
+import {InputCompilerOptions, TsConfigResolver, TsConfigResolverWithFileName, TypescriptPluginOptions} from "../../plugin/typescript-plugin-options";
 import {TS} from "../../type/ts";
 import {finalizeParsedCommandLine} from "../finalize-parsed-command-line/finalize-parsed-command-line";
 import {FileSystem} from "../file-system/file-system";

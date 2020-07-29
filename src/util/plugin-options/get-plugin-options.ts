@@ -1,5 +1,5 @@
 import * as TSModule from "typescript";
-import {TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options";
+import {TypescriptPluginOptions} from "../../plugin/typescript-plugin-options";
 import {getRealFileSystem} from "../file-system/file-system";
 import {ensureAbsolute, normalize} from "../path/path-util";
 

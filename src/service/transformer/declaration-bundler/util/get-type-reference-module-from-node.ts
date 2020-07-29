@@ -1,5 +1,5 @@
 import {getAliasedDeclaration, GetAliasedDeclarationOptions} from "./get-aliased-declaration";
-import {getTypeReferenceModuleFromFileName} from "./get-type-reference-module-from-file-name";
+import {getTypeReferenceModuleFromFileName, TypeReference} from "./get-type-reference-module-from-file-name";
 import {TS} from "../../../../type/ts";
 
 export interface GetTypeReferenceModuleFromNodeOptions extends GetAliasedDeclarationOptions {
@@ -7,7 +7,7 @@ export interface GetTypeReferenceModuleFromNodeOptions extends GetAliasedDeclara
 	importDeclarations: TS.ImportDeclaration[];
 }
 
-export function getTypeReferenceModuleFromNode(options: GetTypeReferenceModuleFromNodeOptions): string | undefined {
+export function getTypeReferenceModuleFromNode(options: GetTypeReferenceModuleFromNodeOptions): TypeReference | undefined {
 	const aliasedDeclaration = getAliasedDeclaration(options);
 
 	if (aliasedDeclaration == null) return;
@@ -21,7 +21,7 @@ export function getTypeReferenceModuleFromNode(options: GetTypeReferenceModuleFr
 	for (const importDeclaration of options.importDeclarations) {
 		// The module specifier must be identical to the name of the type reference
 		if (!options.typescript.isStringLiteralLike(importDeclaration.moduleSpecifier)) continue;
-		if (importDeclaration.moduleSpecifier.text !== typeReference) continue;
+		if (importDeclaration.moduleSpecifier.text !== typeReference.moduleSpecifier) continue;
 
 		// Otherwise, we only need to verify that the identifier is included as a binding inside the ImportClause
 		if (importDeclaration.importClause == null) continue;

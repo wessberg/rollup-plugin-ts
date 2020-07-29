@@ -1,4 +1,4 @@
-import {EmitPathKind, TypescriptPluginOptions} from "../../plugin/i-typescript-plugin-options";
+import {EmitPathKind, TypescriptPluginOptions} from "../../plugin/typescript-plugin-options";
 import {TS} from "../../type/ts";
 
 export function shouldDebugSourceFile(debug: TypescriptPluginOptions["debug"], {fileName, text}: TS.SourceFile): boolean {

@@ -5,7 +5,7 @@ import fastGlob from "fast-glob";
 import FS, {Dirent} from "fs";
 import Path from "path";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
-import {HookRecord, InputCompilerOptions, TypescriptPluginBabelOptions, TypescriptPluginOptions} from "../../src/plugin/i-typescript-plugin-options";
+import {HookRecord, InputCompilerOptions, TypescriptPluginBabelOptions, TypescriptPluginOptions} from "../../src/plugin/typescript-plugin-options";
 import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, TSBUILDINFO_EXTENSION} from "../../src/constant/constant";
 import {getRealFileSystem} from "../../src/util/file-system/file-system";
 import {TS} from "../../src/type/ts";
