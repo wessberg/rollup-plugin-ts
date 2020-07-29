@@ -1,3 +1,9 @@
+## [1.2.33](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.32...v1.2.33) (2020-07-29)
+
+### Features
+
+- **hook:** add 'declarationStats' hook. Fixes [#92](https://github.com/wessberg/rollup-plugin-ts/issues/92) ([bcb7084](https://github.com/wessberg/rollup-plugin-ts/commit/bcb7084800a5034215c45642c787ff44cd2051d1))
+
 ## [1.2.32](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.31...v1.2.32) (2020-07-29)
 
 ### Bug Fixes

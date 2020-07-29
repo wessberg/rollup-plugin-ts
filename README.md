@@ -82,6 +82,8 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
 - [Hooks](#hooks)
   - [The `outputPath` hook](#the-outputpath-hook)
   - [The `diagnostics` hook](#the-diagnostics-hook)
+  - [The `declarationStats` hook](#the-declarationstats-hook)
+    - [The `externalTypes` property](#the-externaltypes-property)
 - [Full list of plugin options](#full-list-of-plugin-options)
   - [`transpiler`](#transpiler)
   - [`babelConfig`](#babelconfig)
