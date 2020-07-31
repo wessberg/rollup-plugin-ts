@@ -12,6 +12,8 @@ import {
 	TSLIB_NAME
 } from "../../constant/constant";
 import slash from "slash";
+import {ExternalOption} from "rollup";
+import {ensureArray} from "../ensure-array/ensure-array";
 
 export const ROOT_DIRECTORY = path.parse(process.cwd()).root;
 export const PLATFORM = platform();
@@ -259,4 +261,26 @@ export function ensureAbsolute(root: string, p: string): string {
 
 	// Otherwise, construct an absolute path from the root
 	return join(root, p);
+}
+
+/**
+ * Checks the id from the given importer with respect to the given externalOption provided to Rollup
+ */
+export function isExternal(id: string, importer: string, externalOption: ExternalOption | undefined | boolean): boolean {
+	if (externalOption == null) return false;
+	if (externalOption === true) return true;
+	if (externalOption === false) return false;
+	if (typeof externalOption === "function") return externalOption(id, importer, true) ?? false;
+
+	const ids = new Set<string>();
+	const matchers: RegExp[] = [];
+	for (const value of ensureArray(externalOption)) {
+		if (value instanceof RegExp) {
+			matchers.push(value);
+		} else {
+			ids.add(value);
+		}
+	}
+
+	return ids.has(id) || matchers.some(matcher => matcher.test(id));
 }

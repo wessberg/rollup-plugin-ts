@@ -65,6 +65,7 @@
 		"eslint-config-prettier": "^6.11.0",
 		"eslint-plugin-import": "^2.22.0",
 		"eslint-plugin-jsdoc": "^30.0.3",
+		"acorn": "^7.3.1",
 		"fast-glob": "^3.2.4",
 		"husky": "^4.2.5",
 		"np": "5.2.1",

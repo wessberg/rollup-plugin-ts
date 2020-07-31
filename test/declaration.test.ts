@@ -451,11 +451,11 @@ test("Flattens declarations. #11", async (t, {typescript}) => {
 		declarations: [file]
 	} = bundle;
 
+	console.log(file.code);
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		declare class X {
-		}
+		import { X } from "./x";
 		declare const y: X;
 		export { y };
 

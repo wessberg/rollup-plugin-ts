@@ -6,6 +6,9 @@ export function visitExportDeclaration({node, typescript, host, sourceFile, addD
 
 	const resolvedModule = host.resolve(node.moduleSpecifier.text, sourceFile.fileName);
 	if (resolvedModule != null) {
-		addDependency(resolvedModule);
+		addDependency({
+			...resolvedModule,
+			moduleSpecifier: node.moduleSpecifier.text
+		});
 	}
 }

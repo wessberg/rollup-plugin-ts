@@ -1,4 +1,4 @@
-import {OutputBundle, OutputOptions, PluginContext} from "rollup";
+import {ExternalOption, OutputBundle, OutputOptions, PluginContext} from "rollup";
 import {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options";
 import {isOutputChunk} from "../../../util/is-output-chunk/is-output-chunk";
 import {getDeclarationOutDir} from "../../../util/get-declaration-out-dir/get-declaration-out-dir";
@@ -22,6 +22,7 @@ export interface EmitDeclarationsOptions {
 	bundle: OutputBundle;
 	host: CompilerHost;
 	pluginOptions: TypescriptPluginOptions;
+	externalOption: ExternalOption | undefined;
 	outputOptions: OutputOptions;
 	multiEntryFileNames: Set<string> | undefined;
 	originalCompilerOptions: TS.CompilerOptions;
@@ -37,7 +38,14 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 	const chunks = Object.values(options.bundle).filter(isOutputChunk).map(preNormalizeChunk);
 
 	// Merge ambient dependencies into the chunks
-	mergeChunksWithAmbientDependencies(chunks, options.host, options.outputOptions.format, options.outputOptions.chunkFileNames);
+	mergeChunksWithAmbientDependencies({
+		chunks,
+		host: options.host,
+		externalOption: options.externalOption,
+		chunkFileNames: options.outputOptions.chunkFileNames,
+		format: options.outputOptions.format
+	});
+
 	// Normalize the chunks
 	const normalizedChunks = chunks.map(chunk => normalizeChunk(chunk, {...options, relativeOutDir}));
 

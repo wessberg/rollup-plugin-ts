@@ -79,7 +79,7 @@ test("Diagnostics can be filtered with the 'diagnostics' hook. #1", async (t, {t
 	);
 });
 
-test.only("External types can be retrieved with the 'declarationStats' hook. #1", async (t, {typescript, typescriptModuleSpecifier}) => {
+test("External types can be retrieved with the 'declarationStats' hook. #1", async (t, {typescript, typescriptModuleSpecifier}) => {
 	let stats: DeclarationStats | undefined;
 
 	await generateRollupBundle(

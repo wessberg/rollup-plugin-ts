@@ -8,7 +8,10 @@ export function visitImportTypeNode({node, typescript, host, sourceFile, addDepe
 	const resolvedModule = host.resolve(moduleSpecifier, sourceFile.fileName);
 
 	if (resolvedModule != null) {
-		addDependency(resolvedModule);
+		addDependency({
+			...resolvedModule,
+			moduleSpecifier
+		});
 	}
 
 	continuation(node.qualifier);

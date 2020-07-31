@@ -9,7 +9,11 @@ export interface GetModuleDependenciesOptions {
 	module: string;
 }
 
-export function getModuleDependencies(options: GetModuleDependenciesOptions): Set<ExtendedResolvedModule> | undefined {
+export interface ModuleDependency extends ExtendedResolvedModule {
+	moduleSpecifier: string;
+}
+
+export function getModuleDependencies(options: GetModuleDependenciesOptions): Set<ModuleDependency> | undefined {
 	// Skip .d.ts files
 	if (getExtension(options.module) === D_TS_EXTENSION) return undefined;
 
@@ -19,7 +23,6 @@ export function getModuleDependencies(options: GetModuleDependenciesOptions): Se
 		return cachedDependencies;
 	}
 
-	const typescript = options.compilerHost.getTypescript();
 	const sourceFile = options.compilerHost.getSourceFile(options.module);
 	if (sourceFile == null) {
 		return;
@@ -27,7 +30,6 @@ export function getModuleDependencies(options: GetModuleDependenciesOptions): Se
 
 	return trackDependenciesTransformer({
 		host: options.compilerHost,
-		typescript,
 		sourceFile
 	});
 }

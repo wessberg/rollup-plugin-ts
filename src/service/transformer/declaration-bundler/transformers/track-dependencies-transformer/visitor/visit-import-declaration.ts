@@ -5,6 +5,9 @@ export function visitImportDeclaration({node, typescript, host, sourceFile, addD
 	if (!typescript.isStringLiteralLike(node.moduleSpecifier)) return;
 	const resolvedModule = host.resolve(node.moduleSpecifier.text, sourceFile.fileName);
 	if (resolvedModule != null) {
-		addDependency(resolvedModule);
+		addDependency({
+			...resolvedModule,
+			moduleSpecifier: node.moduleSpecifier.text
+		});
 	}
 }

@@ -1,19 +1,20 @@
 import {TS} from "../../../../../type/ts";
 import {visitNode} from "./visitor/visit-node";
 import {TrackDependenciesOptions, TrackDependenciesTransformerVisitorOptions} from "./track-dependencies-transformer-visitor-options";
-import {ExtendedResolvedModule} from "../../../../cache/resolve-cache/extended-resolved-module";
+import {ModuleDependency} from "../../../../../util/get-module-dependencies/get-module-dependencies";
 
-export function trackDependenciesTransformer(options: TrackDependenciesOptions): Set<ExtendedResolvedModule> {
-	const {typescript} = options;
-	const dependencies: Set<ExtendedResolvedModule> = new Set();
+export function trackDependenciesTransformer(options: TrackDependenciesOptions): Set<ModuleDependency> {
+	const typescript = options.host.getTypescript();
+	const dependencies: Set<ModuleDependency> = new Set();
 
 	// Prepare some VisitorOptions
 	const visitorOptions: Omit<TrackDependenciesTransformerVisitorOptions<TS.Node>, "node"> = {
 		...options,
+		typescript,
 		// Optimization: We only need to traverse nested nodes inside of the SourceFile if it contains at least one ImportTypeNode (or at least what appears to be one)
 		shouldDeepTraverse: options.sourceFile.text.includes("import("),
 
-		addDependency(resolvedModule: ExtendedResolvedModule): void {
+		addDependency(resolvedModule: ModuleDependency): void {
 			dependencies.add(resolvedModule);
 		},
 

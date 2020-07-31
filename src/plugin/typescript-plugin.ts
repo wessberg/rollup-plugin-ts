@@ -157,6 +157,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				fileSystem,
 				typescript,
 				extensions: SUPPORTED_EXTENSIONS,
+				externalOption: rollupInputOptions.external,
 				parsedCommandLineResult,
 				transformers: mergeTransformers(...transformers)
 			});
@@ -369,6 +370,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				emitDeclarations({
 					host,
 					bundle,
+					externalOption: rollupInputOptions.external,
 					outputOptions,
 					pluginOptions,
 					pluginContext: this,

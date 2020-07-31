@@ -1,7 +1,7 @@
 import {TS} from "../../type/ts";
 import {CompilerHostOptions, CustomTransformersInput} from "./compiler-host-options";
 import {ModuleResolutionHost} from "../module-resolution-host/module-resolution-host";
-import {dirname, ensureAbsolute, getExtension, isTypeScriptLib, join, nativeNormalize, normalize} from "../../util/path/path-util";
+import {dirname, ensureAbsolute, getExtension, isExternal, isTypeScriptLib, join, nativeNormalize, normalize} from "../../util/path/path-util";
 import {getNewLineCharacter} from "../../util/get-new-line-character/get-new-line-character";
 import {resolveId} from "../../util/resolve-id/resolve-id";
 import {getScriptKindFromPath} from "../../util/get-script-kind-from-path/get-script-kind-from-path";
@@ -10,7 +10,8 @@ import {mergeTransformers} from "../../util/merge-transformers/merge-transformer
 import {ensureModuleTransformer} from "../transformer/ensure-module/ensure-module-transformer";
 import {SourceFileToDependenciesMap} from "../transformer/declaration-bundler/declaration-bundler-options";
 import {ExtendedResolvedModule} from "../cache/resolve-cache/extended-resolved-module";
-import {getModuleDependencies} from "../../util/get-module-dependencies/get-module-dependencies";
+import {getModuleDependencies, ModuleDependency} from "../../util/get-module-dependencies/get-module-dependencies";
+import {pickResolvedModule} from "../../util/pick-resolved-module";
 
 export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHost {
 	private previousProgram: TS.EmitAndSemanticDiagnosticsBuilderProgram | undefined;
@@ -21,6 +22,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 	private emitOutput: TS.EmitOutput | undefined;
 	private creatingProgram = false;
 	private invalidateProgram = false;
+	private readonly externalFiles = new Set<string>();
 
 	constructor(
 		protected readonly options: CompilerHostOptions,
@@ -202,7 +204,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		return this.options.transformers;
 	}
 
-	private getDependenciesForFileDeep(fileName: string, dependencies: Set<ExtendedResolvedModule> = new Set(), seenModules: Set<string> = new Set()): Set<ExtendedResolvedModule> {
+	private getDependenciesForFileDeep(fileName: string, dependencies: Set<ModuleDependency> = new Set(), seenModules: Set<string> = new Set()): Set<ModuleDependency> {
 		if (seenModules.has(fileName)) return dependencies;
 		seenModules.add(fileName);
 		const localDependencies = this.sourceFileToDependenciesMap.get(fileName);
@@ -225,7 +227,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		return dependencies;
 	}
 
-	getDependenciesForFile(fileName: string, deep = false): Set<ExtendedResolvedModule> | undefined {
+	getDependenciesForFile(fileName: string, deep = false): Set<ModuleDependency> | undefined {
 		if (deep) {
 			return this.getDependenciesForFileDeep(fileName);
 		}
@@ -236,7 +238,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		return this.sourceFileToDependenciesMap;
 	}
 
-	add(fileInput: VirtualFileInput | VirtualFile): VirtualFile {
+	add(fileInput: VirtualFileInput | VirtualFile, traceDependencies = true): VirtualFile {
 		const existing = this.get(fileInput.fileName);
 		if (existing != null && existing.text === fileInput.text) {
 			return existing;
@@ -255,12 +257,15 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		}
 
 		const addedFile = super.add(fileInput);
-		this.refreshDependenciesForFileName(fileInput.fileName);
+		if (traceDependencies) {
+			this.refreshDependenciesForFileName(fileInput.fileName);
+		}
+
 		return addedFile;
 	}
 
 	private refreshDependenciesForFileName(fileName: string, seenModules: Set<string> = new Set()): void {
-		if (seenModules.has(fileName)) return;
+		if (seenModules.has(fileName) || this.externalFiles.has(fileName)) return;
 		seenModules.add(fileName);
 
 		const dependencies = getModuleDependencies({
@@ -272,6 +277,13 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		this.sourceFileToDependenciesMap.set(fileName, dependencies);
 
 		for (const resolveResult of dependencies) {
+			// Don't perform a recursive descent into the files that are external
+			if (isExternal(resolveResult.moduleSpecifier, fileName, this.options.externalOption)) {
+				// Mark the module as external
+				this.externalFiles.add(pickResolvedModule(resolveResult, true));
+				continue;
+			}
+
 			for (const module of [resolveResult.resolvedFileName, resolveResult.resolvedAmbientFileName]) {
 				if (module == null) continue;
 				this.refreshDependenciesForFileName(module, seenModules);
@@ -364,7 +376,8 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		if (file == null) {
 			const text = this.readFile(absoluteFileName);
 			if (text == null) return undefined;
-			file = this.add({fileName: absoluteFileName, text, fromRollup: false});
+
+			file = this.add({fileName: absoluteFileName, text, fromRollup: false}, false);
 		}
 
 		const sourceFile = this.constructSourceFile(absoluteFileName, file.transformedText, languageVersion);

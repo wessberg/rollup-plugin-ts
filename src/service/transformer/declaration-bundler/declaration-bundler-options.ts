@@ -7,11 +7,11 @@ import {CompilerHost} from "../../compiler-host/compiler-host";
 import {PathsResult} from "./util/prepare-paths/prepare-paths";
 import {SourceFileToExportedSymbolSet} from "./transformers/track-exports-transformer/track-exports-transformer-visitor-options";
 import {SourceFileToImportedSymbolSet} from "./transformers/track-imports-transformer/track-imports-transformer-visitor-options";
-import {ExtendedResolvedModule} from "../../cache/resolve-cache/extended-resolved-module";
 import {TypeReference} from "./util/get-type-reference-module-from-file-name";
 import {DeclarationStats} from "../../../type/declaration-stats";
+import {ModuleDependency} from "../../../util/get-module-dependencies/get-module-dependencies";
 
-export type SourceFileToDependenciesMap = Map<string, Set<ExtendedResolvedModule>>;
+export type SourceFileToDependenciesMap = Map<string, Set<ModuleDependency>>;
 export type ModuleSpecifierToSourceFileMap = Map<string, TS.SourceFile>;
 export type DeclarationTransformer = (options: SourceFileBundlerVisitorOptions) => TS.SourceFile;
 

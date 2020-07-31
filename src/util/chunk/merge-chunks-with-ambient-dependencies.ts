@@ -1,11 +1,19 @@
-import {ModuleFormat, PreRenderedChunk} from "rollup";
+import {ExternalOption, ModuleFormat, PreRenderedChunk} from "rollup";
 import {PreNormalizedChunk} from "./normalize-chunk";
 import {getChunkForModule} from "../../service/transformer/declaration-bundler/util/get-chunk-filename";
-import {basename, stripKnownExtension} from "../path/path-util";
+import {basename, isExternal, stripKnownExtension} from "../path/path-util";
 import {generateRandomHash} from "../hash/generate-random-hash";
 import {SourceFileToDependenciesMap} from "../../service/transformer/declaration-bundler/declaration-bundler-options";
 import {CompilerHost} from "../../service/compiler-host/compiler-host";
 import {pickResolvedModule} from "../pick-resolved-module";
+
+export interface MergeChunksWithAmbientDependenciesOptions {
+	externalOption: ExternalOption | undefined;
+	chunks: PreNormalizedChunk[];
+	host: CompilerHost;
+	format?: ModuleFormat;
+	chunkFileNames: string | ((chunkInfo: PreRenderedChunk) => string) | undefined;
+}
 
 function createCommonChunk(
 	module: string,
@@ -94,19 +102,16 @@ function ensureChunkForModule(
 	}
 }
 
-export function mergeChunksWithAmbientDependencies(
-	chunks: PreNormalizedChunk[],
-	host: CompilerHost,
-	format: ModuleFormat = "esm",
-	chunkFileNames: string | ((chunkInfo: PreRenderedChunk) => string) | undefined
-): void {
+export function mergeChunksWithAmbientDependencies({format = "esm", chunkFileNames, chunks, externalOption, host}: MergeChunksWithAmbientDependenciesOptions): void {
 	const dependencyToModulesMap: Map<string, Set<string>> = new Map();
 	const sourceFileToDependenciesMap = host.getAllDependencies();
 
 	for (const [module, dependencies] of sourceFileToDependenciesMap.entries()) {
 		for (const resolvedModule of dependencies) {
 			const dependency = pickResolvedModule(resolvedModule, false);
-			if (dependency == null) continue;
+
+			if (dependency == null || isExternal(resolvedModule.moduleSpecifier, module, externalOption)) continue;
+
 			let modulesForDependency = dependencyToModulesMap.get(dependency);
 			if (modulesForDependency == null) {
 				modulesForDependency = new Set();
