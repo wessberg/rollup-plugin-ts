@@ -451,7 +451,6 @@ test("Flattens declarations. #11", async (t, {typescript}) => {
 		declarations: [file]
 	} = bundle;
 
-	console.log(file.code);
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
