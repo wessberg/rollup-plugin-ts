@@ -1,3 +1,9 @@
+# [1.3.0](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.34...v1.3.0) (2020-07-31)
+
+### Bug Fixes
+
+- **external:** respect 'external' option provided to Rollup and don't inline typings from modules matched by it ([06f453a](https://github.com/wessberg/rollup-plugin-ts/commit/06f453a382d7b7f86c4d341eea53a5bfffecc8a3))
+
 ## [1.2.34](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.33...v1.2.34) (2020-07-29)
 
 ### Bug Fixes
