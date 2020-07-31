@@ -1,3 +1,9 @@
+## [1.3.1](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.0...v1.3.1) (2020-07-31)
+
+### Bug Fixes
+
+- **allowJs:** don't attempt to include .mjs files in a TypeScript program to align with tsc behavior. Fixes [#106](https://github.com/wessberg/rollup-plugin-ts/issues/106) ([f567d6c](https://github.com/wessberg/rollup-plugin-ts/commit/f567d6c4a9259568360af7c819cda4a95edc744d))
+
 # [1.3.0](https://github.com/wessberg/rollup-plugin-ts/compare/v1.2.34...v1.3.0) (2020-07-31)
 
 ### Bug Fixes
