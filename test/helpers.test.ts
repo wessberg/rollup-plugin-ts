@@ -920,14 +920,16 @@ test("Will use the proper @babel/runtime/helpers helpers when format is CJS. #1"
 		formatCode(`\
 		'use strict';
 
-		function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+		var _regeneratorRuntime = require('@babel/runtime/regenerator');
+		var _asyncToGenerator = require('@babel/runtime/helpers/asyncToGenerator');
 		
-		var _regeneratorRuntime = _interopDefault(require('@babel/runtime/regenerator'));
-		var _asyncToGenerator = _interopDefault(require('@babel/runtime/helpers/asyncToGenerator'));
+		function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 		
-		_asyncToGenerator(
-		/*#__PURE__*/ _regeneratorRuntime.mark(function _callee() {
-			return _regeneratorRuntime.wrap(function _callee$(_context) {
+		var _regeneratorRuntime__default = /*#__PURE__*/_interopDefaultLegacy(_regeneratorRuntime);
+		var _asyncToGenerator__default = /*#__PURE__*/_interopDefaultLegacy(_asyncToGenerator);
+		
+		_asyncToGenerator__default['default']( /*#__PURE__*/_regeneratorRuntime__default['default'].mark(function _callee() {
+			return _regeneratorRuntime__default['default'].wrap(function _callee$(_context) {
 				while (1) {
 					switch (_context.prev = _context.next) {
 						case 0:
