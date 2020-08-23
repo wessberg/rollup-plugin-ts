@@ -1,3 +1,9 @@
+## [1.3.3](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.2...v1.3.3) (2020-08-23)
+
+### Bug Fixes
+
+- **declarations:** don't throw for JSDocDeprecatedTags. Closes [#111](https://github.com/wessberg/rollup-plugin-ts/issues/111) ([4adb49d](https://github.com/wessberg/rollup-plugin-ts/commit/4adb49db6ff01e8fd420db7d66d2eab2e65bf0b3))
+
 ## [1.3.2](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.1...v1.3.2) (2020-08-05)
 
 ## [1.3.1](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.0...v1.3.1) (2020-07-31)
