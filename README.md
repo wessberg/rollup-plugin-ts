@@ -543,7 +543,7 @@ This option will only be respected when `"babel"` is being used as the `transpil
 
 Type: `string | Partial<CompilerOptions> | Partial<Record<keyof CompilerOptions, string | number | boolean>> | ParsedCommandLine | TsConfigResolver | TsConfigResolverWithFileName`
 
-Provide the Typescript [CompilerOptions](https://www.typescriptlang.org/docs/handbook/compiler-options.html) to use, or a path to a `tsconfig` with this property.
+Provide the TypeScript [CompilerOptions](https://www.typescriptlang.org/docs/handbook/compiler-options.html) to use, or a path to a `tsconfig` with this property.
 See [this section](#using-it-with-just-typescript) for details on the many ways this property can be configured.
 
 #### `browserslist`
@@ -569,7 +569,7 @@ Use this property to pass a specific version of TypeScript to use.
 
 Type: `(CustomTransformers | CustomTransformersFunction)[] | CustomTransformers | CustomTransformersFunction`
 
-Use this property to provide Typescript [`CustomTransformers`](https://github.com/Microsoft/TypeScript/pull/13940).
+Use this property to provide TypeScript [`CustomTransformers`](https://github.com/Microsoft/TypeScript/pull/13940).
 See [this section](#using-customtransformers) for more details on how to configure this property.
 
 #### `include`
@@ -588,7 +588,7 @@ This option takes a minimatch pattern or an array of minimatch patterns and only
 
 Type: `boolean`
 
-If this option is `true`, diagnostics won't be generated. This will improve performance since Typescript but ignores all syntactical and semantic errors or warnings that may arise.
+If this option is `true`, diagnostics won't be generated. This will improve performance since TypeScript but ignores all syntactical and semantic errors or warnings that may arise.
 
 #### `fileSystem`
 
@@ -601,28 +601,29 @@ See [this section](#hooks) for more details.
 
 ## Ignored/overridden options
 
-Typescript and Babel are powerful tools in their own right. Combined with Rollup, they become even more powerful.
-To provide a seamless experience, Rollup always take precedence when conflicts arise. As a natural consequence of this, some options provided to Typescript and Babel will be ignored or overridden.
+TypeScript and Babel are powerful tools in their own right. Combined with Rollup, they become even more powerful.
+To provide a seamless experience, Rollup always take precedence when conflicts arise. As a natural consequence of this, some options provided to TypeScript and Babel will be ignored or overridden.
 
-### Ignored/overridden Typescript options
+### Ignored/overridden TypeScript options
 
 The following [CompilerOptions](https://www.typescriptlang.org/docs/handbook/compiler-options.html) from a `tsconfig` will be ignored:
 
 | Property              | Reason                                                                                                                                                                                                                                                                                                                                                                                     |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `outDir`              | Rollup, not Typescript, will decide where to emit chunks.                                                                                                                                                                                                                                                                                                                                  |
+| `outDir`              | Rollup, not TypeScript, will decide where to emit chunks.                                                                                                                                                                                                                                                                                                                                  |
+| `module`              | Rollup, not TypeScript, is the decider of which module system(s) to target based on your Rollup configuration.                                                                                                                                                                                                                                                                             |
 | `outFile`             | This option produces flat output and only works with the module formats AMD and SystemJS. Rollup will be the decider of how to split code.                                                                                                                                                                                                                                                 |
-| `sourceMap`           | Typescript will always be instructed to produce SourceMaps. Rollup then decides whether or not to include them (and if they should be inlined).                                                                                                                                                                                                                                            |
-| `inlineSourceMap`     | Typescript will always be instructed to produce SourceMaps. Rollup then decides whether or not to include them (and if they should be inlined).                                                                                                                                                                                                                                            |
+| `sourceMap`           | TypeScript will always be instructed to produce SourceMaps. Rollup then decides whether or not to include them (and if they should be inlined).                                                                                                                                                                                                                                            |
+| `inlineSourceMap`     | TypeScript will always be instructed to produce SourceMaps. Rollup then decides whether or not to include them (and if they should be inlined).                                                                                                                                                                                                                                            |
 | `inlineSources`       | Since `inlineSourceMap` is ignored, this option won't take effect.                                                                                                                                                                                                                                                                                                                         |
-| `importHelpers`       | Helpers will always be imported. This makes it possible for Rollup to code-split properly and share Typescript helpers across chunks.                                                                                                                                                                                                                                                      |
-| `moduleResolution`    | Node-module resolution will always be used. This is required for `importHelpers` to work and in general, to make Typescript able to resolve external libraries. Note that you still need to add the [nodeResolve](https://github.com/rollup/rollup-plugin-node-resolve) plugin in order to include external libraries within your bundle unless `allowJs` is `true` within your `tsconfig` |
-| `noEmit`              | Typescript should always be able to emit assets, but those will be delegated to Rollup.                                                                                                                                                                                                                                                                                                    |
+| `importHelpers`       | Helpers will always be imported. This makes it possible for Rollup to code-split properly and share TypeScript helpers across chunks.                                                                                                                                                                                                                                                      |
+| `moduleResolution`    | Node-module resolution will always be used. This is required for `importHelpers` to work and in general, to make TypeScript able to resolve external libraries. Note that you still need to add the [nodeResolve](https://github.com/rollup/rollup-plugin-node-resolve) plugin in order to include external libraries within your bundle unless `allowJs` is `true` within your `tsconfig` |
+| `noEmit`              | TypeScript should always be able to emit assets, but those will be delegated to Rollup.                                                                                                                                                                                                                                                                                                    |
 | `noEmitOnError`       | See above.                                                                                                                                                                                                                                                                                                                                                                                 |
-| `emitDeclarationOnly` | See above.                                                                                                                                                                                                                                                                                                                                                                                 |
-| `noEmitHelpers`       | Typescript should always be able to emit helpers, since the `importHelpers` option is forced                                                                                                                                                                                                                                                                                               |
-| `noResolve`           | Typescript should always be able to resolve things. Otherwise, compilation might break.                                                                                                                                                                                                                                                                                                    |
-| `watch`               | Rollup, not Typescript, will watch files if run in watch mode. Efficient caching will still be used for optimum performance.                                                                                                                                                                                                                                                               |
+| `emitDeclarationOnly` | See above.                                                                                                                                                                                                                                                                                                                                                                                 |  |
+| `noEmitHelpers`       | TypeScript should always be able to emit helpers, since the `importHelpers` option is forced                                                                                                                                                                                                                                                                                               |
+| `noResolve`           | TypeScript should always be able to resolve things. Otherwise, compilation might break.                                                                                                                                                                                                                                                                                                    |
+| `watch`               | Rollup, not TypeScript, will watch files if run in watch mode. Efficient caching will still be used for optimum performance.                                                                                                                                                                                                                                                               |
 | `preserveWatchOutput` | See above                                                                                                                                                                                                                                                                                                                                                                                  |
 
 The following additional options will also be ignored:
@@ -631,6 +632,13 @@ The following additional options will also be ignored:
 | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `include` | Rollup itself will decide which files to include in the transformation process based on your code. This plugin itself takes a `include` property which you should use instead if you want to explicitly allow specific files or globs. |
 | `exclude` | See above.                                                                                                                                                                                                                             |
+
+#### Behavior of esModuleInterop
+
+Given that Rollup, not TypeScript, is the decider of which module system(s) to target based on your Rollup configuration, TypeScript will always emit ES modules that Rollup can understand and work with.
+
+The `esModuleInterop` option to TypeScript is respected, but its emit-characteristics won't have an impact on your bundle. Instead, you may consult [the Rollup documentation for the `interop` option](https://rollupjs.org/guide/en/#outputinterop) to achieve
+the same thing with Rollup.
 
 ### Ignored/overridden Babel options
 
@@ -709,14 +717,14 @@ Do you want to contribute? Awesome! Please follow [these recommendations](./CONT
 
 Absolutely, even with Declaration files. Things will work seamlessly.
 
-#### Why wouldn't you use just Typescript?
+#### Why wouldn't you use just TypeScript?
 
-The Typescript compiler, while extremely powerful, has the restriction that it can only target a specific ECMAScript version.
+The TypeScript compiler, while extremely powerful, has the restriction that it can only target a specific ECMAScript version.
 In reality, browsers and other ECMAScript environments has varying support for newer language features.
 Some browsers support even those features that haven't been publicized yet, while others support only parts of the latest language features.
 
 In effect, a browser may support a lot of modern features such as classes and proper lexical scoping, but lack others.
-With Typescript, it's _"all-or-nothing"_: If you want to support a Browser with partial support, you must target the latest publicized ECMAScript version that the browser fully supports.
+With TypeScript, it's _"all-or-nothing"_: If you want to support a Browser with partial support, you must target the latest publicized ECMAScript version that the browser fully supports.
 
 Babel, on the other hand, is far more granular in its design and applies syntax transformations on a feature-by-feature basis.
 Combined with something like `@babel/preset-env`, individual transformations can be applied for only those language features that are missing.
@@ -724,24 +732,24 @@ This means that you can use things like classes and lexical scoping in browsers 
 
 #### Okay, then why wouldn't you use just babel?
 
-Babel has recently received support for [parsing and transforming Typescript](https://babeljs.io/docs/en/babel-plugin-transform-typescript). It would be intriguing to just use Babel for everything. However, there are significant caveats:
+Babel has recently received support for [parsing and transforming TypeScript](https://babeljs.io/docs/en/babel-plugin-transform-typescript). It would be intriguing to just use Babel for everything. However, there are significant caveats:
 
-The Babel compiler works on a file-by-file basis, meaning it is simple to use and reason about, whereas the Typescript compiler works with _Programs_, or in other words sets of related _SourceFiles_.
-This gives Typescript the advantage over Babel that it has a greater understanding of your codebase in general and can understand your types across files.
-In the context of this plugin, this enables Typescript to do things that you simply wouldn't be able to do with the Typescript plugin for Babel:
+The Babel compiler works on a file-by-file basis, meaning it is simple to use and reason about, whereas the TypeScript compiler works with _Programs_, or in other words sets of related _SourceFiles_.
+This gives TypeScript the advantage over Babel that it has a greater understanding of your codebase in general and can understand your types across files.
+In the context of this plugin, this enables TypeScript to do things that you simply wouldn't be able to do with the TypeScript plugin for Babel:
 
-1. Emit Typescript diagnostics
-2. Emit Typescript declaration (`.d.ts`) files and Typescript declaration map (`.d.ts.map`) files.
+1. Emit TypeScript diagnostics
+2. Emit TypeScript declaration (`.d.ts`) files and TypeScript declaration map (`.d.ts.map`) files.
 3. Remove type-only imports that wouldn't otherwise be transformed by Rollup and would lead to issues like [this one](https://github.com/rollup/rollup-plugin-typescript/issues/28)
 4. Use `const enums` and all other files that will require type information.
 
-#### When combined with Babel, what does Typescript do, and what does Babel do?
+#### When combined with Babel, what does TypeScript do, and what does Babel do?
 
-First, Typescript will be used for:
+First, TypeScript will be used for:
 
 1. Reporting diagnostics.
-2. Emitting Typescript declaration (`.d.ts`) files and Typescript declaration map (`.d.ts.map`) files.
-3. Removing Typescript-specific features such as types, type-only imports, enums, and Typescript decorators.
+2. Emitting TypeScript declaration (`.d.ts`) files and TypeScript declaration map (`.d.ts.map`) files.
+3. Removing TypeScript-specific features such as types, type-only imports, enums, and TypeScript decorators.
 
 Babel will then be used for all other syntax transformation from then on, depending on the combination of default, provided, and forced presets and plugins.
 

@@ -1,20 +1,16 @@
 import {GetForcedCompilerOptionsOptions} from "./get-forced-compiler-options-options";
 import {getScriptTargetFromBrowserslist} from "../get-script-target-from-browserslist/get-script-target-from-browserslist";
-import {getModuleKindFromRollupFormat} from "../get-module-kind-from-rollup-format/get-module-kind-from-rollup-format";
 import {getOutDir} from "../get-out-dir/get-out-dir";
 import {TS} from "../../type/ts";
 
 /**
  * Gets the ModuleKind to force
  */
-function getForcedModuleKindOption({rollupOutputOptions, pluginOptions}: GetForcedCompilerOptionsOptions): {module: TS.ModuleKind} {
-	// If no OutputOptions is given, or if no format is given in the OutputOptions, use ESNext. Otherwise, convert the
-	// Rollup option into one that Typescript can understand
-	if (rollupOutputOptions == null || rollupOutputOptions.format == null) {
-		return {module: pluginOptions.typescript.ModuleKind.ESNext};
-	}
-
-	return {module: getModuleKindFromRollupFormat(rollupOutputOptions.format, pluginOptions.typescript)};
+function getForcedModuleKindOption({pluginOptions}: GetForcedCompilerOptionsOptions): {module: TS.ModuleKind} {
+	// Under these circumstances, TypeScript is a client of Rollup, and Rollup only understands ESM.
+	// Rollup, not TypeScript, is the decider of which module system(s) to target based on the Rollup configuration.
+	// Because of this, TypeScript will always be instructed to emit ESM.
+	return {module: pluginOptions.typescript.ModuleKind.ESNext};
 }
 
 /**
@@ -42,7 +38,7 @@ export function getForcedCompilerOptions(options: GetForcedCompilerOptionsOption
 	return {
 		...getForcedModuleKindOption(options),
 		...getForcedScriptTargetOption(options),
-		outDir: getOutDir(options.pluginOptions.cwd, options.rollupOutputOptions),
+		outDir: getOutDir(options.pluginOptions.cwd),
 		// Rollup, not Typescript, is the decider of where to put files
 		outFile: undefined,
 		// Always generate SourceMaps. Rollup will then decide if it wants to use them or not
