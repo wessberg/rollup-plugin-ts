@@ -1,3 +1,9 @@
+## [1.3.4](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.3...v1.3.4) (2020-09-02)
+
+### Bug Fixes
+
+- **declarations:** add workaround for TypeScript issue 40361 for older TypeScript versions. Closes [#108](https://github.com/wessberg/rollup-plugin-ts/issues/108) ([659775f](https://github.com/wessberg/rollup-plugin-ts/commit/659775f3f8dc89b0e631be5edfe9110ffd2ece9c))
+
 ## [1.3.3](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.2...v1.3.3) (2020-08-23)
 
 ### Bug Fixes
