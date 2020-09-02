@@ -15,7 +15,7 @@ export function deconflictConstructorDeclaration(options: DeconflicterVisitorOpt
 	// The body and parameters share the same lexical environment
 	const nextContinuationOptions: ContinuationOptions = {lexicalEnvironment: cloneLexicalEnvironment(lexicalEnvironment)};
 
-	const parametersContResult = node.parameters.map(parameter => continuation(parameter, nextContinuationOptions));
+	const parametersContResult = node.parameters?.map(parameter => continuation(parameter, nextContinuationOptions)) ?? [];
 	const bodyContResult = node.body == null ? undefined : continuation(node.body, nextContinuationOptions);
 
 	const isIdentical = nodeArraysAreEqual(parametersContResult, node.parameters) && bodyContResult === node.body;

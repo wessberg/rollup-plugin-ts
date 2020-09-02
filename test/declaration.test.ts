@@ -746,3 +746,35 @@ test("Flattens declarations. #16", async (t, {typescript}) => {
 		`)
 	);
 });
+
+test("Flattens declarations. #17", async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+					export class Singleton {
+						private constructor() {}
+					}
+					`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare class Singleton {
+			private constructor();
+		}
+		export {Singleton};
+		`)
+	);
+});
