@@ -109,8 +109,8 @@
 		"tslib": "^2.0.1"
 	},
 	"peerDependencies": {
-		"rollup": ">=1.x",
-		"typescript": ">=3.2.x"
+		"rollup": ">=1.x || >=2.x",
+		"typescript": ">=3.2.x || >= 4.x"
 	},
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/esm/index.js",
