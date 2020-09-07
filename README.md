@@ -395,7 +395,7 @@ ts({
 	tsconfig: IS_PRODUCTION ? "tsconfig.prod.json" : "tsconfig.json",
 	// Load a different browserslist if currently targeting a modern environment
 	browserslist: {
-		path: BUNDLE_TARGET === "modern" ? ".browserlistrc-modern" : ".browserslistrc-legacy"
+		path: BUNDLE_TARGET === "modern" ? ".browserslistrc-modern" : ".browserslistrc-legacy"
 	},
 	// Load a different babel config file in production
 	babelConfig: IS_PRODUCTION ? "babel.config.prod.js" : "babel.config.js",
