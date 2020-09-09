@@ -778,3 +778,42 @@ test("Flattens declarations. #17", async (t, {typescript}) => {
 		`)
 	);
 });
+
+test("Flattens declarations. #18", async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "foo.ts",
+				text: `\
+					export type foo = typeof import("./bar");
+					`
+			},
+			{
+				entry: false,
+				fileName: "bar.ts",
+				text: `\
+					export type bar = number;
+					`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare namespace barNS {
+					type bar = number;
+			}
+			type foo = typeof barNS;
+			export { foo };
+		`)
+	);
+});
