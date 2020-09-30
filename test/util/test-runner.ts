@@ -1,5 +1,3 @@
-import * as TS321 from "typescript-3-2-1";
-import * as TS331 from "typescript-3-3-1";
 import * as TS341 from "typescript-3-4-1";
 import * as TS351 from "typescript-3-5-1";
 import * as TS362 from "typescript-3-6-2";
@@ -18,12 +16,6 @@ export interface ExtendedImplementationArgumentOptions {
 function getTsVersionFromEnv(): [typeof TS, string][] | undefined {
 	if (process.env.TS_VERSION == null) return undefined;
 	switch (process.env.TS_VERSION.toUpperCase()) {
-		case "3.2.1":
-		case "3.2":
-			return [[(TS321 as unknown) as typeof TS, "typescript-3-2-1"]];
-		case "3.3.1":
-		case "3.3":
-			return [[(TS321 as unknown) as typeof TS, "typescript-3-3-1"]];
 		case "3.4.1":
 		case "3.4":
 			return [[(TS341 as unknown) as typeof TS, "typescript-3-4-1"]];
@@ -57,8 +49,6 @@ export type ExtendedImplementation<Context = unknown> = (t: ExecutionContext<Con
 function sharedTest<Context = unknown>(title: string, implementation: ExtendedImplementation<Context>, subMethod?: "skip" | "only"): void {
 	for (const [typescript, typescriptModuleSpecifier] of getTsVersionFromEnv() ??
 		([
-			[TS321, "typescript-3-2-1"],
-			[TS331, "typescript-3-3-1"],
 			[TS341, "typescript-3-4-1"],
 			[TS351, "typescript-3-5-1"],
 			[TS362, "typescript-3-6-2"],

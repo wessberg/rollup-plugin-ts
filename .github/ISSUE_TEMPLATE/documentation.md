@@ -1,6 +1,7 @@
 ---
 name: Documentation
 about: Are the documentation missing something? Do they need something to be clarified?
+labels: documentation
 ---
 
 <!--

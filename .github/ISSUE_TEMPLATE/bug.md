@@ -1,6 +1,7 @@
 ---
 name: Bug Report
 about: Something doesn't work as expected.
+labels: bug
 ---
 
 - Version:

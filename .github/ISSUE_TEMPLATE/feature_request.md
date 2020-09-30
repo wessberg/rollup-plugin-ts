@@ -1,6 +1,7 @@
 ---
 name: Feature Request
 about: You would like to propose a new feature, or you would like something to work differently.
+labels: feature request
 ---
 
 <!--

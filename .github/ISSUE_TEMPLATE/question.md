@@ -1,6 +1,7 @@
 ---
 name: Question
 about: You have a question that is not covered by the documentation
+labels: question
 ---
 
 <!--
