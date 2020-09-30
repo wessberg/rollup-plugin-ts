@@ -1,3 +1,9 @@
+## [1.3.5](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.4...v1.3.5) (2020-09-30)
+
+### Bug Fixes
+
+- **declarations:** fix issue where Namespace would not be created for ImportTypeNodes with no qualifiers ([980e1da](https://github.com/wessberg/rollup-plugin-ts/commit/980e1dad284a7fc3cd3c2ec6c862be13099843ad))
+
 ## [1.3.4](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.3...v1.3.4) (2020-09-02)
 
 ### Bug Fixes
