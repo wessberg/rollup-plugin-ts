@@ -139,7 +139,7 @@
 	},
 	"ava": {
 		"files": [
-			"test/declaration.test.ts"
+			"test/**.test.ts"
 		],
 		"verbose": true,
 		"timeout": "400s",
