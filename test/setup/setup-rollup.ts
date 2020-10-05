@@ -192,7 +192,7 @@ export async function generateRollupBundle(
 				debug,
 				cwd,
 				typescript,
-				exclude: [...exclude, "dist/**/*.*", "src/**/*.*"],
+				exclude: [...exclude, "dist/**/*.*", "src/**/*.*", "test/**/*.*"],
 				tsconfig:
 					typeof tsconfig === "string"
 						? tsconfig
