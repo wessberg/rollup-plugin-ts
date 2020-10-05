@@ -64,7 +64,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	let babelConfigChunkFactory: BabelConfigFactory | undefined;
 
 	/**
-	 * The (Incremental) LanguageServiceHost to use
+	 * The CompilerHost to use
 	 */
 	let host: CompilerHost;
 
@@ -149,7 +149,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				Boolean(parsedCommandLineResult.parsedCommandLine.options.resolveJsonModule)
 			);
 
-			// Hook up a LanguageServiceHost and a LanguageService
+			// Hook up a CompilerHost
 			host = new CompilerHost({
 				filter,
 				cwd,
