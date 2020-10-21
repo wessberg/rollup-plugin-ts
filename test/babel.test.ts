@@ -23,7 +23,8 @@ test("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usag
 			transpiler: "babel",
 			exclude: [],
 			tsconfig: {
-				target: "es5"
+				target: "es5",
+				allowJs: true
 			},
 			babelConfig: {
 				presets: [

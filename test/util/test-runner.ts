@@ -4,6 +4,7 @@ import * as TS362 from "typescript-3-6-2";
 import * as TS372 from "typescript-3-7-2";
 import * as TS383 from "typescript-3-8-3";
 import * as TS392 from "typescript-3-9-2";
+import * as TS403 from "typescript-4-0-3";
 import * as TSCurrent from "typescript";
 import avaTest, {ExecutionContext, ImplementationResult} from "ava";
 import {TS} from "../../src/type/ts";
@@ -35,8 +36,12 @@ function getTsVersionFromEnv(): [typeof TS, string][] | undefined {
 		case "3.9":
 			return [[(TS392 as unknown) as typeof TS, "typescript-3-9-2"]];
 		case "4.0.0":
+		case "4.0.3":
 		case "4.0":
 		case "4":
+			return [[(TS403 as unknown) as typeof TS, "typescript-4-0-3"]];
+		case "4.1.0":
+		case "4.1":
 		case "CURRENT":
 			return [[(TSCurrent as unknown) as typeof TS, "typescript"]];
 	}
@@ -55,6 +60,7 @@ function sharedTest<Context = unknown>(title: string, implementation: ExtendedIm
 			[TS372, "typescript-3-7-2"],
 			[TS383, "typescript-3-8-3"],
 			[TS392, "typescript-3-9-2"],
+			[TS403, "typescript-4-0-3"],
 			[TSCurrent, "typescript"]
 		] as [typeof TS, string][])) {
 		const func = subMethod != null ? avaTest[subMethod] : avaTest.serial;

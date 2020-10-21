@@ -1,10 +1,10 @@
-import {InputOptions, OutputBundle, OutputOptions, Plugin, PluginContext, RenderedChunk, ExistingRawSourceMap, SourceDescription} from "rollup";
+import {ExistingRawSourceMap, InputOptions, OutputBundle, OutputOptions, Plugin, PluginContext, RenderedChunk, SourceDescription} from "rollup";
 import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line";
 import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options";
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
 import {emitDiagnostics} from "../service/emit/diagnostics/emit-diagnostics";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
-import {ensureHasDriveLetter, ensureRelative, getExtension, isBabelHelper, isCoreJsInternals, isRollupPluginMultiEntry, nativeNormalize, normalize} from "../util/path/path-util";
+import {ensureHasDriveLetter, ensureRelative, getExtension, isBabelHelper, isRollupPluginMultiEntry, nativeNormalize, normalize} from "../util/path/path-util";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
 import {TypescriptPluginOptions} from "./typescript-plugin-options";
 import {getPluginOptions} from "../util/plugin-options/get-plugin-options";
@@ -236,7 +236,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			}
 
 			// Skip the file if it doesn't match the filter or if the helper cannot be transformed
-			if (!filter(normalizedFile) || isBabelHelper(normalizedFile) || isCoreJsInternals(normalizedFile)) {
+			if (!filter(normalizedFile) || isBabelHelper(normalizedFile)) {
 				return undefined;
 			}
 

@@ -1129,6 +1129,59 @@ test("Deconflicts symbols. #20", async (t, {typescript}) => {
 	);
 });
 
+test("Deconflicts symbols. #21", async (t, {typescript}) => {
+	if (!typescript.version.includes("4.1.0-dev") && lt(typescript.version, "4.1.0")) {
+		t.pass(`Current TypeScript version (${typescript.version} does not support TemplateLiteralTypeNodes. Skipping...`);
+		return;
+	}
+
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+					export * from "./foo";
+					export * from "./bar";
+					`
+			},
+			{
+				entry: false,
+				fileName: "foo.ts",
+				text: `\
+					type World = "hello";
+					export type HelloWorld = \`hello \${World}\`;
+					`
+			},
+			{
+				entry: false,
+				fileName: "bar.ts",
+				text: `\
+					type World = "hello";
+					export type GoodbyeWorld = \`goodbye \${World}\`;
+					`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		file.code,
+		`\
+type World = "hello";
+type HelloWorld = \`hello \${World}\`;
+type World$0 = "hello";
+type GoodbyeWorld = \`goodbye \${World$0}\`;
+export { HelloWorld, GoodbyeWorld };${typescript.sys.newLine}`
+	);
+});
+
 test("Will merge declarations declared in same SourceFile rather than deconflict. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[

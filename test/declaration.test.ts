@@ -817,3 +817,39 @@ test("Flattens declarations. #18", async (t, {typescript}) => {
 		`)
 	);
 });
+
+test("Flattens declarations. #19", async (t, {typescript}) => {
+	if (!typescript.version.includes("4.1.0-dev") && lt(typescript.version, "4.1.0")) {
+		t.pass(`Current TypeScript version (${typescript.version} does not support TemplateLiteralTypeNodes. Skipping...`);
+		return;
+	}
+
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "virtual-src/index.ts",
+				text: `\
+        type World = "hello";
+        export type HelloWorld = \`hello \${World}\`;
+			`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		file.code,
+		`\
+type World = "hello";
+type HelloWorld = \`hello \${World}\`;
+export { HelloWorld };
+`
+	);
+});

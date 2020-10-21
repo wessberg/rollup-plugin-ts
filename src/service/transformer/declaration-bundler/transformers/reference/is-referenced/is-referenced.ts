@@ -33,6 +33,10 @@ import {TS} from "../../../../../../type/ts";
 import {nodeContainsChild} from "../../../util/node-contains-child";
 import {hasExportModifier} from "../../../util/modifier-util";
 import {traceIdentifiers} from "../../trace-identifiers/trace-identifiers";
+import {checkTemplateLiteralTypeNode} from "./visitor/check-template-literal-type-node";
+import {isTemplateLiteralTypeNode} from "../../../../../../util/predicates/predicates";
+import {checkTemplateLiteralTypeSpan} from "./visitor/check-template-literal-type-span";
+import {checkTypeReferenceNode} from "./visitor/check-type-reference-node";
 
 /**
  * Visits the given node. Returns true if it references the node to check for references, and false otherwise
@@ -94,6 +98,12 @@ function checkNode({node, originalNode, ...options}: ReferenceVisitorOptions): s
 		return checkModuleDeclaration({node, originalNode, ...options});
 	} else if (options.typescript.isIdentifier(node)) {
 		return checkIdentifier({node, originalNode, ...options});
+	} else if (isTemplateLiteralTypeNode(node, options.typescript)) {
+		return checkTemplateLiteralTypeNode({node, originalNode, ...options});
+	} else if (options.typescript.isTemplateLiteralTypeSpan?.(node)) {
+		return checkTemplateLiteralTypeSpan({node, originalNode, ...options});
+	} else if (options.typescript.isTypeReferenceNode(node)) {
+		return checkTypeReferenceNode({node, originalNode, ...options});
 	} else {
 		return options.childContinuation(node);
 	}
