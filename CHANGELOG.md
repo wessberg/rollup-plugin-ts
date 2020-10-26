@@ -1,3 +1,9 @@
+## [1.3.7](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.6...v1.3.7) (2020-10-26)
+
+### Bug Fixes
+
+- **multi-entry:** add interoperability with @rollup/plugin-multi-entry. Fixes [#121](https://github.com/wessberg/rollup-plugin-ts/issues/121) ([1bd94f5](https://github.com/wessberg/rollup-plugin-ts/commit/1bd94f5fe012f81f5370735180a21d2b157d9ced))
+
 ## [1.3.6](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.5...v1.3.6) (2020-10-21)
 
 ### Features
