@@ -4,7 +4,7 @@ import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
 import {emitDiagnostics} from "../service/emit/diagnostics/emit-diagnostics";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
-import {ensureHasDriveLetter, ensureRelative, getExtension, isBabelHelper, isRollupPluginMultiEntry, nativeNormalize, normalize} from "../util/path/path-util";
+import {ensureHasDriveLetter, ensureRelative, getExtension, isBabelHelper, isMultiEntryModule, nativeNormalize, normalize} from "../util/path/path-util";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
 import {TypescriptPluginOptions} from "./typescript-plugin-options";
 import {getPluginOptions} from "../util/plugin-options/get-plugin-options";
@@ -12,7 +12,7 @@ import {getBabelConfig} from "../util/get-babel-config/get-babel-config";
 import {getForcedBabelOptions} from "../util/get-forced-babel-options/get-forced-babel-options";
 import {getBrowserslist} from "../util/get-browserslist/get-browserslist";
 import {ResolveCache} from "../service/cache/resolve-cache/resolve-cache";
-import {JSON_EXTENSION, REGENERATOR_RUNTIME_NAME_1, REGENERATOR_RUNTIME_NAME_2} from "../constant/constant";
+import {JSON_EXTENSION, REGENERATOR_RUNTIME_NAME_1, REGENERATOR_RUNTIME_NAME_2, ROLLUP_PLUGIN_VIRTUAL_PREFIX} from "../constant/constant";
 import {REGENERATOR_SOURCE} from "../lib/regenerator/regenerator";
 import {getDefaultBabelOptions} from "../util/get-default-babel-options/get-default-babel-options";
 import {transformAsync} from "@babel/core";
@@ -94,6 +94,11 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	 */
 	let MULTI_ENTRY_FILE_NAMES: Set<string> | undefined;
 
+	/**
+	 * The virtual module name generated when using @rollup/plugin-multi-entry in combination with this plugin
+	 */
+	let MULTI_ENTRY_MODULE: string | undefined;
+
 	return {
 		name: PLUGIN_NAME,
 
@@ -106,6 +111,16 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 			// Re-assign the input options
 			rollupInputOptions = options;
+
+			const multiEntryPlugin = options.plugins?.find(plugin => plugin.name === "multi-entry");
+
+			// If the multi-entry plugin is being used, we can extract the name of the entry module
+			// based on it
+			if (multiEntryPlugin != null) {
+				if (typeof options.input === "string") {
+					MULTI_ENTRY_MODULE = `${ROLLUP_PLUGIN_VIRTUAL_PREFIX}${options.input}`;
+				}
+			}
 
 			// Make sure we have a proper ParsedCommandLine to work with
 			parsedCommandLineResult = getParsedCommandLine({
@@ -230,7 +245,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			const normalizedFile = normalize(file);
 			// If this file represents ROLLUP_PLUGIN_MULTI_ENTRY, we need to parse its' contents to understand which files it aliases.
 			// Following that, there's nothing more to do
-			if (isRollupPluginMultiEntry(normalizedFile)) {
+			if (isMultiEntryModule(normalizedFile, MULTI_ENTRY_MODULE)) {
 				MULTI_ENTRY_FILE_NAMES = new Set(matchAll(code, /(import|export)\s*(\*\s*from\s*)?["'`]([^"'`]*)["'`]/).map(([, , , path]) => normalize(path)));
 				return undefined;
 			}
@@ -375,6 +390,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 					pluginOptions,
 					pluginContext: this,
 					multiEntryFileNames: MULTI_ENTRY_FILE_NAMES,
+					multiEntryModule: MULTI_ENTRY_MODULE,
 					originalCompilerOptions: parsedCommandLineResult.originalCompilerOptions
 				});
 			}

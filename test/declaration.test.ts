@@ -830,9 +830,8 @@ test("Flattens declarations. #19", async (t, {typescript}) => {
 				entry: true,
 				fileName: "virtual-src/index.ts",
 				text: `\
-        type World = "hello";
-        export type HelloWorld = \`hello \${World}\`;
-			`
+        type World = "hello";${typescript.sys.newLine}\
+        export type HelloWorld = \`hello \${World}\`;${typescript.sys.newLine}`
 			}
 		],
 		{

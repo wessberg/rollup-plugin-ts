@@ -24,6 +24,7 @@ export interface EmitDeclarationsOptions {
 	pluginOptions: TypescriptPluginOptions;
 	externalOption: ExternalOption | undefined;
 	outputOptions: OutputOptions;
+	multiEntryModule: string | undefined;
 	multiEntryFileNames: Set<string> | undefined;
 	originalCompilerOptions: TS.CompilerOptions;
 }

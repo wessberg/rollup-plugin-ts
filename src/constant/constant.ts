@@ -89,4 +89,5 @@ export const FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS = {
 	useESModules: true
 };
 
-export const ROLLUP_PLUGIN_MULTI_ENTRY = "\0rollup-plugin-multi-entry:entry-point";
+export const ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY = "\0rollup-plugin-multi-entry:entry-point";
+export const ROLLUP_PLUGIN_VIRTUAL_PREFIX = `\0virtual:`;

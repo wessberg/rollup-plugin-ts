@@ -1,4 +1,4 @@
-import {createHash, createHmac} from "crypto";
+import {createHmac, randomBytes} from "crypto";
 
 export interface GenerateRandomHashOptions {
 	key: string;
@@ -9,7 +9,7 @@ export interface GenerateRandomHashOptions {
  * Generates a random hash
  */
 export function generateRandomHash({length = 8, key}: Partial<GenerateRandomHashOptions> = {}): string {
-	return key == null ? createHash("sha1").digest("hex").slice(0, length) : createHmac("sha1", key).digest("hex").slice(0, length);
+	return key == null ? randomBytes(length / 2).toString("hex") : createHmac("sha1", key).digest("hex").slice(0, length);
 }
 
 export function generateRandomIntegerHash(options?: Partial<GenerateRandomHashOptions>, offset = 1000000): number {

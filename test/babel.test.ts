@@ -2,7 +2,7 @@ import test from "./util/test-runner";
 import {ConfigItem} from "@babel/core";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {BABEL_CONFIG_JS_FILENAME, BABEL_CONFIG_JSON_FILENAME, BABELRC_FILENAME} from "../src/constant/constant";
-import {createTemporaryConfigFile} from "./util/create-temporary-config-file";
+import {createTemporaryFile} from "./util/create-temporary-file";
 import {normalize} from "../src/util/path/path-util";
 import {getAppropriateEcmaVersionForBrowserslist} from "@wessberg/browserslist-generator";
 
@@ -46,7 +46,7 @@ test("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usag
 });
 
 test("Can resolve the nearest project-wide babel config. #1", async (t, {typescript}) => {
-	const unlinker = createTemporaryConfigFile(BABEL_CONFIG_JS_FILENAME, `exports = {}`);
+	const unlinker = createTemporaryFile(BABEL_CONFIG_JS_FILENAME, `exports = {}`);
 	let configFileName: string | undefined;
 	try {
 		await generateRollupBundle(
@@ -82,7 +82,7 @@ test("Can resolve the nearest project-wide babel config. #1", async (t, {typescr
 });
 
 test("Can resolve the nearest project-wide babel config. #2", async (t, {typescript}) => {
-	const unlinker = createTemporaryConfigFile(BABEL_CONFIG_JSON_FILENAME, `{}`, "json");
+	const unlinker = createTemporaryFile(BABEL_CONFIG_JSON_FILENAME, `{}`, "json");
 	let configFileName: string | undefined;
 	try {
 		await generateRollupBundle(
@@ -118,7 +118,7 @@ test("Can resolve the nearest project-wide babel config. #2", async (t, {typescr
 });
 
 test("Can resolve a babel config file by file path. #1", async (t, {typescript}) => {
-	const unlinker = createTemporaryConfigFile(BABEL_CONFIG_JSON_FILENAME, `{}`, "json");
+	const unlinker = createTemporaryFile(BABEL_CONFIG_JSON_FILENAME, `{}`, "json");
 	let configFileName: string | undefined;
 	try {
 		await generateRollupBundle(
@@ -154,7 +154,7 @@ test("Can resolve a babel config file by file path. #1", async (t, {typescript})
 });
 
 test("Can find a babel config with rootMode: 'upward'. #1", async (t, {typescript}) => {
-	const unlinker = createTemporaryConfigFile(BABEL_CONFIG_JSON_FILENAME, `{}`, "json");
+	const unlinker = createTemporaryFile(BABEL_CONFIG_JSON_FILENAME, `{}`, "json");
 	let configFileName: string | undefined;
 	try {
 		await generateRollupBundle(
@@ -193,7 +193,7 @@ test("Can find a babel config with rootMode: 'upward'. #1", async (t, {typescrip
 });
 
 test("Can resolve the nearest file-relative babel config. #1", async (t, {typescript}) => {
-	const unlinker = createTemporaryConfigFile(BABELRC_FILENAME, `{}`, "json");
+	const unlinker = createTemporaryFile(BABELRC_FILENAME, `{}`, "json");
 	let configFileName: string | undefined;
 	try {
 		await generateRollupBundle(

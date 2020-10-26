@@ -8,7 +8,8 @@ import {
 	KNOWN_EXTENSIONS,
 	NODE_MODULES,
 	NODE_MODULES_MATCH_PATH,
-	ROLLUP_PLUGIN_MULTI_ENTRY,
+	ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY,
+	ROLLUP_PLUGIN_VIRTUAL_PREFIX,
 	TSLIB_NAME
 } from "../../constant/constant";
 import slash from "slash";
@@ -158,10 +159,19 @@ export function isBabelPresetEnv(p: string): boolean {
 }
 
 /**
- * Returns true if the given path represents the entry point for rollup-plugin-multi-entry
+ * Returns true if the given path is related to @rollup/plugin-virtual or the old version of @rollup/plugin-multi-entry
  */
-export function isRollupPluginMultiEntry(p: string): boolean {
-	return normalize(p) === ROLLUP_PLUGIN_MULTI_ENTRY;
+export function isVirtualFile(p: string): boolean {
+	const normalized = normalize(p);
+	return normalized === ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY || normalized.startsWith(ROLLUP_PLUGIN_VIRTUAL_PREFIX);
+}
+
+/**
+ * Returns true if the given path is the name of the entry module or @rollup/plugin-multi-entry
+ */
+export function isMultiEntryModule(p: string, multiEntryModuleName: string | undefined): boolean {
+	const normalized = normalize(p);
+	return normalized === ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY || (multiEntryModuleName != null && normalized === multiEntryModuleName);
 }
 
 /**

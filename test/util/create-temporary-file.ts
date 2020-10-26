@@ -10,8 +10,8 @@ export interface CreateTemporaryConfigFileResult {
 	dir: string;
 }
 
-export function createTemporaryConfigFile(configFileName: string, content: string, parser?: "typescript" | "json"): CreateTemporaryConfigFileResult {
-	const path = nativeJoin(tmpdir(), generateRandomHash({length: 20, key: String(Math.floor(Math.random() * 10000))}), `/${configFileName}`);
+export function createTemporaryFile(fileName: string, content: string, parser?: "typescript" | "json"): CreateTemporaryConfigFileResult {
+	const path = nativeJoin(tmpdir(), generateRandomHash({length: 20, key: String(Math.floor(Math.random() * 10000))}), `/${fileName}`);
 
 	if (!existsSync(nativeDirname(path))) {
 		mkdirSync(nativeDirname(path));

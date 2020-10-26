@@ -2,8 +2,8 @@ import {OutputChunk, OutputOptions} from "rollup";
 import {join, normalize} from "../path/path-util";
 import {getOutDir} from "../get-out-dir/get-out-dir";
 import {PathsResult, preparePaths} from "../../service/transformer/declaration-bundler/util/prepare-paths/prepare-paths";
-import {ROLLUP_PLUGIN_MULTI_ENTRY} from "../../constant/constant";
 import {CompilerHost} from "../../service/compiler-host/compiler-host";
+import {ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY} from "../../constant/constant";
 
 export interface PreNormalizedChunk {
 	fileName: string;
@@ -22,6 +22,7 @@ export interface NormalizeChunkOptions {
 	host: CompilerHost;
 	outputOptions: OutputOptions;
 	relativeOutDir: string;
+	multiEntryModule: string | undefined;
 	multiEntryFileNames: Set<string> | undefined;
 }
 
@@ -33,20 +34,28 @@ export function preNormalizeChunk(chunk: OutputChunk): PreNormalizedChunk {
 	};
 }
 
-export function normalizeChunk(chunk: PreNormalizedChunk, {host, outputOptions, relativeOutDir, multiEntryFileNames}: NormalizeChunkOptions): NormalizedChunk {
+export function normalizeChunk(chunk: PreNormalizedChunk, {host, outputOptions, relativeOutDir, multiEntryModule, multiEntryFileNames}: NormalizeChunkOptions): NormalizedChunk {
 	const cwd = host.getCwd();
+	let entryModules: string[] | undefined;
+	let isMultiEntryChunk = false;
 
 	for (let i = 0; i < chunk.modules.length; i++) {
 		const module = chunk.modules[i];
 
-		if (module === ROLLUP_PLUGIN_MULTI_ENTRY && multiEntryFileNames != null) {
+		if (multiEntryFileNames != null && (module === ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY || (multiEntryModule != null && module === multiEntryModule))) {
 			// Reassign the entry file names accordingly
-			chunk.modules.splice(i, 1, ...multiEntryFileNames);
+			chunk.modules.splice(i, 1, ...[...multiEntryFileNames].filter(fileName => !chunk.modules.includes(fileName)));
+			isMultiEntryChunk = true;
 		}
 	}
 
 	const visitableModules = chunk.modules.filter(module => host.isSupportedFileName(module, true));
-	const entryModules = chunk.isEntry ? [visitableModules.slice(-1)[0]] : [...visitableModules].reverse();
+
+	// If no entry module is predetermined, it should be the module on the last position for an entry chunk, or
+	// every visible module for a non-entry chunk
+	if (entryModules == null) {
+		entryModules = isMultiEntryChunk && multiEntryFileNames != null ? [...multiEntryFileNames] : chunk.isEntry ? [visitableModules.slice(-1)[0]] : [...visitableModules].reverse();
+	}
 
 	return {
 		isEntry: chunk.isEntry,

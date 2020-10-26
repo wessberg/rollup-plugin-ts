@@ -2,7 +2,7 @@ import * as TSModule from "typescript";
 import {rollup, RollupOptions, RollupOutput, Plugin} from "rollup";
 import commonjs from "@rollup/plugin-commonjs";
 import fastGlob from "fast-glob";
-import FS, {Dirent} from "fs";
+import FS, {Dirent, existsSync} from "fs";
 import Path from "path";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
 import {HookRecord, InputCompilerOptions, TypescriptPluginBabelOptions, TypescriptPluginOptions} from "../../src/plugin/typescript-plugin-options";
@@ -15,11 +15,15 @@ import {shouldDebugVirtualFiles} from "../../src/util/is-debug/should-debug";
 
 export interface ITestFile {
 	fileName: string;
-	text: string;
 	entry: boolean;
+	text?: string;
 }
 
-export type TestFile = ITestFile | string;
+export interface FullTestFile extends Omit<ITestFile, "text"> {
+	text: string;
+}
+
+export type InputTestFile = ITestFile | string;
 
 interface FileResult {
 	fileName: string;
@@ -61,7 +65,7 @@ export interface GenerateRollupBundleOptions {
  * Prepares a test
  */
 export async function generateRollupBundle(
-	inputFiles: TestFile[] | TestFile,
+	inputFiles: InputTestFile[] | InputTestFile,
 	{
 		rollupOptions = {},
 		transformers,
@@ -84,7 +88,9 @@ export async function generateRollupBundle(
 	}: Partial<GenerateRollupBundleOptions> = {}
 ): Promise<GenerateRollupBundleResult> {
 	cwd = ensureAbsolute(process.cwd(), cwd);
-	const files: ITestFile[] = (Array.isArray(inputFiles) ? inputFiles : [inputFiles])
+	const realFileSystem = getRealFileSystem(typescript);
+
+	const files: FullTestFile[] = (Array.isArray(inputFiles) ? inputFiles : [inputFiles])
 		.map(file =>
 			typeof file === "string"
 				? {
@@ -92,15 +98,24 @@ export async function generateRollupBundle(
 						fileName: `auto-generated-${Math.floor(Math.random() * 100000)}.ts`,
 						entry: true
 				  }
-				: file
+				: "text" in file && file.text != null
+				? (file as FullTestFile)
+				: {...file, text: realFileSystem.readFile(file.fileName)!}
 		)
-		.map(file => ({...file, fileName: nativeJoin(cwd, file.fileName)}));
+		.map(file => ({...file, fileName: isAbsolute(file.fileName) && existsSync(file.fileName) ? file.fileName : nativeJoin(cwd, file.fileName)}));
 
 	const directories = new Set(files.map(file => nativeNormalize(nativeDirname(file.fileName))));
 
-	const entryFiles = files.filter(file => file.entry);
-	if (entryFiles.length === 0) {
+	let entryFiles = files.filter(file => file.entry);
+	const hasMultiEntryPlugin = [...prePlugins, ...postPlugins].some(({name}) => name === "multi-entry");
+
+	if (entryFiles.length === 0 && !hasMultiEntryPlugin) {
 		throw new ReferenceError(`No entry could be found`);
+	}
+
+	// If there are no entry files, but the multi entry plugin is being used, treat every file as the entry
+	else if (entryFiles.length === 0 && hasMultiEntryPlugin) {
+		entryFiles = files;
 	}
 
 	// Print the virtual file names
@@ -134,8 +149,10 @@ export async function generateRollupBundle(
 	const declarationMaps: FileResult[] = [];
 	let buildInfo: FileResult | undefined;
 
-	let input: Record<string, string> | string;
-	if (entryFiles.length === 1) {
+	let input: Record<string, string> | string[] | string;
+	if (hasMultiEntryPlugin) {
+		input = entryFiles.map(({fileName}) => fileName);
+	} else if (entryFiles.length === 1) {
 		input = entryFiles[0].fileName;
 	} else {
 		input = {};
@@ -206,7 +223,7 @@ export async function generateRollupBundle(
 				hook,
 				browserslist,
 				fileSystem: {
-					...getRealFileSystem(typescript),
+					...realFileSystem,
 					useCaseSensitiveFileNames: true,
 					readFile: fileName => {
 						const normalized = nativeNormalize(fileName);

@@ -1174,10 +1174,10 @@ test("Deconflicts symbols. #21", async (t, {typescript}) => {
 	t.deepEqual(
 		file.code,
 		`\
-type World = "hello";
-type HelloWorld = \`hello \${World}\`;
-type World$0 = "hello";
-type GoodbyeWorld = \`goodbye \${World$0}\`;
+type World = "hello";${typescript.sys.newLine}\
+type HelloWorld = \`hello \${World}\`;${typescript.sys.newLine}\
+type World$0 = "hello";${typescript.sys.newLine}\
+type GoodbyeWorld = \`goodbye \${World$0}\`;${typescript.sys.newLine}\
 export { HelloWorld, GoodbyeWorld };${typescript.sys.newLine}`
 	);
 });
