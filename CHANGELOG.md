@@ -1,3 +1,5 @@
+## [1.3.8](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.7...v1.3.8) (2020-11-06)
+
 ## [1.3.7](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.6...v1.3.7) (2020-10-26)
 
 ### Bug Fixes
