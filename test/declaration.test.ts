@@ -819,7 +819,7 @@ test("Flattens declarations. #18", async (t, {typescript}) => {
 });
 
 test("Flattens declarations. #19", async (t, {typescript}) => {
-	if (!typescript.version.includes("4.1.0-dev") && lt(typescript.version, "4.1.0")) {
+	if (!typescript.version.includes("4.1") && lt(typescript.version, "4.1.0")) {
 		t.pass(`Current TypeScript version (${typescript.version} does not support TemplateLiteralTypeNodes. Skipping...`);
 		return;
 	}

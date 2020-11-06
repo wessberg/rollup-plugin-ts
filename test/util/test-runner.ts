@@ -41,6 +41,7 @@ function getTsVersionFromEnv(): [typeof TS, string][] | undefined {
 		case "4":
 			return [[(TS403 as unknown) as typeof TS, "typescript-4-0-3"]];
 		case "4.1.0":
+		case "4.1.1":
 		case "4.1":
 		case "CURRENT":
 			return [[(TSCurrent as unknown) as typeof TS, "typescript"]];
