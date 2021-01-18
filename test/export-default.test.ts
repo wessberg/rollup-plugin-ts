@@ -313,6 +313,51 @@ test("Handles default export assignments. #8", async (t, {typescript}) => {
 	);
 });
 
+test("Handles default export assignments. #9", async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+				export { default as Foo } from './foo';
+        	`
+			},
+			{
+				entry: false,
+				fileName: "foo.ts",
+				text: `\
+				function Foo(a: string, b: string): string {
+					return a + b;
+				}
+				
+				Foo.tags = ['foo', 'bar', 'baz'];
+				
+				export default Foo;
+				`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+			declare function Foo$0(a: string, b: string): string;
+			declare namespace Foo$0 {
+				var tags: string[];
+			}
+			export { Foo$0 as Foo };
+		`)
+	);
+});
+
 test("Handles default exports inside ExportSpecifiers. #1", async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
