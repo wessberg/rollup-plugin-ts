@@ -1,9 +1,10 @@
-import test from "./util/test-runner";
+import test from "ava";
+import withTypeScript from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {DeclarationStats} from "../src/type/declaration-stats";
 
-test("Declarations respect rewritten output paths. #1", async (t, {typescript}) => {
+test("Declarations respect rewritten output paths. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -48,7 +49,7 @@ test("Declarations respect rewritten output paths. #1", async (t, {typescript}) 
 	);
 });
 
-test("Diagnostics can be filtered with the 'diagnostics' hook. #1", async (t, {typescript}) => {
+test("Diagnostics can be filtered with the 'diagnostics' hook. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -79,7 +80,7 @@ test("Diagnostics can be filtered with the 'diagnostics' hook. #1", async (t, {t
 	);
 });
 
-test("External types can be retrieved with the 'declarationStats' hook. #1", async (t, {typescript, typescriptModuleSpecifier}) => {
+test("External types can be retrieved with the 'declarationStats' hook. #1", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
 	let stats: DeclarationStats | undefined;
 
 	await generateRollupBundle(

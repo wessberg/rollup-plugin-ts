@@ -1,7 +1,8 @@
-import test from "./util/test-runner";
+import test from "ava";
+import withTypeScript from "./util/ts-macro";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Will report diagnostics from the ParsedCommandLine. #1", async (t, {typescript}) => {
+test("Will report diagnostics from the ParsedCommandLine. #1", withTypeScript, async (t, {typescript}) => {
 	let hasReportedDiagnostic = false;
 	await generateRollupBundle(
 		[

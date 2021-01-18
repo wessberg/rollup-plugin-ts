@@ -1,8 +1,9 @@
-import test from "./util/test-runner";
+import test from "ava";
+import withTypeScript from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Detects type reference directives and respects tree-shaking and code-splitting. #1", async (t, {typescript}) => {
+test("Detects type reference directives and respects tree-shaking and code-splitting. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -38,7 +39,7 @@ test("Detects type reference directives and respects tree-shaking and code-split
 	);
 });
 
-test("Detects type reference directives and respects tree-shaking and code-splitting. #2", async (t, {typescript}) => {
+test("Detects type reference directives and respects tree-shaking and code-splitting. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -67,7 +68,7 @@ test("Detects type reference directives and respects tree-shaking and code-split
 	);
 });
 
-test("Detects type reference directives and respects tree-shaking and code-splitting. #3", async (t, {typescript}) => {
+test("Detects type reference directives and respects tree-shaking and code-splitting. #3", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -101,7 +102,7 @@ test("Detects type reference directives and respects tree-shaking and code-split
 	);
 });
 
-test("Detects type reference directives and respects tree-shaking and code-splitting. #4", async (t, {typescript}) => {
+test("Detects type reference directives and respects tree-shaking and code-splitting. #4", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -135,7 +136,7 @@ test("Detects type reference directives and respects tree-shaking and code-split
 	);
 });
 
-test("Detects type reference directives and respects tree-shaking and code-splitting. #5", async (t, {typescript}) => {
+test("Detects type reference directives and respects tree-shaking and code-splitting. #5", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -167,7 +168,7 @@ test("Detects type reference directives and respects tree-shaking and code-split
 	);
 });
 
-test("Detects type reference directives and respects tree-shaking and code-splitting. #6", async (t, {typescript}) => {
+test("Detects type reference directives and respects tree-shaking and code-splitting. #6", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

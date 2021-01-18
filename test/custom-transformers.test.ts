@@ -1,10 +1,11 @@
-import test from "./util/test-runner";
+import test from "ava";
+import withTypeScript from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {TS} from "../src/type/ts";
 import {isNodeFactory} from "../src/service/transformer/declaration-bundler/util/is-node-factory";
 
-test("Supports Custom Transformers, including on bundled declarations. #1", async (t, {typescript}) => {
+test("Supports Custom Transformers, including on bundled declarations. #1", withTypeScript, async (t, {typescript}) => {
 	const transformer: (ts: typeof TS) => TS.TransformerFactory<TS.SourceFile> = ts => context => sourceFile => {
 		const compatFactory = (context.factory as TS.NodeFactory | undefined) ?? ts;
 
@@ -75,7 +76,7 @@ test("Supports Custom Transformers, including on bundled declarations. #1", asyn
 	);
 });
 
-test("Supports Custom Transformers, including on bundled declarations. #2", async (t, {typescript}) => {
+test("Supports Custom Transformers, including on bundled declarations. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -148,7 +149,7 @@ test("Supports Custom Transformers, including on bundled declarations. #2", asyn
 	);
 });
 
-test("Supports adding diagnostics from Custom Transformers. #1", async (t, {typescript}) => {
+test("Supports adding diagnostics from Custom Transformers. #1", withTypeScript, async (t, {typescript}) => {
 	let hadDiagnostic = false;
 	await generateRollupBundle(
 		[

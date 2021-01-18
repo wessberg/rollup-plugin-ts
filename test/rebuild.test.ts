@@ -1,9 +1,9 @@
-import test from "./util/test-runner";
+import test from "ava";
+import withTypeScript from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
-import {lt} from "semver";
 
-test("Won't produce empty declarations when output directory is not excluded from TypeScript. #1", async (t, {typescript}) => {
+test("Won't produce empty declarations when output directory is not excluded from TypeScript. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -54,11 +54,7 @@ test("Won't produce empty declarations when output directory is not excluded fro
 	);
 });
 
-test("Won't produce empty declarations when baseUrl is outside of compilation root. #1", async (t, {typescript}) => {
-	if (lt(typescript.version, "3.4.0")) {
-		t.pass(`Current TypeScript version (${typescript.version} does not support the 'incremental' option Skipping...`);
-		return;
-	}
+test("Won't produce empty declarations when baseUrl is outside of compilation root. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
