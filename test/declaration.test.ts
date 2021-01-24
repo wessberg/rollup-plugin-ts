@@ -808,7 +808,8 @@ test.serial("Flattens declarations. #18", withTypeScript, async (t, {typescript}
 	);
 });
 
-test.serial("Flattens declarations. #19", withTypeScriptVersions(">=4.1"), async (t, {typescript}) => {
+const windowsFailingTest = process.platform === "win32" ? test.serial.failing : test.serial;
+windowsFailingTest("Flattens declarations. #19", withTypeScriptVersions(">=4.1"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

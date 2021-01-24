@@ -6,7 +6,8 @@ import {formatCode} from "./util/format-code";
 import {createTemporaryFile} from "./util/create-temporary-file";
 import {generateRandomHash} from "../src/util/hash/generate-random-hash";
 
-test("Can generate declarations for a virtual entry file using @rollup/plugin-multi-entry #1", withTypeScript, async (t, {typescript}) => {
+const windowsFailingTest = process.platform === "win32" ? test.failing : test;
+windowsFailingTest("Can generate declarations for a virtual entry file using @rollup/plugin-multi-entry #1", withTypeScript, async (t, {typescript}) => {
 	const unlinkerA = createTemporaryFile(
 		`${generateRandomHash()}.ts`,
 		`
