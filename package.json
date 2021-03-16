@@ -8,7 +8,7 @@
 		"generate:all": "pnpm run generate:scaffold && pnpm run generate:changelog",
 		"clean": "rimraf dist",
 		"lint": "tsc --noEmit && eslint \"src/**/*.ts\" --color",
-		"prettier": "prettier --write '{src,test,documentation}/**/*.{js,ts,json,html,xml,css,md}'",
+		"prettier": "prettier --write \"{src,test,documentation}/**/*.{js,ts,json,html,xml,css,md}\"",
 		"test": "ava",
 		"prebuild": "pnpm run clean",
 		"build": "pnpm run rollup",

@@ -11,5 +11,17 @@ export function visitImportEqualsDeclaration(options: TreeShakerVisitorOptions<T
 	}
 	return node.name === nameContinuationResult
 		? node
-		: preserveMeta(compatFactory.createImportEqualsDeclaration.length === 4 ? (compatFactory as unknown as import("typescript-4-1-2").NodeFactory).updateImportEqualsDeclaration(node, node.decorators, node.modifiers, nameContinuationResult, node.moduleReference) as TS.ImportEqualsDeclaration : compatFactory.updateImportEqualsDeclaration(node, node.decorators, node.modifiers, node.isTypeOnly, nameContinuationResult, node.moduleReference), node, options);
+		: preserveMeta(
+				compatFactory.createImportEqualsDeclaration.length === 4
+					? (((compatFactory as unknown) as import("typescript-4-1-2").NodeFactory).updateImportEqualsDeclaration(
+							node,
+							node.decorators,
+							node.modifiers,
+							nameContinuationResult,
+							node.moduleReference
+					  ) as TS.ImportEqualsDeclaration)
+					: compatFactory.updateImportEqualsDeclaration(node, node.decorators, node.modifiers, node.isTypeOnly, nameContinuationResult, node.moduleReference),
+				node,
+				options
+		  );
 }

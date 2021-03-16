@@ -46,19 +46,20 @@ export function createAliasedBinding(
 				),
 
 				preserveParents(
-					compatFactory.createImportEqualsDeclaration.length === 4 ?
-						(compatFactory as unknown as import("typescript-4-1-2").NodeFactory).createImportEqualsDeclaration(
-						undefined,
-						undefined,
-						compatFactory.createIdentifier(name),
-						compatFactory.createQualifiedName(compatFactory.createIdentifier(moduleBinding), compatFactory.createIdentifier(propertyName))
-					) as TS.ImportEqualsDeclaration : compatFactory.createImportEqualsDeclaration(
-						undefined,
-						undefined,
-						false,
-						compatFactory.createIdentifier(name),
-						compatFactory.createQualifiedName(compatFactory.createIdentifier(moduleBinding), compatFactory.createIdentifier(propertyName))
-						),
+					compatFactory.createImportEqualsDeclaration.length === 4
+						? (((compatFactory as unknown) as import("typescript-4-1-2").NodeFactory).createImportEqualsDeclaration(
+								undefined,
+								undefined,
+								compatFactory.createIdentifier(name),
+								compatFactory.createQualifiedName(compatFactory.createIdentifier(moduleBinding), compatFactory.createIdentifier(propertyName))
+						  ) as TS.ImportEqualsDeclaration)
+						: compatFactory.createImportEqualsDeclaration(
+								undefined,
+								undefined,
+								false,
+								compatFactory.createIdentifier(name),
+								compatFactory.createQualifiedName(compatFactory.createIdentifier(moduleBinding), compatFactory.createIdentifier(propertyName))
+						  ),
 					{typescript}
 				)
 			];

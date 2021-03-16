@@ -834,6 +834,6 @@ test.serial("Flattens declarations. #19", withTypeScriptVersions(">=4.1"), async
 type World = "hello";
 type HelloWorld = \`hello \${World}\`;
 export { HelloWorld };
-`
-	));
+`)
+	);
 });
