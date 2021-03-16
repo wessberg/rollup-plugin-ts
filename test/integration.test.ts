@@ -1,5 +1,5 @@
 import test from "ava";
-import withTypeScript from "./util/ts-macro";
+import {withTypeScript} from "./util/ts-macro";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import alias from "@rollup/plugin-alias";
 import {formatCode} from "./util/format-code";

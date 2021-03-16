@@ -1,5 +1,5 @@
 import test from "ava";
-import withTypeScript from "./util/ts-macro";
+import {withTypeScript} from "./util/ts-macro";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
 test("Can generate .tsbuildinfo for a compilation unit. #1", withTypeScript, async (t, {typescript}) => {

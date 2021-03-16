@@ -1,5 +1,5 @@
 import test from "ava";
-import withTypeScript from "./util/ts-macro";
+import {withTypeScript} from "./util/ts-macro";
 import {ConfigItem} from "@babel/core";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {BABEL_CONFIG_JS_FILENAME, BABEL_CONFIG_JSON_FILENAME, BABELRC_FILENAME} from "../src/constant/constant";
@@ -150,7 +150,10 @@ test.serial("Can resolve a babel config file by file path. #1", withTypeScript, 
 		throw ex;
 	} finally {
 		unlinker.cleanup();
-		t.true(configFileName != null && normalize(configFileName) === normalize(unlinker.path));
+		t.true(configFileName != null);
+		if (configFileName != null) {
+			t.deepEqual(normalize(configFileName), normalize(unlinker.path));
+		}
 	}
 });
 
@@ -189,7 +192,10 @@ test.serial("Can find a babel config with rootMode: 'upward'. #1", withTypeScrip
 		throw ex;
 	} finally {
 		unlinker.cleanup();
-		t.true(configFileName != null && normalize(configFileName) === normalize(unlinker.path));
+		t.true(configFileName != null);
+		if (configFileName != null) {
+			t.deepEqual(normalize(configFileName), normalize(unlinker.path));
+		}
 	}
 });
 
@@ -225,8 +231,11 @@ test.serial("Can resolve the nearest file-relative babel config. #1", withTypeSc
 		throw ex;
 	} finally {
 		unlinker.cleanup();
+
 		t.true(configFileName != null);
-		t.deepEqual(normalize(configFileName!), normalize(unlinker.path));
+		if (configFileName != null) {
+			t.deepEqual(normalize(configFileName), normalize(unlinker.path));
+		}
 	}
 });
 

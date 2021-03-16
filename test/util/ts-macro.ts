@@ -60,4 +60,4 @@ export function withTypeScriptVersions(extraFilter: string): OneOrMoreMacros<[Ex
 	return filteredMacros as OneOrMoreMacros<[ExtendedImplementation], unknown>;
 }
 
-export default withTypeScriptVersions("*");
+export const withTypeScript = withTypeScriptVersions("*");
