@@ -26,7 +26,7 @@ noMatchingVersionMacro.title = (provided = "") => `${provided} (No matching Type
 const pkg = JSON.parse(readFileSync(resolve(__dirname, "../../package.json"), "utf8"));
 const {devDependencies} = pkg as {devDependencies: Record<string, string>};
 
-// Set of all TypeScript versions parsed from pacakge.json
+// Set of all TypeScript versions parsed from package.json
 const availableTsVersions = new Set<string>();
 // Map of TypeScript version to ava macro
 const macros = new Map<string, Macro<[ExtendedImplementation]>>();
