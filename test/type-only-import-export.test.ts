@@ -1,13 +1,9 @@
-import test from "./util/test-runner";
+import test from "ava";
+import {withTypeScriptVersions} from "./util/ts-macro";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {formatCode} from "./util/format-code";
-import {lt} from "semver";
 
-test("Handles type-only imports and exports. #1", async (t, {typescript}) => {
-	if (lt(typescript.version, "3.8.0")) {
-		t.pass(`Current TypeScript version (${typescript.version} does not support 'import type {...}' syntax. Skipping...`);
-		return;
-	}
+test("Handles type-only imports and exports. #1", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

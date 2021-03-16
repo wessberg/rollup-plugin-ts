@@ -1,9 +1,10 @@
-import test from "./util/test-runner";
+import test from "ava";
+import withTypeScript from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {stripKnownExtension} from "../src/util/path/path-util";
 
-test("Declaration bundling supports code splitting. #1", async (t, {typescript}) => {
+test("Declaration bundling supports code splitting. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -82,7 +83,7 @@ test("Declaration bundling supports code splitting. #1", async (t, {typescript})
 	);
 });
 
-test("Declaration bundling supports code splitting. #2", async (t, {typescript}) => {
+test("Declaration bundling supports code splitting. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -159,7 +160,7 @@ test("Declaration bundling supports code splitting. #2", async (t, {typescript})
 	);
 });
 
-test("Declaration bundling supports code splitting. #3", async (t, {typescript}) => {
+test("Declaration bundling supports code splitting. #3", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -231,7 +232,7 @@ test("Declaration bundling supports code splitting. #3", async (t, {typescript})
 	);
 });
 
-test("Declaration bundling supports code splitting. #4", async (t, {typescript}) => {
+test("Declaration bundling supports code splitting. #4", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

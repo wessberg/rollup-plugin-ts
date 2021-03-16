@@ -1,8 +1,9 @@
-import test from "./util/test-runner";
+import test from "ava";
+import withTypeScript from "./util/ts-macro";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {formatCode} from "./util/format-code";
 
-test("Won't break for .mjs imports, even though .mjs isn't supported. #1", async (t, {typescript}) => {
+test("Won't break for .mjs imports, even though .mjs isn't supported. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

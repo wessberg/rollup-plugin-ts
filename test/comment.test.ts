@@ -1,8 +1,9 @@
-import test from "./util/test-runner";
+import test from "ava";
+import withTypeScript from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Preserves JSDoc comments in bundled declarations. #1", async (t, {typescript}) => {
+test("Preserves JSDoc comments in bundled declarations. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -38,7 +39,7 @@ test("Preserves JSDoc comments in bundled declarations. #1", async (t, {typescri
 	);
 });
 
-test("Preserves JSDoc comments in bundled declarations. #2", async (t, {typescript}) => {
+test("Preserves JSDoc comments in bundled declarations. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -81,7 +82,7 @@ test("Preserves JSDoc comments in bundled declarations. #2", async (t, {typescri
 	);
 });
 
-test("Preserves JSDoc comments in bundled declarations. #3", async (t, {typescript}) => {
+test("Preserves JSDoc comments in bundled declarations. #3", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -135,7 +136,7 @@ test("Preserves JSDoc comments in bundled declarations. #3", async (t, {typescri
 	);
 });
 
-test("Preserves JSDoc comments in bundled declarations. #4", async (t, {typescript}) => {
+test("Preserves JSDoc comments in bundled declarations. #4", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -183,7 +184,7 @@ test("Preserves JSDoc comments in bundled declarations. #4", async (t, {typescri
 	);
 });
 
-test("Won't leave JSDoc annotations for tree-shaken nodes. #1", async (t, {typescript}) => {
+test("Won't leave JSDoc annotations for tree-shaken nodes. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
