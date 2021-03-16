@@ -184,6 +184,56 @@ test("Preserves JSDoc comments in bundled declarations. #4", withTypeScript, asy
 	);
 });
 
+test("Preserves JSDoc comments in bundled declarations. #5", withTypeScript, async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+					export * from "./a";
+				`
+			},
+			{
+				entry: false,
+				fileName: "a.ts",
+				text: `\
+					export {foo as bar} from "./b";
+				`
+			},
+			{
+				entry: false,
+				fileName: "b.ts",
+				text: `\
+					/**
+					 * @see {@link bar}
+					 * @see bar
+					 */
+					export function foo (): void {}
+					`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+				  /**
+					 * @see {@link bar}
+					 * @see bar
+					 */
+					declare function foo (): void;
+					export {foo as bar};
+		`)
+	);
+});
+
 test("Won't leave JSDoc annotations for tree-shaken nodes. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
