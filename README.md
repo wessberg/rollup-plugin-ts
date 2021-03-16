@@ -71,6 +71,8 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
 
 - [Description](#description)
   - [Features](#features)
+- [Backers](#backers)
+  - [Patreon](#patreon)
 - [Table of Contents](#table-of-contents)
 - [Install](#install)
   - [npm](#npm)
@@ -120,8 +122,6 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
   - [Default Babel plugins](#default-babel-plugins)
 - [Contributing](#contributing)
 - [Maintainers](#maintainers)
-- [Backers](#backers)
-  - [Patreon](#patreon)
 - [FAQ](#faq)
   - [Does this plugin work with Code Splitting?](#does-this-plugin-work-with-code-splitting)
   - [Why wouldn't you use just TypeScript?](#why-wouldnt-you-use-just-typescript)
