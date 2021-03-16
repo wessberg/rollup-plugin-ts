@@ -1169,7 +1169,7 @@ type World = "hello";
 type HelloWorld = \`hello \${World}\`;
 type World$0 = "hello";
 type GoodbyeWorld = \`goodbye \${World$0}\`;
-export { HelloWorld, GoodbyeWorld };
+export { HelloWorld, GoodbyeWorld };`
 	));
 });
 
