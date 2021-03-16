@@ -819,7 +819,7 @@ test("Flattens declarations. #18", async (t, {typescript}) => {
 });
 
 test("Flattens declarations. #19", async (t, {typescript}) => {
-	if (!typescript.version.includes("4.1") && lt(typescript.version, "4.1.0")) {
+	if (lt(typescript.version, "4.1.0")) {
 		t.pass(`Current TypeScript version (${typescript.version} does not support TemplateLiteralTypeNodes. Skipping...`);
 		return;
 	}
@@ -844,11 +844,11 @@ test("Flattens declarations. #19", async (t, {typescript}) => {
 	} = bundle;
 
 	t.deepEqual(
-		file.code,
-		`\
+		formatCode(file.code),
+		formatCode(`\
 type World = "hello";
 type HelloWorld = \`hello \${World}\`;
 export { HelloWorld };
 `
-	);
+	));
 });

@@ -80,8 +80,8 @@ test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM.
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		import _regeneratorRuntime from '@babel/runtime/regenerator';
 		import _asyncToGenerator from '@babel/runtime/helpers/esm/asyncToGenerator';
+		import _regeneratorRuntime from '@babel/runtime/regenerator';
 		
 		_asyncToGenerator(
 		/*#__PURE__*/ _regeneratorRuntime.mark(function _callee() {
@@ -128,7 +128,43 @@ test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM.
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		function _typeof(obj) {
+		function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+  try {
+    var info = gen[key](arg);
+    var value = info.value;
+  } catch (error) {
+    reject(error);
+    return;
+  }
+
+  if (info.done) {
+    resolve(value);
+  } else {
+    Promise.resolve(value).then(_next, _throw);
+  }
+}
+
+function _asyncToGenerator(fn) {
+  return function () {
+    var self = this,
+        args = arguments;
+    return new Promise(function (resolve, reject) {
+      var gen = fn.apply(self, args);
+
+      function _next(value) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+      }
+
+      function _throw(err) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+      }
+
+      _next(undefined);
+    });
+  };
+}
+
+function _typeof(obj) {
   "@babel/helpers - typeof";
 
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -346,11 +382,8 @@ AsyncIterator.prototype[asyncIteratorSymbol] = function () {
 
 
 function async(innerFn, outerFn, self, tryLocsList, PromiseImpl) {
-	 if (PromiseImpl === void 0) PromiseImpl = Promise;
-  var iter = new AsyncIterator(
-    wrap(innerFn, outerFn, self, tryLocsList),
-    PromiseImpl
-  );
+  if (PromiseImpl === void 0) PromiseImpl = Promise;
+  var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl);
   return isGeneratorFunction(outerFn) ? iter // If outerFn is a generator, return the full iterator.
   : iter.next().then(function (result) {
     return result.done ? result.value : iter.next();
@@ -444,7 +477,7 @@ function maybeInvokeDelegate(delegate, context) {
     context.delegate = null;
 
     if (context.method === "throw") {
-    	 // Note: ["return"] must be used for ES3 parsing compatibility.
+      // Note: ["return"] must be used for ES3 parsing compatibility.
       if (delegate.iterator["return"]) {
         // If the delegate iterator has a return method, give it a
         // chance to clean up.
@@ -832,44 +865,7 @@ var _regeneratorRuntime = {
   values: values
 };
 
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
-  try {
-    var info = gen[key](arg);
-    var value = info.value;
-  } catch (error) {
-    reject(error);
-    return;
-  }
-
-  if (info.done) {
-    resolve(value);
-  } else {
-    Promise.resolve(value).then(_next, _throw);
-  }
-}
-
-function _asyncToGenerator(fn) {
-  return function () {
-    var self = this,
-        args = arguments;
-    return new Promise(function (resolve, reject) {
-      var gen = fn.apply(self, args);
-
-      function _next(value) {
-        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
-      }
-
-      function _throw(err) {
-        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
-      }
-
-      _next(undefined);
-    });
-  };
-}
-
-_asyncToGenerator(
-/*#__PURE__*/ _regeneratorRuntime.mark(function _callee() {
+_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee() {
   return _regeneratorRuntime.wrap(function _callee$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
@@ -920,13 +916,13 @@ test("Will use the proper @babel/runtime/helpers helpers when format is CJS. #1"
 		formatCode(`\
 		'use strict';
 
-		var _regeneratorRuntime = require('@babel/runtime/regenerator');
 		var _asyncToGenerator = require('@babel/runtime/helpers/asyncToGenerator');
+		var _regeneratorRuntime = require('@babel/runtime/regenerator');
 		
 		function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 		
-		var _regeneratorRuntime__default = /*#__PURE__*/_interopDefaultLegacy(_regeneratorRuntime);
 		var _asyncToGenerator__default = /*#__PURE__*/_interopDefaultLegacy(_asyncToGenerator);
+		var _regeneratorRuntime__default = /*#__PURE__*/_interopDefaultLegacy(_regeneratorRuntime);
 		
 		_asyncToGenerator__default['default']( /*#__PURE__*/_regeneratorRuntime__default['default'].mark(function _callee() {
 			return _regeneratorRuntime__default['default'].wrap(function _callee$(_context) {

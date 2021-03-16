@@ -16,7 +16,7 @@
 <a href="https://www.npmjs.com/package/%40wessberg%2Frollup-plugin-ts"><img alt="NPM version" src="https://badge.fury.io/js/%40wessberg%2Frollup-plugin-ts.svg"    /></a>
 <a href="https://david-dm.org/wessberg/rollup-plugin-ts"><img alt="Dependencies" src="https://img.shields.io/david/wessberg%2Frollup-plugin-ts.svg"    /></a>
 <a href="https://github.com/wessberg/rollup-plugin-ts/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/wessberg%2Frollup-plugin-ts.svg"    /></a>
-<a href="https://github.com/prettier/prettier"><img alt="code style: prettier" src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg"    /></a>
+<a href="https://github.com/prettier/prettier"><img alt="code style: prettier" src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg"    /></a><a href="https://github.com/feross/standard"><img alt="code style: Standard" src="https://img.shields.io/badge/code%20style-standard-green.svg"    /></a>
 <a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg"    /></a>
 <a href="https://www.patreon.com/bePatron?u=11315442"><img alt="Support on Patreon" src="https://img.shields.io/badge/patreon-donate-green.svg"    /></a>
 
@@ -48,6 +48,22 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
 <!-- SHADOW_SECTION_FEATURE_IMAGE_START -->
 
 <!-- SHADOW_SECTION_FEATURE_IMAGE_END -->
+
+<!-- SHADOW_SECTION_BACKERS_START -->
+
+## Backers
+
+[Become a sponsor/backer](https://github.com/wessberg/rollup-plugin-ts?sponsor=1) and get your logo listed here.
+
+| <a href="https://usebubbles.com"><img alt="Bubbles" src="https://uploads-ssl.webflow.com/5d682047c28b217055606673/5e5360be16879c1d0dca6514_icon-thin-128x128%402x.png" height="70"   /></a> | <a href="https://github.com/cblanc"><img alt="Christopher Blanchard" src="https://avatars0.githubusercontent.com/u/2160685?s=400&v=4" height="70"   /></a> | <a href="https://github.com/ideal-postcodes"><img alt="Ideal Postcodes" src="https://avatars.githubusercontent.com/u/4996310?s=200&v=4" height="70"   /></a> | <a href="https://www.xerox.com"><img alt="Xerox" src="https://avatars.githubusercontent.com/u/9158512?s=200&v=4" height="70"   /></a> |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| [Bubbles](https://usebubbles.com)<br><strong>Twitter</strong>: [@usebubbles](https://twitter.com/usebubbles)                                                                                | [Christopher Blanchard](https://github.com/cblanc)                                                                                                         | [Ideal Postcodes](https://github.com/ideal-postcodes)                                                                                                        | [Xerox](https://www.xerox.com)                                                                                                        |
+
+### Patreon
+
+<a href="https://www.patreon.com/bePatron?u=11315442"><img alt="Patrons on Patreon" src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dwessberg%26type%3Dpatrons"  width="200"  /></a>
+
+<!-- SHADOW_SECTION_BACKERS_END -->
 
 <!-- SHADOW_SECTION_TOC_START -->
 
@@ -610,7 +626,7 @@ To provide a seamless experience, Rollup always take precedence when conflicts a
 The following [CompilerOptions](https://www.typescriptlang.org/docs/handbook/compiler-options.html) from a `tsconfig` will be ignored:
 
 | Property              | Reason                                                                                                                                                                                                                                                                                                                                                                                     |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --- |
 | `outDir`              | Rollup, not TypeScript, will decide where to emit chunks.                                                                                                                                                                                                                                                                                                                                  |
 | `module`              | Rollup, not TypeScript, is the decider of which module system(s) to target based on your Rollup configuration.                                                                                                                                                                                                                                                                             |
 | `outFile`             | This option produces flat output and only works with the module formats AMD and SystemJS. Rollup will be the decider of how to split code.                                                                                                                                                                                                                                                 |
@@ -621,7 +637,7 @@ The following [CompilerOptions](https://www.typescriptlang.org/docs/handbook/com
 | `moduleResolution`    | Node-module resolution will always be used. This is required for `importHelpers` to work and in general, to make TypeScript able to resolve external libraries. Note that you still need to add the [nodeResolve](https://github.com/rollup/rollup-plugin-node-resolve) plugin in order to include external libraries within your bundle unless `allowJs` is `true` within your `tsconfig` |
 | `noEmit`              | TypeScript should always be able to emit assets, but those will be delegated to Rollup.                                                                                                                                                                                                                                                                                                    |
 | `noEmitOnError`       | See above.                                                                                                                                                                                                                                                                                                                                                                                 |
-| `emitDeclarationOnly` | See above.                                                                                                                                                                                                                                                                                                                                                                                 |  |
+| `emitDeclarationOnly` | See above.                                                                                                                                                                                                                                                                                                                                                                                 |     |
 | `noEmitHelpers`       | TypeScript should always be able to emit helpers, since the `importHelpers` option is forced                                                                                                                                                                                                                                                                                               |
 | `noResolve`           | TypeScript should always be able to resolve things. Otherwise, compilation might break.                                                                                                                                                                                                                                                                                                    |
 | `watch`               | Rollup, not TypeScript, will watch files if run in watch mode. Efficient caching will still be used for optimum performance.                                                                                                                                                                                                                                                               |
@@ -691,22 +707,6 @@ Do you want to contribute? Awesome! Please follow [these recommendations](./CONT
 | [Frederik Wessberg](mailto:frederikwessberg@hotmail.com)<br><strong>Twitter</strong>: [@FredWessberg](https://twitter.com/FredWessberg)<br><strong>Github</strong>: [@wessberg](https://github.com/wessberg)<br>_Lead Developer_ |
 
 <!-- SHADOW_SECTION_MAINTAINERS_END -->
-
-<!-- SHADOW_SECTION_BACKERS_START -->
-
-## Backers
-
-[Become a sponsor/backer](https://github.com/wessberg/rollup-plugin-ts?sponsor=1) and get your logo listed here.
-
-| <a href="https://usebubbles.com"><img alt="Bubbles" src="https://uploads-ssl.webflow.com/5d682047c28b217055606673/5e5360be16879c1d0dca6514_icon-thin-128x128%402x.png" height="70"   /></a> | <a href="https://github.com/cblanc"><img alt="Christopher Blanchard" src="https://avatars0.githubusercontent.com/u/2160685?s=400&v=4" height="70"   /></a> |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Bubbles](https://usebubbles.com)<br><strong>Twitter</strong>: [@usebubbles](https://twitter.com/usebubbles)                                                                                | [Christopher Blanchard](https://github.com/cblanc)                                                                                                         |
-
-### Patreon
-
-<a href="https://www.patreon.com/bePatron?u=11315442"><img alt="Patrons on Patreon" src="https://img.shields.io/endpoint.svg?url=https://shieldsio-patreon.herokuapp.com/wessberg"  width="200"  /></a>
-
-<!-- SHADOW_SECTION_BACKERS_END -->
 
 <!-- SHADOW_SECTION_FAQ_START -->
 
