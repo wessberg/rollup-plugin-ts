@@ -1,7 +1,5 @@
-import {readFileSync} from "fs";
-import {resolve} from "path";
 import {satisfies} from "semver";
-
+import pkg from "../../package.json";
 import type {ExecutionContext, OneOrMoreMacros, Macro} from "ava";
 import type {TS} from "../../src/type/ts";
 
@@ -22,8 +20,6 @@ const noMatchingVersionMacro: Macro<[ExtendedImplementation]> = t => {
 };
 noMatchingVersionMacro.title = (provided = "") => `${provided} (No matching TypeScript versions)`;
 
-// Read package.json
-const pkg = JSON.parse(readFileSync(resolve(__dirname, "../../package.json"), "utf8"));
 const {devDependencies} = pkg as {devDependencies: Record<string, string>};
 
 // Set of all TypeScript versions parsed from package.json
