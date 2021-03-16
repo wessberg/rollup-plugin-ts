@@ -1,8 +1,9 @@
-import test from "./util/test-runner";
+import test from "ava";
+import withTypeScript from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Detects d.ts files when matched by a ParsedCommandLine. #1", async (t, {typescript}) => {
+test("Detects d.ts files when matched by a ParsedCommandLine. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -38,7 +39,7 @@ test("Detects d.ts files when matched by a ParsedCommandLine. #1", async (t, {ty
 	);
 });
 
-test("Will not add .d.ts files matched by imports to the Rollup graph when corresponding non-ambient files exist for them #1", async (t, {typescript}) => {
+test("Will not add .d.ts files matched by imports to the Rollup graph when corresponding non-ambient files exist for them #1", withTypeScript, async (t, {typescript}) => {
 	await t.notThrowsAsync(
 		generateRollupBundle(
 			[

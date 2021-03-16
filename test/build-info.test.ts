@@ -1,13 +1,8 @@
-import test from "./util/test-runner";
+import test from "ava";
+import withTypeScript from "./util/ts-macro";
 import {generateRollupBundle} from "./setup/setup-rollup";
-import {lt} from "semver";
 
-test("Can generate .tsbuildinfo for a compilation unit. #1", async (t, {typescript}) => {
-	if (lt(typescript.version, "3.4.0")) {
-		t.pass(`Current TypeScript version (${typescript.version} does not support the 'incremental' option Skipping...`);
-		return;
-	}
-
+test("Can generate .tsbuildinfo for a compilation unit. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -33,7 +28,7 @@ test("Can generate .tsbuildinfo for a compilation unit. #1", async (t, {typescri
 	t.true(buildInfo != null);
 });
 
-test("Won't break for older TypeScript versions. #1", async (t, {typescript}) => {
+test("Won't break for older TypeScript versions. #1", withTypeScript, async (t, {typescript}) => {
 	await t.notThrowsAsync(
 		generateRollupBundle(
 			[
@@ -59,12 +54,7 @@ test("Won't break for older TypeScript versions. #1", async (t, {typescript}) =>
 	);
 });
 
-test("Can generate .tsbuildinfo for a compilation unit. #2", async (t, {typescript}) => {
-	if (lt(typescript.version, "3.4.0")) {
-		t.pass(`Current TypeScript version (${typescript.version} does not support the 'incremental' option Skipping...`);
-		return;
-	}
-
+test("Can generate .tsbuildinfo for a compilation unit. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

@@ -1,11 +1,12 @@
-import test from "./util/test-runner";
+import test from "ava";
+import withTypeScript from "./util/ts-macro";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import multiEntry from "@rollup/plugin-multi-entry";
 import {formatCode} from "./util/format-code";
 import {createTemporaryFile} from "./util/create-temporary-file";
 import {generateRandomHash} from "../src/util/hash/generate-random-hash";
 
-test("Can generate declarations for a virtual entry file using @rollup/plugin-multi-entry #1", async (t, {typescript}) => {
+test("Can generate declarations for a virtual entry file using @rollup/plugin-multi-entry #1", withTypeScript, async (t, {typescript}) => {
 	const unlinkerA = createTemporaryFile(
 		`${generateRandomHash()}.ts`,
 		`

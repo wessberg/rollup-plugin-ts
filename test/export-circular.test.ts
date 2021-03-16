@@ -1,8 +1,9 @@
-import test from "./util/test-runner";
+import test from "ava";
+import withTypeScript from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Handles circular, self-referencing exports. #1", async (t, {typescript}) => {
+test("Handles circular, self-referencing exports. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -30,7 +31,7 @@ test("Handles circular, self-referencing exports. #1", async (t, {typescript}) =
 	);
 });
 
-test("Handles circular, self-referencing exports. #2", async (t, {typescript}) => {
+test("Handles circular, self-referencing exports. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

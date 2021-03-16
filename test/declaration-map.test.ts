@@ -1,8 +1,9 @@
-import test from "./util/test-runner";
+import test from "ava";
+import withTypeScript from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Declaration maps correctly maps input sources. #1", async (t, {typescript}) => {
+test("Declaration maps correctly maps input sources. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -58,7 +59,7 @@ test("Declaration maps correctly maps input sources. #1", async (t, {typescript}
 	);
 });
 
-test("Declaration maps correctly maps input sources. #2", async (t, {typescript}) => {
+test("Declaration maps correctly maps input sources. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -97,7 +98,7 @@ test("Declaration maps correctly maps input sources. #2", async (t, {typescript}
 	);
 });
 
-test("Declaration maps respect rewritten output paths. #1", async (t, {typescript}) => {
+test("Declaration maps respect rewritten output paths. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -142,7 +143,7 @@ test("Declaration maps respect rewritten output paths. #1", async (t, {typescrip
 	);
 });
 
-test("Declaration maps respect rewritten output paths. #2", async (t, {typescript, typescriptModuleSpecifier}) => {
+test("Declaration maps respect rewritten output paths. #2", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

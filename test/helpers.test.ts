@@ -1,14 +1,9 @@
-import test from "./util/test-runner";
+import test from "ava";
+import withTypeScript, {withTypeScriptVersions} from "./util/ts-macro";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {formatCode} from "./util/format-code";
-import {lt} from "semver";
 
-test("Will treat every file as a module with tslib. #1", async (t, {typescript}) => {
-	if (lt(typescript.version, "3.6.0")) {
-		t.pass(`Current TypeScript version (${typescript.version} generates different tslib output. Skipping...`);
-		return;
-	}
-
+test("Will treat every file as a module with tslib. #1", withTypeScriptVersions(">=3.6"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -48,7 +43,7 @@ test("Will treat every file as a module with tslib. #1", async (t, {typescript})
 	);
 });
 
-test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #1", async (t, {typescript}) => {
+test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -99,7 +94,7 @@ test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM.
 	);
 });
 
-test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #2", async (t, {typescript}) => {
+test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -881,7 +876,7 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee() {
 	);
 });
 
-test("Will use the proper @babel/runtime/helpers helpers when format is CJS. #1", async (t, {typescript}) => {
+test("Will use the proper @babel/runtime/helpers helpers when format is CJS. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

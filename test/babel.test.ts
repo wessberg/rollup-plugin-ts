@@ -1,4 +1,5 @@
-import test from "./util/test-runner";
+import test from "ava";
+import withTypeScript from "./util/ts-macro";
 import {ConfigItem} from "@babel/core";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {BABEL_CONFIG_JS_FILENAME, BABEL_CONFIG_JSON_FILENAME, BABELRC_FILENAME} from "../src/constant/constant";
@@ -6,7 +7,7 @@ import {createTemporaryFile} from "./util/create-temporary-file";
 import {normalize} from "../src/util/path/path-util";
 import {getAppropriateEcmaVersionForBrowserslist} from "@wessberg/browserslist-generator";
 
-test("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usage' option. #1", async (t, {typescript}) => {
+test.serial("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usage' option. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -45,7 +46,7 @@ test("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usag
 	t.true(file.code.includes(`addToUnscopables('includes')`));
 });
 
-test("Can resolve the nearest project-wide babel config. #1", async (t, {typescript}) => {
+test.serial("Can resolve the nearest project-wide babel config. #1", withTypeScript, async (t, {typescript}) => {
 	const unlinker = createTemporaryFile(BABEL_CONFIG_JS_FILENAME, `exports = {}`);
 	let configFileName: string | undefined;
 	try {
@@ -81,7 +82,7 @@ test("Can resolve the nearest project-wide babel config. #1", async (t, {typescr
 	}
 });
 
-test("Can resolve the nearest project-wide babel config. #2", async (t, {typescript}) => {
+test.serial("Can resolve the nearest project-wide babel config. #2", withTypeScript, async (t, {typescript}) => {
 	const unlinker = createTemporaryFile(BABEL_CONFIG_JSON_FILENAME, `{}`, "json");
 	let configFileName: string | undefined;
 	try {
@@ -117,7 +118,7 @@ test("Can resolve the nearest project-wide babel config. #2", async (t, {typescr
 	}
 });
 
-test("Can resolve a babel config file by file path. #1", async (t, {typescript}) => {
+test.serial("Can resolve a babel config file by file path. #1", withTypeScript, async (t, {typescript}) => {
 	const unlinker = createTemporaryFile(BABEL_CONFIG_JSON_FILENAME, `{}`, "json");
 	let configFileName: string | undefined;
 	try {
@@ -153,7 +154,7 @@ test("Can resolve a babel config file by file path. #1", async (t, {typescript})
 	}
 });
 
-test("Can find a babel config with rootMode: 'upward'. #1", async (t, {typescript}) => {
+test.serial("Can find a babel config with rootMode: 'upward'. #1", withTypeScript, async (t, {typescript}) => {
 	const unlinker = createTemporaryFile(BABEL_CONFIG_JSON_FILENAME, `{}`, "json");
 	let configFileName: string | undefined;
 	try {
@@ -192,7 +193,7 @@ test("Can find a babel config with rootMode: 'upward'. #1", async (t, {typescrip
 	}
 });
 
-test("Can resolve the nearest file-relative babel config. #1", async (t, {typescript}) => {
+test.serial("Can resolve the nearest file-relative babel config. #1", withTypeScript, async (t, {typescript}) => {
 	const unlinker = createTemporaryFile(BABELRC_FILENAME, `{}`, "json");
 	let configFileName: string | undefined;
 	try {
@@ -229,7 +230,7 @@ test("Can resolve the nearest file-relative babel config. #1", async (t, {typesc
 	}
 });
 
-test("Won't apply @babel/preset-env if the browserslist option is 'false'. #1", async (t, {typescript}) => {
+test.serial("Won't apply @babel/preset-env if the browserslist option is 'false'. #1", withTypeScript, async (t, {typescript}) => {
 	let hasPresetEnv: boolean | undefined;
 	await generateRollupBundle(
 		[
@@ -261,7 +262,7 @@ test("Won't apply @babel/preset-env if the browserslist option is 'false'. #1", 
 	t.true(hasPresetEnv === false);
 });
 
-test("Will apply @babel/preset-env if a Browserslist is provided or discovered. #1", async (t, {typescript}) => {
+test.serial("Will apply @babel/preset-env if a Browserslist is provided or discovered. #1", withTypeScript, async (t, {typescript}) => {
 	let hasPresetEnv: boolean | undefined;
 	await generateRollupBundle(
 		[
@@ -293,45 +294,49 @@ test("Will apply @babel/preset-env if a Browserslist is provided or discovered. 
 	t.true(hasPresetEnv === true);
 });
 
-test("Will auto-generate a Browserslist based on the 'target' from the tsconfig if none is discovered and babel is used as transpiler. #1", async (t, {typescript}) => {
-	let browserslist: string[] | undefined;
-	await generateRollupBundle(
-		[
-			{
-				entry: true,
-				fileName: "index.ts",
-				text: `\
+test.serial(
+	"Will auto-generate a Browserslist based on the 'target' from the tsconfig if none is discovered and babel is used as transpiler. #1",
+	withTypeScript,
+	async (t, {typescript}) => {
+		let browserslist: string[] | undefined;
+		await generateRollupBundle(
+			[
+				{
+					entry: true,
+					fileName: "index.ts",
+					text: `\
 					console.log([].includes(2));
 					`
-			}
-		],
-		{
-			debug: false,
-			typescript,
-			transpiler: "babel",
-			tsconfig: {
-				target: "es2015"
-			},
-			hook: {
-				babelConfig: (config, _, phase) => {
-					if (phase === "chunk") return config;
-					const matchingPreset =
-						config == null || config.presets == null
-							? undefined
-							: (config.presets as ConfigItem[]).find(preset => preset.file != null && preset.file.resolved.includes("preset-env"));
-					if (matchingPreset != null) {
-						browserslist = (matchingPreset as {options: {targets: {browsers: string[]}}}).options.targets.browsers;
+				}
+			],
+			{
+				debug: false,
+				typescript,
+				transpiler: "babel",
+				tsconfig: {
+					target: "es2015"
+				},
+				hook: {
+					babelConfig: (config, _, phase) => {
+						if (phase === "chunk") return config;
+						const matchingPreset =
+							config == null || config.presets == null
+								? undefined
+								: (config.presets as ConfigItem[]).find(preset => preset.file != null && preset.file.resolved.includes("preset-env"));
+						if (matchingPreset != null) {
+							browserslist = (matchingPreset as {options: {targets: {browsers: string[]}}}).options.targets.browsers;
+						}
+						return config;
 					}
-					return config;
 				}
 			}
-		}
-	);
+		);
 
-	t.true(browserslist != null && getAppropriateEcmaVersionForBrowserslist(browserslist) === "es2015");
-});
+		t.true(browserslist != null && getAppropriateEcmaVersionForBrowserslist(browserslist) === "es2015");
+	}
+);
 
-test("Will apply minification-related plugins only in the renderChunk phase. #1", async (t, {typescript}) => {
+test.serial("Will apply minification-related plugins only in the renderChunk phase. #1", withTypeScript, async (t, {typescript}) => {
 	let isMinifiedInTransformPhase: boolean | undefined;
 	let isMinifiedInChunkPhase: boolean | undefined;
 	await generateRollupBundle(
