@@ -14,7 +14,7 @@
 		"build": "pnpm run rollup",
 		"watch": "pnpm run rollup -- --watch",
 		"rollup": "rollup -c rollup.config.js",
-		"preversion": "npm run lint && NODE_ENV=production pnpm run build",
+		"preversion": "npm run lint && pnpm run build",
 		"version": "pnpm run generate:all && git add .",
 		"release": "np --no-cleanup --no-yarn",
 		"update": "pnpx npm-check-updates -u -x np --dep dev,prod && pnpm update && pnpm install"
