@@ -4,7 +4,6 @@ import {ConfigItem} from "@babel/core";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {BABEL_CONFIG_JS_FILENAME, BABEL_CONFIG_JSON_FILENAME, BABELRC_FILENAME} from "../src/constant/constant";
 import {areTempFilesEqual, createTemporaryFile} from "./util/create-temporary-file";
-import {normalize} from "../src/util/path/path-util";
 import {getAppropriateEcmaVersionForBrowserslist} from "@wessberg/browserslist-generator";
 
 test.serial("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usage' option. #1", withTypeScript, async (t, {typescript}) => {
