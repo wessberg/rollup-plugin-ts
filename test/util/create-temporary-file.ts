@@ -13,11 +13,6 @@ export interface CreateTemporaryConfigFileResult {
 export function createTemporaryFile(fileName: string, content: string, parser?: "typescript" | "json"): CreateTemporaryConfigFileResult {
 	let path = nativeJoin(tmpdir(), generateRandomHash({length: 20, key: String(Math.floor(Math.random() * 10000))}), `/${fileName}`);
 
-	// This causes problems on Github actions sometimes
-	if (path.startsWith("/private")) {
-		path = path.slice("/private".length);
-	}
-
 	if (!existsSync(nativeDirname(path))) {
 		mkdirSync(nativeDirname(path));
 	}
@@ -28,4 +23,18 @@ export function createTemporaryFile(fileName: string, content: string, parser?: 
 		path: normalize(path),
 		dir: dirname(path)
 	};
+}
+
+export function areTempFilesEqual (a: string|undefined, b: string|undefined): boolean {
+	if (a == null && b == null) return true;
+	if (a == null || b == null) return false;
+
+	let normalizedA = normalize(a);
+	let normalizedB = normalize(b);
+
+	// This happens sometimes on Github actions
+	if (normalizedA.startsWith("/private")) normalizedA = normalizedA.slice("/private".length);
+	if (normalizedB.startsWith("/private")) normalizedB = normalizedB.slice("/private".length);
+
+	return normalizedA === normalizedB;
 }
