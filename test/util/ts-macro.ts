@@ -27,21 +27,20 @@ const availableTsVersions = new Set<string>();
 // Map of TypeScript version to ava macro
 const macros = new Map<string, Macro<[ExtendedImplementation]>>();
 
-const tsRangeRegex = /^npm:typescript@(.+)$/;
+const tsRangeRegex = /(npm:typescript@)?[\^~]*(.+)$/;
 const filter = process.env.TS_VERSION;
 
 for (const [specifier, range] of Object.entries(devDependencies)) {
 	const match = range.match(tsRangeRegex);
 	if (match !== null) {
-		availableTsVersions.add(match[1]);
-		if (filter === undefined || satisfies(match[1], filter, {includePrerelease: true})) {
-			macros.set(match[1], makeTypeScriptMacro(match[1], specifier));
+		const [, context, version] = match;
+		if (context === "npm:typescript@" || specifier === "typescript") {
+			availableTsVersions.add(version);
+			if (filter === undefined || (filter.toUpperCase() === "CURRENT" && specifier === "typescript") || satisfies(version, filter, {includePrerelease: true})) {
+				macros.set(version, makeTypeScriptMacro(version, specifier));
+			}
 		}
 	}
-}
-availableTsVersions.add(devDependencies.typescript);
-if (filter === undefined || filter.toUpperCase() === "CURRENT" || satisfies(devDependencies.typescript, filter, {includePrerelease: true})) {
-	macros.set(devDependencies.typescript, makeTypeScriptMacro(devDependencies.typescript, "typescript"));
 }
 
 if (macros.size === 0) {
