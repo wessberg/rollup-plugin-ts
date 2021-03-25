@@ -205,7 +205,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			}
 
 			const updatedCode = updatedSourceDescription != null ? updatedSourceDescription.code : code;
-			const updatedMap = updatedSourceDescription != null ? updatedSourceDescription.map : undefined;
+			const updatedMap = updatedSourceDescription != null ? updatedSourceDescription.map as ExistingRawSourceMap : undefined;
 
 			const transpilationResult = await transformAsync(updatedCode, {
 				...config,
@@ -213,7 +213,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				...(updatedMap == null
 					? {}
 					: {
-							inputSourceMap: updatedMap as ExistingRawSourceMap
+							inputSourceMap: {...updatedMap, file: updatedMap.file ?? ""}
 					  })
 			});
 
