@@ -301,7 +301,7 @@ By default, some combination of presets and plugins will be applied depending on
 
 #### Special handling for minification plugins/presets
 
-This plugin will apply syntax transformations from Babel presets and plugins on a file-by-file basis. However, if a a minification-related plugin or preset such as [babel-preset-minify](https://github.com/babel/minify/tree/master/packages/babel-preset-minify) is found within the Babel options,
+This plugin will apply syntax transformations from Babel presets and plugins on a file-by-file basis. However, if a minification-related plugin or preset such as [babel-preset-minify](https://github.com/babel/minify/tree/master/packages/babel-preset-minify) is found within the Babel options,
 these transformations will be applied per chunk. This enables the minification presets and plugins to perform better as it can now mangle in relation to the entire chunk and better remove unwanted characters such as whitespace.
 All of this works automatically.
 
