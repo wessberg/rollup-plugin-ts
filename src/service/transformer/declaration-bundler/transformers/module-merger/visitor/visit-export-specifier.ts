@@ -21,26 +21,27 @@ export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.Expo
 	// Now, we might be referencing the default export from the original module, in which case this should be rewritten to point to the exact identifier
 	const propertyName = contResult.propertyName ?? contResult.name;
 
-	const exportedSymbol =
+	const namedExportedSymbol =
 		propertyName.text === "default"
 			? locateExportedSymbolForSourceFile({defaultExport: true}, {...options, sourceFile: payload.matchingSourceFile.fileName})
-			: locateExportedSymbolForSourceFile({defaultExport: false, name: propertyName.text}, {...options, sourceFile: payload.matchingSourceFile.fileName});
+			: locateExportedSymbolForSourceFile({defaultExport: false, name: propertyName.text}, {...options, sourceFile: payload.matchingSourceFile.fileName}) ?? locateExportedSymbolForSourceFile({namespaceExport: true}, {...options, sourceFile: payload.matchingSourceFile.fileName});
 
-	if (exportedSymbol != null) {
+	if (namedExportedSymbol != null) {
 		// If the export exports a binding from another module *that points to a file that isn't part of the current chunk*,
 		// Create a new ExportDeclaration that refers to that chunk or external module
 		const generatedModuleSpecifier =
-			exportedSymbol.moduleSpecifier == null
+			namedExportedSymbol.moduleSpecifier == null
 				? undefined
 				: generateModuleSpecifier({
 						...options,
 						from: payload.matchingSourceFile.fileName,
-						moduleSpecifier: exportedSymbol.moduleSpecifier
+						moduleSpecifier: namedExportedSymbol.moduleSpecifier
 				  });
+
 		if (
-			exportedSymbol.moduleSpecifier != null &&
+			namedExportedSymbol.moduleSpecifier != null &&
 			generatedModuleSpecifier != null &&
-			options.getMatchingSourceFile(exportedSymbol.moduleSpecifier, payload.matchingSourceFile) == null
+			options.getMatchingSourceFile(namedExportedSymbol.moduleSpecifier, payload.matchingSourceFile) == null
 		) {
 			options.prependNodes(
 				preserveParents(
@@ -53,9 +54,9 @@ export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.Expo
 									compatFactory.createExportSpecifier(
 										propertyName.text === "default"
 											? compatFactory.createIdentifier("default")
-											: exportedSymbol.propertyName.text === contResult.name.text
+											: !("propertyName" in namedExportedSymbol) || namedExportedSymbol.propertyName == null || namedExportedSymbol.propertyName.text === contResult.name.text
 											? undefined
-											: compatFactory.createIdentifier(exportedSymbol.propertyName.text),
+											: compatFactory.createIdentifier(namedExportedSymbol.propertyName.text),
 										compatFactory.createIdentifier(contResult.name.text)
 									)
 								]),
@@ -68,9 +69,9 @@ export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.Expo
 									compatFactory.createExportSpecifier(
 										propertyName.text === "default"
 											? compatFactory.createIdentifier("default")
-											: exportedSymbol.propertyName.text === contResult.name.text
+											: !("propertyName" in namedExportedSymbol) || namedExportedSymbol.propertyName == null || namedExportedSymbol.propertyName.text === contResult.name.text
 											? undefined
-											: compatFactory.createIdentifier(exportedSymbol.propertyName.text),
+											: compatFactory.createIdentifier(namedExportedSymbol.propertyName.text),
 										compatFactory.createIdentifier(contResult.name.text)
 									)
 								]),
@@ -85,7 +86,7 @@ export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.Expo
 			return preserveMeta(
 				compatFactory.updateExportSpecifier(
 					contResult,
-					exportedSymbol.propertyName.text === contResult.name.text ? undefined : compatFactory.createIdentifier(exportedSymbol.propertyName.text),
+					!("propertyName" in namedExportedSymbol) || namedExportedSymbol.propertyName == null || namedExportedSymbol.propertyName.text === contResult.name.text ? undefined : compatFactory.createIdentifier(namedExportedSymbol.propertyName.text),
 					compatFactory.createIdentifier(contResult.name.text)
 				),
 				contResult,

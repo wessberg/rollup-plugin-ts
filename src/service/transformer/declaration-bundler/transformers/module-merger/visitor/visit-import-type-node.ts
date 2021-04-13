@@ -8,6 +8,7 @@ import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
 import {preserveMeta, preserveParents, preserveSymbols} from "../../../util/clone-node-with-meta";
 import {statementMerger} from "../../statement-merger/statement-merger";
 import {getParentNode, setParentNode} from "../../../util/get-parent-node";
+import {inlineNamespaceModuleBlockTransformer} from "../../inline-namespace-module-block-transformer/inline-namespace-module-block-transformer";
 
 export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.ImportTypeNode>): VisitResult<TS.ImportTypeNode> {
 	const {node, compatFactory, typescript} = options;
@@ -55,19 +56,32 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 		const namespaceName = generateIdentifierName(matchingSourceFile.fileName, "namespace");
 		const innerContent = compatFactory.createIdentifier(namespaceName);
 
+		const importDeclarations: TS.ImportDeclaration[] = [];
+		const moduleBlock = compatFactory.createModuleBlock([
+			...options.includeSourceFile(matchingSourceFile, {
+				allowDuplicate: true,
+				allowExports: "skip-optional",
+				lexicalEnvironment: cloneLexicalEnvironment(),
+				transformers: [
+					ensureNoDeclareModifierTransformer,
+					statementMerger({markAsModuleIfNeeded: false}),
+					inlineNamespaceModuleBlockTransformer({
+						intentToAddImportDeclaration: importDeclaration => {
+							importDeclarations.push(importDeclaration);
+						}
+					})
+				]
+			})
+		]);
+
 		options.prependNodes(
+			...importDeclarations.map(importDeclaration => preserveParents(importDeclaration, options)),
 			preserveParents(
 				compatFactory.createModuleDeclaration(
 					undefined,
 					ensureHasDeclareModifier(undefined, compatFactory, typescript),
 					compatFactory.createIdentifier(namespaceName),
-					compatFactory.createModuleBlock([
-						...options.includeSourceFile(matchingSourceFile, {
-							allowDuplicate: true,
-							lexicalEnvironment: cloneLexicalEnvironment(),
-							transformers: [ensureNoDeclareModifierTransformer, statementMerger({markAsModuleIfNeeded: false})]
-						})
-					]),
+					moduleBlock,
 					typescript.NodeFlags.Namespace
 				),
 				options

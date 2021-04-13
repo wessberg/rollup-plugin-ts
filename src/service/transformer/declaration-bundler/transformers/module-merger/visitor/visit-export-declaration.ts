@@ -7,6 +7,7 @@ import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifier-transformer/ensure-no-declare-modifier-transformer";
 import {statementMerger} from "../../statement-merger/statement-merger";
 import {isNodeFactory} from "../../../util/is-node-factory";
+import {inlineNamespaceModuleBlockTransformer} from "../../inline-namespace-module-block-transformer/inline-namespace-module-block-transformer";
 
 export interface GenerateExportDeclarationsOptions extends Omit<ModuleMergerVisitorOptions<TS.ExportDeclaration>, "node"> {}
 
@@ -153,22 +154,36 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 	}
 
 	// Otherwise, it if is a named NamespaceExport (such as 'export * as Foo from ".."), we can't just lose the module specifier since 'export * as Foo' isn't valid.
-	// Instead, we must declare inline the namespace and add an ExportDeclaration with a named export for it
+	// Instead, we must declare the namespace inline and add an ExportDeclaration with a named export for it
 	else if (typescript.isNamespaceExport?.(contResult.exportClause)) {
+		const importDeclarations: TS.ImportDeclaration[] = [];
+
 		// Otherwise, prepend the nodes for the SourceFile in a namespace declaration
+		const moduleBlock = compatFactory.createModuleBlock([
+			...options.includeSourceFile(matchingSourceFile, {
+				allowDuplicate: true,
+				allowExports: "skip-optional",
+				lexicalEnvironment: cloneLexicalEnvironment(),
+				transformers: [
+					ensureNoDeclareModifierTransformer,
+					statementMerger({markAsModuleIfNeeded: false}),
+					inlineNamespaceModuleBlockTransformer({
+						intentToAddImportDeclaration: importDeclaration => {
+							importDeclarations.push(importDeclaration);
+						}
+					})
+				]
+			})
+		]);
+
 		options.prependNodes(
+			...importDeclarations.map(importDeclaration => preserveParents(importDeclaration, options)),
 			preserveParents(
 				compatFactory.createModuleDeclaration(
 					undefined,
 					ensureHasDeclareModifier(undefined, compatFactory, typescript),
 					compatFactory.createIdentifier(contResult.exportClause.name.text),
-					compatFactory.createModuleBlock([
-						...options.includeSourceFile(matchingSourceFile, {
-							allowDuplicate: true,
-							lexicalEnvironment: cloneLexicalEnvironment(),
-							transformers: [ensureNoDeclareModifierTransformer, statementMerger({markAsModuleIfNeeded: false})]
-						})
-					]),
+					moduleBlock,
 					typescript.NodeFlags.Namespace
 				),
 				options

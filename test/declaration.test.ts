@@ -638,65 +638,25 @@ test("Flattens declarations. #16", withTypeScript, async (t, {typescript}) => {
 				entry: true,
 				fileName: "virtual-src/index.ts",
 				text: `\
-        export * from './lib-ref';
-				export * from './problem-file';
-			`
-			},
-			{
-				entry: false,
-				fileName: "virtual-src/lib-ref.ts",
-				text: `\
-        export {
-					Foo as F,
-					utils,
-					emitter
-				} from './main-lib';
-			`
-			},
-			{
-				entry: false,
-				fileName: "virtual-src/problem-file.ts",
-				text: `\
-        import * as libRef from './lib-ref';
+        import * as OtherModule from "./foo";
 
 				export interface Problem {
-					foo: libRef.F;
-					doAThing:(ref:typeof libRef) => void;
+					foo: OtherModule.F;
 				}
 			`
 			},
 			{
 				entry: false,
-				fileName: "virtual-src/main-lib/index.ts",
+				fileName: "virtual-src/foo.ts",
 				text: `\
-				export * from './module-b';
-				export * from './utils';
-				export * from './module-a';
+        export {Foo as F} from './bar';
 			`
 			},
 			{
 				entry: false,
-				fileName: "virtual-src/main-lib/module-a.ts",
+				fileName: "virtual-src/bar.ts",
 				text: `\
-				export class Foo {
-					public bar: () => {};
-				}
-			`
-			},
-			{
-				entry: false,
-				fileName: "virtual-src/main-lib/module-b.ts",
-				text: `\
-				export const emitter = () => {};
-			`
-			},
-			{
-				entry: false,
-				fileName: "virtual-src/main-lib/utils.ts",
-				text: `\
-				export namespace utils {
-					export function blah() { return "I'm a string!"; }
-				}
+				export class Foo {}
 			`
 			}
 		],
@@ -712,27 +672,15 @@ test("Flattens declarations. #16", withTypeScript, async (t, {typescript}) => {
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			declare const emitter: () => void;
-			declare namespace utils {
-					function blah(): string;
-			}
-			declare class Foo {
-					bar: () => {};
-			}
-			declare namespace libRef {
-					const emitter: () => void;
-					namespace utils {
-							function blah(): string;
-					}
-					class Foo {
-							bar: () => {};
-					}
+			declare namespace OtherModule {
+				class Foo {
+				}
+				export { Foo as F };
 			}
 			interface Problem {
-					foo: libRef.Foo;
-					doAThing: (ref: typeof libRef) => void;
+					foo: OtherModule.F;
 			}
-			export { Foo as F, utils, emitter, Problem };
+			export { Problem };
 		`)
 	);
 });

@@ -6,6 +6,7 @@ import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifier-transformer/ensure-no-declare-modifier-transformer";
 import {statementMerger} from "../../statement-merger/statement-merger";
 import {preserveParents} from "../../../util/clone-node-with-meta";
+import {inlineNamespaceModuleBlockTransformer} from "../../inline-namespace-module-block-transformer/inline-namespace-module-block-transformer";
 
 export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.NamespaceImport>): VisitResult<TS.NamespaceImport> {
 	const {node, compatFactory, typescript, payload} = options;
@@ -18,20 +19,33 @@ export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.Name
 		return options.shouldPreserveImportedSymbol(getImportedSymbolFromNamespaceImport(contResult, payload.moduleSpecifier)) ? contResult : undefined;
 	}
 
+	const importDeclarations: TS.ImportDeclaration[] = [];
+	const moduleBlock = compatFactory.createModuleBlock([
+		...options.includeSourceFile(payload.matchingSourceFile, {
+			allowDuplicate: true,
+			allowExports: "skip-optional",
+			lexicalEnvironment: cloneLexicalEnvironment(),
+			transformers: [
+				ensureNoDeclareModifierTransformer,
+				statementMerger({markAsModuleIfNeeded: false}),
+				inlineNamespaceModuleBlockTransformer({
+					intentToAddImportDeclaration: importDeclaration => {
+						importDeclarations.push(importDeclaration);
+					}
+				})
+			]
+		})
+	]);
+
 	// Otherwise, prepend the nodes for the SourceFile in a namespace declaration
 	options.prependNodes(
+		...importDeclarations.map(importDeclaration => preserveParents(importDeclaration, options)),
 		preserveParents(
 			compatFactory.createModuleDeclaration(
 				undefined,
 				ensureHasDeclareModifier(undefined, compatFactory, typescript),
 				compatFactory.createIdentifier(contResult.name.text),
-				compatFactory.createModuleBlock([
-					...options.includeSourceFile(payload.matchingSourceFile, {
-						allowDuplicate: true,
-						lexicalEnvironment: cloneLexicalEnvironment(),
-						transformers: [ensureNoDeclareModifierTransformer, statementMerger({markAsModuleIfNeeded: false})]
-					})
-				]),
+				moduleBlock,
 				typescript.NodeFlags.Namespace
 			),
 			options

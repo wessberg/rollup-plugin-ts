@@ -94,14 +94,17 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 				if (options.includedSourceFiles.has(sourceFileToInclude.fileName) && !allowDuplicate) return [];
 				options.includedSourceFiles.add(sourceFileToInclude.fileName);
 
-				const allTransformers = allowExports
+				const allTransformers = allowExports === true
 					? [...transformers, ...extraTransformers]
 					: [
 							...transformers,
 							// Removes 'export' modifiers from Nodes
-							ensureNoExportModifierTransformer,
+						...(allowExports === false || allowExports === "skip-optional" ? [ensureNoExportModifierTransformer] : []),
 							// Removes ExportDeclarations and ExportAssignments
-							noExportDeclarationTransformer,
+							noExportDeclarationTransformer({
+								preserveAliasedExports: allowExports === "skip-optional",
+								preserveExportsWithModuleSpecifiers: allowExports === "skip-optional"
+							}),
 							...extraTransformers
 					  ];
 

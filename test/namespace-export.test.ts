@@ -101,6 +101,7 @@ test("Handles namespace exports. #2", withTypeScriptVersions(">=3.8"), async (t,
 	const {
 		declarations: [file]
 	} = bundle;
+
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
@@ -183,11 +184,11 @@ test("Handles namespace exports. #4", withTypeScriptVersions(">=3.8"), async (t,
 	const {
 		declarations: [file]
 	} = bundle;
+
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
 			import { Subscribable } from "ava";
-			
 			declare namespace Foo {
 					interface Foo extends Subscribable {
 							a: number;
@@ -199,6 +200,212 @@ test("Handles namespace exports. #4", withTypeScriptVersions(">=3.8"), async (t,
 				}
 		}
 			export { Foo, Bar };
+		`)
+	);
+});
+
+test("Handles namespace exports. #5", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "virtual-src/index.ts",
+				text: `\
+        export * as Bar from "./foo";
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/foo.ts",
+				text: `\
+				class Foo {}
+        export {Foo as F};
+			`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare namespace Bar {
+				class Foo {
+				}
+				export { Foo as F };
+		}
+		export { Bar };
+		`)
+	);
+});
+
+test("Handles namespace exports. #6", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "virtual-src/index.ts",
+				text: `\
+        export * as Bar from "./foo";
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/foo.ts",
+				text: `\
+				export * from "@wessberg/stringutil";
+			`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		import { unquote, isInCamelCase, isInPascalCase, isInKebabCase, isLowerCase, isUpperCase, lowerCaseFirst, upperCaseFirst, isEmpty, startsWithQuote, endsWithQuote, isQuoted, allIndexesOf, matchAll, trimAll, camelCase, pascalCase, capitalize, kebabCase, removeWhitespace, containsWhitespace, containsOnlyWhitespace, trim, convertToAscii, truncate, ITruncateOptions } from "@wessberg/stringutil";
+		declare namespace Bar {
+				export { unquote, isInCamelCase, isInPascalCase, isInKebabCase, isLowerCase, isUpperCase, lowerCaseFirst, upperCaseFirst, isEmpty, startsWithQuote, endsWithQuote, isQuoted, allIndexesOf, matchAll, trimAll, camelCase, pascalCase, capitalize, kebabCase, removeWhitespace, containsWhitespace, containsOnlyWhitespace, trim, convertToAscii, truncate, ITruncateOptions };
+		}
+		export { Bar };
+		`)
+	);
+});
+
+test("Handles namespace exports. #7", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "virtual-src/index.ts",
+				text: `\
+        export {unquote} from "./foo";
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/foo.ts",
+				text: `\
+				export * from "@wessberg/stringutil";
+			`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		export { unquote } from "@wessberg/stringutil";
+		`)
+	);
+});
+
+test("Handles namespace exports. #8", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "virtual-src/index.ts",
+				text: `\
+        export * as Foo from "./foo";
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/foo.ts",
+				text: `\
+				export {default} from "./bar";
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/bar.ts",
+				text: `\
+				export default 2;
+			`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare namespace Foo {
+				const _default: 2;
+				export { _default as default };
+		}
+		export { Foo };
+		`)
+	);
+});
+
+test("Handles namespace exports. #9", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "virtual-src/index.ts",
+				text: `\
+        export * as Foo from "./foo";
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/foo.ts",
+				text: `\
+				export {A as B} from "./bar";
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/bar.ts",
+				text: `\
+				export {unquote as A} from "@wessberg/stringutil";
+			`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare namespace Foo {
+				export { unquote as B } from "@wessberg/stringutil";
+		}
+		export { Foo };
 		`)
 	);
 });
