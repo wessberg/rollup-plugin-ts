@@ -1241,6 +1241,58 @@ test("Deconflicts symbols. #22", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
+test("Deconflicts symbols. #23", withTypeScript, async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "virtual-src/index.ts",
+				text: `\
+				import { B } from "./b";
+				import { B as B2 } from "./b2";
+				export { B, B2 };
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/b.ts",
+				text: `\
+        export class B { }
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/b2.ts",
+				text: `\
+				export class B { }
+			`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare class B {
+		}
+		declare class B$0 {
+		}
+		declare module BWrapper {
+				export { B$0 as B };
+		}
+		import B2 = BWrapper.B;
+		export { B, B2 };
+		`)
+	);
+});
+
 test("Will merge declarations declared in same SourceFile rather than deconflict. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[

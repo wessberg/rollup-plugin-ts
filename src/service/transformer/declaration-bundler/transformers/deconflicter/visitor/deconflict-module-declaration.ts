@@ -19,18 +19,24 @@ export function deconflictModuleDeclaration(options: DeconflicterVisitorOptions<
 	const id = getIdForNode(options);
 	const originalSourceFile = getOriginalSourceFile(node, sourceFile, typescript);
 
-	// Check if it is a namespace ModuleDeclaration. If it is, it can be deconflicted. If it isn't, it should augment and merge with any existing declarations for it
+	// Check if it is a namespace ModuleDeclaration. If it is, its name can be deconflicted. If it isn't, it should augment and merge with any existing declarations for it
 	const isNamespace = (node.flags & typescript.NodeFlags.Namespace) !== 0;
 	if (!isNamespace) {
 		const binding = getBindingFromLexicalEnvironment(lexicalEnvironment, node.name.text) ?? node.name.text;
 
-		// If the binding has changed, update the ModuleDeclaration
-		if (binding !== node.name.text) {
-			return preserveMeta(compatFactory.updateModuleDeclaration(node, node.decorators, node.modifiers, compatFactory.createIdentifier(binding), node.body), node, options);
+		// The body has its own lexical environment
+		const nextContinuationOptions: ContinuationOptions = {lexicalEnvironment: cloneLexicalEnvironment(lexicalEnvironment)};
+		const bodyContResult = node.body == null ? undefined : continuation(node.body, nextContinuationOptions);
+
+		const isIdentical = binding === node.name.text && bodyContResult === node.body;
+
+		if (isIdentical) {
+			return node;
 		}
 
-		// Otherwise, preserve the node as it is
-		return node;
+		else {
+			return preserveMeta(compatFactory.updateModuleDeclaration(node, node.decorators, node.modifiers, compatFactory.createIdentifier(binding), bodyContResult), node, options);
+		}
 	}
 
 	if (isIdentifierFree(lexicalEnvironment, node.name.text, originalSourceFile.fileName)) {

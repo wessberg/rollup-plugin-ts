@@ -37,6 +37,7 @@ import {deconflictFunctionTypeNode} from "./visitor/deconflict-function-type";
 import {deconflictImportTypeNode} from "./visitor/deconflict-import-type-node";
 import {deconflictConstructorDeclaration} from "./visitor/deconflict-constructor-declaration";
 import {deconflictCallSignatureDeclaration} from "./visitor/deconflict-call-signature-declaration";
+import {deconflictQualifiedName} from "./visitor/deconflict-qualified-name";
 
 /**
  * Deconflicts the given Node. Everything but LValues will be updated here
@@ -44,6 +45,8 @@ import {deconflictCallSignatureDeclaration} from "./visitor/deconflict-call-sign
 function deconflictNode({node, ...options}: DeconflicterVisitorOptions<TS.Node>): TS.Node | undefined {
 	if (options.typescript.isBindingElement(node)) {
 		return deconflictBindingElement({node, ...options});
+	} else if (options.typescript.isQualifiedName(node)) {
+		return deconflictQualifiedName({node, ...options});
 	} else if (options.typescript.isClassDeclaration(node)) {
 		return deconflictClassDeclaration({node, ...options});
 	} else if (options.typescript.isClassExpression(node)) {
