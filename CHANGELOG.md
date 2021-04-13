@@ -1,3 +1,16 @@
+## [1.3.12](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.11...v1.3.12) (2021-04-13)
+
+
+### Bug Fixes
+
+* **deconflicting:** add support for CallSignatures in deconflicting logic ([3699a4e](https://github.com/wessberg/rollup-plugin-ts/commit/3699a4ec84e06cdbb8fc4e16eb7abc181bb1ded0))
+* **deconflicting:** fix issue where ModuleDeclarations could sometimes not be traced back to an original SourceFile, leading to invalid deconflicting. Closes [#129](https://github.com/wessberg/rollup-plugin-ts/issues/129) ([064b0c7](https://github.com/wessberg/rollup-plugin-ts/commit/064b0c71433cc4ff0320853797170b9e5b7dd6a0))
+* **namespace:** same import in multiple namespaces ([9f69855](https://github.com/wessberg/rollup-plugin-ts/commit/9f69855ff7cc718baec1508063b38e0d3365d4c6))
+* **namespace-exports:** fix problem where ExportDeclarations- and/or ImportDeclarations are sometimes lost when inlining ModuleDeclarations. Closes [#130](https://github.com/wessberg/rollup-plugin-ts/issues/130) ([deec007](https://github.com/wessberg/rollup-plugin-ts/commit/deec007f48a79c93c3726ffffc1cfef2f8075669))
+* **tree-shaking:** Correctly deconflict ExportDeclaration inside module wrappers and add support for deconflicting QualifiedNames. Closes [#136](https://github.com/wessberg/rollup-plugin-ts/issues/136) ([6623ca2](https://github.com/wessberg/rollup-plugin-ts/commit/6623ca2d769a763d84a630d1d01b3a60cd54df0e))
+
+
+
 ## [1.3.11](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.10...v1.3.11) (2021-03-25)
 
 
