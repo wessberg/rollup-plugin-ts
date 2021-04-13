@@ -1173,6 +1173,74 @@ export { HelloWorld, GoodbyeWorld };`)
 	);
 });
 
+test("Deconflicts symbols. #22", withTypeScript, async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "virtual-src/index.ts",
+				text: `\
+				export { default as foo } from "./foo";
+				export { default as bar } from "./bar";
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/foo.ts",
+				text: `\
+        interface Foo {
+						<T, R>(value: T, fn: (value: T) => R): R;
+				}
+				
+				const foo: Foo = (value: any, fn: any) => {
+						return fn(value)
+				}
+				
+				export default foo;
+			`
+			},
+			{
+				entry: false,
+				fileName: "virtual-src/bar.ts",
+				text: `\
+        
+				interface Bar {
+						<T, R>(value: T, fn: (value: T) => R): R;
+				}
+				
+				const bar: Bar = (value: any, fn: any) => {
+						return fn(value)
+				}
+				
+				export default bar;
+			`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		interface Foo {
+				<T, R>(value: T, fn: (value: T) => R): R;
+		}
+		declare const foo: Foo;
+		interface Bar {
+				<T, R>(value: T, fn: (value: T) => R): R;
+		}
+		declare const bar: Bar;
+		export { foo, bar };
+		`)
+	);
+});
+
 test("Will merge declarations declared in same SourceFile rather than deconflict. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[

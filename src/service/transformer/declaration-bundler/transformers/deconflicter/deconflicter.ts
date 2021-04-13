@@ -36,6 +36,7 @@ import {preserveMeta} from "../../util/clone-node-with-meta";
 import {deconflictFunctionTypeNode} from "./visitor/deconflict-function-type";
 import {deconflictImportTypeNode} from "./visitor/deconflict-import-type-node";
 import {deconflictConstructorDeclaration} from "./visitor/deconflict-constructor-declaration";
+import {deconflictCallSignatureDeclaration} from "./visitor/deconflict-call-signature-declaration";
 
 /**
  * Deconflicts the given Node. Everything but LValues will be updated here
@@ -82,6 +83,8 @@ function deconflictNode({node, ...options}: DeconflicterVisitorOptions<TS.Node>)
 		return deconflictIndexSignatureDeclaration({node, ...options});
 	} else if (options.typescript.isMethodSignature(node)) {
 		return deconflictMethodSignature({node, ...options});
+	} else if (options.typescript.isCallSignatureDeclaration(node)) {
+		return deconflictCallSignatureDeclaration({node, ...options});
 	} else if (options.typescript.isModuleDeclaration(node)) {
 		return deconflictModuleDeclaration({node, ...options});
 	} else if (options.typescript.isNamespaceImport(node)) {
