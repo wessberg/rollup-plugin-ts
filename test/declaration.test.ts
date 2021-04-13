@@ -3,7 +3,7 @@ import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test.serial("Flattens declarations. #1", withTypeScript, async (t, {typescript}) => {
+test("Flattens declarations. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -44,7 +44,7 @@ test.serial("Flattens declarations. #1", withTypeScript, async (t, {typescript})
 	);
 });
 
-test.serial("Flattens declarations. #2", withTypeScript, async (t, {typescript}) => {
+test("Flattens declarations. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -79,7 +79,7 @@ test.serial("Flattens declarations. #2", withTypeScript, async (t, {typescript})
 	);
 });
 
-test.serial("Flattens declarations. #3", withTypeScript, async (t, {typescript}) => {
+test("Flattens declarations. #3", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -119,7 +119,7 @@ test.serial("Flattens declarations. #3", withTypeScript, async (t, {typescript})
 	);
 });
 
-test.serial("Flattens declarations. #4", withTypeScript, async (t, {typescript}) => {
+test("Flattens declarations. #4", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -176,7 +176,7 @@ test.serial("Flattens declarations. #4", withTypeScript, async (t, {typescript})
 	);
 });
 
-test.serial("Flattens declarations. #5", withTypeScript, async (t, {typescript}) => {
+test("Flattens declarations. #5", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -212,7 +212,7 @@ test.serial("Flattens declarations. #5", withTypeScript, async (t, {typescript})
 	);
 });
 
-test.serial("Flattens declarations. #6", withTypeScript, async (t, {typescript}) => {
+test("Flattens declarations. #6", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -247,7 +247,7 @@ test.serial("Flattens declarations. #6", withTypeScript, async (t, {typescript})
 	);
 });
 
-test.serial("Flattens declarations. #7", withTypeScript, async (t, {typescript}) => {
+test("Flattens declarations. #7", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -292,7 +292,7 @@ test.serial("Flattens declarations. #7", withTypeScript, async (t, {typescript})
 	);
 });
 
-test.serial("Flattens declarations. #8", withTypeScript, async (t, {typescript}) => {
+test("Flattens declarations. #8", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -330,7 +330,7 @@ test.serial("Flattens declarations. #8", withTypeScript, async (t, {typescript})
 	);
 });
 
-test.serial("Flattens declarations. #9", withTypeScript, async (t, {typescript}) => {
+test("Flattens declarations. #9", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -367,7 +367,7 @@ test.serial("Flattens declarations. #9", withTypeScript, async (t, {typescript})
 	);
 });
 
-test.serial("Flattens declarations. #10", withTypeScript, async (t, {typescript}) => {
+test("Flattens declarations. #10", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -417,7 +417,7 @@ test.serial("Flattens declarations. #10", withTypeScript, async (t, {typescript}
 	);
 });
 
-test.serial("Flattens declarations. #11", withTypeScript, async (t, {typescript}) => {
+test("Flattens declarations. #11", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -462,7 +462,7 @@ test.serial("Flattens declarations. #11", withTypeScript, async (t, {typescript}
 	);
 });
 
-test.serial("Flattens declarations. #12", withTypeScript, async (t, {typescript}) => {
+test("Flattens declarations. #12", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -500,7 +500,7 @@ test.serial("Flattens declarations. #12", withTypeScript, async (t, {typescript}
 	);
 });
 
-test.serial("Flattens declarations. #13", withTypeScript, async (t, {typescript}) => {
+test("Flattens declarations. #13", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -543,7 +543,7 @@ test.serial("Flattens declarations. #13", withTypeScript, async (t, {typescript}
 	);
 });
 
-test.serial("Flattens declarations. #14", withTypeScriptVersions(">=3.5"), async (t, {typescript}) => {
+test("Flattens declarations. #14", withTypeScriptVersions(">=3.5"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -587,7 +587,7 @@ test.serial("Flattens declarations. #14", withTypeScriptVersions(">=3.5"), async
 	);
 });
 
-test.serial("Flattens declarations. #15", withTypeScriptVersions(">=3.5"), async (t, {typescript}) => {
+test("Flattens declarations. #15", withTypeScriptVersions(">=3.5"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -631,7 +631,7 @@ test.serial("Flattens declarations. #15", withTypeScriptVersions(">=3.5"), async
 	);
 });
 
-test.serial("Flattens declarations. #16", withTypeScript, async (t, {typescript}) => {
+test("Flattens declarations. #16", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -737,7 +737,7 @@ test.serial("Flattens declarations. #16", withTypeScript, async (t, {typescript}
 	);
 });
 
-test.serial("Flattens declarations. #17", withTypeScript, async (t, {typescript}) => {
+test("Flattens declarations. #17", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -769,7 +769,7 @@ test.serial("Flattens declarations. #17", withTypeScript, async (t, {typescript}
 	);
 });
 
-test.serial("Flattens declarations. #18", withTypeScript, async (t, {typescript}) => {
+test("Flattens declarations. #18", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -808,7 +808,7 @@ test.serial("Flattens declarations. #18", withTypeScript, async (t, {typescript}
 	);
 });
 
-test.serial("Flattens declarations. #19", withTypeScriptVersions(">=4.1"), async (t, {typescript}) => {
+test("Flattens declarations. #19", withTypeScriptVersions(">=4.1"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
