@@ -43,7 +43,8 @@ function createCommonChunk(
 					originalLength: 0,
 					removedExports: [],
 					renderedExports: [],
-					renderedLength: 0
+					renderedLength: 0,
+					code: null
 				}
 			},
 			exports: []
