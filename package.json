@@ -141,7 +141,7 @@
 	},
 	"ava": {
 		"files": [
-			"test/namespace-export.test.ts"
+			"test/**.test.ts"
 		],
 		"verbose": true,
 		"timeout": "400s",
