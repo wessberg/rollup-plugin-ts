@@ -3,7 +3,7 @@ import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Deconflicts symbols. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -47,7 +47,7 @@ test("Deconflicts symbols. #1", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Deconflicts symbols. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -101,7 +101,7 @@ test("Deconflicts symbols. #2", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Deconflicts symbols. #3", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #3", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -174,7 +174,7 @@ test("Deconflicts symbols. #3", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Deconflicts symbols. #4", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #4", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -232,7 +232,7 @@ test("Deconflicts symbols. #4", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Deconflicts symbols. #5", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #5", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -287,7 +287,7 @@ test("Deconflicts symbols. #5", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Deconflicts symbols. #6", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #6", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -344,7 +344,7 @@ test("Deconflicts symbols. #6", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Deconflicts symbols. #7", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #7", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -401,7 +401,7 @@ test("Deconflicts symbols. #7", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Deconflicts symbols. #8", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
+test.serial("Deconflicts symbols. #8", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -441,7 +441,7 @@ test("Deconflicts symbols. #8", withTypeScript, async (t, {typescript, typescrip
 	);
 });
 
-test("Deconflicts symbols. #9", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #9", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -513,7 +513,7 @@ test("Deconflicts symbols. #9", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Deconflicts symbols. #10", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #10", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -571,7 +571,7 @@ test("Deconflicts symbols. #10", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Deconflicts symbols. #11", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
+test.serial("Deconflicts symbols. #11", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -636,7 +636,7 @@ test("Deconflicts symbols. #11", withTypeScript, async (t, {typescript, typescri
 	);
 });
 
-test("Deconflicts symbols. #12", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
+test.serial("Deconflicts symbols. #12", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -686,7 +686,7 @@ test("Deconflicts symbols. #12", withTypeScript, async (t, {typescript, typescri
 	);
 });
 
-test("Deconflicts symbols. #13", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
+test.serial("Deconflicts symbols. #13", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -758,7 +758,7 @@ test("Deconflicts symbols. #13", withTypeScript, async (t, {typescript, typescri
 	);
 });
 
-test("Deconflicts symbols. #14", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
+test.serial("Deconflicts symbols. #14", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -830,7 +830,7 @@ test("Deconflicts symbols. #14", withTypeScript, async (t, {typescript, typescri
 	);
 });
 
-test("Deconflicts symbols. #15", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #15", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -883,7 +883,7 @@ test("Deconflicts symbols. #15", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Deconflicts symbols. #16", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #16", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -931,7 +931,7 @@ test("Deconflicts symbols. #16", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Deconflicts symbols. #17", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #17", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -971,7 +971,7 @@ test("Deconflicts symbols. #17", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Deconflicts symbols. #18", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #18", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1017,7 +1017,7 @@ test("Deconflicts symbols. #18", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Deconflicts symbols. #19", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #19", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1078,7 +1078,7 @@ export { f2, fns };
 	);
 });
 
-test("Deconflicts symbols. #20", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #20", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1125,7 +1125,7 @@ test("Deconflicts symbols. #20", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Deconflicts symbols. #21", withTypeScriptVersions(">=4.1"), async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #21", withTypeScriptVersions(">=4.1"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1173,7 +1173,7 @@ export { HelloWorld, GoodbyeWorld };`)
 	);
 });
 
-test("Deconflicts symbols. #22", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #22", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1241,7 +1241,7 @@ test("Deconflicts symbols. #22", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Deconflicts symbols. #23", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #23", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1293,7 +1293,7 @@ test("Deconflicts symbols. #23", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Will merge declarations declared in same SourceFile rather than deconflict. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Will merge declarations declared in same SourceFile rather than deconflict. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1330,7 +1330,7 @@ test("Will merge declarations declared in same SourceFile rather than deconflict
 	);
 });
 
-test("Won't deconflict overloaded function signatures #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Won't deconflict overloaded function signatures #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1364,7 +1364,7 @@ test("Won't deconflict overloaded function signatures #1", withTypeScript, async
 	);
 });
 
-test("Will allow local conflicting symbols with external module symbols. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Will allow local conflicting symbols with external module symbols. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1431,7 +1431,7 @@ test("Will allow local conflicting symbols with external module symbols. #1", wi
 	);
 });
 
-test("Will allow local conflicting symbols with external module symbols. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Will allow local conflicting symbols with external module symbols. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1501,7 +1501,7 @@ test("Will allow local conflicting symbols with external module symbols. #2", wi
 	);
 });
 
-test("Will allow local conflicting symbols with external module symbols. #3", withTypeScript, async (t, {typescript}) => {
+test.serial("Will allow local conflicting symbols with external module symbols. #3", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1568,7 +1568,7 @@ test("Will allow local conflicting symbols with external module symbols. #3", wi
 	);
 });
 
-test("Won't deconflict shorthand PropertyAssignments. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Won't deconflict shorthand PropertyAssignments. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -1651,7 +1651,7 @@ test("Won't deconflict shorthand PropertyAssignments. #1", withTypeScript, async
 	);
 });
 
-test("Namespace declarations should be merged rather than deconflicted. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Namespace declarations should be merged rather than deconflicted. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
