@@ -442,7 +442,7 @@ test.serial("Flattens declarations. #11", withTypeScript, async (t, {typescript}
 			debug: false,
 			rollupOptions: {
 				external(id) {
-					return /\bx\b/.test.serial(id);
+					return /\bx\b/.test(id);
 				}
 			}
 		}
