@@ -140,17 +140,13 @@ test("Handles namespace exports. #3", withTypeScriptVersions(">=3.8"), async (t,
 	t.deepEqual(formatCode(file.code), formatCode(`export * as Foo from "ava";`));
 });
 
-test("Handles namespace exports. #4", async (t, {typescript}) => {
-	if (lt(typescript.version, "3.8.0")) {
-		t.pass(`Current TypeScript version (${typescript.version} does not support 'export * as Foo from "..."' syntax. Skipping...`);
-		return;
-	}
+test("Handles namespace exports. #4", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
 
 	const bundle = await generateRollupBundle(
 		[
 			{
 				entry: true,
-				fileName: "index.ts",
+				fileName: "virtual-src/index.ts",
 				text: `\
           		export * as Foo from "./foo";
           		export * as Bar from "./bar";
@@ -158,7 +154,7 @@ test("Handles namespace exports. #4", async (t, {typescript}) => {
 			},
 			{
 				entry: false,
-				fileName: "foo.ts",
+				fileName: "virtual-src/foo.ts",
 				text: `\
 				import { Subscribable } from 'ava';
 
@@ -169,7 +165,7 @@ test("Handles namespace exports. #4", async (t, {typescript}) => {
 			},
 			{
 				entry: false,
-				fileName: "bar.ts",
+				fileName: "virtual-src/bar.ts",
 				text: `\
 				import { Subscribable } from 'ava';
 
