@@ -1,3 +1,12 @@
+## [1.3.13](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.12...v1.3.13) (2021-04-14)
+
+
+### Bug Fixes
+
+* **logging:** don't console log ModuleDeclarations ([a513caa](https://github.com/wessberg/rollup-plugin-ts/commit/a513caa3cde31d9f6ba7ad1567d58e4c7ef1a889))
+
+
+
 ## [1.3.12](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.11...v1.3.12) (2021-04-13)
 
 
