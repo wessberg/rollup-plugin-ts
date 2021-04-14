@@ -17,7 +17,7 @@ export function deconflictModuleDeclaration(options: DeconflicterVisitorOptions<
 	const {node, continuation, lexicalEnvironment, compatFactory, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
 	let nameContResult: TS.ModuleDeclaration["name"];
 	const id = getIdForNode(options);
-	const originalSourceFile = getOriginalSourceFile(node.name, sourceFile, typescript, true);
+	const originalSourceFile = getOriginalSourceFile(node.name, sourceFile, typescript);
 
 	// Check if it is a namespace ModuleDeclaration. If it is, its name can be deconflicted. If it isn't, it should augment and merge with any existing declarations for it
 	const isNamespace = (node.flags & typescript.NodeFlags.Namespace) !== 0;
