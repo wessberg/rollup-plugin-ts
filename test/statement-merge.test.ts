@@ -3,7 +3,7 @@ import {withTypeScript} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Merges identical statements correctly. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Merges identical statements correctly. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -57,7 +57,7 @@ test("Merges identical statements correctly. #1", withTypeScript, async (t, {typ
 	);
 });
 
-test("Merges identical statements correctly. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Merges identical statements correctly. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -111,7 +111,7 @@ test("Merges identical statements correctly. #2", withTypeScript, async (t, {typ
 	);
 });
 
-test("Merges identical statements correctly. #3", withTypeScript, async (t, {typescript}) => {
+test.serial("Merges identical statements correctly. #3", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

@@ -3,7 +3,7 @@ import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Handles namespace exports. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles namespace exports. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -61,7 +61,7 @@ test("Handles namespace exports. #1", withTypeScript, async (t, {typescript}) =>
 	);
 });
 
-test("Handles namespace exports. #2", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+test.serial("Handles namespace exports. #2", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -119,7 +119,7 @@ test("Handles namespace exports. #2", withTypeScriptVersions(">=3.8"), async (t,
 	);
 });
 
-test("Handles namespace exports. #3", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+test.serial("Handles namespace exports. #3", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -141,7 +141,7 @@ test("Handles namespace exports. #3", withTypeScriptVersions(">=3.8"), async (t,
 	t.deepEqual(formatCode(file.code), formatCode(`export * as Foo from "ava";`));
 });
 
-test("Handles namespace exports. #4", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+test.serial("Handles namespace exports. #4", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
 
 	const bundle = await generateRollupBundle(
 		[
@@ -204,7 +204,7 @@ test("Handles namespace exports. #4", withTypeScriptVersions(">=3.8"), async (t,
 	);
 });
 
-test("Handles namespace exports. #5", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+test.serial("Handles namespace exports. #5", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -245,7 +245,7 @@ test("Handles namespace exports. #5", withTypeScriptVersions(">=3.8"), async (t,
 	);
 });
 
-test("Handles namespace exports. #6", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+test.serial("Handles namespace exports. #6", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -284,7 +284,7 @@ test("Handles namespace exports. #6", withTypeScriptVersions(">=3.8"), async (t,
 	);
 });
 
-test("Handles namespace exports. #7", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+test.serial("Handles namespace exports. #7", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -319,7 +319,7 @@ test("Handles namespace exports. #7", withTypeScriptVersions(">=3.8"), async (t,
 	);
 });
 
-test("Handles namespace exports. #8", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+test.serial("Handles namespace exports. #8", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -365,7 +365,7 @@ test("Handles namespace exports. #8", withTypeScriptVersions(">=3.8"), async (t,
 	);
 });
 
-test("Handles namespace exports. #9", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+test.serial("Handles namespace exports. #9", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
