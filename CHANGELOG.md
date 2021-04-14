@@ -1,3 +1,12 @@
+## [1.3.14](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.13...v1.3.14) (2021-04-14)
+
+
+### Bug Fixes
+
+* **declarations:** fix TypeScript backwards compatibility ([4f09009](https://github.com/wessberg/rollup-plugin-ts/commit/4f090099731e7b21bc6e11db92d52960241a71f5))
+
+
+
 ## [1.3.13](https://github.com/wessberg/rollup-plugin-ts/compare/v1.3.12...v1.3.13) (2021-04-14)
 
 
