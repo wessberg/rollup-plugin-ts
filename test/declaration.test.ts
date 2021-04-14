@@ -631,7 +631,7 @@ test.serial("Flattens declarations. #15", withTypeScriptVersions(">=3.5"), async
 	);
 });
 
-test.serial("Flattens declarations. #16", withTypeScript, async (t, {typescript}) => {
+test("Flattens declarations. #16", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

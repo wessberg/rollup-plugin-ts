@@ -6,8 +6,9 @@ export function visitExportDeclaration(options: NoExportDeclarationTransformerVi
 	if (preserveExportsWithModuleSpecifiers && node.moduleSpecifier != null) {
 		return node;
 	}
+	const isNamespaceExport = typescript.isNamespaceExport == null ? () => false : typescript.isNamespaceExport;
 
-	if (preserveAliasedExports && node.exportClause != null && (typescript.isNamespaceExport(node.exportClause) || node.exportClause.elements.some(element => element.propertyName != null))) {
+	if (preserveAliasedExports && node.exportClause != null && (isNamespaceExport(node.exportClause) || node.exportClause.elements.some(element => element.propertyName != null))) {
 		return node;
 	}
 
