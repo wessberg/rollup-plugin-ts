@@ -8,9 +8,9 @@ import {formatTypeReferenceDirective} from "../../util/format-type-reference-dir
 import {pickResolvedModule} from "../../../../../util/pick-resolved-module";
 import {trackImportsTransformer} from "../track-imports-transformer/track-imports-transformer";
 import {trackExportsTransformer} from "../track-exports-transformer/track-exports-transformer";
-import {isNodeFactory} from "../../util/is-node-factory";
 import {statsCollector} from "../stats-collector/stats-collector";
 import {TypeReference} from "../../util/get-type-reference-module-from-file-name";
+import {ensureNodeFactory} from "compatfactory";
 
 function needsInitialize(options: DeclarationBundlerOptions): boolean {
 	return options.sourceFileToExportedSymbolSet.size === 0 || options.sourceFileToImportedSymbolSet.size === 0 || options.moduleSpecifierToSourceFileMap.size === 0;
@@ -19,8 +19,7 @@ function needsInitialize(options: DeclarationBundlerOptions): boolean {
 export function sourceFileBundler(options: DeclarationBundlerOptions, ...transformers: DeclarationTransformer[]): TS.TransformerFactory<TS.Bundle | TS.SourceFile> {
 	return context => bundle => {
 		const {typescript} = options;
-		const factory = context.factory ?? undefined;
-		const compatFactory = (context.factory as TS.NodeFactory | undefined) ?? typescript;
+		const factory = ensureNodeFactory(context.factory ?? typescript);
 
 		// A Bundle of SourceFiles is expected. In case the SourceFileBundler is invoked with something other than that, do an early return
 		if (typescript.isSourceFile(bundle)) {
@@ -55,7 +54,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 					sourceFile.fileName,
 					trackExportsTransformer({
 						typescript: typescript,
-						compatFactory,
+						factory,
 						sourceFile
 					})
 				);
@@ -81,7 +80,6 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 				...options,
 				context,
 				factory,
-				compatFactory,
 				otherEntrySourceFilesForChunk,
 				sourceFile: firstEntrySourceFile,
 				lexicalEnvironment: {
@@ -143,14 +141,14 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 		}
 
 		for (const sourceFile of [...otherEntrySourceFilesForChunk, ...nonEntrySourceFiles]) {
-			updatedSourceFiles.push(isNodeFactory(compatFactory) ? compatFactory.updateSourceFile(sourceFile, [], true) : compatFactory.updateSourceFileNode(sourceFile, [], true));
+			updatedSourceFiles.push(factory.updateSourceFile(sourceFile, [], true));
 		}
 
 		// Merge lib- and type reference directives.
 		const libReferenceDirectiveFileNames = new Set<string>();
 		const typeReferenceDirectiveFileNames = new Set<string>();
 		const prepends: TS.UnparsedSource[] = [];
-		const bundleWithSyntheticLibReferences = (bundle as unknown) as {syntheticLibReferences?: readonly TS.FileReference[]};
+		const bundleWithSyntheticLibReferences = bundle as unknown as {syntheticLibReferences?: readonly TS.FileReference[]};
 
 		if (bundleWithSyntheticLibReferences.syntheticLibReferences != null) {
 			for (const {fileName} of bundleWithSyntheticLibReferences.syntheticLibReferences) {
@@ -179,6 +177,6 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 		for (const fileName of typeReferenceDirectiveFileNames) {
 			prepends.push(typescript.createUnparsedSourceFile(formatTypeReferenceDirective(fileName)));
 		}
-		return compatFactory.updateBundle(bundle, updatedSourceFiles, prepends);
+		return factory.updateBundle(bundle, updatedSourceFiles, prepends);
 	};
 }

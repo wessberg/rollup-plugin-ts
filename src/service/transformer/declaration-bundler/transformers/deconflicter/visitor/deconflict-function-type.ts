@@ -9,15 +9,15 @@ import {preserveMeta} from "../../../util/clone-node-with-meta";
  * Deconflicts the given FunctionTypeNode.
  */
 export function deconflictFunctionTypeNode(options: DeconflicterVisitorOptions<TS.FunctionTypeNode>): TS.FunctionTypeNode | undefined {
-	const {node, continuation, lexicalEnvironment, compatFactory} = options;
+	const {node, continuation, lexicalEnvironment, factory} = options;
 	let nameContResult: TS.FunctionTypeNode["name"];
 
 	// The body, type, type parameters, as well as the parameters share the same lexical environment
 	const nextContinuationOptions: ContinuationOptions = {lexicalEnvironment: cloneLexicalEnvironment(lexicalEnvironment)};
 
 	const typeParametersContResult =
-		node.typeParameters == null ? undefined : compatFactory.createNodeArray(node.typeParameters.map(typeParameter => continuation(typeParameter, nextContinuationOptions)));
-	const parametersContResult = compatFactory.createNodeArray(node.parameters.map(parameter => continuation(parameter, nextContinuationOptions)));
+		node.typeParameters == null ? undefined : factory.createNodeArray(node.typeParameters.map(typeParameter => continuation(typeParameter, nextContinuationOptions)));
+	const parametersContResult = factory.createNodeArray(node.parameters.map(parameter => continuation(parameter, nextContinuationOptions)));
 	const typeContResult = node.type == null ? undefined : continuation(node.type, nextContinuationOptions);
 
 	const isIdentical =
@@ -30,5 +30,5 @@ export function deconflictFunctionTypeNode(options: DeconflicterVisitorOptions<T
 		return node;
 	}
 
-	return preserveMeta(compatFactory.updateFunctionTypeNode(node, typeParametersContResult, parametersContResult, typeContResult!), node, options);
+	return preserveMeta(factory.updateFunctionTypeNode(node, typeParametersContResult, parametersContResult, typeContResult!), node, options);
 }

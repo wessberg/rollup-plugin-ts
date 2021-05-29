@@ -1,10 +1,11 @@
-import {dirname, ensureHasLeadingDotAndPosix, normalize, relative, stripKnownExtension} from "../../../../util/path/path-util";
+import {ensureHasLeadingDotAndPosix, stripKnownExtension} from "../../../../util/path/path-util";
 import {getChunkFilename} from "./get-chunk-filename";
 import {NormalizedChunk} from "../../../../util/chunk/normalize-chunk";
 import {SourceFileResolver} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
 import {CompilerHost} from "../../../compiler-host/compiler-host";
 import {pickResolvedModule} from "../../../../util/pick-resolved-module";
 import {similarity} from "../../../../util/similarity-util";
+import path from "crosspath";
 
 export interface GenerateModuleSpecifierOptions {
 	host: CompilerHost;
@@ -47,7 +48,7 @@ export function generateModuleSpecifier(options: GenerateModuleSpecifierOptions)
 
 		// Take the most similar-looking module specifier by Levenshtein distance
 		return [...dependencies]
-			.filter(dependency => normalize(pickResolvedModule(dependency, true)) === normalize(sourceFile.fileName))
+			.filter(dependency => path.normalize(pickResolvedModule(dependency, true)) === path.normalize(sourceFile.fileName))
 			.map(dependency => [dependency.moduleSpecifier, similarity(moduleSpecifier, dependency.moduleSpecifier)] as [string, number])
 			.sort(([, a], [, b]) => (a > b ? 1 : -1))
 			.map(([specifier]) => specifier)[0];
@@ -58,6 +59,6 @@ export function generateModuleSpecifier(options: GenerateModuleSpecifierOptions)
 		return undefined;
 	}
 
-	const relativePath = relative(dirname(chunk.paths.absolute), chunkForModuleSpecifier);
+	const relativePath = path.relative(path.dirname(chunk.paths.absolute), chunkForModuleSpecifier);
 	return ensureHasLeadingDotAndPosix(stripKnownExtension(relativePath), false);
 }

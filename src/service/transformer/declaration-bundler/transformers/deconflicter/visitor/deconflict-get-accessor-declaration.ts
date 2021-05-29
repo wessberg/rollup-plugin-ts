@@ -4,13 +4,12 @@ import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {nodeArraysAreEqual} from "../../../util/node-arrays-are-equal";
 import {ContinuationOptions} from "../deconflicter-options";
 import {preserveMeta} from "../../../util/clone-node-with-meta";
-import {isNodeFactory} from "../../../util/is-node-factory";
 
 /**
  * Deconflicts the given GetAccessorDeclaration.
  */
 export function deconflictGetAccessorDeclaration(options: DeconflicterVisitorOptions<TS.GetAccessorDeclaration>): TS.GetAccessorDeclaration | undefined {
-	const {node, continuation, lexicalEnvironment, compatFactory, typescript} = options;
+	const {node, continuation, lexicalEnvironment, factory, typescript} = options;
 	const nameContResult = typescript.isIdentifier(node.name) ? node.name : continuation(node.name, {lexicalEnvironment});
 
 	// The body, as well as the parameters share the same lexical environment
@@ -27,9 +26,7 @@ export function deconflictGetAccessorDeclaration(options: DeconflicterVisitorOpt
 	}
 
 	return preserveMeta(
-		isNodeFactory(compatFactory)
-			? compatFactory.updateGetAccessorDeclaration(node, node.decorators, node.modifiers, nameContResult, parametersContResult, typeContResult, bodyContResult)
-			: compatFactory.updateGetAccessor(node, node.decorators, node.modifiers, nameContResult, parametersContResult, typeContResult, bodyContResult),
+		factory.updateGetAccessorDeclaration(node, node.decorators, node.modifiers, nameContResult, parametersContResult, typeContResult, bodyContResult),
 		node,
 		options
 	);

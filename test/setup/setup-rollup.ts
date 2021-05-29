@@ -3,15 +3,15 @@ import {rollup, RollupOptions, RollupOutput, Plugin} from "rollup";
 import commonjs from "@rollup/plugin-commonjs";
 import fastGlob from "fast-glob";
 import FS, {Dirent, existsSync} from "fs";
-import Path from "path";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
 import {HookRecord, InputCompilerOptions, TypescriptPluginBabelOptions, TypescriptPluginOptions} from "../../src/plugin/typescript-plugin-options";
 import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, TSBUILDINFO_EXTENSION} from "../../src/constant/constant";
 import {getRealFileSystem} from "../../src/util/file-system/file-system";
 import {TS} from "../../src/type/ts";
-import {ensureAbsolute, isAbsolute, nativeDirname, nativeJoin, nativeNormalize, parse, relative} from "../../src/util/path/path-util";
+import {ensureAbsolute} from "../../src/util/path/path-util";
 import {logVirtualFiles} from "../../src/util/logging/log-virtual-files";
 import {shouldDebugVirtualFiles} from "../../src/util/is-debug/should-debug";
+import path from "crosspath";
 
 export interface ITestFile {
 	fileName: string;
@@ -84,7 +84,7 @@ export async function generateRollupBundle(
 		babelConfig,
 		chunkFileNames,
 		entryFileNames,
-		hook = {outputPath: path => path}
+		hook = {outputPath: p => p}
 	}: Partial<GenerateRollupBundleOptions> = {}
 ): Promise<GenerateRollupBundleResult> {
 	cwd = ensureAbsolute(process.cwd(), cwd);
@@ -102,9 +102,9 @@ export async function generateRollupBundle(
 				? (file as FullTestFile)
 				: {...file, text: realFileSystem.readFile(file.fileName)!}
 		)
-		.map(file => ({...file, fileName: isAbsolute(file.fileName) && existsSync(file.fileName) ? file.fileName : nativeJoin(cwd, file.fileName)}));
+		.map(file => ({...file, fileName: path.isAbsolute(file.fileName) && existsSync(file.fileName) ? file.fileName : path.native.join(cwd, file.fileName)}));
 
-	const directories = new Set(files.map(file => nativeNormalize(nativeDirname(file.fileName))));
+	const directories = new Set(files.map(file => path.native.normalize(path.native.dirname(file.fileName))));
 
 	let entryFiles = files.filter(file => file.entry);
 	const hasMultiEntryPlugin = [...prePlugins, ...postPlugins].some(({name}) => name === "multi-entry");
@@ -120,12 +120,12 @@ export async function generateRollupBundle(
 
 	// Print the virtual file names
 	if (shouldDebugVirtualFiles(debug)) {
-		logVirtualFiles(files.map(file => nativeNormalize(file.fileName)));
+		logVirtualFiles(files.map(file => path.native.normalize(file.fileName)));
 	}
 
 	const resolveId = (fileName: string, parent: string | undefined): string | undefined => {
-		const absolute = isAbsolute(fileName) ? fileName : nativeJoin(parent == null ? "" : nativeDirname(parent), fileName);
-		const filenames = [nativeNormalize(absolute), nativeJoin(absolute, "/index")];
+		const absolute = path.isAbsolute(fileName) ? fileName : path.native.join(parent == null ? "" : path.native.dirname(parent), fileName);
+		const filenames = [path.native.normalize(absolute), path.native.join(absolute, "/index")];
 		for (const filename of filenames) {
 			for (const ext of EXTENSIONS) {
 				const withExtension = `${filename}${ext}`;
@@ -139,7 +139,7 @@ export async function generateRollupBundle(
 	};
 
 	const load = (id: string): string | null => {
-		const normalized = nativeNormalize(id);
+		const normalized = path.native.normalize(id);
 		const matchedFile = files.find(file => file.fileName === normalized);
 		return matchedFile == null ? null : matchedFile.text;
 	};
@@ -160,7 +160,7 @@ export async function generateRollupBundle(
 		// Ensure no conflicting chunk names
 		const seenNames = new Set<string>();
 		for (const entryFile of entryFiles) {
-			let candidateName = parse(entryFile.fileName).name;
+			let candidateName = path.parse(entryFile.fileName).name;
 			let offset = 0;
 			if (!seenNames.has(candidateName)) {
 				seenNames.add(candidateName);
@@ -226,8 +226,8 @@ export async function generateRollupBundle(
 					...realFileSystem,
 					useCaseSensitiveFileNames: true,
 					readFile: fileName => {
-						const normalized = nativeNormalize(fileName);
-						const absoluteFileName = isAbsolute(normalized) ? normalized : nativeJoin(cwd, normalized);
+						const normalized = path.native.normalize(fileName);
+						const absoluteFileName = path.isAbsolute(normalized) ? normalized : path.native.join(cwd, normalized);
 
 						const file = files.find(currentFile => currentFile.fileName === absoluteFileName);
 						if (file != null) return file.text;
@@ -236,28 +236,28 @@ export async function generateRollupBundle(
 					writeFile(fileName, text) {
 						extraFiles.push({
 							type: "asset",
-							fileName: relative(dir ?? cwd, fileName),
+							fileName: path.relative(dir ?? cwd, fileName),
 							source: text
 						});
 					},
 					fileExists: fileName => {
-						const normalized = nativeNormalize(fileName);
-						const absoluteFileName = isAbsolute(normalized) ? normalized : nativeJoin(cwd, normalized);
+						const normalized = path.native.normalize(fileName);
+						const absoluteFileName = path.isAbsolute(normalized) ? normalized : path.native.join(cwd, normalized);
 						if (files.some(file => file.fileName === absoluteFileName)) {
 							return true;
 						}
 						return typescript.sys.fileExists(absoluteFileName);
 					},
 					directoryExists: dirName => {
-						const normalized = nativeNormalize(dirName);
+						const normalized = path.native.normalize(dirName);
 						if (directories.has(normalized)) return true;
 						return typescript.sys.directoryExists(normalized);
 					},
-					realpath(path: string): string {
-						return nativeNormalize(path);
+					realpath(p: string): string {
+						return path.native.normalize(p);
 					},
 					readDirectory(rootDir: string, extensions: readonly string[], excludes: readonly string[] | undefined, includes: readonly string[], depth?: number): readonly string[] {
-						const nativeNormalizedRootDir = nativeNormalize(rootDir);
+						const nativeNormalizedRootDir = path.native.normalize(rootDir);
 						const realResult = typescript.sys.readDirectory(rootDir, extensions, excludes, includes, depth);
 
 						// Making the glob filter of the virtual file system to match the behavior of TypeScript as close as possible.
@@ -266,15 +266,15 @@ export async function generateRollupBundle(
 								cwd: nativeNormalizedRootDir,
 								ignore: [...(excludes ?? [])],
 								fs: {
-									readdirSync: (((path: string, {withFileTypes}: {withFileTypes?: boolean}) => {
-										path = nativeNormalize(path);
+									readdirSync: ((p: string, {withFileTypes}: {withFileTypes?: boolean}) => {
+										p = path.native.normalize(p);
 
 										return files
-											.filter(file => file.fileName.startsWith(path))
+											.filter(file => file.fileName.startsWith(p))
 											.map(file => {
 												const fileName = file.fileName.slice(
-													path.length + 1,
-													file.fileName.includes(Path.sep, path.length + 1) ? file.fileName.indexOf(Path.sep, path.length + 1) : undefined
+													p.length + 1,
+													file.fileName.includes(path.sep, p.length + 1) ? file.fileName.indexOf(path.sep, p.length + 1) : undefined
 												);
 
 												const isDirectory = !file.fileName.endsWith(fileName);
@@ -295,16 +295,16 @@ export async function generateRollupBundle(
 													  } as Partial<Dirent>)
 													: fileName;
 											});
-									}) as unknown) as typeof FS.readdirSync
+									}) as unknown as typeof FS.readdirSync
 								}
 							})
-							.map(file => nativeJoin(nativeNormalizedRootDir, file));
+							.map(file => path.native.join(nativeNormalizedRootDir, file));
 
-						return [...new Set([...realResult, ...virtualFiles])].map(nativeNormalize);
+						return [...new Set([...realResult, ...virtualFiles])].map(path.native.normalize);
 					},
 
-					getDirectories(path: string): string[] {
-						return typescript.sys.getDirectories(path).map(nativeNormalize);
+					getDirectories(p: string): string[] {
+						return typescript.sys.getDirectories(p).map(path.native.normalize);
 					}
 				},
 				babelConfig

@@ -1,5 +1,4 @@
 import {TS} from "../../../../../type/ts";
-import {CompatFactory} from "../source-file-bundler/source-file-bundler-visitor-options";
 
 export interface ExportedSymbolBase {}
 
@@ -33,7 +32,7 @@ export type SourceFileToExportedSymbolSet = Map<string, ExportedSymbolSet>;
 
 export interface TrackExportsOptions {
 	typescript: typeof TS;
-	compatFactory: CompatFactory;
+	factory: TS.NodeFactory;
 	sourceFile: TS.SourceFile;
 }
 

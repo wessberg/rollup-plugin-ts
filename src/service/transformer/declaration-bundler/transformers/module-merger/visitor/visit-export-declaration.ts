@@ -6,13 +6,12 @@ import {ensureHasDeclareModifier} from "../../../util/modifier-util";
 import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifier-transformer/ensure-no-declare-modifier-transformer";
 import {statementMerger} from "../../statement-merger/statement-merger";
-import {isNodeFactory} from "../../../util/is-node-factory";
 import {inlineNamespaceModuleBlockTransformer} from "../../inline-namespace-module-block-transformer/inline-namespace-module-block-transformer";
 
 export interface GenerateExportDeclarationsOptions extends Omit<ModuleMergerVisitorOptions<TS.ExportDeclaration>, "node"> {}
 
 function generateExportDeclarations(options: GenerateExportDeclarationsOptions, exportDeclarations: TS.ExportDeclaration[] = []): TS.ExportDeclaration[] {
-	const {sourceFile, sourceFileToExportedSymbolSet, compatFactory, typescript} = options;
+	const {sourceFile, sourceFileToExportedSymbolSet, factory, typescript} = options;
 	const exportedSymbols = sourceFileToExportedSymbolSet.get(sourceFile.fileName) ?? [];
 	for (const symbol of exportedSymbols) {
 		const matchingSourceFile = symbol.moduleSpecifier == null ? undefined : options.getMatchingSourceFile(symbol.moduleSpecifier, sourceFile);
@@ -32,12 +31,7 @@ function generateExportDeclarations(options: GenerateExportDeclarationsOptions, 
 			// in favor of all other named export bindings that will included anyway
 			if (matchingSourceFile == null && generatedModuleSpecifier != null) {
 				exportDeclarations.push(
-					preserveParents(
-						isNodeFactory(compatFactory)
-							? compatFactory.createExportDeclaration(undefined, undefined, false, undefined, compatFactory.createStringLiteral(generatedModuleSpecifier))
-							: compatFactory.createExportDeclaration(undefined, undefined, undefined, compatFactory.createStringLiteral(generatedModuleSpecifier), false),
-						{typescript}
-					)
+					preserveParents(factory.createExportDeclaration(undefined, undefined, false, undefined, factory.createStringLiteral(generatedModuleSpecifier)), {typescript})
 				);
 			}
 
@@ -55,32 +49,20 @@ function generateExportDeclarations(options: GenerateExportDeclarationsOptions, 
 
 		// Otherwise, we can just add an ExportDeclaration with an ExportSpecifier
 		else {
-			const exportSpecifier = compatFactory.createExportSpecifier(
-				symbol.propertyName.text === symbol.name.text ? undefined : compatFactory.createIdentifier(symbol.propertyName.text),
-				compatFactory.createIdentifier(symbol.name.text)
+			const exportSpecifier = factory.createExportSpecifier(
+				symbol.propertyName.text === symbol.name.text ? undefined : factory.createIdentifier(symbol.propertyName.text),
+				factory.createIdentifier(symbol.name.text)
 			);
 
 			exportDeclarations.push(
 				preserveParents(
-					isNodeFactory(compatFactory)
-						? compatFactory.createExportDeclaration(
-								undefined,
-								undefined,
-								false,
-								compatFactory.createNamedExports([exportSpecifier]),
-								symbol.moduleSpecifier == null || generatedModuleSpecifier == null || matchingSourceFile != null
-									? undefined
-									: compatFactory.createStringLiteral(generatedModuleSpecifier)
-						  )
-						: compatFactory.createExportDeclaration(
-								undefined,
-								undefined,
-								compatFactory.createNamedExports([exportSpecifier]),
-								symbol.moduleSpecifier == null || generatedModuleSpecifier == null || matchingSourceFile != null
-									? undefined
-									: compatFactory.createStringLiteral(generatedModuleSpecifier),
-								false
-						  ),
+					factory.createExportDeclaration(
+						undefined,
+						undefined,
+						false,
+						factory.createNamedExports([exportSpecifier]),
+						symbol.moduleSpecifier == null || generatedModuleSpecifier == null || matchingSourceFile != null ? undefined : factory.createStringLiteral(generatedModuleSpecifier)
+					),
 					{typescript}
 				)
 			);
@@ -92,7 +74,7 @@ function generateExportDeclarations(options: GenerateExportDeclarationsOptions, 
 }
 
 export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.ExportDeclaration>): VisitResult<TS.ExportDeclaration> {
-	const {node, compatFactory, typescript} = options;
+	const {node, factory, typescript} = options;
 	const moduleSpecifier = node.moduleSpecifier == null || !typescript.isStringLiteralLike(node.moduleSpecifier) ? undefined : node.moduleSpecifier.text;
 	const updatedModuleSpecifier =
 		moduleSpecifier == null
@@ -121,23 +103,14 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 
 		// Otherwise, update the module specifier
 		return preserveMeta(
-			isNodeFactory(compatFactory)
-				? compatFactory.updateExportDeclaration(
-						contResult,
-						contResult.decorators,
-						contResult.modifiers,
-						contResult.isTypeOnly,
-						contResult.exportClause,
-						compatFactory.createStringLiteral(updatedModuleSpecifier)
-				  )
-				: compatFactory.updateExportDeclaration(
-						contResult,
-						contResult.decorators,
-						contResult.modifiers,
-						contResult.exportClause,
-						compatFactory.createStringLiteral(updatedModuleSpecifier),
-						contResult.isTypeOnly
-				  ),
+			factory.updateExportDeclaration(
+				contResult,
+				contResult.decorators,
+				contResult.modifiers,
+				contResult.isTypeOnly,
+				contResult.exportClause,
+				factory.createStringLiteral(updatedModuleSpecifier)
+			),
 			contResult,
 			options
 		);
@@ -159,7 +132,7 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 		const importDeclarations: TS.ImportDeclaration[] = [];
 
 		// Otherwise, prepend the nodes for the SourceFile in a namespace declaration
-		const moduleBlock = compatFactory.createModuleBlock([
+		const moduleBlock = factory.createModuleBlock([
 			...options.includeSourceFile(matchingSourceFile, {
 				allowDuplicate: true,
 				allowExports: "skip-optional",
@@ -179,31 +152,23 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 		options.prependNodes(
 			...importDeclarations.map(importDeclaration => preserveParents(importDeclaration, options)),
 			preserveParents(
-				compatFactory.createModuleDeclaration(
+				factory.createModuleDeclaration(
 					undefined,
-					ensureHasDeclareModifier(undefined, compatFactory, typescript),
-					compatFactory.createIdentifier(contResult.exportClause.name.text),
+					ensureHasDeclareModifier(undefined, factory, typescript),
+					factory.createIdentifier(contResult.exportClause.name.text),
 					moduleBlock,
 					typescript.NodeFlags.Namespace
 				),
 				options
 			),
 			preserveParents(
-				isNodeFactory(compatFactory)
-					? compatFactory.createExportDeclaration(
-							undefined,
-							undefined,
-							false,
-							compatFactory.createNamedExports([compatFactory.createExportSpecifier(undefined, compatFactory.createIdentifier(contResult.exportClause.name.text))]),
-							undefined
-					  )
-					: compatFactory.createExportDeclaration(
-							undefined,
-							undefined,
-							compatFactory.createNamedExports([compatFactory.createExportSpecifier(undefined, compatFactory.createIdentifier(contResult.exportClause.name.text))]),
-							undefined,
-							contResult.isTypeOnly
-					  ),
+				factory.createExportDeclaration(
+					undefined,
+					undefined,
+					false,
+					factory.createNamedExports([factory.createExportSpecifier(undefined, factory.createIdentifier(contResult.exportClause.name.text))]),
+					undefined
+				),
 				options
 			)
 		);
@@ -211,9 +176,7 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 
 	// Otherwise, preserve the continuation result, but without the ModuleSpecifier
 	return preserveMeta(
-		isNodeFactory(compatFactory)
-			? compatFactory.updateExportDeclaration(contResult, contResult.decorators, contResult.modifiers, contResult.isTypeOnly, contResult.exportClause, undefined)
-			: compatFactory.updateExportDeclaration(contResult, contResult.decorators, contResult.modifiers, contResult.exportClause, undefined, contResult.isTypeOnly),
+		factory.updateExportDeclaration(contResult, contResult.decorators, contResult.modifiers, contResult.isTypeOnly, contResult.exportClause, undefined),
 		contResult,
 		options
 	);

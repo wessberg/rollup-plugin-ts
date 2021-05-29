@@ -4,8 +4,8 @@ import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {hasDeclareModifier, removeDeclareModifier} from "../../../util/modifier-util";
 
 export function visitModuleDeclaration(options: EnsureNoDeclareModifierTransformerVisitorOptions<TS.ModuleDeclaration>): TS.ModuleDeclaration {
-	const {node, compatFactory, typescript} = options;
+	const {node, factory, typescript} = options;
 	if (!hasDeclareModifier(node, typescript)) return node;
 
-	return preserveMeta(compatFactory.updateModuleDeclaration(node, node.decorators, removeDeclareModifier(node.modifiers, typescript), node.name, node.body), node, options);
+	return preserveMeta(factory.updateModuleDeclaration(node, node.decorators, removeDeclareModifier(node.modifiers, typescript), node.name, node.body), node, options);
 }

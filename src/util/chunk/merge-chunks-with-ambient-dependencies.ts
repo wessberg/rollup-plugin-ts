@@ -1,11 +1,12 @@
 import {ExternalOption, ModuleFormat, PreRenderedChunk} from "rollup";
 import {PreNormalizedChunk} from "./normalize-chunk";
 import {getChunkForModule} from "../../service/transformer/declaration-bundler/util/get-chunk-filename";
-import {basename, isExternal, stripKnownExtension} from "../path/path-util";
+import {isExternal, stripKnownExtension} from "../path/path-util";
 import {generateRandomHash} from "../hash/generate-random-hash";
 import {SourceFileToDependenciesMap} from "../../service/transformer/declaration-bundler/declaration-bundler-options";
 import {CompilerHost} from "../../service/compiler-host/compiler-host";
 import {pickResolvedModule} from "../pick-resolved-module";
+import path from "crosspath";
 
 export interface MergeChunksWithAmbientDependenciesOptions {
 	externalOption: ExternalOption | undefined;
@@ -21,7 +22,7 @@ function createCommonChunk(
 	format: ModuleFormat,
 	chunkFileNames: string | ((chunkInfo: PreRenderedChunk) => string) = `[name]-[hash].js`
 ): PreNormalizedChunk {
-	const name = stripKnownExtension(basename(module));
+	const name = stripKnownExtension(path.basename(module));
 	const hash = generateRandomHash({key: code});
 	let fileName: string;
 

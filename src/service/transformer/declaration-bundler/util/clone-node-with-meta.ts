@@ -1,6 +1,6 @@
 import {SourceFileBundlerVisitorOptions} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
 import {TS} from "../../../../type/ts";
-import {cloneNode, preserveNode, setParentNodes} from "@wessberg/ts-clone-node";
+import {cloneNode, preserveNode, setParentNodes} from "ts-clone-node";
 import {getSymbolAtLocation} from "./get-symbol-at-location";
 import {SafeNode} from "../../../../type/safe-node";
 

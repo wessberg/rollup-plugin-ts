@@ -1,7 +1,7 @@
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
 import {TS} from "../../../../../../type/ts";
 
-export function visitNamedImports({node, continuation, compatFactory}: TreeShakerVisitorOptions<TS.NamedImports>): TS.NamedImports | undefined {
+export function visitNamedImports({node, continuation, factory}: TreeShakerVisitorOptions<TS.NamedImports>): TS.NamedImports | undefined {
 	const filteredSpecifiers: TS.ImportSpecifier[] = [];
 	for (const importSpecifier of node.elements) {
 		const importSpecifierContinuationResult = continuation(importSpecifier);
@@ -14,5 +14,5 @@ export function visitNamedImports({node, continuation, compatFactory}: TreeShake
 		return undefined;
 	}
 
-	return compatFactory.updateNamedImports(node, filteredSpecifiers);
+	return factory.updateNamedImports(node, filteredSpecifiers);
 }

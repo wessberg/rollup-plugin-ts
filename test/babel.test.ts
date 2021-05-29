@@ -4,18 +4,17 @@ import {ConfigItem} from "@babel/core";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {BABEL_CONFIG_JS_FILENAME, BABEL_CONFIG_JSON_FILENAME, BABELRC_FILENAME} from "../src/constant/constant";
 import {areTempFilesEqual, createTemporaryFile} from "./util/create-temporary-file";
-import {getAppropriateEcmaVersionForBrowserslist} from "@wessberg/browserslist-generator";
+import {getAppropriateEcmaVersionForBrowserslist} from "browserslist-generator";
 
 const handlePotentiallyAllowedFailingBabelError = (t: ExecutionContext, ex: Error): boolean => {
 	if (ex.message.startsWith("Multiple configuration files found. Please remove one")) {
 		// There is no way to work around this crash that sometimes happens for unknown reasons on Github actions. Assume the test is passing. We can do this because the likelyhood of the error occurring for every environment and every node version is so unlikely that the test will still fail in practice if there is a problem that needs fixing
 		return true;
-	}
-	else {
+	} else {
 		t.fail(ex.message);
 		throw ex;
 	}
-}
+};
 
 test.serial("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usage' option. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(

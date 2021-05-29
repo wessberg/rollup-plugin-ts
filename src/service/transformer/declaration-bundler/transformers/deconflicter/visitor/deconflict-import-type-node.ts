@@ -7,7 +7,7 @@ import {nodeArraysAreEqual} from "../../../util/node-arrays-are-equal";
  * Deconflicts the given ImportTypeNode.
  */
 export function deconflictImportTypeNode(options: DeconflicterVisitorOptions<TS.ImportTypeNode>): TS.ImportTypeNode | undefined {
-	const {node, continuation, lexicalEnvironment, compatFactory} = options;
+	const {node, continuation, lexicalEnvironment, factory} = options;
 
 	const argumentContResult = continuation(node.argument, {lexicalEnvironment});
 	const typeArgumentsContResult = node.typeArguments == null ? undefined : node.typeArguments.map(typeArgument => continuation(typeArgument, {lexicalEnvironment}));
@@ -18,5 +18,5 @@ export function deconflictImportTypeNode(options: DeconflicterVisitorOptions<TS.
 		return node;
 	}
 
-	return preserveMeta(compatFactory.updateImportTypeNode(node, argumentContResult, node.qualifier, typeArgumentsContResult, node.isTypeOf), node, options);
+	return preserveMeta(factory.updateImportTypeNode(node, argumentContResult, node.qualifier, typeArgumentsContResult, node.isTypeOf), node, options);
 }

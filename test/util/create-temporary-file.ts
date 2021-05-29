@@ -1,4 +1,4 @@
-import {dirname, nativeDirname, nativeJoin, normalize} from "../../src/util/path/path-util";
+import path from "crosspath";
 import {unlinkSync, existsSync, writeFileSync, mkdirSync} from "fs";
 import {tmpdir} from "os";
 import {formatCode} from "./format-code";
@@ -11,26 +11,26 @@ export interface CreateTemporaryConfigFileResult {
 }
 
 export function createTemporaryFile(fileName: string, content: string, parser?: "typescript" | "json"): CreateTemporaryConfigFileResult {
-	let path = nativeJoin(tmpdir(), generateRandomHash({length: 20, key: String(Math.floor(Math.random() * 10000))}), `/${fileName}`);
+	const p = path.native.join(tmpdir(), generateRandomHash({length: 20, key: String(Math.floor(Math.random() * 10000))}), `/${fileName}`);
 
-	if (!existsSync(nativeDirname(path))) {
-		mkdirSync(nativeDirname(path));
+	if (!existsSync(path.native.dirname(p))) {
+		mkdirSync(path.native.dirname(p));
 	}
 
-	writeFileSync(path, formatCode(content, parser));
+	writeFileSync(p, formatCode(content, parser));
 	return {
-		cleanup: () => unlinkSync(path),
-		path: normalize(path),
-		dir: dirname(path)
+		cleanup: () => unlinkSync(p),
+		path: path.normalize(p),
+		dir: path.dirname(p)
 	};
 }
 
-export function areTempFilesEqual (a: string|undefined, b: string|undefined): boolean {
+export function areTempFilesEqual(a: string | undefined, b: string | undefined): boolean {
 	if (a == null && b == null) return true;
 	if (a == null || b == null) return false;
 
-	let normalizedA = normalize(a);
-	let normalizedB = normalize(b);
+	let normalizedA = path.normalize(a);
+	let normalizedB = path.normalize(b);
 
 	// This happens sometimes on Github actions
 	if (normalizedA.startsWith("/private")) normalizedA = normalizedA.slice("/private".length);

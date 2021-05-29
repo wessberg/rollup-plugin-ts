@@ -3,25 +3,17 @@ import {withTypeScript} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {TS} from "../src/type/ts";
-import {isNodeFactory} from "../src/service/transformer/declaration-bundler/util/is-node-factory";
+import {ensureNodeFactory} from "compatfactory";
 
 test("Supports Custom Transformers, including on bundled declarations. #1", withTypeScript, async (t, {typescript}) => {
 	const transformer: (ts: typeof TS) => TS.TransformerFactory<TS.SourceFile> = ts => context => sourceFile => {
-		const compatFactory = (context.factory as TS.NodeFactory | undefined) ?? ts;
+		const factory = (context.factory as TS.NodeFactory | undefined) ?? ts;
 
 		function visitNode(node: TS.Node): TS.VisitResult<TS.Node> {
 			if (ts.isClassDeclaration(node)) {
-				return compatFactory.updateClassDeclaration(
-					node,
-					node.decorators,
-					node.modifiers,
-					compatFactory.createIdentifier("Bar"),
-					node.typeParameters,
-					node.heritageClauses,
-					node.members
-				);
+				return factory.updateClassDeclaration(node, node.decorators, node.modifiers, factory.createIdentifier("Bar"), node.typeParameters, node.heritageClauses, node.members);
 			} else if (ts.isExportSpecifier(node)) {
-				return compatFactory.updateExportSpecifier(node, node.propertyName, compatFactory.createIdentifier("Bar"));
+				return factory.updateExportSpecifier(node, node.propertyName, factory.createIdentifier("Bar"));
 			} else {
 				return ts.visitEachChild(node, visitNode, context);
 			}
@@ -93,29 +85,16 @@ test("Supports Custom Transformers, including on bundled declarations. #2", with
 			transformers: ({typescript: ts}) => ({
 				after: [
 					context => sourceFile => {
-						const compatFactory = (context.factory as TS.NodeFactory | undefined) ?? ts;
+						const factory = ensureNodeFactory(context.factory ?? ts);
 
-						if (isNodeFactory(compatFactory)) {
-							return compatFactory.updateSourceFile(sourceFile, [
-								...sourceFile.statements,
-								compatFactory.createExpressionStatement(
-									compatFactory.createCallExpression(
-										compatFactory.createPropertyAccessExpression(compatFactory.createIdentifier("console"), compatFactory.createIdentifier("log")),
-										undefined,
-										[compatFactory.createStringLiteral("foo")]
-									)
-								)
-							]);
-						} else {
-							return compatFactory.updateSourceFileNode(sourceFile, [
-								...sourceFile.statements,
-								compatFactory.createExpressionStatement(
-									compatFactory.createCall(compatFactory.createPropertyAccess(compatFactory.createIdentifier("console"), compatFactory.createIdentifier("log")), undefined, [
-										compatFactory.createStringLiteral("foo")
-									])
-								)
-							]);
-						}
+						return factory.updateSourceFile(sourceFile, [
+							...sourceFile.statements,
+							factory.createExpressionStatement(
+								factory.createCallExpression(factory.createPropertyAccessExpression(factory.createIdentifier("console"), factory.createIdentifier("log")), undefined, [
+									factory.createStringLiteral("foo")
+								])
+							)
+						]);
 					}
 				]
 			})

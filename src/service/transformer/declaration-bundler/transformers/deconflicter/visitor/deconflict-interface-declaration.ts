@@ -14,7 +14,7 @@ import {getOriginalSourceFile} from "../../../util/get-original-source-file";
  * Deconflicts the given InterfaceDeclaration.
  */
 export function deconflictInterfaceDeclaration(options: DeconflicterVisitorOptions<TS.InterfaceDeclaration>): TS.InterfaceDeclaration | undefined {
-	const {node, continuation, lexicalEnvironment, compatFactory, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
+	const {node, continuation, lexicalEnvironment, factory, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
 	let nameContResult: TS.InterfaceDeclaration["name"];
 	const id = getIdForNode(options);
 	const originalSourceFile = getOriginalSourceFile(node, sourceFile, typescript);
@@ -28,7 +28,7 @@ export function deconflictInterfaceDeclaration(options: DeconflicterVisitorOptio
 	} else {
 		// Otherwise, deconflict it
 		const uniqueBinding = generateUniqueBinding(lexicalEnvironment, node.name.text);
-		nameContResult = compatFactory.createIdentifier(uniqueBinding);
+		nameContResult = factory.createIdentifier(uniqueBinding);
 		if (id != null) declarationToDeconflictedBindingMap.set(id, uniqueBinding);
 
 		// The name creates a new local binding within the current LexicalEnvironment
@@ -53,7 +53,7 @@ export function deconflictInterfaceDeclaration(options: DeconflicterVisitorOptio
 	}
 
 	return preserveMeta(
-		compatFactory.updateInterfaceDeclaration(node, node.decorators, node.modifiers, nameContResult, typeParametersContResult, heritageClausesContResult, membersContResult),
+		factory.updateInterfaceDeclaration(node, node.decorators, node.modifiers, nameContResult, typeParametersContResult, heritageClausesContResult, membersContResult),
 		node,
 		options
 	);

@@ -6,7 +6,7 @@ import {preserveMeta} from "../../../util/clone-node-with-meta";
  * Deconflicts the given EnumMember.
  */
 export function deconflictEnumMember(options: DeconflicterVisitorOptions<TS.EnumMember>): TS.EnumMember | undefined {
-	const {node, continuation, lexicalEnvironment, typescript, compatFactory} = options;
+	const {node, continuation, lexicalEnvironment, typescript, factory} = options;
 	const nameContResult = typescript.isIdentifier(node.name) ? node.name : continuation(node.name, {lexicalEnvironment});
 	const initializerContResult = node.initializer == null ? undefined : continuation(node.initializer, {lexicalEnvironment});
 
@@ -16,5 +16,5 @@ export function deconflictEnumMember(options: DeconflicterVisitorOptions<TS.Enum
 		return node;
 	}
 
-	return preserveMeta(compatFactory.updateEnumMember(node, nameContResult, initializerContResult), node, options);
+	return preserveMeta(factory.updateEnumMember(node, nameContResult, initializerContResult), node, options);
 }

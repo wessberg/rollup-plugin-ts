@@ -1,7 +1,7 @@
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
 import {TS} from "../../../../../../type/ts";
 
-export function visitVariableDeclarationList({node, continuation, compatFactory}: TreeShakerVisitorOptions<TS.VariableDeclarationList>): TS.VariableDeclarationList | undefined {
+export function visitVariableDeclarationList({node, continuation, factory}: TreeShakerVisitorOptions<TS.VariableDeclarationList>): TS.VariableDeclarationList | undefined {
 	const filteredVariableDeclarations: TS.VariableDeclaration[] = [];
 	for (const variableDeclaration of node.declarations) {
 		const variableDeclarationContinuationResult = continuation(variableDeclaration);
@@ -14,5 +14,5 @@ export function visitVariableDeclarationList({node, continuation, compatFactory}
 		return undefined;
 	}
 
-	return compatFactory.updateVariableDeclarationList(node, filteredVariableDeclarations);
+	return factory.updateVariableDeclarationList(node, filteredVariableDeclarations);
 }

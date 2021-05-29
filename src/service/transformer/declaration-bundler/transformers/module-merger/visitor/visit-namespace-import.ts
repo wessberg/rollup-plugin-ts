@@ -9,7 +9,7 @@ import {preserveParents} from "../../../util/clone-node-with-meta";
 import {inlineNamespaceModuleBlockTransformer} from "../../inline-namespace-module-block-transformer/inline-namespace-module-block-transformer";
 
 export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.NamespaceImport>): VisitResult<TS.NamespaceImport> {
-	const {node, compatFactory, typescript, payload} = options;
+	const {node, factory, typescript, payload} = options;
 	if (payload.moduleSpecifier == null) return options.childContinuation(node, undefined);
 
 	const contResult = options.childContinuation(node, undefined);
@@ -20,7 +20,7 @@ export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.Name
 	}
 
 	const importDeclarations: TS.ImportDeclaration[] = [];
-	const moduleBlock = compatFactory.createModuleBlock([
+	const moduleBlock = factory.createModuleBlock([
 		...options.includeSourceFile(payload.matchingSourceFile, {
 			allowDuplicate: true,
 			allowExports: "skip-optional",
@@ -41,10 +41,10 @@ export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.Name
 	options.prependNodes(
 		...importDeclarations.map(importDeclaration => preserveParents(importDeclaration, options)),
 		preserveParents(
-			compatFactory.createModuleDeclaration(
+			factory.createModuleDeclaration(
 				undefined,
-				ensureHasDeclareModifier(undefined, compatFactory, typescript),
-				compatFactory.createIdentifier(contResult.name.text),
+				ensureHasDeclareModifier(undefined, factory, typescript),
+				factory.createIdentifier(contResult.name.text),
 				moduleBlock,
 				typescript.NodeFlags.Namespace
 			),

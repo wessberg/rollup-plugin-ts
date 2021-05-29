@@ -10,19 +10,18 @@ import {logTransformer} from "../../../../../util/logging/log-transformer";
 import {preserveMeta} from "../../util/clone-node-with-meta";
 import {DeclarationTransformer} from "../../declaration-bundler-options";
 import {StatementMergerOptions} from "./statement-merger-options";
-import {isNodeFactory} from "../../util/is-node-factory";
 
 export function statementMerger({markAsModuleIfNeeded}: StatementMergerOptions): DeclarationTransformer {
 	return options => {
-		const {compatFactory, typescript, context, sourceFile, pluginOptions, printer} = options;
+		const {factory, typescript, context, sourceFile, pluginOptions, printer} = options;
 
 		const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile) ? logMetrics(`Statement merging`, sourceFile.fileName) : undefined;
 
 		const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile) ? logTransformer("Statement merging", sourceFile, printer) : undefined;
 
 		// Merge all of the imports
-		const mergedImports = getMergedImportDeclarationsForModules(sourceFile, compatFactory, typescript);
-		const mergedExports = getMergedExportDeclarationsForModules(sourceFile, compatFactory, typescript);
+		const mergedImports = getMergedImportDeclarationsForModules(options);
+		const mergedExports = getMergedExportDeclarationsForModules(options);
 		const includedImportedModules = new Set<string>();
 		const includedExportedModules = new Set<string | undefined>();
 
@@ -71,41 +70,23 @@ export function statementMerger({markAsModuleIfNeeded}: StatementMergerOptions):
 		const importExportCount = importDeclarations.length + exportDeclarations.length + statementsWithExportModifier.length;
 
 		result = preserveMeta(
-			isNodeFactory(compatFactory)
-				? compatFactory.updateSourceFile(
-						result,
-						[
-							...importDeclarations,
-							...otherStatements,
-							...exportDeclarations,
-							...(importExportCount === 0 && markAsModuleIfNeeded
-								? // Create an 'export {}' declaration to mark the declaration file as module-based if it has no imports or exports
-								  [compatFactory.createExportDeclaration(undefined, undefined, false, compatFactory.createNamedExports([]))]
-								: [])
-						],
-						result.isDeclarationFile,
-						result.referencedFiles,
-						result.typeReferenceDirectives,
-						result.hasNoDefaultLib,
-						result.libReferenceDirectives
-				  )
-				: compatFactory.updateSourceFileNode(
-						result,
-						[
-							...importDeclarations,
-							...otherStatements,
-							...exportDeclarations,
-							...(importExportCount === 0 && markAsModuleIfNeeded
-								? // Create an 'export {}' declaration to mark the declaration file as module-based if it has no imports or exports
-								  [compatFactory.createExportDeclaration(undefined, undefined, compatFactory.createNamedExports([]))]
-								: [])
-						],
-						result.isDeclarationFile,
-						result.referencedFiles,
-						result.typeReferenceDirectives,
-						result.hasNoDefaultLib,
-						result.libReferenceDirectives
-				  ),
+			factory.updateSourceFile(
+				result,
+				[
+					...importDeclarations,
+					...otherStatements,
+					...exportDeclarations,
+					...(importExportCount === 0 && markAsModuleIfNeeded
+						? // Create an 'export {}' declaration to mark the declaration file as module-based if it has no imports or exports
+						  [factory.createExportDeclaration(undefined, undefined, false, factory.createNamedExports([]))]
+						: [])
+				],
+				result.isDeclarationFile,
+				result.referencedFiles,
+				result.typeReferenceDirectives,
+				result.hasNoDefaultLib,
+				result.libReferenceDirectives
+			),
 			result,
 			options
 		);

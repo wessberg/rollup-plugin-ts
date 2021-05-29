@@ -4,18 +4,25 @@ import {getAliasedDeclarationFromSymbol, isSymbol} from "./get-aliased-declarati
 import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options";
 import {generateUniqueBinding} from "./generate-unique-binding";
 import {preserveParents} from "./clone-node-with-meta";
-import {CompatFactory} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
-import {isNodeFactory} from "./is-node-factory";
+import {TransformerBaseOptions} from "../transformers/transformer-base-options";
 
-export function createAliasedBinding(
-	node: TS.Node | TS.Symbol | undefined,
-	propertyName: string,
-	name: string,
-	typescript: typeof TS,
-	compatFactory: CompatFactory,
-	typeChecker: TS.TypeChecker,
-	lexicalEnvironment: LexicalEnvironment
-): (TS.ImportDeclaration | TS.TypeAliasDeclaration | TS.VariableStatement | TS.ModuleDeclaration | TS.ImportEqualsDeclaration)[] {
+export interface CreateAliasedBindingOptions extends TransformerBaseOptions {
+	node: TS.Node | TS.Symbol | undefined;
+	propertyName: string;
+	name: string;
+	typeChecker: TS.TypeChecker;
+	lexicalEnvironment: LexicalEnvironment;
+}
+
+export function createAliasedBinding({
+	factory,
+	typescript,
+	lexicalEnvironment,
+	name,
+	node,
+	propertyName,
+	typeChecker
+}: CreateAliasedBindingOptions): (TS.ImportDeclaration | TS.TypeAliasDeclaration | TS.VariableStatement | TS.ModuleDeclaration | TS.ImportEqualsDeclaration)[] {
 	const declaration = node != null && isSymbol(node) ? getAliasedDeclarationFromSymbol(node, typeChecker) : node;
 	const moduleBinding = generateUniqueBinding(lexicalEnvironment, `${propertyName}Wrapper`);
 	switch (declaration?.kind) {
@@ -23,43 +30,30 @@ export function createAliasedBinding(
 		case typescript.SyntaxKind.ClassExpression: {
 			return [
 				preserveParents(
-					compatFactory.createModuleDeclaration(
+					factory.createModuleDeclaration(
 						undefined,
 						undefined,
-						compatFactory.createIdentifier(moduleBinding),
-						compatFactory.createModuleBlock([
-							isNodeFactory(compatFactory)
-								? compatFactory.createExportDeclaration(
-										undefined,
-										undefined,
-										false,
-										compatFactory.createNamedExports([compatFactory.createExportSpecifier(undefined, compatFactory.createIdentifier(propertyName))])
-								  )
-								: compatFactory.createExportDeclaration(
-										undefined,
-										undefined,
-										compatFactory.createNamedExports([compatFactory.createExportSpecifier(undefined, compatFactory.createIdentifier(propertyName))])
-								  )
+						factory.createIdentifier(moduleBinding),
+						factory.createModuleBlock([
+							factory.createExportDeclaration(
+								undefined,
+								undefined,
+								false,
+								factory.createNamedExports([factory.createExportSpecifier(undefined, factory.createIdentifier(propertyName))])
+							)
 						])
 					),
 					{typescript}
 				),
 
 				preserveParents(
-					compatFactory.createImportEqualsDeclaration.length === 4
-						? (((compatFactory as unknown) as import("typescript-4-1-2").NodeFactory).createImportEqualsDeclaration(
-								undefined,
-								undefined,
-								compatFactory.createIdentifier(name),
-								compatFactory.createQualifiedName(compatFactory.createIdentifier(moduleBinding), compatFactory.createIdentifier(propertyName))
-						  ) as TS.ImportEqualsDeclaration)
-						: compatFactory.createImportEqualsDeclaration(
-								undefined,
-								undefined,
-								false,
-								compatFactory.createIdentifier(name),
-								compatFactory.createQualifiedName(compatFactory.createIdentifier(moduleBinding), compatFactory.createIdentifier(propertyName))
-						  ),
+					factory.createImportEqualsDeclaration(
+						undefined,
+						undefined,
+						false,
+						factory.createIdentifier(name),
+						factory.createQualifiedName(factory.createIdentifier(moduleBinding), factory.createIdentifier(propertyName))
+					),
 					{typescript}
 				)
 			];
@@ -72,18 +66,10 @@ export function createAliasedBinding(
 		case typescript.SyntaxKind.ExportAssignment: {
 			return [
 				preserveParents(
-					compatFactory.createVariableStatement(
-						ensureHasDeclareModifier(undefined, compatFactory, typescript),
-						compatFactory.createVariableDeclarationList(
-							[
-								isNodeFactory(compatFactory)
-									? compatFactory.createVariableDeclaration(
-											compatFactory.createIdentifier(name),
-											undefined,
-											compatFactory.createTypeQueryNode(compatFactory.createIdentifier(propertyName))
-									  )
-									: compatFactory.createVariableDeclaration(compatFactory.createIdentifier(name), compatFactory.createTypeQueryNode(compatFactory.createIdentifier(propertyName)))
-							],
+					factory.createVariableStatement(
+						ensureHasDeclareModifier(undefined, factory, typescript),
+						factory.createVariableDeclarationList(
+							[factory.createVariableDeclaration(factory.createIdentifier(name), undefined, factory.createTypeQueryNode(factory.createIdentifier(propertyName)))],
 							typescript.NodeFlags.Const
 						)
 					),
@@ -95,12 +81,12 @@ export function createAliasedBinding(
 		default: {
 			return [
 				preserveParents(
-					compatFactory.createTypeAliasDeclaration(
+					factory.createTypeAliasDeclaration(
 						undefined,
 						undefined,
-						compatFactory.createIdentifier(name),
+						factory.createIdentifier(name),
 						undefined,
-						compatFactory.createTypeReferenceNode(compatFactory.createIdentifier(propertyName), undefined)
+						factory.createTypeReferenceNode(factory.createIdentifier(propertyName), undefined)
 					),
 					{typescript}
 				)

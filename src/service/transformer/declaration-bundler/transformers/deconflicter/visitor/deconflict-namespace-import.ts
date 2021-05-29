@@ -11,7 +11,7 @@ import {getIdForNode} from "../../../util/get-id-for-node";
  * Deconflicts the given NamespaceImport.
  */
 export function deconflictNamespaceImport(options: DeconflicterVisitorOptions<TS.NamespaceImport>): TS.NamespaceImport | undefined {
-	const {node, lexicalEnvironment, sourceFile, compatFactory, typescript, declarationToDeconflictedBindingMap} = options;
+	const {node, lexicalEnvironment, sourceFile, factory, typescript, declarationToDeconflictedBindingMap} = options;
 	let nameContResult: TS.NamespaceImport["name"];
 	const originalSourceFile = getOriginalSourceFile(node, sourceFile, typescript);
 
@@ -29,7 +29,7 @@ export function deconflictNamespaceImport(options: DeconflicterVisitorOptions<TS
 	} else {
 		// Otherwise, deconflict it
 		const uniqueBinding = generateUniqueBinding(lexicalEnvironment, node.name.text);
-		nameContResult = compatFactory.createIdentifier(uniqueBinding);
+		nameContResult = factory.createIdentifier(uniqueBinding);
 
 		if (id != null) {
 			declarationToDeconflictedBindingMap.set(id, uniqueBinding);
@@ -45,5 +45,5 @@ export function deconflictNamespaceImport(options: DeconflicterVisitorOptions<TS
 		return node;
 	}
 
-	return preserveMeta(compatFactory.updateNamespaceImport(node, nameContResult), node, options);
+	return preserveMeta(factory.updateNamespaceImport(node, nameContResult), node, options);
 }

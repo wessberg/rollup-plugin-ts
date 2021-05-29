@@ -14,7 +14,7 @@ import {getOriginalSourceFile} from "../../../util/get-original-source-file";
  * Deconflicts the given TypeAliasDeclaration.
  */
 export function deconflictTypeAliasDeclaration(options: DeconflicterVisitorOptions<TS.TypeAliasDeclaration>): TS.TypeAliasDeclaration | undefined {
-	const {node, continuation, lexicalEnvironment, compatFactory, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
+	const {node, continuation, lexicalEnvironment, factory, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
 	let nameContResult: TS.TypeAliasDeclaration["name"];
 	const id = getIdForNode(options);
 	const originalSourceFile = getOriginalSourceFile(node, sourceFile, typescript);
@@ -28,7 +28,7 @@ export function deconflictTypeAliasDeclaration(options: DeconflicterVisitorOptio
 	} else {
 		// Otherwise, deconflict it
 		const uniqueBinding = generateUniqueBinding(lexicalEnvironment, node.name.text);
-		nameContResult = compatFactory.createIdentifier(uniqueBinding);
+		nameContResult = factory.createIdentifier(uniqueBinding);
 		if (id != null) declarationToDeconflictedBindingMap.set(id, uniqueBinding);
 
 		// The name creates a new local binding within the current LexicalEnvironment
@@ -47,5 +47,5 @@ export function deconflictTypeAliasDeclaration(options: DeconflicterVisitorOptio
 		return node;
 	}
 
-	return preserveMeta(compatFactory.updateTypeAliasDeclaration(node, node.decorators, node.modifiers, nameContResult, typeParametersContResult, typeContResult), node, options);
+	return preserveMeta(factory.updateTypeAliasDeclaration(node, node.decorators, node.modifiers, nameContResult, typeParametersContResult, typeContResult), node, options);
 }

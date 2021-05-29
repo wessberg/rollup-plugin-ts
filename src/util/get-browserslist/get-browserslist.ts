@@ -1,9 +1,10 @@
 import {GetBrowserslistOptions} from "./get-browserslist-options";
-import {normalizeBrowserslist} from "@wessberg/browserslist-generator";
-import {ensureAbsolute, nativeNormalize} from "../path/path-util";
+import {normalizeBrowserslist} from "browserslist-generator";
+import {ensureAbsolute} from "../path/path-util";
 import {findConfig, readConfig} from "browserslist";
 import {BrowserslistPathConfig, BrowserslistQueryConfig} from "../../plugin/typescript-plugin-options";
 import {ensureArray} from "../ensure-array/ensure-array";
+import path from "crosspath";
 
 /**
  * Returns true if the given browserslist is raw input for a Browserslist
@@ -51,7 +52,7 @@ export function getBrowserslist({browserslist, cwd, fileSystem}: GetBrowserslist
 		else if (isBrowserslistPathConfig(browserslist)) {
 			const browserslistPath = ensureAbsolute(cwd, browserslist.path);
 			const errorMessage = `The given path for a Browserslist: '${browserslistPath}' could not be resolved from '${cwd}'`;
-			if (!fileSystem.fileExists(nativeNormalize(browserslistPath))) {
+			if (!fileSystem.fileExists(path.native.normalize(browserslistPath))) {
 				throw new ReferenceError(errorMessage);
 			} else {
 				// Read the config

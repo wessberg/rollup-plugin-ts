@@ -1,4 +1,4 @@
-import path, {ParsedPath} from "path";
+import path from "crosspath";
 import {platform} from "os";
 import {
 	BABEL_RUNTIME_PREFIX_1,
@@ -9,55 +9,14 @@ import {
 	NODE_MODULES,
 	NODE_MODULES_MATCH_PATH,
 	ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY,
-	ROLLUP_PLUGIN_VIRTUAL_PREFIX,
 	TSLIB_NAME
 } from "../../constant/constant";
-import slash from "slash";
 import {ExternalOption} from "rollup";
 import {ensureArray} from "../ensure-array/ensure-array";
 
 export const ROOT_DIRECTORY = path.parse(process.cwd()).root;
 export const PLATFORM = platform();
 export const DRIVE_LETTER_REGEXP = /^\w:/;
-
-export function relative(from: string, to: string): string {
-	return ensurePosix(path.relative(from, to));
-}
-
-export function join(...paths: string[]): string {
-	return ensurePosix(path.join(...paths));
-}
-
-export function normalize(p: string): string {
-	return ensurePosix(p);
-}
-
-export function resolve(p: string): string {
-	return ensurePosix(path.resolve(p));
-}
-
-export function dirname(p: string): string {
-	return ensurePosix(path.dirname(p));
-}
-
-export function basename(p: string): string {
-	return ensurePosix(path.basename(p));
-}
-
-export function extname(p: string): string {
-	return path.extname(p);
-}
-
-export function parse(p: string): ParsedPath {
-	const parsedPath = path.parse(p);
-	return {
-		ext: parsedPath.ext,
-		name: normalize(parsedPath.name),
-		base: normalize(parsedPath.base),
-		dir: normalize(parsedPath.dir),
-		root: normalize(parsedPath.root)
-	};
-}
 
 export function isTypeScriptLib(p: string): boolean {
 	return p.startsWith(`lib.`) && p.endsWith(D_TS_EXTENSION);
@@ -70,32 +29,8 @@ export function ensureHasDriveLetter(p: string): string {
 	if (PLATFORM !== "win32") return p;
 	if (DRIVE_LETTER_REGEXP.test(p)) return p;
 	if (p.startsWith(ROOT_DIRECTORY)) return p;
-	if (!isAbsolute(p)) return p;
-	return nativeJoin(ROOT_DIRECTORY, p);
-}
-
-/**
- * Ensures that the given path follows posix file names
- */
-export function ensurePosix(p: string): string {
-	return slash(p);
-}
-
-export function nativeNormalize(p: string): string {
-	// Converts to either POSIX or native Windows file paths
-	return path.normalize(p);
-}
-
-export function nativeDirname(p: string): string {
-	return path.dirname(p);
-}
-
-export function nativeJoin(...paths: string[]): string {
-	return path.join(...paths);
-}
-
-export function isAbsolute(p: string): boolean {
-	return path.isAbsolute(p);
+	if (!path.isAbsolute(p)) return p;
+	return path.native.join(ROOT_DIRECTORY, p);
 }
 
 /**
@@ -104,7 +39,7 @@ export function isAbsolute(p: string): boolean {
 export function getExtension(file: string): string {
 	if (file.endsWith(D_TS_EXTENSION)) return D_TS_EXTENSION;
 	else if (file.endsWith(D_TS_MAP_EXTENSION)) return D_TS_MAP_EXTENSION;
-	return extname(file);
+	return path.extname(file);
 }
 
 /**
@@ -118,7 +53,7 @@ export function isExternalLibrary(p: string): boolean {
  * Returns true if the given id represents tslib
  */
 export function isTslib(p: string): boolean {
-	return p === "tslib" || normalize(p).endsWith(`/tslib/${TSLIB_NAME}`) || normalize(p).endsWith("/tslib/tslib.es6.js") || normalize(p).endsWith("/tslib/tslib.js");
+	return p === "tslib" || path.normalize(p).endsWith(`/tslib/${TSLIB_NAME}`) || path.normalize(p).endsWith("/tslib/tslib.es6.js") || path.normalize(p).endsWith("/tslib/tslib.js");
 }
 
 /**
@@ -129,48 +64,31 @@ export function isBabelHelper(p: string): boolean {
 }
 
 /**
- * Returns true if the given path represents an internal core-js file.
- * This is relevant when combining Babel's preset-env with 'useBuiltIns' with values other than false.
- */
-export function isCoreJsInternals(p: string): boolean {
-	const normalizedPath = normalize(p);
-	return normalizedPath.includes(NODE_MODULES) && normalizedPath.includes("core-js/");
-}
-
-/**
  * Returns true if the given path represents a Babel ESM helper
  */
 export function includesBabelEsmHelper(p: string): boolean {
-	return normalize(p).includes(`${BABEL_RUNTIME_PREFIX_1}helpers/esm`) || normalize(p).includes(`${BABEL_RUNTIME_PREFIX_2}helpers/esm`);
+	return path.normalize(p).includes(`${BABEL_RUNTIME_PREFIX_1}helpers/esm`) || path.normalize(p).includes(`${BABEL_RUNTIME_PREFIX_2}helpers/esm`);
 }
 
 /**
  * Returns true if the given path represents a Babel CJS helper
  */
 export function isBabelCjsHelper(p: string): boolean {
-	return !includesBabelEsmHelper(p) && (normalize(p).includes(`${BABEL_RUNTIME_PREFIX_1}helpers`) || normalize(p).includes(`${BABEL_RUNTIME_PREFIX_2}helpers`));
+	return !includesBabelEsmHelper(p) && (path.normalize(p).includes(`${BABEL_RUNTIME_PREFIX_1}helpers`) || path.normalize(p).includes(`${BABEL_RUNTIME_PREFIX_2}helpers`));
 }
 
 /**
  * Returns true if the given path represents @babel/preset-env
  */
 export function isBabelPresetEnv(p: string): boolean {
-	return normalize(p).includes("@babel/preset-env") || normalize(p).includes("babel-preset-env");
-}
-
-/**
- * Returns true if the given path is related to @rollup/plugin-virtual or the old version of @rollup/plugin-multi-entry
- */
-export function isVirtualFile(p: string): boolean {
-	const normalized = normalize(p);
-	return normalized === ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY || normalized.startsWith(ROLLUP_PLUGIN_VIRTUAL_PREFIX);
+	return path.normalize(p).includes("@babel/preset-env") || path.normalize(p).includes("babel-preset-env");
 }
 
 /**
  * Returns true if the given path is the name of the entry module or @rollup/plugin-multi-entry
  */
 export function isMultiEntryModule(p: string, multiEntryModuleName: string | undefined): boolean {
-	const normalized = normalize(p);
+	const normalized = path.normalize(p);
 	return normalized === ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY || (multiEntryModuleName != null && normalized === multiEntryModuleName);
 }
 
@@ -178,14 +96,14 @@ export function isMultiEntryModule(p: string, multiEntryModuleName: string | und
  * Returns true if the given path represents @babel/preset-es[2015|2016|2017]
  */
 export function isYearlyBabelPreset(p: string): boolean {
-	return normalize(p).includes("@babel/preset-es") || normalize(p).includes("babel-preset-es");
+	return path.normalize(p).includes("@babel/preset-es") || path.normalize(p).includes("babel-preset-es");
 }
 
 /**
  * Returns true if the given path represents @babel/plugin-transform-runtime
  */
 export function isBabelPluginTransformRuntime(p: string): boolean {
-	return normalize(p).includes("@babel/plugin-transform-runtime") || normalize(p).includes("babel-plugin-transform-runtime");
+	return path.normalize(p).includes("@babel/plugin-transform-runtime") || path.normalize(p).includes("babel-plugin-transform-runtime");
 }
 
 export function somePathsAreRelated(paths: Iterable<string>, matchPath: string): boolean {
@@ -232,7 +150,7 @@ export function stripKnownExtension(file: string): string {
  * Sets the given extension for the given file
  */
 export function setExtension(file: string, extension: string): string {
-	return normalize(`${stripKnownExtension(file)}${extension}`);
+	return path.normalize(`${stripKnownExtension(file)}${extension}`);
 }
 
 /**
@@ -241,7 +159,7 @@ export function setExtension(file: string, extension: string): string {
 export function ensureHasLeadingDotAndPosix(p: string, externalGuard = true): string {
 	if (externalGuard && isExternalLibrary(p)) return p;
 
-	const posixPath = ensurePosix(p);
+	const posixPath = path.normalize(p);
 	if (posixPath.startsWith(".")) return posixPath;
 	if (posixPath.startsWith("/")) return `.${posixPath}`;
 	return `./${posixPath}`;
@@ -252,12 +170,12 @@ export function ensureHasLeadingDotAndPosix(p: string, externalGuard = true): st
  */
 export function ensureRelative(root: string, p: string): string {
 	// If the path is already relative, simply return it
-	if (!isAbsolute(p)) {
-		return normalize(p);
+	if (!path.isAbsolute(p)) {
+		return path.normalize(p);
 	}
 
 	// Otherwise, construct a relative path from the root
-	return relative(root, p);
+	return path.relative(root, p);
 }
 
 /**
@@ -265,12 +183,12 @@ export function ensureRelative(root: string, p: string): string {
  */
 export function ensureAbsolute(root: string, p: string): string {
 	// If the path is already absolute, simply return it
-	if (isAbsolute(p)) {
-		return normalize(p);
+	if (path.isAbsolute(p)) {
+		return path.normalize(p);
 	}
 
 	// Otherwise, construct an absolute path from the root
-	return join(root, p);
+	return path.join(root, p);
 }
 
 /**

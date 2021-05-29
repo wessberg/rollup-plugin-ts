@@ -6,10 +6,9 @@ import {createAliasedBinding} from "../../../util/create-aliased-binding";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
 import {locateExportedSymbolForSourceFile} from "../../../util/locate-exported-symbol";
 import {getAliasedDeclaration} from "../../../util/get-aliased-declaration";
-import {isNodeFactory} from "../../../util/is-node-factory";
 
 export function visitImportClause(options: ModuleMergerVisitorOptions<TS.ImportClause>): VisitResult<TS.ImportClause> {
-	const {node, payload, compatFactory, typescript} = options;
+	const {node, payload, factory, typescript} = options;
 	// If there is no moduleSpecifier, proceed from the children.
 	if (payload.moduleSpecifier == null) return options.childContinuation(node, payload);
 	const contResult = options.childContinuation(node, payload);
@@ -27,13 +26,7 @@ export function visitImportClause(options: ModuleMergerVisitorOptions<TS.ImportC
 		}
 
 		// Otherwise, remove the default import and remove the named bindings that was retrieved from the continuation.
-		return preserveMeta(
-			isNodeFactory(compatFactory)
-				? compatFactory.updateImportClause(contResult, contResult.isTypeOnly, undefined, contResult.namedBindings)
-				: compatFactory.updateImportClause(contResult, undefined, contResult.namedBindings, contResult.isTypeOnly),
-			contResult,
-			options
-		);
+		return preserveMeta(factory.updateImportClause(contResult, contResult.isTypeOnly, undefined, contResult.namedBindings), contResult, options);
 	}
 
 	// Otherwise, prepend the nodes for the SourceFile
@@ -60,13 +53,11 @@ export function visitImportClause(options: ModuleMergerVisitorOptions<TS.ImportC
 		) {
 			options.prependNodes(
 				preserveParents(
-					compatFactory.createImportDeclaration(
+					factory.createImportDeclaration(
 						undefined,
 						undefined,
-						isNodeFactory(compatFactory)
-							? compatFactory.createImportClause(false, compatFactory.createIdentifier(contResult.name.text), undefined)
-							: compatFactory.createImportClause(compatFactory.createIdentifier(contResult.name.text), undefined, false),
-						compatFactory.createStringLiteral(generatedModuleSpecifier)
+						factory.createImportClause(false, factory.createIdentifier(contResult.name.text), undefined),
+						factory.createStringLiteral(generatedModuleSpecifier)
 					),
 					{typescript}
 				)
@@ -78,15 +69,12 @@ export function visitImportClause(options: ModuleMergerVisitorOptions<TS.ImportC
 		else if (defaultExportedSymbol.propertyName.text !== contResult.name.text) {
 			const declaration = getAliasedDeclaration({...options, node: contResult.name});
 			options.prependNodes(
-				...createAliasedBinding(
-					declaration,
-					defaultExportedSymbol.propertyName.text,
-					contResult.name.text,
-					typescript,
-					compatFactory,
-					options.typeChecker,
-					options.lexicalEnvironment
-				)
+				...createAliasedBinding({
+					...options,
+					node: declaration,
+					propertyName: defaultExportedSymbol.propertyName.text,
+					name: contResult.name.text
+				})
 			);
 		}
 	}

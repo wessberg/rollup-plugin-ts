@@ -11,7 +11,7 @@ import {getIdForNode} from "../../../util/get-id-for-node";
  * Deconflicts the given ImportSpecifier.
  */
 export function deconflictImportSpecifier(options: DeconflicterVisitorOptions<TS.ImportSpecifier>): TS.ImportSpecifier | undefined {
-	const {node, lexicalEnvironment, typescript, compatFactory, sourceFile, declarationToDeconflictedBindingMap} = options;
+	const {node, lexicalEnvironment, typescript, factory, sourceFile, declarationToDeconflictedBindingMap} = options;
 	const originalSourceFile = getOriginalSourceFile(node, sourceFile, typescript);
 
 	const id = getIdForNode(options);
@@ -38,6 +38,6 @@ export function deconflictImportSpecifier(options: DeconflicterVisitorOptions<TS
 		// If the ImportSpecifier is something like '{Foo}' but 'Foo' is already bound in this SourceFile,
 		// we should re-write it to something like '{Foo as Foo$0}'
 		const propertyName = node.propertyName ?? node.name;
-		return preserveMeta(compatFactory.updateImportSpecifier(node, compatFactory.createIdentifier(propertyName.text), compatFactory.createIdentifier(uniqueBinding)), node, options);
+		return preserveMeta(factory.updateImportSpecifier(node, factory.createIdentifier(propertyName.text), factory.createIdentifier(uniqueBinding)), node, options);
 	}
 }

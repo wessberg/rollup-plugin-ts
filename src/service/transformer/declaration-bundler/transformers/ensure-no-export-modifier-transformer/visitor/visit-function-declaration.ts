@@ -4,11 +4,11 @@ import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {hasExportModifier, removeExportModifier} from "../../../util/modifier-util";
 
 export function visitFunctionDeclaration(options: EnsureNoExportModifierTransformerVisitorOptions<TS.FunctionDeclaration>): TS.FunctionDeclaration {
-	const {node, compatFactory, typescript} = options;
+	const {node, factory, typescript} = options;
 	if (!hasExportModifier(node, typescript)) return node;
 
 	return preserveMeta(
-		compatFactory.updateFunctionDeclaration(
+		factory.updateFunctionDeclaration(
 			node,
 			node.decorators,
 			removeExportModifier(node.modifiers, typescript),

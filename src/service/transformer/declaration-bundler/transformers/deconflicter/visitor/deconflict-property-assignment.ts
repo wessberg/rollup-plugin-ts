@@ -6,7 +6,7 @@ import {preserveMeta} from "../../../util/clone-node-with-meta";
  * Deconflicts the given PropertyAssignment.
  */
 export function deconflictPropertyAssignment(options: DeconflicterVisitorOptions<TS.PropertyAssignment>): TS.PropertyAssignment | undefined {
-	const {node, continuation, lexicalEnvironment, compatFactory, typescript} = options;
+	const {node, continuation, lexicalEnvironment, factory, typescript} = options;
 	const nameContResult = typescript.isIdentifier(node.name) ? node.name : continuation(node.name, {lexicalEnvironment});
 	const initializerContResult = node.initializer == null ? undefined : continuation(node.initializer, {lexicalEnvironment});
 
@@ -16,5 +16,5 @@ export function deconflictPropertyAssignment(options: DeconflicterVisitorOptions
 		return node;
 	}
 
-	return preserveMeta(compatFactory.updatePropertyAssignment(node, nameContResult, initializerContResult!), node, options);
+	return preserveMeta(factory.updatePropertyAssignment(node, nameContResult, initializerContResult!), node, options);
 }

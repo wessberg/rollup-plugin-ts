@@ -2,16 +2,13 @@ import {TS} from "../../../../../type/ts";
 import {DeclarationBundlerOptions} from "../../declaration-bundler-options";
 import {LexicalEnvironment} from "../deconflicter/deconflicter-options";
 import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options";
+import {TransformerBaseOptions} from "../transformer-base-options";
 
 export type SourceFileResolver = (fileName: string, from: string) => TS.SourceFile | undefined;
-export type CompatFactory = TS.NodeFactory | typeof TS;
 
-export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptions {
-	factory: TS.NodeFactory | undefined;
-	compatFactory: CompatFactory;
+export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptions, TransformerBaseOptions {
 	resolveSourceFile: SourceFileResolver;
 	context: TS.TransformationContext;
-	sourceFile: TS.SourceFile;
 	otherEntrySourceFilesForChunk: TS.SourceFile[];
 	lexicalEnvironment: LexicalEnvironment;
 	includedSourceFiles: Set<string>;

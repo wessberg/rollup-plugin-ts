@@ -1,4 +1,4 @@
-import {join} from "../../../../../util/path/path-util";
+import path from "crosspath";
 
 export interface PreparePathsOptions {
 	fileName: string;
@@ -13,8 +13,8 @@ export interface PathsResult {
 }
 
 export function preparePaths({relativeOutDir, absoluteOutDir, fileName}: PreparePathsOptions): PathsResult {
-	const absolutePath = join(absoluteOutDir, fileName);
-	const relativePath = join(relativeOutDir, fileName);
+	const absolutePath = path.join(absoluteOutDir, fileName);
+	const relativePath = path.join(relativeOutDir, fileName);
 
 	return {
 		fileName,

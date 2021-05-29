@@ -100,7 +100,7 @@ export function getIdForNode(options: GetSymbolAtLocationOptions): number | unde
 	} else if (symbol.valueDeclaration != null) {
 		declaration = symbol.valueDeclaration;
 	} else if ("type" in symbol) {
-		declaration = (symbol as {type: TS.Type}).type;
+		declaration = (symbol as unknown as {type: TS.Type}).type;
 	}
 
 	if (declaration == null) return undefined;

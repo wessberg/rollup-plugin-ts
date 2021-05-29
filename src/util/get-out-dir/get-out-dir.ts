@@ -1,5 +1,6 @@
 import {OutputOptions} from "rollup";
-import {dirname, ensureRelative, join} from "../path/path-util";
+import {ensureRelative} from "../path/path-util";
+import path from "crosspath";
 import {generateRandomHash} from "../hash/generate-random-hash";
 
 /**
@@ -11,11 +12,11 @@ export function getOutDir(cwd: string, options?: Partial<OutputOptions>): string
 		// Generate a random output directory. The idea is that this will never match any existing files on disk.
 		// The reason being that Typescript may erroneously think that input files may be overwritten if 'allowJs' is true
 		// and 'outDir' is '.'
-		outDir = join(cwd, generateRandomHash());
+		outDir = path.join(cwd, generateRandomHash());
 	} else if (options.dir != null) {
 		outDir = options.dir;
 	} else if (options.file != null) {
-		outDir = dirname(options.file);
+		outDir = path.dirname(options.file);
 	} else {
 		outDir = cwd;
 	}

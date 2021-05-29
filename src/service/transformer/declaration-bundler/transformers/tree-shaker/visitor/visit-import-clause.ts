@@ -1,8 +1,7 @@
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
 import {TS} from "../../../../../../type/ts";
-import {isNodeFactory} from "../../../util/is-node-factory";
 
-export function visitImportClause({node, continuation, compatFactory}: TreeShakerVisitorOptions<TS.ImportClause>): TS.ImportClause | undefined {
+export function visitImportClause({node, continuation, factory}: TreeShakerVisitorOptions<TS.ImportClause>): TS.ImportClause | undefined {
 	const namedBindingsContinuationResult = node.namedBindings == null ? undefined : continuation(node.namedBindings);
 	const nameContinuationResult = node.name == null ? undefined : continuation(node.name);
 
@@ -13,7 +12,5 @@ export function visitImportClause({node, continuation, compatFactory}: TreeShake
 		return undefined;
 	}
 
-	return isNodeFactory(compatFactory)
-		? compatFactory.updateImportClause(node, node.isTypeOnly, removeName ? undefined : node.name, removeNamedBindings ? undefined : namedBindingsContinuationResult)
-		: compatFactory.updateImportClause(node, removeName ? undefined : node.name, removeNamedBindings ? undefined : namedBindingsContinuationResult, node.isTypeOnly);
+	return factory.updateImportClause(node, node.isTypeOnly, removeName ? undefined : node.name, removeNamedBindings ? undefined : namedBindingsContinuationResult);
 }

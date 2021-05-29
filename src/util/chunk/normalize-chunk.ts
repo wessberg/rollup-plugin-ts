@@ -1,9 +1,9 @@
 import {OutputChunk, OutputOptions} from "rollup";
-import {join, normalize} from "../path/path-util";
 import {getOutDir} from "../get-out-dir/get-out-dir";
 import {PathsResult, preparePaths} from "../../service/transformer/declaration-bundler/util/prepare-paths/prepare-paths";
 import {CompilerHost} from "../../service/compiler-host/compiler-host";
 import {ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY} from "../../constant/constant";
+import path from "crosspath";
 
 export interface PreNormalizedChunk {
 	fileName: string;
@@ -28,8 +28,8 @@ export interface NormalizeChunkOptions {
 
 export function preNormalizeChunk(chunk: OutputChunk): PreNormalizedChunk {
 	return {
-		modules: Object.keys(chunk.modules).map(normalize),
-		fileName: normalize(chunk.fileName),
+		modules: Object.keys(chunk.modules).map(path.normalize),
+		fileName: path.normalize(chunk.fileName),
 		isEntry: chunk.isEntry
 	};
 }
@@ -60,9 +60,9 @@ export function normalizeChunk(chunk: PreNormalizedChunk, {host, outputOptions, 
 	return {
 		isEntry: chunk.isEntry,
 		paths: preparePaths({
-			fileName: normalize(chunk.fileName),
+			fileName: path.normalize(chunk.fileName),
 			relativeOutDir: getOutDir(cwd, outputOptions),
-			absoluteOutDir: join(cwd, relativeOutDir)
+			absoluteOutDir: path.join(cwd, relativeOutDir)
 		}),
 		modules: new Set(chunk.modules),
 		entryModules: new Set(entryModules)

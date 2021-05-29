@@ -1,10 +1,11 @@
 import {TS} from "../../type/ts";
 import {ModuleResolutionHostOptions} from "./module-resolution-host-options";
-import {dirname, ensureAbsolute, nativeNormalize, normalize} from "../../util/path/path-util";
+import {ensureAbsolute} from "../../util/path/path-util";
 import {FileSystem} from "../../util/file-system/file-system";
 import {SupportedExtensions} from "../../util/get-supported-extensions/get-supported-extensions";
 import {VirtualFile, VirtualFileInput} from "./virtual-file";
 import {D_TS_EXTENSION, D_TS_MAP_EXTENSION} from "../../constant/constant";
+import path from "crosspath";
 
 export class ModuleResolutionHost implements TS.ModuleResolutionHost {
 	private readonly directoryExistsCache: Map<string, boolean> = new Map();
@@ -27,7 +28,7 @@ export class ModuleResolutionHost implements TS.ModuleResolutionHost {
 	clearCaches(fileName?: string): void {
 		if (fileName != null) {
 			this.fileExistsCache.delete(fileName);
-			this.directoryExistsCache.delete(dirname(fileName));
+			this.directoryExistsCache.delete(path.dirname(fileName));
 			this.currentFileNames = undefined;
 			this.currentDirectories = undefined;
 		} else {
@@ -59,7 +60,7 @@ export class ModuleResolutionHost implements TS.ModuleResolutionHost {
 
 	getFileNameDirectories(): Set<string> {
 		if (this.currentDirectories == null) {
-			this.currentDirectories = new Set([...this.getFileNames()].map(fileName => dirname(fileName)));
+			this.currentDirectories = new Set([...this.getFileNames()].map(fileName => path.dirname(fileName)));
 		}
 
 		return this.currentDirectories;
@@ -108,7 +109,7 @@ export class ModuleResolutionHost implements TS.ModuleResolutionHost {
 			return this.fileExistsCache.get(fileName)!;
 		}
 
-		const exists = this.files.has(fileName) || this.getFileSystem().fileExists(nativeNormalize(fileName));
+		const exists = this.files.has(fileName) || this.getFileSystem().fileExists(path.native.normalize(fileName));
 		this.fileExistsCache.set(fileName, exists);
 		return exists;
 	}
@@ -122,7 +123,7 @@ export class ModuleResolutionHost implements TS.ModuleResolutionHost {
 		if (result != null) return result.text;
 
 		// Otherwise, try to properly resolve the file
-		return this.getFileSystem().readFile(nativeNormalize(fileName), encoding);
+		return this.getFileSystem().readFile(path.native.normalize(fileName), encoding);
 	}
 
 	/**
@@ -138,8 +139,8 @@ export class ModuleResolutionHost implements TS.ModuleResolutionHost {
 		const result =
 			fileNameDirectories.has(directoryName) ||
 			fileNameDirectories.has(absoluteDirectoryName) ||
-			this.getFileSystem().directoryExists(nativeNormalize(directoryName)) ||
-			this.getFileSystem().directoryExists(nativeNormalize(absoluteDirectoryName));
+			this.getFileSystem().directoryExists(path.native.normalize(directoryName)) ||
+			this.getFileSystem().directoryExists(path.native.normalize(absoluteDirectoryName));
 		this.directoryExistsCache.set(directoryName, result);
 		return result;
 	}
@@ -147,21 +148,21 @@ export class ModuleResolutionHost implements TS.ModuleResolutionHost {
 	/**
 	 * Gets the real path for the given path. Meant to resolve symlinks
 	 */
-	realpath(path: string): string {
-		return normalize(this.getFileSystem().realpath(nativeNormalize(path)));
+	realpath(p: string): string {
+		return path.normalize(this.getFileSystem().realpath(path.native.normalize(p)));
 	}
 
 	/**
 	 * Gets the current directory
 	 */
 	getCurrentDirectory(): string {
-		return normalize(this.getCwd());
+		return path.normalize(this.getCwd());
 	}
 
 	/**
 	 * Gets all directories within the given directory path
 	 */
 	getDirectories(directoryName: string): string[] {
-		return this.getFileSystem().getDirectories(nativeNormalize(directoryName)).map(normalize);
+		return this.getFileSystem().getDirectories(path.native.normalize(directoryName)).map(path.normalize);
 	}
 }

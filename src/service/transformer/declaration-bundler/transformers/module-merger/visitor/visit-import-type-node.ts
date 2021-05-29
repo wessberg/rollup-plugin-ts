@@ -11,7 +11,7 @@ import {getParentNode, setParentNode} from "../../../util/get-parent-node";
 import {inlineNamespaceModuleBlockTransformer} from "../../inline-namespace-module-block-transformer/inline-namespace-module-block-transformer";
 
 export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.ImportTypeNode>): VisitResult<TS.ImportTypeNode> {
-	const {node, compatFactory, typescript} = options;
+	const {node, factory, typescript} = options;
 	const moduleSpecifier = !typescript.isLiteralTypeNode(node.argument) || !typescript.isStringLiteralLike(node.argument.literal) ? undefined : node.argument.literal.text;
 
 	const matchingSourceFile = moduleSpecifier == null ? undefined : options.getMatchingSourceFile(moduleSpecifier, options.sourceFile);
@@ -36,9 +36,9 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 		return generatedModuleSpecifier == null
 			? contResult
 			: preserveMeta(
-					compatFactory.updateImportTypeNode(
+					factory.updateImportTypeNode(
 						contResult,
-						compatFactory.createLiteralTypeNode(compatFactory.createStringLiteral(generatedModuleSpecifier)),
+						factory.createLiteralTypeNode(factory.createStringLiteral(generatedModuleSpecifier)),
 						contResult.qualifier,
 						contResult.typeArguments,
 						contResult.isTypeOf
@@ -54,10 +54,10 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 	if (contResult.qualifier == null) {
 		// Generate a name for it
 		const namespaceName = generateIdentifierName(matchingSourceFile.fileName, "namespace");
-		const innerContent = compatFactory.createIdentifier(namespaceName);
+		const innerContent = factory.createIdentifier(namespaceName);
 
 		const importDeclarations: TS.ImportDeclaration[] = [];
-		const moduleBlock = compatFactory.createModuleBlock([
+		const moduleBlock = factory.createModuleBlock([
 			...options.includeSourceFile(matchingSourceFile, {
 				allowDuplicate: true,
 				allowExports: "skip-optional",
@@ -77,10 +77,10 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 		options.prependNodes(
 			...importDeclarations.map(importDeclaration => preserveParents(importDeclaration, options)),
 			preserveParents(
-				compatFactory.createModuleDeclaration(
+				factory.createModuleDeclaration(
 					undefined,
-					ensureHasDeclareModifier(undefined, compatFactory, typescript),
-					compatFactory.createIdentifier(namespaceName),
+					ensureHasDeclareModifier(undefined, factory, typescript),
+					factory.createIdentifier(namespaceName),
 					moduleBlock,
 					typescript.NodeFlags.Namespace
 				),
@@ -88,14 +88,14 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 			)
 		);
 
-		returnNode = contResult.isTypeOf != null && contResult.isTypeOf ? compatFactory.createTypeQueryNode(innerContent) : innerContent;
+		returnNode = contResult.isTypeOf != null && contResult.isTypeOf ? factory.createTypeQueryNode(innerContent) : innerContent;
 	} else {
 		options.prependNodes(...options.includeSourceFile(matchingSourceFile));
 
 		returnNode =
 			contResult.isTypeOf != null && contResult.isTypeOf
-				? compatFactory.createTypeQueryNode(contResult.qualifier)
-				: compatFactory.createTypeReferenceNode(contResult.qualifier, contResult.typeArguments);
+				? factory.createTypeQueryNode(contResult.qualifier)
+				: factory.createTypeReferenceNode(contResult.qualifier, contResult.typeArguments);
 	}
 
 	preserveSymbols(returnNode, contResult.qualifier ?? contResult, options);

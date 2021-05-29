@@ -1,7 +1,7 @@
 import {OutputBundle, OutputOptions, PluginContext} from "rollup";
 import {CompilerHost} from "../../compiler-host/compiler-host";
 import {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options";
-import {join, nativeNormalize, relative} from "../../../util/path/path-util";
+import path from "crosspath";
 import {getOutDir} from "../../../util/get-out-dir/get-out-dir";
 import {isBuildInfoOutputFile} from "../../../util/is-build-info-output-file/is-build-info-output-file";
 import {shouldDebugEmit} from "../../../util/is-debug/should-debug";
@@ -40,13 +40,13 @@ export function emitBuildInfo(options: EmitBuildInfoOptions): void {
 		logEmit(outputPathCandidate, buildInfo.text);
 	}
 
-	const emitFile = join(relative(relativeOutDir, outputPathCandidate));
+	const emitFile = path.join(path.relative(relativeOutDir, outputPathCandidate));
 	// Rollup does not allow emitting files outside of the root of the whatever 'dist' directory that has been provided.
 	// Under such circumstances, unfortunately, we'll have to default to using whatever FileSystem was provided to write the file to disk
 	const needsFileSystem = emitFile.startsWith("../") || emitFile.startsWith("..\\") || options.pluginContext.emitFile == null;
 
 	if (needsFileSystem) {
-		options.host.getFileSystem().writeFile(nativeNormalize(outputPathCandidate), buildInfo.text);
+		options.host.getFileSystem().writeFile(path.native.normalize(outputPathCandidate), buildInfo.text);
 	}
 
 	// Otherwise, we can use Rollup, which is absolutely preferable
@@ -54,7 +54,7 @@ export function emitBuildInfo(options: EmitBuildInfoOptions): void {
 		options.pluginContext.emitFile({
 			type: "asset",
 			source: buildInfo.text,
-			fileName: nativeNormalize(emitFile)
+			fileName: path.native.normalize(emitFile)
 		});
 	}
 }

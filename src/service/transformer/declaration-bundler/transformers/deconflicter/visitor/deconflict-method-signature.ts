@@ -4,21 +4,20 @@ import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {nodeArraysAreEqual} from "../../../util/node-arrays-are-equal";
 import {ContinuationOptions} from "../deconflicter-options";
 import {preserveMeta} from "../../../util/clone-node-with-meta";
-import {isNodeFactory} from "../../../util/is-node-factory";
 
 /**
  * Deconflicts the given MethodSignature.
  */
 export function deconflictMethodSignature(options: DeconflicterVisitorOptions<TS.MethodSignature>): TS.MethodSignature | undefined {
-	const {node, continuation, lexicalEnvironment, compatFactory, typescript} = options;
+	const {node, continuation, lexicalEnvironment, factory, typescript} = options;
 	const nameContResult = typescript.isIdentifier(node.name) ? node.name : continuation(node.name, {lexicalEnvironment});
 
 	// The type, type parameters, as well as the parameters share the same lexical environment
 	const nextContinuationOptions: ContinuationOptions = {lexicalEnvironment: cloneLexicalEnvironment(lexicalEnvironment)};
 
 	const typeParametersContResult =
-		node.typeParameters == null ? undefined : compatFactory.createNodeArray(node.typeParameters.map(typeParameter => continuation(typeParameter, nextContinuationOptions)));
-	const parametersContResult = compatFactory.createNodeArray(node.parameters.map(parameter => continuation(parameter, nextContinuationOptions)));
+		node.typeParameters == null ? undefined : factory.createNodeArray(node.typeParameters.map(typeParameter => continuation(typeParameter, nextContinuationOptions)));
+	const parametersContResult = factory.createNodeArray(node.parameters.map(parameter => continuation(parameter, nextContinuationOptions)));
 	const typeContResult = node.type == null ? undefined : continuation(node.type, nextContinuationOptions);
 
 	const isIdentical =
@@ -32,9 +31,7 @@ export function deconflictMethodSignature(options: DeconflicterVisitorOptions<TS
 	}
 
 	return preserveMeta(
-		isNodeFactory(compatFactory)
-			? compatFactory.updateMethodSignature(node, node.modifiers, nameContResult, node.questionToken, typeParametersContResult, parametersContResult, typeContResult)
-			: compatFactory.updateMethodSignature(node, typeParametersContResult, parametersContResult, typeContResult, nameContResult, node.questionToken),
+		factory.updateMethodSignature(node, node.modifiers, nameContResult, node.questionToken, typeParametersContResult, parametersContResult, typeContResult),
 		node,
 		options
 	);

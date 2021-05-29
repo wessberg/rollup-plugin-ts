@@ -6,13 +6,12 @@ import {generateUniqueBinding} from "../../../util/generate-unique-binding";
 import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {getOriginalSourceFile} from "../../../util/get-original-source-file";
 import {getIdForNode} from "../../../util/get-id-for-node";
-import {isNodeFactory} from "../../../util/is-node-factory";
 
 /**
  * Deconflicts the given ImportClause.
  */
 export function deconflictImportClause(options: DeconflicterVisitorOptions<TS.ImportClause>): TS.ImportClause | undefined {
-	const {node, continuation, lexicalEnvironment, sourceFile, typescript, compatFactory, declarationToDeconflictedBindingMap} = options;
+	const {node, continuation, lexicalEnvironment, sourceFile, typescript, factory, declarationToDeconflictedBindingMap} = options;
 	let nameContResult: TS.ImportClause["name"];
 	const originalSourceFile = getOriginalSourceFile(node, sourceFile, typescript);
 
@@ -31,7 +30,7 @@ export function deconflictImportClause(options: DeconflicterVisitorOptions<TS.Im
 		} else {
 			// Otherwise, deconflict it
 			const uniqueBinding = generateUniqueBinding(lexicalEnvironment, node.name.text);
-			nameContResult = compatFactory.createIdentifier(uniqueBinding);
+			nameContResult = factory.createIdentifier(uniqueBinding);
 
 			if (id != null) {
 				declarationToDeconflictedBindingMap.set(id, uniqueBinding);
@@ -50,11 +49,5 @@ export function deconflictImportClause(options: DeconflicterVisitorOptions<TS.Im
 		return node;
 	}
 
-	return preserveMeta(
-		isNodeFactory(compatFactory)
-			? compatFactory.updateImportClause(node, node.isTypeOnly, nameContResult, namedBindingsContResult)
-			: compatFactory.updateImportClause(node, nameContResult, namedBindingsContResult, node.isTypeOnly),
-		node,
-		options
-	);
+	return preserveMeta(factory.updateImportClause(node, node.isTypeOnly, nameContResult, namedBindingsContResult), node, options);
 }

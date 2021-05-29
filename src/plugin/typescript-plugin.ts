@@ -4,7 +4,7 @@ import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
 import {emitDiagnostics} from "../service/emit/diagnostics/emit-diagnostics";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
-import {ensureHasDriveLetter, ensureRelative, getExtension, isBabelHelper, isMultiEntryModule, nativeNormalize, normalize} from "../util/path/path-util";
+import {ensureHasDriveLetter, ensureRelative, getExtension, isBabelHelper, isMultiEntryModule} from "../util/path/path-util";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
 import {TypescriptPluginOptions} from "./typescript-plugin-options";
 import {getPluginOptions} from "../util/plugin-options/get-plugin-options";
@@ -31,6 +31,7 @@ import {shouldDebugEmit} from "../util/is-debug/should-debug";
 import {logEmit} from "../util/logging/log-emit";
 import {isJsonLike} from "../util/is-json-like/is-json-like";
 import {BabelConfigFactory} from "../util/get-babel-config/get-babel-config-result";
+import path from "crosspath";
 
 /**
  * The name of the Rollup plugin
@@ -77,7 +78,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	 * The filter function to use
 	 */
 	const internalFilter = createFilter(include, exclude);
-	const filter = (id: string): boolean => internalFilter(id) || internalFilter(normalize(id)) || internalFilter(nativeNormalize(id));
+	const filter = (id: string): boolean => internalFilter(id) || internalFilter(path.normalize(id)) || internalFilter(path.native.normalize(id));
 
 	/**
 	 * All supported extensions
@@ -205,7 +206,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			}
 
 			const updatedCode = updatedSourceDescription != null ? updatedSourceDescription.code : code;
-			const updatedMap = updatedSourceDescription != null ? updatedSourceDescription.map as ExistingRawSourceMap : undefined;
+			const updatedMap = updatedSourceDescription != null ? (updatedSourceDescription.map as ExistingRawSourceMap) : undefined;
 
 			const transpilationResult = await transformAsync(updatedCode, {
 				...config,
@@ -242,11 +243,11 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 */
 		async transform(this: PluginContext, code: string, fileInput: string): Promise<SourceDescription | undefined> {
 			const file = ensureHasDriveLetter(fileInput);
-			const normalizedFile = normalize(file);
+			const normalizedFile = path.normalize(file);
 			// If this file represents ROLLUP_PLUGIN_MULTI_ENTRY, we need to parse its' contents to understand which files it aliases.
 			// Following that, there's nothing more to do
 			if (isMultiEntryModule(normalizedFile, MULTI_ENTRY_MODULE)) {
-				MULTI_ENTRY_FILE_NAMES = new Set(matchAll(code, /(import|export)\s*(\*\s*from\s*)?["'`]([^"'`]*)["'`]/).map(([, , , path]) => normalize(path.replace(/\\\\/g, "\\"))));
+				MULTI_ENTRY_FILE_NAMES = new Set(matchAll(code, /(import|export)\s*(\*\s*from\s*)?["'`]([^"'`]*)["'`]/).map(([, , , p]) => path.normalize(p.replace(/\\\\/g, "\\"))));
 				return undefined;
 			}
 
@@ -332,7 +333,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			const resolveResult = host.resolve(id, parent);
 
 			const pickedResolveResult = resolveResult == null ? undefined : pickResolvedModule(resolveResult, false);
-			return pickedResolveResult == null ? null : nativeNormalize(pickedResolveResult);
+			return pickedResolveResult == null ? null : path.native.normalize(pickedResolveResult);
 		},
 
 		/**
@@ -341,7 +342,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * being used
 		 */
 		load(this: PluginContext, id: string): string | null {
-			const normalizedId = normalize(id);
+			const normalizedId = path.normalize(id);
 			// Return the alternative source for the regenerator runtime if that file is attempted to be loaded
 			if (normalizedId.endsWith(REGENERATOR_RUNTIME_NAME_1) || normalizedId.endsWith(REGENERATOR_RUNTIME_NAME_2)) {
 				return REGENERATOR_SOURCE;
@@ -356,7 +357,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		generateBundle(this: PluginContext, outputOptions: OutputOptions, bundle: OutputBundle): void {
 			// If debugging is active, log the outputted files
 			for (const file of Object.values(bundle)) {
-				const normalizedFileName = normalize(file.fileName);
+				const normalizedFileName = path.normalize(file.fileName);
 				const text = "code" in file ? file.code : file.source.toString();
 				if (shouldDebugEmit(pluginOptions.debug, normalizedFileName, text, "javascript")) {
 					logEmit(normalizedFileName, text);

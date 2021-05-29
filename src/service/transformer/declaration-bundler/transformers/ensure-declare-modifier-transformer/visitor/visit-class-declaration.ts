@@ -4,14 +4,14 @@ import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {ensureHasDeclareModifier, hasDeclareModifier} from "../../../util/modifier-util";
 
 export function visitClassDeclaration(options: EnsureDeclareModifierTransformerVisitorOptions<TS.ClassDeclaration>): TS.ClassDeclaration {
-	const {node, typescript, compatFactory} = options;
+	const {node, typescript, factory} = options;
 	if (hasDeclareModifier(node, typescript)) return node;
 
 	return preserveMeta(
-		compatFactory.updateClassDeclaration(
+		factory.updateClassDeclaration(
 			node,
 			node.decorators,
-			ensureHasDeclareModifier(node.modifiers, compatFactory, typescript),
+			ensureHasDeclareModifier(node.modifiers, factory, typescript),
 			node.name,
 			node.typeParameters,
 			node.heritageClauses,

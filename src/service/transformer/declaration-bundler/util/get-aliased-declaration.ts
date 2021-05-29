@@ -18,11 +18,9 @@ export function getAliasedDeclarationFromSymbol(symbol: TS.Symbol, typeChecker: 
 	try {
 		const aliasedDeclaration = typeChecker.getAliasedSymbol(symbol);
 		if (aliasedDeclaration != null && (aliasedDeclaration.valueDeclaration != null || (aliasedDeclaration.declarations != null && aliasedDeclaration.declarations.length > 0))) {
-			valueDeclaration = (aliasedDeclaration.valueDeclaration != null
-				? aliasedDeclaration.valueDeclaration
-				: symbol.declarations != null
-				? aliasedDeclaration.declarations[0]
-				: undefined) as (TS.Declaration & {id: number}) | undefined;
+			valueDeclaration = (
+				aliasedDeclaration.valueDeclaration != null ? aliasedDeclaration.valueDeclaration : symbol.declarations != null ? aliasedDeclaration.declarations?.[0] : undefined
+			) as (TS.Declaration & {id: number}) | undefined;
 		}
 	} catch {}
 

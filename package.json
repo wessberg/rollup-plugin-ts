@@ -3,21 +3,23 @@
 	"version": "1.3.14",
 	"description": "A TypeScript Rollup plugin that bundles declarations and respects Browserslists",
 	"scripts": {
-		"generate:scaffold": "scaffold all --yes",
+		"generate:sandhog": "sandhog all --yes",
 		"generate:changelog": "standard-changelog --first-release",
-		"generate:all": "pnpm run generate:scaffold && pnpm run generate:changelog",
+		"generate:all": "pnpm run generate:sandhog && pnpm run generate:changelog",
 		"clean": "rimraf dist",
 		"lint": "tsc --noEmit && eslint \"src/**/*.ts\" --color",
 		"prettier": "prettier --write \"{src,test,documentation}/**/*.{js,ts,json,html,xml,css,md}\"",
 		"test": "ava",
 		"prebuild": "pnpm run clean",
-		"build": "pnpm run rollup",
-		"watch": "pnpm run rollup -- --watch",
+		"build": "pnpm run prebuild && pnpm run rollup",
+		"prewatch": "pnpm run clean",
+		"watch": "pnpm run prewatch && pnpm run rollup -- --watch",
 		"rollup": "rollup -c rollup.config.js",
 		"preversion": "npm run lint && pnpm run build",
-		"version": "pnpm run generate:all && git add .",
+		"version": "pnpm run preversion && pnpm run generate:all && git add .",
 		"release": "np --no-cleanup --no-yarn",
-		"update": "pnpx npm-check-updates -u -x np --dep dev,prod && pnpm update && pnpm install"
+		"update:check": "pnpx npm-check-updates -x np,typescript-* --dep dev,prod",
+		"update:commit": "pnpx npm-check-updates -u -x np,typescript-* --dep dev,prod && pnpm update && pnpm install"
 	},
 	"keywords": [
 		"rollup",
@@ -48,37 +50,37 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@rollup/plugin-alias": "^3.1.2",
-		"@rollup/plugin-commonjs": "^18.0.0",
+		"@rollup/plugin-commonjs": "^19.0.0",
 		"@rollup/plugin-json": "^4.1.0",
 		"@rollup/plugin-multi-entry": "^4.0.0",
-		"@types/node": "^14.14.37",
+		"@types/node": "^15.6.1",
 		"@types/prettier": "^2.2.3",
-		"@types/semver": "^7.3.4",
-		"@typescript-eslint/eslint-plugin": "^4.22.0",
-		"@typescript-eslint/parser": "^4.22.0",
-		"@wessberg/rollup-plugin-ts": "^1.3.11",
-		"@wessberg/scaffold": "^1.0.36",
-		"@wessberg/ts-config": "^1.0.22",
+		"@types/semver": "^7.3.6",
+		"@typescript-eslint/eslint-plugin": "^4.25.0",
+		"@typescript-eslint/parser": "^4.25.0",
+		"@wessberg/rollup-plugin-ts": "^1.3.14",
+		"@wessberg/ts-config": "^1.1.2",
+		"sandhog": "^1.0.41",
 		"ava": "3.15.0",
 		"babel-preset-minify": "^0.5.1",
-		"core-js": "^3.10.1",
-		"eslint": "^7.24.0",
-		"eslint-config-prettier": "^8.2.0",
-		"eslint-plugin-import": "^2.22.1",
-		"eslint-plugin-jsdoc": "^32.3.0",
+		"core-js": "^3.13.1",
+		"eslint": "^7.27.0",
+		"eslint-config-prettier": "^8.3.0",
+		"eslint-plugin-import": "^2.23.4",
+		"eslint-plugin-jsdoc": "^35.0.0",
 		"fast-glob": "^3.2.5",
 		"husky": "^6.0.0",
 		"np": "5.2.1",
-		"pnpm": "^6.0.2",
-		"prettier": "^2.2.1",
+		"pnpm": "^6.6.1",
+		"prettier": "^2.3.0",
 		"pretty-quick": "^3.1.0",
 		"rimraf": "^3.0.2",
-		"rollup": "^2.45.2",
+		"rollup": "^2.50.4",
 		"semver": "7.3.5",
 		"standard-changelog": "^2.0.27",
-		"ts-node": "9.1.1",
-		"typescript": "^4.2.4",
-		"npm-check-updates": "11.4.1",
+		"ts-node": "10.0.0",
+		"npm-check-updates": "11.5.13",
+		"typescript": "^4.3.2",
 		"typescript-3-4-1": "npm:typescript@3.4.1",
 		"typescript-3-5-1": "npm:typescript@3.5.1",
 		"typescript-3-6-2": "npm:typescript@3.6.2",
@@ -86,29 +88,31 @@
 		"typescript-3-8-3": "npm:typescript@3.8.3",
 		"typescript-3-9-2": "npm:typescript@3.9.2",
 		"typescript-4-0-3": "npm:typescript@4.0.3",
-		"typescript-4-1-2": "npm:typescript@4.1.2"
+		"typescript-4-1-2": "npm:typescript@4.1.2",
+		"typescript-4-2-4": "npm:typescript@4.2.4"
 	},
 	"dependencies": {
-		"@babel/core": "^7.13.15",
-		"@babel/plugin-proposal-async-generator-functions": "^7.13.15",
-		"@babel/plugin-proposal-json-strings": "^7.13.8",
-		"@babel/plugin-proposal-object-rest-spread": "^7.13.8",
-		"@babel/plugin-proposal-optional-catch-binding": "^7.13.8",
+		"@babel/core": "^7.14.3",
+		"@babel/plugin-proposal-async-generator-functions": "^7.14.2",
+		"@babel/plugin-proposal-json-strings": "^7.14.2",
+		"@babel/plugin-proposal-object-rest-spread": "^7.14.4",
+		"@babel/plugin-proposal-optional-catch-binding": "^7.14.2",
 		"@babel/plugin-proposal-unicode-property-regex": "^7.12.13",
 		"@babel/plugin-syntax-dynamic-import": "^7.8.3",
-		"@babel/plugin-transform-runtime": "^7.13.15",
-		"@babel/preset-env": "^7.13.15",
-		"@babel/runtime": "^7.13.10",
-		"@rollup/pluginutils": "^4.1.0",
+		"@babel/plugin-transform-runtime": "^7.14.3",
+		"@babel/preset-env": "^7.14.4",
+		"@babel/runtime": "^7.14.0",
 		"@types/babel__core": "^7.1.14",
-		"@wessberg/browserslist-generator": "^1.0.47",
+		"@rollup/pluginutils": "^4.1.0",
 		"@wessberg/stringutil": "^1.0.19",
-		"@wessberg/ts-clone-node": "^0.3.19",
-		"browserslist": "^4.16.4",
-		"chalk": "^4.1.0",
+		"ts-clone-node": "^0.3.23",
+		"compatfactory": "^0.0.7",
+		"browserslist-generator": "^1.0.58",
+		"browserslist": "^4.16.6",
+		"chalk": "^4.1.1",
 		"magic-string": "^0.25.7",
-		"slash": "^3.0.0",
-		"tslib": "^2.2.0"
+		"tslib": "^2.2.0",
+		"crosspath": "^0.0.8"
 	},
 	"peerDependencies": {
 		"rollup": ">=1.x || >=2.x",
@@ -134,11 +138,6 @@
 	"engines": {
 		"node": ">=10.0.0"
 	},
-	"husky": {
-		"hooks": {
-			"pre-commit": "pretty-quick --staged"
-		}
-	},
 	"ava": {
 		"files": [
 			"test/**.test.ts"
@@ -149,7 +148,8 @@
 			"ts"
 		],
 		"environmentVariables": {
-			"NODE_OPTIONS": "--max_old_space_size=6144"
+			"NODE_OPTIONS": "--max_old_space_size=6144",
+			"FORCE_COLOR": "3"
 		},
 		"require": [
 			"ts-node/register/transpile-only"

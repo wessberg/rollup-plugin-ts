@@ -7,10 +7,9 @@ import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-
 import {logMetrics} from "../../../../../util/logging/log-metrics";
 import {logTransformer} from "../../../../../util/logging/log-transformer";
 import {preserveMeta} from "../../util/clone-node-with-meta";
-import {isNodeFactory} from "../../util/is-node-factory";
 
 export function toExportDeclarationTransformer(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
-	const {compatFactory, typescript, context, sourceFile, pluginOptions, printer} = options;
+	const {factory, typescript, context, sourceFile, pluginOptions, printer} = options;
 
 	const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile) ? logMetrics(`Adding ExportDeclarations`, sourceFile.fileName) : undefined;
 
@@ -50,25 +49,15 @@ export function toExportDeclarationTransformer(options: SourceFileBundlerVisitor
 	// There may be prepended or appended nodes that hasn't been added yet. Do so!
 	const [missingPrependNodes, missingAppendNodes] = nodePlacementQueue.flush();
 	if (missingPrependNodes.length > 0 || missingAppendNodes.length > 0) {
-		result = isNodeFactory(compatFactory)
-			? compatFactory.updateSourceFile(
-					result,
-					[...(missingPrependNodes as TS.Statement[]), ...result.statements, ...(missingAppendNodes as TS.Statement[])],
-					result.isDeclarationFile,
-					result.referencedFiles,
-					result.typeReferenceDirectives,
-					result.hasNoDefaultLib,
-					result.libReferenceDirectives
-			  )
-			: compatFactory.updateSourceFileNode(
-					result,
-					[...(missingPrependNodes as TS.Statement[]), ...result.statements, ...(missingAppendNodes as TS.Statement[])],
-					result.isDeclarationFile,
-					result.referencedFiles,
-					result.typeReferenceDirectives,
-					result.hasNoDefaultLib,
-					result.libReferenceDirectives
-			  );
+		result = factory.updateSourceFile(
+			result,
+			[...(missingPrependNodes as TS.Statement[]), ...result.statements, ...(missingAppendNodes as TS.Statement[])],
+			result.isDeclarationFile,
+			result.referencedFiles,
+			result.typeReferenceDirectives,
+			result.hasNoDefaultLib,
+			result.libReferenceDirectives
+		);
 	}
 
 	result = preserveMeta(result, result, options);

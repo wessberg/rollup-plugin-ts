@@ -1,7 +1,7 @@
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
 import {TS} from "../../../../../../type/ts";
 
-export function visitObjectBindingPattern({node, continuation, compatFactory}: TreeShakerVisitorOptions<TS.ObjectBindingPattern>): TS.ObjectBindingPattern | undefined {
+export function visitObjectBindingPattern({node, continuation, factory}: TreeShakerVisitorOptions<TS.ObjectBindingPattern>): TS.ObjectBindingPattern | undefined {
 	const filteredObjectBindingElements: TS.BindingElement[] = [];
 	for (const objectBindingElement of node.elements) {
 		const objectBindingElementContinuationResult = continuation(objectBindingElement);
@@ -14,5 +14,5 @@ export function visitObjectBindingPattern({node, continuation, compatFactory}: T
 		return undefined;
 	}
 
-	return compatFactory.updateObjectBindingPattern(node, filteredObjectBindingElements);
+	return factory.updateObjectBindingPattern(node, filteredObjectBindingElements);
 }

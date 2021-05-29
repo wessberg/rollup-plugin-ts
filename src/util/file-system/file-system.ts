@@ -1,6 +1,6 @@
 import {statSync} from "fs";
 import {TS} from "../../type/ts";
-import {nativeDirname} from "../path/path-util";
+import path from "crosspath";
 
 export interface FileSystem {
 	newLine: string;
@@ -18,11 +18,11 @@ export interface FileSystem {
 export function getRealFileSystem(typescript: typeof TS): FileSystem {
 	return {
 		...typescript.sys,
-		realpath(path: string): string {
-			return typescript.sys.realpath == null ? path : typescript.sys.realpath(path);
+		realpath(p: string): string {
+			return typescript.sys.realpath == null ? p : typescript.sys.realpath(p);
 		},
-		ensureDirectory(path: string): string {
-			return statSync(path).isDirectory() ? path : nativeDirname(path);
+		ensureDirectory(p: string): string {
+			return statSync(p).isDirectory() ? p : path.native.dirname(p);
 		}
 	};
 }

@@ -1,5 +1,4 @@
 import {TS} from "../../../../type/ts";
-import {CompatFactory} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
 
 export type Modifiers = TS.ModifiersArray | TS.Modifier[];
 
@@ -57,10 +56,10 @@ export function removeDeclareModifier(modifiers: Modifiers | undefined, typescri
 /**
  * Removes an export modifier from the given ModifiersArray
  */
-export function ensureHasDeclareModifier(modifiers: Modifiers | undefined, compatFactory: CompatFactory, typescript: typeof TS): TS.Modifier[] | TS.ModifiersArray | undefined {
-	if (modifiers == null) return [compatFactory.createModifier(typescript.SyntaxKind.DeclareKeyword)];
+export function ensureHasDeclareModifier(modifiers: Modifiers | undefined, factory: TS.NodeFactory, typescript: typeof TS): TS.Modifier[] | TS.ModifiersArray | undefined {
+	if (modifiers == null) return [factory.createModifier(typescript.SyntaxKind.DeclareKeyword)];
 	if (modifiers.some(m => m.kind === typescript.SyntaxKind.DeclareKeyword)) return modifiers;
-	return [compatFactory.createModifier(typescript.SyntaxKind.DeclareKeyword), ...modifiers];
+	return [factory.createModifier(typescript.SyntaxKind.DeclareKeyword), ...modifiers];
 }
 
 /**

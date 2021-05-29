@@ -1,15 +1,14 @@
 import {TS} from "../../../../../../type/ts";
 import {InlineNamespaceModuleBlockVisitorOptions} from "../inline-namespace-module-block-visitor-options";
 import {preserveParents} from "../../../util/clone-node-with-meta";
-import {isNodeFactory} from "../../../util/is-node-factory";
 import {generateIdentifierName} from "../../../util/generate-identifier-name";
 import {addBindingToLexicalEnvironment} from "../../../util/add-binding-to-lexical-environment";
 import {generateUniqueBinding} from "../../../util/generate-unique-binding";
 import {isIdentifierFree} from "../../../util/is-identifier-free";
 import {getOriginalSourceFile} from "../../../util/get-original-source-file";
 
-export function visitExportDeclaration(options: InlineNamespaceModuleBlockVisitorOptions<TS.ExportDeclaration>): TS.ExportDeclaration|undefined {
-	const {node, typescript, compatFactory, host, lexicalEnvironment, sourceFile, intentToAddImportDeclaration} = options;
+export function visitExportDeclaration(options: InlineNamespaceModuleBlockVisitorOptions<TS.ExportDeclaration>): TS.ExportDeclaration | undefined {
+	const {node, typescript, factory, host, lexicalEnvironment, sourceFile, intentToAddImportDeclaration} = options;
 
 	if (node.moduleSpecifier == null || !typescript.isStringLiteralLike(node.moduleSpecifier)) {
 		return node;
@@ -32,50 +31,27 @@ export function visitExportDeclaration(options: InlineNamespaceModuleBlockVisito
 		}
 		const originalSourceFile = getOriginalSourceFile(node, sourceFile, typescript);
 
-		const exportedBindings = [...(resolvedSourceFile as {symbol?: {exports?: Map<string, unknown>}}).symbol?.exports?.keys() ?? []].map(binding => isIdentifierFree(lexicalEnvironment, binding, originalSourceFile.fileName) ? [binding, binding] : [binding, generateUniqueBinding(lexicalEnvironment, binding)]);
+		const exportedBindings = [...((resolvedSourceFile as {symbol?: {exports?: Map<string, unknown>}}).symbol?.exports?.keys() ?? [])].map(binding =>
+			isIdentifierFree(lexicalEnvironment, binding, originalSourceFile.fileName) ? [binding, binding] : [binding, generateUniqueBinding(lexicalEnvironment, binding)]
+		);
 
-		const namedImports = compatFactory.createNamedImports(exportedBindings.map(([name, deconflictedName]) =>
-			compatFactory.createImportSpecifier(
-				name === deconflictedName ? undefined : compatFactory.createIdentifier(name),
-				compatFactory.createIdentifier(deconflictedName)
+		const namedImports = factory.createNamedImports(
+			exportedBindings.map(([name, deconflictedName]) =>
+				factory.createImportSpecifier(name === deconflictedName ? undefined : factory.createIdentifier(name), factory.createIdentifier(deconflictedName))
 			)
-		));
+		);
 
 		intentToAddImportDeclaration(
-			compatFactory.createImportDeclaration(
-				undefined,
-				undefined,
-				isNodeFactory(compatFactory)
-					? compatFactory.createImportClause(false, undefined, namedImports)
-					: compatFactory.createImportClause(undefined, namedImports, false),
-				compatFactory.createStringLiteral(node.moduleSpecifier.text)
+			factory.createImportDeclaration(undefined, undefined, factory.createImportClause(false, undefined, namedImports), factory.createStringLiteral(node.moduleSpecifier.text))
+		);
+
+		const namedExports = factory.createNamedExports(
+			exportedBindings.map(([name, deconflictedName]) =>
+				factory.createExportSpecifier(name === deconflictedName ? undefined : factory.createIdentifier(deconflictedName), factory.createIdentifier(name))
 			)
 		);
 
-		const namedExports = compatFactory.createNamedExports(exportedBindings.map(([name, deconflictedName]) => compatFactory.createExportSpecifier(
-			name === deconflictedName ? undefined : compatFactory.createIdentifier(deconflictedName), compatFactory.createIdentifier(name)
-		)));
-
-		return preserveParents(
-			isNodeFactory(compatFactory)
-				? compatFactory.updateExportDeclaration(
-				node,
-				node.decorators,
-				node.modifiers,
-				node.isTypeOnly,
-				namedExports,
-				undefined
-				)
-				: compatFactory.updateExportDeclaration(
-				node,
-				node.decorators,
-				node.modifiers,
-				namedExports,
-				undefined,
-				node.isTypeOnly
-				),
-			options
-		);
+		return preserveParents(factory.updateExportDeclaration(node, node.decorators, node.modifiers, node.isTypeOnly, namedExports, undefined), options);
 	}
 
 	return node;

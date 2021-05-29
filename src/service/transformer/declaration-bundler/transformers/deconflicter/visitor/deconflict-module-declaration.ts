@@ -14,7 +14,7 @@ import {getBindingFromLexicalEnvironment} from "../../../util/get-binding-from-l
  * Deconflicts the given ModuleDeclaration.
  */
 export function deconflictModuleDeclaration(options: DeconflicterVisitorOptions<TS.ModuleDeclaration>): TS.ModuleDeclaration | undefined {
-	const {node, continuation, lexicalEnvironment, compatFactory, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
+	const {node, continuation, lexicalEnvironment, factory, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
 	let nameContResult: TS.ModuleDeclaration["name"];
 	const id = getIdForNode(options);
 	const originalSourceFile = getOriginalSourceFile(node.name, sourceFile, typescript);
@@ -32,10 +32,8 @@ export function deconflictModuleDeclaration(options: DeconflicterVisitorOptions<
 
 		if (isIdentical) {
 			return node;
-		}
-
-		else {
-			return preserveMeta(compatFactory.updateModuleDeclaration(node, node.decorators, node.modifiers, compatFactory.createIdentifier(binding), bodyContResult), node, options);
+		} else {
+			return preserveMeta(factory.updateModuleDeclaration(node, node.decorators, node.modifiers, factory.createIdentifier(binding), bodyContResult), node, options);
 		}
 	}
 
@@ -48,7 +46,7 @@ export function deconflictModuleDeclaration(options: DeconflicterVisitorOptions<
 	} else {
 		// Otherwise, deconflict it
 		const uniqueBinding = generateUniqueBinding(lexicalEnvironment, node.name.text);
-		nameContResult = compatFactory.createIdentifier(uniqueBinding);
+		nameContResult = factory.createIdentifier(uniqueBinding);
 		if (id != null) declarationToDeconflictedBindingMap.set(id, uniqueBinding);
 
 		// The name creates a new local binding within the current LexicalEnvironment
@@ -65,5 +63,5 @@ export function deconflictModuleDeclaration(options: DeconflicterVisitorOptions<
 		return node;
 	}
 
-	return preserveMeta(compatFactory.updateModuleDeclaration(node, node.decorators, node.modifiers, nameContResult, bodyContResult), node, options);
+	return preserveMeta(factory.updateModuleDeclaration(node, node.decorators, node.modifiers, nameContResult, bodyContResult), node, options);
 }

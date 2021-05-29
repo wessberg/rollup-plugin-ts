@@ -1,10 +1,10 @@
 import {GetResolvedIdWithCachingOptions} from "./get-resolved-id-with-caching-options";
 import {ExtendedResolvedModule} from "./extended-resolved-module";
-import {ensureAbsolute, isTslib, nativeNormalize, normalize, setExtension} from "../../../util/path/path-util";
-
+import {ensureAbsolute, isTslib, setExtension} from "../../../util/path/path-util";
 import {D_TS_EXTENSION, JS_EXTENSION} from "../../../constant/constant";
 import {FileSystem} from "../../../util/file-system/file-system";
 import {TS} from "../../../type/ts";
+import path from "crosspath";
 
 export interface ResolveCacheOptions {
 	fileSystem: FileSystem;
@@ -99,7 +99,7 @@ export class ResolveCache {
 		// Otherwise, proceed
 		else {
 			// Make sure that the path is absolute from the cwd
-			resolvedModule.resolvedFileName = normalize(ensureAbsolute(cwd, resolvedModule.resolvedFileName!));
+			resolvedModule.resolvedFileName = path.normalize(ensureAbsolute(cwd, resolvedModule.resolvedFileName!));
 
 			if (resolvedModule.resolvedFileName.endsWith(D_TS_EXTENSION)) {
 				resolvedModule.resolvedAmbientFileName = resolvedModule.resolvedFileName;
@@ -107,9 +107,9 @@ export class ResolveCache {
 				resolvedModule.extension = D_TS_EXTENSION as TS.Extension;
 
 				if (isTslib(id)) {
-					const candidate = normalize(setExtension(resolvedModule.resolvedAmbientFileName, `.es6${JS_EXTENSION}`));
+					const candidate = path.normalize(setExtension(resolvedModule.resolvedAmbientFileName, `.es6${JS_EXTENSION}`));
 
-					if (this.options.fileSystem.fileExists(nativeNormalize(candidate))) {
+					if (this.options.fileSystem.fileExists(path.native.normalize(candidate))) {
 						resolvedModule.resolvedFileName = candidate;
 					}
 				}
@@ -118,9 +118,9 @@ export class ResolveCache {
 				else if (resolvedModule.isExternalLibraryImport == null || !resolvedModule.isExternalLibraryImport) {
 					// Try to determine the resolved file name.
 					for (const extension of nonAmbientSupportedExtensions) {
-						const candidate = normalize(setExtension(resolvedModule.resolvedAmbientFileName, extension));
+						const candidate = path.normalize(setExtension(resolvedModule.resolvedAmbientFileName, extension));
 
-						if (this.options.fileSystem.fileExists(nativeNormalize(candidate))) {
+						if (this.options.fileSystem.fileExists(path.native.normalize(candidate))) {
 							resolvedModule.resolvedFileName = candidate;
 							break;
 						}
@@ -128,9 +128,9 @@ export class ResolveCache {
 				}
 			} else {
 				resolvedModule.resolvedAmbientFileName = undefined;
-				const candidate = normalize(setExtension(resolvedModule.resolvedFileName, D_TS_EXTENSION));
+				const candidate = path.normalize(setExtension(resolvedModule.resolvedFileName, D_TS_EXTENSION));
 
-				if (this.options.fileSystem.fileExists(nativeNormalize(candidate))) {
+				if (this.options.fileSystem.fileExists(path.native.normalize(candidate))) {
 					resolvedModule.resolvedAmbientFileName = candidate;
 				}
 			}

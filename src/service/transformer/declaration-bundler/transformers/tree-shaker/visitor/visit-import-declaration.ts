@@ -1,7 +1,7 @@
 import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
 import {TS} from "../../../../../../type/ts";
 
-export function visitImportDeclaration({node, continuation, compatFactory}: TreeShakerVisitorOptions<TS.ImportDeclaration>): TS.ImportDeclaration | undefined {
+export function visitImportDeclaration({node, continuation, factory}: TreeShakerVisitorOptions<TS.ImportDeclaration>): TS.ImportDeclaration | undefined {
 	if (node.importClause == null) return undefined;
 	const importClauseContinuationResult = continuation(node.importClause);
 
@@ -11,5 +11,5 @@ export function visitImportDeclaration({node, continuation, compatFactory}: Tree
 
 	return importClauseContinuationResult === node.importClause
 		? node
-		: compatFactory.updateImportDeclaration(node, node.decorators, node.modifiers, importClauseContinuationResult, node.moduleSpecifier);
+		: factory.updateImportDeclaration(node, node.decorators, node.modifiers, importClauseContinuationResult, node.moduleSpecifier);
 }

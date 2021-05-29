@@ -3,7 +3,8 @@ import {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options
 import {isOutputChunk} from "../../../util/is-output-chunk/is-output-chunk";
 import {getDeclarationOutDir} from "../../../util/get-declaration-out-dir/get-declaration-out-dir";
 import {getOutDir} from "../../../util/get-out-dir/get-out-dir";
-import {basename, dirname, join, nativeNormalize, relative, setExtension} from "../../../util/path/path-util";
+import {setExtension} from "../../../util/path/path-util";
+import path from "crosspath";
 import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, JS_EXTENSION} from "../../../constant/constant";
 import {bundleDeclarationsForChunk} from "./bundle-declarations-for-chunk";
 import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "../../transformer/declaration-bundler/transformers/reference/cache/reference-cache";
@@ -51,7 +52,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 	const normalizedChunks = chunks.map(chunk => normalizeChunk(chunk, {...options, relativeOutDir}));
 
 	const relativeDeclarationOutDir = getDeclarationOutDir(cwd, options.originalCompilerOptions, options.outputOptions);
-	const absoluteDeclarationOutDir = join(cwd, relativeDeclarationOutDir);
+	const absoluteDeclarationOutDir = path.join(cwd, relativeDeclarationOutDir);
 
 	const sourceFileToNodeToReferencedIdentifiersCache: SourceFileToNodeToReferencedIdentifiersCache = new Map();
 	const referenceCache: ReferenceCache = new Map();
@@ -68,9 +69,9 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 
 		if (result != null) {
 			virtualOutFile = preparePaths({
-				fileName: basename(result),
-				relativeOutDir: relative(cwd, dirname(result)),
-				absoluteOutDir: dirname(result)
+				fileName: path.basename(result),
+				relativeOutDir: path.relative(cwd, path.dirname(result)),
+				absoluteOutDir: path.dirname(result)
 			});
 		}
 	}
@@ -138,9 +139,9 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 
 			if (declarationResult != null) {
 				declarationPaths = preparePaths({
-					fileName: basename(declarationResult),
-					relativeOutDir: relative(cwd, dirname(declarationResult)),
-					absoluteOutDir: dirname(declarationResult)
+					fileName: path.basename(declarationResult),
+					relativeOutDir: path.relative(cwd, path.dirname(declarationResult)),
+					absoluteOutDir: path.dirname(declarationResult)
 				});
 			}
 
@@ -148,15 +149,15 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 				declarationMapPaths = {
 					// Don't allow diverging from the declaration paths.
 					// The two files must be placed together
-					fileName: basename(declarationMapResult),
-					relative: join(dirname(declarationPaths.relative), basename(declarationMapResult)),
-					absolute: join(dirname(declarationPaths.absolute), basename(declarationMapResult))
+					fileName: path.basename(declarationMapResult),
+					relative: path.join(path.dirname(declarationPaths.relative), path.basename(declarationMapResult)),
+					absolute: path.join(path.dirname(declarationPaths.absolute), path.basename(declarationMapResult))
 				};
 			}
 		}
 
-		const emitFileDeclarationFilename = relative(relativeOutDir, declarationPaths.relative);
-		const emitFileDeclarationMapFilename = relative(relativeOutDir, declarationMapPaths.relative);
+		const emitFileDeclarationFilename = path.relative(relativeOutDir, declarationPaths.relative);
+		const emitFileDeclarationMapFilename = path.relative(relativeOutDir, declarationMapPaths.relative);
 
 		// Rollup does not allow emitting files outside of the root of the whatever 'dist' directory that has been provided.
 		// Under such circumstances, unfortunately, we'll have to default to using whatever FileSystem was provided to write the files to disk
@@ -180,7 +181,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 		}
 
 		if (declarationNeedsFileSystem) {
-			options.host.getFileSystem().writeFile(nativeNormalize(declarationPaths.absolute), bundleResult.code);
+			options.host.getFileSystem().writeFile(path.native.normalize(declarationPaths.absolute), bundleResult.code);
 		}
 
 		// Otherwise, we can use Rollup, which is absolutely preferable
@@ -188,7 +189,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 			options.pluginContext.emitFile({
 				type: "asset",
 				source: bundleResult.code,
-				fileName: nativeNormalize(emitFileDeclarationFilename)
+				fileName: path.native.normalize(emitFileDeclarationFilename)
 			});
 		}
 
@@ -199,7 +200,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 			}
 
 			if (declarationMapNeedsFileSystem) {
-				options.host.getFileSystem().writeFile(nativeNormalize(declarationMapPaths.absolute), bundleResult.map.toString());
+				options.host.getFileSystem().writeFile(path.native.normalize(declarationMapPaths.absolute), bundleResult.map.toString());
 			}
 
 			// Otherwise, we can use Rollup, which is absolutely preferable
@@ -207,7 +208,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 				options.pluginContext.emitFile({
 					type: "asset",
 					source: bundleResult.map.toString(),
-					fileName: nativeNormalize(emitFileDeclarationMapFilename)
+					fileName: path.native.normalize(emitFileDeclarationMapFilename)
 				});
 			}
 		}

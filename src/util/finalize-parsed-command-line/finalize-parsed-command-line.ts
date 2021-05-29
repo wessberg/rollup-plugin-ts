@@ -1,7 +1,8 @@
 import {TS} from "../../type/ts";
-import {ensureAbsolute, join, parse, setExtension} from "../path/path-util";
+import {ensureAbsolute, setExtension} from "../path/path-util";
 import {TSBUILDINFO_EXTENSION} from "../../constant/constant";
 import {ParsedCommandLineResult} from "../get-parsed-command-line/parsed-command-line-result";
+import path from "crosspath";
 
 export interface FinalizeParsedCommandLineOptions {
 	cwd: string;
@@ -38,7 +39,7 @@ export function finalizeParsedCommandLine({
 			let tsBuildInfoAbsolutePath: string;
 			// Use outDir as the base directory
 			if (originalCompilerOptions.outDir != null) {
-				tsBuildInfoAbsolutePath = join(ensureAbsolute(cwd, originalCompilerOptions.outDir), `${parse(tsconfigPath).name}${TSBUILDINFO_EXTENSION}`);
+				tsBuildInfoAbsolutePath = path.join(ensureAbsolute(cwd, originalCompilerOptions.outDir), `${path.parse(tsconfigPath).name}${TSBUILDINFO_EXTENSION}`);
 			}
 
 			// Otherwise, use outFile but replace the extension
@@ -48,7 +49,7 @@ export function finalizeParsedCommandLine({
 
 			// Otherwise, use 'cwd' as the directory for the .tsbuildinfo file
 			else {
-				tsBuildInfoAbsolutePath = join(ensureAbsolute(cwd, `${parse(tsconfigPath).name}${TSBUILDINFO_EXTENSION}`));
+				tsBuildInfoAbsolutePath = path.join(ensureAbsolute(cwd, `${path.parse(tsconfigPath).name}${TSBUILDINFO_EXTENSION}`));
 			}
 
 			parsedCommandLine.options.tsBuildInfoFile = tsBuildInfoAbsolutePath;

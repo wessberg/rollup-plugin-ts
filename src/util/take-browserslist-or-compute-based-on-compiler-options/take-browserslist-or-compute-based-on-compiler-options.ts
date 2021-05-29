@@ -1,4 +1,4 @@
-import {browsersWithSupportForEcmaVersion} from "@wessberg/browserslist-generator";
+import {browsersWithSupportForEcmaVersion} from "browserslist-generator";
 import {getEcmaVersionForScriptTarget} from "../get-script-target-from-browserslist/get-script-target-from-browserslist";
 import {TS} from "../../type/ts";
 

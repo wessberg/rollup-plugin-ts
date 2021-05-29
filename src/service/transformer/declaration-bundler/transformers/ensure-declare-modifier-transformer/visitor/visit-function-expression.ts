@@ -4,13 +4,13 @@ import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {ensureHasDeclareModifier, hasDeclareModifier} from "../../../util/modifier-util";
 
 export function visitFunctionExpression(options: EnsureDeclareModifierTransformerVisitorOptions<TS.FunctionExpression>): TS.FunctionExpression {
-	const {node, compatFactory, typescript} = options;
+	const {node, factory, typescript} = options;
 	if (hasDeclareModifier(node, typescript)) return node;
 
 	return preserveMeta(
-		compatFactory.updateFunctionExpression(
+		factory.updateFunctionExpression(
 			node,
-			ensureHasDeclareModifier(node.modifiers, compatFactory, typescript),
+			ensureHasDeclareModifier(node.modifiers, factory, typescript),
 			node.asteriskToken,
 			node.name,
 			node.typeParameters,

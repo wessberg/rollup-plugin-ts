@@ -1,7 +1,8 @@
 import * as TSModule from "typescript";
 import {TypescriptPluginOptions} from "../../plugin/typescript-plugin-options";
 import {getRealFileSystem} from "../file-system/file-system";
-import {ensureAbsolute, normalize} from "../path/path-util";
+import {ensureAbsolute} from "../path/path-util";
+import path from "crosspath";
 
 /**
  * Gets normalized PluginOptions based on the given ones
@@ -12,7 +13,7 @@ export function getPluginOptions(options: Partial<TypescriptPluginOptions>): Typ
 		browserslist,
 		transpiler = "typescript",
 		typescript = TSModule,
-		cwd = normalize(process.cwd()),
+		cwd = path.normalize(process.cwd()),
 		tsconfig,
 		transformers,
 		include = [],

@@ -1,9 +1,8 @@
 import {TS} from "../../../../../../type/ts";
 import {StatementMergerVisitorOptions} from "../statement-merger-visitor-options";
-import {isNodeFactory} from "../../../util/is-node-factory";
 
 export function visitImportDeclaration(options: StatementMergerVisitorOptions<TS.ImportDeclaration>): TS.ImportDeclaration[] | TS.ImportDeclaration | undefined {
-	const {node, compatFactory, typescript} = options;
+	const {node, factory, typescript} = options;
 
 	// If the ModuleSpecifier is given and it isn't a string literal, leave it as it is
 	if (!typescript.isStringLiteralLike(node.moduleSpecifier)) {
@@ -35,13 +34,11 @@ export function visitImportDeclaration(options: StatementMergerVisitorOptions<TS
 	}
 
 	return [
-		compatFactory.updateImportDeclaration(
+		factory.updateImportDeclaration(
 			node,
 			node.decorators,
 			node.modifiers,
-			isNodeFactory(compatFactory)
-				? compatFactory.updateImportClause(node.importClause, first.importClause.isTypeOnly, first.importClause.name, first.importClause.namedBindings)
-				: compatFactory.updateImportClause(node.importClause, first.importClause.name, first.importClause.namedBindings, first.importClause.isTypeOnly),
+			factory.updateImportClause(node.importClause, first.importClause.isTypeOnly, first.importClause.name, first.importClause.namedBindings),
 			node.moduleSpecifier
 		),
 		...other

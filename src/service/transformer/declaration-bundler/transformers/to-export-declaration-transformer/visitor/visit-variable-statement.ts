@@ -4,10 +4,9 @@ import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-ex
 import {hasExportModifier} from "../../../util/modifier-util";
 import {traceIdentifiers} from "../../trace-identifiers/trace-identifiers";
 import {preserveParents, preserveSymbols} from "../../../util/clone-node-with-meta";
-import {isNodeFactory} from "../../../util/is-node-factory";
 
 export function visitVariableStatement(options: ToExportDeclarationTransformerVisitorOptions<TS.VariableStatement>): TS.VariableStatement {
-	const {node, compatFactory, typescript, appendNodes} = options;
+	const {node, factory, typescript, appendNodes} = options;
 	// If the node has no export modifier, leave it as it is
 	if (!hasExportModifier(node, typescript)) return node;
 
@@ -21,14 +20,7 @@ export function visitVariableStatement(options: ToExportDeclarationTransformerVi
 				modifiers: node.modifiers
 			});
 			// Append an ExportDeclaration
-			appendNodes(
-				preserveParents(
-					isNodeFactory(compatFactory)
-						? compatFactory.createExportDeclaration(undefined, undefined, false, compatFactory.createNamedExports([exportSpecifier]))
-						: compatFactory.createExportDeclaration(undefined, undefined, compatFactory.createNamedExports([exportSpecifier])),
-					{typescript}
-				)
-			);
+			appendNodes(preserveParents(factory.createExportDeclaration(undefined, undefined, false, factory.createNamedExports([exportSpecifier])), {typescript}));
 
 			const propertyName = exportSpecifier.propertyName ?? exportSpecifier.name;
 			preserveSymbols(propertyName, declaration, options);

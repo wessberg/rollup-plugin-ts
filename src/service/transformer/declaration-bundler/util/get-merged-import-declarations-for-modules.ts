@@ -1,12 +1,12 @@
 import {ensureHasLeadingDotAndPosix} from "../../../../util/path/path-util";
 import {TS} from "../../../../type/ts";
 import {preserveParents} from "./clone-node-with-meta";
-import {CompatFactory} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
-import {isNodeFactory} from "./is-node-factory";
+import {TransformerBaseOptions} from "../transformers/transformer-base-options";
 
 export type MergedImportDeclarationsMap = Map<string, TS.ImportDeclaration[]>;
 
-export function getMergedImportDeclarationsForModules(sourceFile: TS.SourceFile, compatFactory: CompatFactory, typescript: typeof TS): MergedImportDeclarationsMap {
+export function getMergedImportDeclarationsForModules(options: TransformerBaseOptions): MergedImportDeclarationsMap {
+	const {sourceFile, typescript, factory} = options;
 	const imports = sourceFile.statements.filter(typescript.isImportDeclaration);
 
 	const moduleToImportDeclarations: MergedImportDeclarationsMap = new Map();
@@ -87,13 +87,11 @@ export function getMergedImportDeclarationsForModules(sourceFile: TS.SourceFile,
 		for (const name of names) {
 			importDeclarationsForModule.push(
 				preserveParents(
-					compatFactory.createImportDeclaration(
+					factory.createImportDeclaration(
 						undefined,
 						undefined,
-						isNodeFactory(compatFactory)
-							? compatFactory.createImportClause(false, compatFactory.createIdentifier(name), undefined)
-							: compatFactory.createImportClause(compatFactory.createIdentifier(name), undefined, false),
-						compatFactory.createStringLiteral(ensureHasLeadingDotAndPosix(module))
+						factory.createImportClause(false, factory.createIdentifier(name), undefined),
+						factory.createStringLiteral(ensureHasLeadingDotAndPosix(module))
 					),
 					{typescript}
 				)
@@ -112,13 +110,11 @@ export function getMergedImportDeclarationsForModules(sourceFile: TS.SourceFile,
 		for (const name of names) {
 			importDeclarationsForModule.push(
 				preserveParents(
-					compatFactory.createImportDeclaration(
+					factory.createImportDeclaration(
 						undefined,
 						undefined,
-						isNodeFactory(compatFactory)
-							? compatFactory.createImportClause(false, undefined, compatFactory.createNamespaceImport(compatFactory.createIdentifier(name)))
-							: compatFactory.createImportClause(undefined, compatFactory.createNamespaceImport(compatFactory.createIdentifier(name)), false),
-						compatFactory.createStringLiteral(ensureHasLeadingDotAndPosix(module))
+						factory.createImportClause(false, undefined, factory.createNamespaceImport(factory.createIdentifier(name))),
+						factory.createStringLiteral(ensureHasLeadingDotAndPosix(module))
 					),
 					{typescript}
 				)
@@ -140,33 +136,21 @@ export function getMergedImportDeclarationsForModules(sourceFile: TS.SourceFile,
 
 			importDeclarationsForModule.push(
 				preserveParents(
-					compatFactory.createImportDeclaration(
+					factory.createImportDeclaration(
 						undefined,
 						undefined,
-						isNodeFactory(compatFactory)
-							? compatFactory.createImportClause(
-									false,
-									undefined,
-									compatFactory.createNamedImports(
-										collection.map(record =>
-											record.propertyName !== record.alias
-												? compatFactory.createImportSpecifier(compatFactory.createIdentifier(record.propertyName), compatFactory.createIdentifier(record.alias))
-												: compatFactory.createImportSpecifier(undefined, compatFactory.createIdentifier(record.alias))
-										)
-									)
-							  )
-							: compatFactory.createImportClause(
-									undefined,
-									compatFactory.createNamedImports(
-										collection.map(record =>
-											record.propertyName !== record.alias
-												? compatFactory.createImportSpecifier(compatFactory.createIdentifier(record.propertyName), compatFactory.createIdentifier(record.alias))
-												: compatFactory.createImportSpecifier(undefined, compatFactory.createIdentifier(record.alias))
-										)
-									),
-									false
-							  ),
-						compatFactory.createStringLiteral(ensureHasLeadingDotAndPosix(module))
+						factory.createImportClause(
+							false,
+							undefined,
+							factory.createNamedImports(
+								collection.map(record =>
+									record.propertyName !== record.alias
+										? factory.createImportSpecifier(factory.createIdentifier(record.propertyName), factory.createIdentifier(record.alias))
+										: factory.createImportSpecifier(undefined, factory.createIdentifier(record.alias))
+								)
+							)
+						),
+						factory.createStringLiteral(ensureHasLeadingDotAndPosix(module))
 					),
 					{typescript}
 				)
