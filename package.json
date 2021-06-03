@@ -17,7 +17,7 @@
 		"rollup": "ts-node rollup.config.ts",
 		"preversion": "npm run lint && pnpm run build",
 		"version": "pnpm run preversion && pnpm run generate:all && git add .",
-		"release": "np --no-cleanup --no-yarn",
+		"release": "np --no-cleanup --no-yarn --no-tests",
 		"update:check": "pnpx npm-check-updates -x typescript-* --dep dev,prod",
 		"update:commit": "pnpx npm-check-updates -u -x typescript-* --dep dev,prod && pnpm update && pnpm install"
 	},
