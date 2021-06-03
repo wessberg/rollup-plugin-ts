@@ -6,11 +6,10 @@ import type {TS} from "../../src/type/ts";
 // ava macros
 export interface ExtendedImplementationArgumentOptions {
 	typescript: typeof TS;
-	typescriptModuleSpecifier: string;
 }
 export type ExtendedImplementation = (t: ExecutionContext, options: ExtendedImplementationArgumentOptions) => void | Promise<void>;
 function makeTypeScriptMacro(version: string, specifier: string) {
-	const macro: Macro<[ExtendedImplementation]> = async (t, impl) => impl(t, {typescript: await import(specifier), typescriptModuleSpecifier: specifier});
+	const macro: Macro<[ExtendedImplementation]> = async (t, impl) => impl(t, {typescript: await import(specifier)});
 	macro.title = (provided = "") => `${provided} (TypeScript v${version})`;
 
 	return macro;

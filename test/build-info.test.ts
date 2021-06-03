@@ -17,7 +17,7 @@ test("Can generate .tsbuildinfo for a compilation unit. #1", withTypeScript, asy
 			debug: false,
 			typescript,
 			tsconfig: {
-				outDir: "virtual-dist",
+				outDir: "dist",
 				composite: true,
 				incremental: true,
 				declaration: true
@@ -44,7 +44,7 @@ test("Won't break for older TypeScript versions. #1", withTypeScript, async (t, 
 				debug: false,
 				typescript,
 				tsconfig: {
-					outDir: "virtual-dist",
+					outDir: "dist",
 					composite: true,
 					declaration: true
 				}
@@ -54,7 +54,7 @@ test("Won't break for older TypeScript versions. #1", withTypeScript, async (t, 
 	);
 });
 
-test("Can generate .tsbuildinfo for a compilation unit. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Can generate .tsbuildinfo for a compilation unit. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -77,9 +77,10 @@ test("Can generate .tsbuildinfo for a compilation unit. #2", withTypeScript, asy
 				text: `\
 					{
 						"compilerOptions": {
-							"outDir": "virtual-dist",
+							"outDir": "dist",
 							"composite": true,
-							"declaration": true
+							"declaration": true,
+							"lib": ["esnext"]
 						},
 						"include": [
 							"./source/**/*"

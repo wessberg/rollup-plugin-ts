@@ -9,7 +9,7 @@ test("Integrates with @rollup/plugin-alias without problems. #1", withTypeScript
 		[
 			{
 				entry: true,
-				fileName: "virtual-src/index.ts",
+				fileName: "src/index.ts",
 				text: `\
 					import { Foo } from '@src/foo';
 					export const singleton = new Foo();
@@ -17,7 +17,7 @@ test("Integrates with @rollup/plugin-alias without problems. #1", withTypeScript
 			},
 			{
 				entry: false,
-				fileName: "virtual-src/foo.ts",
+				fileName: "src/foo.ts",
 				text: `\
 					export class Foo {
 						public bar(): void {
@@ -33,19 +33,19 @@ test("Integrates with @rollup/plugin-alias without problems. #1", withTypeScript
 					{
 						"extends": "../tsconfig.base.json",
 						"compilerOptions": {
-							"outDir": "./virtual-dist",
-							"rootDirs": [ "./virtual-src" ],
+							"outDir": "./dist",
+							"rootDirs": [ "./src" ],
 							"baseUrl": ".",
 							"paths": {
-								"@src/*": [ "./virtual-src/*" ]
+								"@src/*": [ "./src/*" ]
 							}
 						},
 						"include": [
-							"./virtual-src/**/*"
+							"./src/**/*"
 						],
 						"exclude": [
 							"./node_modules",
-							"./virtual-dist"
+							"./dist"
 						]
 					}
 				`
@@ -89,7 +89,7 @@ test("Integrates with @rollup/plugin-alias without problems. #1", withTypeScript
 			prePlugins: [
 				alias({
 					resolve: [".js", ".ts", ""],
-					entries: [{find: "@src", replacement: "virtual-src"}]
+					entries: [{find: "@src", replacement: "src"}]
 				})
 			]
 		}

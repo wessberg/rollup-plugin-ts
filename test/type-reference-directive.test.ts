@@ -2,10 +2,12 @@ import test from "ava";
 import {withTypeScript} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
+import {createBuiltInModuleTestFiles, createExternalTestFiles} from "./setup/test-file";
 
 test("Detects type reference directives and respects tree-shaking and code-splitting. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createBuiltInModuleTestFiles("fs"),
 			{
 				entry: true,
 				fileName: "index.ts",
@@ -42,6 +44,7 @@ test("Detects type reference directives and respects tree-shaking and code-split
 test("Detects type reference directives and respects tree-shaking and code-splitting. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createBuiltInModuleTestFiles("globals"),
 			{
 				entry: true,
 				fileName: "index.ts",
@@ -71,6 +74,7 @@ test("Detects type reference directives and respects tree-shaking and code-split
 test("Detects type reference directives and respects tree-shaking and code-splitting. #3", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createBuiltInModuleTestFiles("fs"),
 			{
 				entry: true,
 				fileName: "index.ts",
@@ -102,16 +106,22 @@ test("Detects type reference directives and respects tree-shaking and code-split
 	);
 });
 
-test("Detects type reference directives and respects tree-shaking and code-splitting. #4", withTypeScript, async (t, {typescript}) => {
+test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #4", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createExternalTestFiles(
+				"my-library",
+				`\
+				export function foo (): void;
+				`
+			),
 			{
 				entry: true,
 				fileName: "index.ts",
 				text: `\
-					import {format} from "prettier";
+					import {foo} from "my-library";
 					export interface IFoo {
-						foo: typeof format;
+						foo: typeof foo;
 					}
 					`
 			}
@@ -127,9 +137,9 @@ test("Detects type reference directives and respects tree-shaking and code-split
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			import {format} from "prettier";
+			import {foo} from "my-library";
 			interface IFoo {
-					foo: typeof format;
+					foo: typeof foo;
 			}
 			export { IFoo };
 		`)
@@ -171,12 +181,18 @@ test("Detects type reference directives and respects tree-shaking and code-split
 test("Detects type reference directives and respects tree-shaking and code-splitting. #6", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createExternalTestFiles(
+				"my-library",
+				`\
+				export type Foo = 2;
+				`
+			),
 			{
 				entry: true,
 				fileName: "index.ts",
 				text: `\
-					import {SemVer} from "semver";
-					export type Foo = SemVer;
+					import {Foo} from "my-library";
+					export type Bar = Foo;
 					`
 			}
 		],
@@ -191,9 +207,9 @@ test("Detects type reference directives and respects tree-shaking and code-split
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			import {SemVer} from "semver";
-			type Foo = SemVer;
-			export {Foo};
+			import {Foo} from "my-library";
+			type Bar = Foo;
+			export {Bar};
 		`)
 	);
 });

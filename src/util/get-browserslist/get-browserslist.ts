@@ -52,6 +52,7 @@ export function getBrowserslist({browserslist, cwd, fileSystem}: GetBrowserslist
 		else if (isBrowserslistPathConfig(browserslist)) {
 			const browserslistPath = ensureAbsolute(cwd, browserslist.path);
 			const errorMessage = `The given path for a Browserslist: '${browserslistPath}' could not be resolved from '${cwd}'`;
+
 			if (!fileSystem.fileExists(path.native.normalize(browserslistPath))) {
 				throw new ReferenceError(errorMessage);
 			} else {

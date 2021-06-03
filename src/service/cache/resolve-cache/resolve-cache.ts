@@ -2,12 +2,11 @@ import {GetResolvedIdWithCachingOptions} from "./get-resolved-id-with-caching-op
 import {ExtendedResolvedModule} from "./extended-resolved-module";
 import {ensureAbsolute, isTslib, setExtension} from "../../../util/path/path-util";
 import {D_TS_EXTENSION, JS_EXTENSION} from "../../../constant/constant";
-import {FileSystem} from "../../../util/file-system/file-system";
 import {TS} from "../../../type/ts";
 import path from "crosspath";
 
 export interface ResolveCacheOptions {
-	fileSystem: FileSystem;
+	fileSystem: TS.System;
 }
 
 /**

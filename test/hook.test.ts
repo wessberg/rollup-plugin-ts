@@ -3,8 +3,9 @@ import {withTypeScript} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {DeclarationStats} from "../src/type/declaration-stats";
+import {createBuiltInModuleTestFiles, createExternalTestFiles} from "./setup/test-file";
 
-test("Declarations respect rewritten output paths. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Declarations respect rewritten output paths. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -49,7 +50,7 @@ test("Declarations respect rewritten output paths. #1", withTypeScript, async (t
 	);
 });
 
-test("Diagnostics can be filtered with the 'diagnostics' hook. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Diagnostics can be filtered with the 'diagnostics' hook. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -80,17 +81,19 @@ test("Diagnostics can be filtered with the 'diagnostics' hook. #1", withTypeScri
 	);
 });
 
-test("External types can be retrieved with the 'declarationStats' hook. #1", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
+test.serial("External types can be retrieved with the 'declarationStats' hook. #1", withTypeScript, async (t, {typescript}) => {
 	let stats: DeclarationStats | undefined;
 
 	await generateRollupBundle(
 		[
+			...createBuiltInModuleTestFiles("globals"),
+			...createExternalTestFiles("my-library", `export declare class Foo {}`),
 			{
 				entry: true,
 				fileName: "index.ts",
 				text: `\
-					import {SyntaxKind} from "${typescriptModuleSpecifier}";
-					export const foo = SyntaxKind;
+					import {Foo} from "my-library";
+					export const foo = Foo;
 					export const bar = Buffer.from("");
 					`
 			}
@@ -106,7 +109,7 @@ test("External types can be retrieved with the 'declarationStats' hook. #1", wit
 	t.true(stats != null);
 	t.true(stats?.["index.d.ts"].externalTypes != null);
 	t.true(stats?.["index.d.ts"].externalTypes[0] != null);
-	t.true(stats?.["index.d.ts"].externalTypes[0].library === "typescript");
+	t.true(stats?.["index.d.ts"].externalTypes[0].library === "my-library");
 	t.true(stats?.["index.d.ts"].externalTypes[1] != null);
 	t.true(stats?.["index.d.ts"].externalTypes[1].library === "@types/node");
 });

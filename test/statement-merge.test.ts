@@ -2,6 +2,7 @@ import test from "ava";
 import {withTypeScript} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
+import {createExternalTestFiles} from "./setup/test-file";
 
 test.serial("Merges identical statements correctly. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
@@ -114,14 +115,20 @@ test.serial("Merges identical statements correctly. #2", withTypeScript, async (
 test.serial("Merges identical statements correctly. #3", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createExternalTestFiles(
+				"my-library",
+				`\
+				export declare class MyClass {}
+				`
+			),
 			{
 				entry: true,
 				fileName: "index.ts",
 				text: `\
-          import {BuiltInParser} from './bar';
+          import {MyClass} from './bar';
 					import {Bar} from "./bar";
           export interface Foo extends Bar {
-            x: BuiltInParser;
+            x: MyClass;
           }
 					`
 			},
@@ -129,7 +136,7 @@ test.serial("Merges identical statements correctly. #3", withTypeScript, async (
 				entry: false,
 				fileName: "bar.ts",
 				text: `\
-          export {BuiltInParser} from 'prettier';
+          export {MyClass} from 'my-library';
 					export interface Bar {
 						a: string;
 					}
@@ -149,12 +156,12 @@ test.serial("Merges identical statements correctly. #3", withTypeScript, async (
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			import { BuiltInParser } from "prettier";
+			import { MyClass } from "my-library";
 			interface Bar {
 				a: string;
 			}
 			interface Foo extends Bar {
-				x: BuiltInParser;
+				x: MyClass;
 			}
 			export {Foo};
 		`)

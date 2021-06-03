@@ -37,11 +37,13 @@ test("Can generate declarations for a virtual entry file using @rollup/plugin-mu
 			[
 				{
 					entry: false,
-					fileName: unlinkerA.path
+					fileName: unlinkerA.path,
+					text: ""
 				},
 				{
 					entry: false,
-					fileName: unlinkerB.path
+					fileName: unlinkerB.path,
+					text: ""
 				}
 			],
 			{

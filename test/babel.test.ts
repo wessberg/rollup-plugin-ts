@@ -5,6 +5,7 @@ import {generateRollupBundle} from "./setup/setup-rollup";
 import {BABEL_CONFIG_JS_FILENAME, BABEL_CONFIG_JSON_FILENAME, BABELRC_FILENAME} from "../src/constant/constant";
 import {areTempFilesEqual, createTemporaryFile} from "./util/create-temporary-file";
 import {getAppropriateEcmaVersionForBrowserslist} from "browserslist-generator";
+import {formatCode} from "./util/format-code";
 
 const handlePotentiallyAllowedFailingBabelError = (t: ExecutionContext, ex: Error): boolean => {
 	if (ex.message.startsWith("Multiple configuration files found. Please remove one")) {
@@ -16,7 +17,7 @@ const handlePotentiallyAllowedFailingBabelError = (t: ExecutionContext, ex: Erro
 	}
 };
 
-test.serial("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usage' option. #1", withTypeScript, async (t, {typescript}) => {
+test("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usage' option. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -52,7 +53,14 @@ test.serial("Doesn't break when combining @babel/preset-env with the useBuiltins
 	const {
 		js: [file]
 	} = bundle;
-	t.true(file.code.includes(`addToUnscopables('includes')`));
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		import 'core-js/modules/es.array.includes.js';
+		
+		console.log([].includes(2));
+		`)
+	);
 });
 
 test.serial("Can resolve the nearest project-wide babel config. #1", withTypeScript, async (t, {typescript}) => {

@@ -24,7 +24,6 @@ test("Won't inline modules marked as external. #1", withTypeScript, async (t, {t
 		{
 			typescript,
 			debug: false,
-			dir: "virtual-dist",
 			rollupOptions: {
 				external: () => true
 			}

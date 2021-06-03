@@ -8,7 +8,7 @@ test("Correctly parse TypeScript config files within sub-directories. #1", withT
 		[
 			{
 				entry: true,
-				fileName: "virtual-src/index.ts",
+				fileName: "src/index.ts",
 				text: `\
 					export function noop(): void {}
 				`
@@ -23,8 +23,8 @@ test("Correctly parse TypeScript config files within sub-directories. #1", withT
 							"module": "esnext",
 							"moduleResolution": "node",
 							"baseUrl": "../",
-							"rootDir": "../virtual-src",
-							"outDir": "../virtual-dist",
+							"rootDir": "../src",
+							"outDir": "../dist",
 							"declaration": true,
 							"declarationMap": true,
 							"listEmittedFiles": true,
@@ -37,11 +37,11 @@ test("Correctly parse TypeScript config files within sub-directories. #1", withT
 							"strict": true
 						},
 						"include": [
-							"../virtual-src/**/*.ts"
+							"../src/**/*.ts"
 						],
 						"exclude": [
 							"../node_modules",
-							"../virtual-dist"
+							"../dist"
 						]
 					}
 				`
@@ -73,7 +73,7 @@ test("Correctly parse TypeScript config files within sub-directories. #2", withT
 		[
 			{
 				entry: true,
-				fileName: "virtual-src/index.ts",
+				fileName: "src/index.ts",
 				text: `\
 					export function noop(): void {}
 				`
@@ -85,11 +85,11 @@ test("Correctly parse TypeScript config files within sub-directories. #2", withT
 					{
 						"extends": "./tsconfig.base.json",
 						"compilerOptions": {
-							"rootDir": "../virtual-src",
-							"outDir": "../virtual-dist"
+							"rootDir": "../src",
+							"outDir": "../dist"
 						},
 						"include": [
-							"../virtual-src/**/*.ts"
+							"../src/**/*.ts"
 						]
 					}
 				`
@@ -117,7 +117,7 @@ test("Correctly parse TypeScript config files within sub-directories. #2", withT
 						},
 						"exclude": [
 							"../node_modules",
-							"../virtual-dist"
+							"../dist"
 						]
 					}
 				`

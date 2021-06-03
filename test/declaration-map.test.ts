@@ -2,13 +2,14 @@ import test from "ava";
 import {withTypeScript} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
+import {createExternalTestFiles} from "./setup/test-file";
 
-test("Declaration maps correctly maps input sources. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Declaration maps correctly maps input sources. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
 				entry: true,
-				fileName: "virtual-src/main.ts",
+				fileName: "src/main.ts",
 				text: `\
 					import {Foo, Bar} from "./foo";
 					export {Foo};
@@ -17,7 +18,7 @@ test("Declaration maps correctly maps input sources. #1", withTypeScript, async 
 			},
 			{
 				entry: false,
-				fileName: "virtual-src/foo.ts",
+				fileName: "src/foo.ts",
 				text: `\
 					export const Foo = "Hello, World!";
 					export const Bar = 2;
@@ -26,8 +27,8 @@ test("Declaration maps correctly maps input sources. #1", withTypeScript, async 
 		],
 		{
 			typescript,
+			dist: "dist",
 			debug: false,
-			dir: "virtual-dist",
 			tsconfig: {declarationMap: true}
 		}
 	);
@@ -52,7 +53,7 @@ test("Declaration maps correctly maps input sources. #1", withTypeScript, async 
 		formatCode(map.code, "json"),
 		formatCode(
 			`\
-		{"version":3,"file":"main.d.ts","sourceRoot":"","sources":["../virtual-src/main.ts", "../virtual-src/foo.ts"],"names":[],"mappings":";;AACK,OAAO,YAAK,CAAC"}
+		{"version":3,"file":"main.d.ts","sourceRoot":"","sources":["../src/main.ts", "../src/foo.ts"],"names":[],"mappings":";;AACK,OAAO,YAAK,CAAC"}
 		`,
 			"json"
 		)
@@ -143,9 +144,10 @@ test("Declaration maps respect rewritten output paths. #1", withTypeScript, asyn
 	);
 });
 
-test("Declaration maps respect rewritten output paths. #2", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
+test.serial("Declaration maps respect rewritten output paths. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createExternalTestFiles("my-library", `export type Bar = string;`),
 			{
 				entry: true,
 				fileName: "index.ts",
@@ -165,7 +167,7 @@ test("Declaration maps respect rewritten output paths. #2", withTypeScript, asyn
 				fileName: "bar.ts",
 				text: `\
 					export * from "./bar";
-					export {SyntaxKind as Foo} from "${typescriptModuleSpecifier}";
+					export {Bar as Foo} from "my-library";
 					`
 			}
 		],
@@ -191,7 +193,7 @@ test("Declaration maps respect rewritten output paths. #2", withTypeScript, asyn
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		export { SyntaxKind as Foo } from "${typescriptModuleSpecifier}";
+		export { Bar as Foo } from "my-library";
 		//# sourceMappingURL=index-rewritten.d.ts.map
 		`)
 	);

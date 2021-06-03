@@ -1,5 +1,4 @@
 import {CustomTransformersFunction} from "../util/merge-transformers/custom-transformer-options";
-import {FileSystem} from "../util/file-system/file-system";
 import {TS} from "../type/ts";
 import {TransformOptions} from "@babel/core";
 import {DeclarationStats} from "../type/declaration-stats";
@@ -81,7 +80,7 @@ export interface TypescriptPluginBaseOptions {
 	include: string[] | string;
 	exclude: string[] | string;
 	transpileOnly?: boolean;
-	fileSystem: FileSystem;
+	fileSystem: TS.System;
 	hook: Partial<HookRecord>;
 	debug: boolean | DebugOptionCallback;
 	typescript: typeof TS;

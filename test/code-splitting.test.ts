@@ -4,7 +4,7 @@ import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {stripKnownExtension} from "../src/util/path/path-util";
 
-test.serial("Declaration bundling supports code splitting. #1", withTypeScript, async (t, {typescript}) => {
+test("Declaration bundling supports code splitting. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -237,14 +237,14 @@ test.serial("Declaration bundling supports code splitting. #4", withTypeScript, 
 		[
 			{
 				entry: true,
-				fileName: "virtual-src/api.ts",
+				fileName: "src/api.ts",
 				text: `\
 				export {Foo} from "./foo";
 			`
 			},
 			{
 				entry: true,
-				fileName: "virtual-src/cli/cli.ts",
+				fileName: "src/cli/cli.ts",
 				text: `\
 				import "../foo";
 				console.log(true);
@@ -252,7 +252,7 @@ test.serial("Declaration bundling supports code splitting. #4", withTypeScript, 
 			},
 			{
 				entry: false,
-				fileName: "virtual-src/foo.ts",
+				fileName: "src/foo.ts",
 				text: `\
 				export type Foo = string;
 			`

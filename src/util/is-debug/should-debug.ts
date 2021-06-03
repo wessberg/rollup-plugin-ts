@@ -43,6 +43,6 @@ export function shouldDebugTsconfig(debug: TypescriptPluginOptions["debug"]): bo
 	);
 }
 
-export function shouldDebugVirtualFiles(debug: TypescriptPluginOptions["debug"]): boolean {
+export function shouldDebugVirtualFiles(debug: TypescriptPluginOptions["debug"] | undefined): boolean {
 	return debug != null && debug !== false;
 }

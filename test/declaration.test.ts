@@ -2,6 +2,7 @@ import test from "ava";
 import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
+import {createExternalTestFiles} from "./setup/test-file";
 
 test.serial("Flattens declarations. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
@@ -12,6 +13,8 @@ test.serial("Flattens declarations. #1", withTypeScript, async (t, {typescript})
 				text: `\
 					import {Bar} from "./bar";
 					export interface Foo extends Bar {}
+					
+					const foo = new Promise<void>(resolve => resolve());
 					`
 			},
 			{
@@ -548,7 +551,7 @@ test.serial("Flattens declarations. #14", withTypeScriptVersions(">=3.5"), async
 		[
 			{
 				entry: true,
-				fileName: "virtual-src/components/generated.ts",
+				fileName: "src/components/generated.ts",
 				text: `\
         export const WebGLMultisampleRenderTarget = {} as unknown as import("..").Overwrite<Partial<string>, number>;
 				console.log(WebGLMultisampleRenderTarget);
@@ -556,7 +559,7 @@ test.serial("Flattens declarations. #14", withTypeScriptVersions(">=3.5"), async
 			},
 			{
 				entry: false,
-				fileName: "virtual-src/index.ts",
+				fileName: "src/index.ts",
 				text: `\
         export type NonFunctionKeys<T> = {
 						[K in keyof T]: T[K] extends Function ? never : K;
@@ -590,17 +593,23 @@ test.serial("Flattens declarations. #14", withTypeScriptVersions(">=3.5"), async
 test.serial("Flattens declarations. #15", withTypeScriptVersions(">=3.5"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createExternalTestFiles(
+				"my-library",
+				`export interface Foo<T> {
+					bar: T;
+				}`
+			),
 			{
 				entry: true,
-				fileName: "virtual-src/components/generated.ts",
+				fileName: "src/components/generated.ts",
 				text: `\
-        export const WebGLMultisampleRenderTarget = {} as unknown as import("typescript").NodeArray<import("..").Overwrite<Partial<string>, number>>;
+        export const WebGLMultisampleRenderTarget = {} as unknown as import("my-library").Foo<import("..").Overwrite<Partial<string>, number>>;
 				console.log(WebGLMultisampleRenderTarget);
 			`
 			},
 			{
 				entry: false,
-				fileName: "virtual-src/index.ts",
+				fileName: "src/index.ts",
 				text: `\
         export type NonFunctionKeys<T> = {
 						[K in keyof T]: T[K] extends Function ? never : K;
@@ -625,7 +634,7 @@ test.serial("Flattens declarations. #15", withTypeScriptVersions(">=3.5"), async
 				[K in keyof T]: T[K] extends Function ? never : K;
 		}[keyof T];
 		type Overwrite<T, O> = Omit<T, NonFunctionKeys<O>> & O;
-		declare const WebGLMultisampleRenderTarget: import("typescript").NodeArray<Overwrite<string, number>>;
+		declare const WebGLMultisampleRenderTarget: import("my-library").Foo<Overwrite<string, number>>;
 		export { WebGLMultisampleRenderTarget };
 		`)
 	);
@@ -636,7 +645,7 @@ test("Flattens declarations. #16", withTypeScript, async (t, {typescript}) => {
 		[
 			{
 				entry: true,
-				fileName: "virtual-src/index.ts",
+				fileName: "src/index.ts",
 				text: `\
         import * as OtherModule from "./foo";
 
@@ -647,14 +656,14 @@ test("Flattens declarations. #16", withTypeScript, async (t, {typescript}) => {
 			},
 			{
 				entry: false,
-				fileName: "virtual-src/foo.ts",
+				fileName: "src/foo.ts",
 				text: `\
         export {Foo as F} from './bar';
 			`
 			},
 			{
 				entry: false,
-				fileName: "virtual-src/bar.ts",
+				fileName: "src/bar.ts",
 				text: `\
 				export class Foo {}
 			`
@@ -761,7 +770,7 @@ test.serial("Flattens declarations. #19", withTypeScriptVersions(">=4.1"), async
 		[
 			{
 				entry: true,
-				fileName: "virtual-src/index.ts",
+				fileName: "src/index.ts",
 				text: `\
         type World = "hello";
         export type HelloWorld = \`hello \${World}\`;`

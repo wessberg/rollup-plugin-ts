@@ -2,10 +2,12 @@ import test from "ava";
 import {withTypeScript} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
+import {createBuiltInModuleTestFiles} from "./setup/test-file";
 
 test("Is still capable of resolving SourceFiles when needed for when a file path is matched by the 'exclude' glob. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createBuiltInModuleTestFiles("globals"),
 			{
 				entry: true,
 				fileName: "index.ts",

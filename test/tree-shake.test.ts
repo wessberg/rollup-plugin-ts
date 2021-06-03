@@ -2,16 +2,24 @@ import test from "ava";
 import {withTypeScript} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
+import {createExternalTestFiles} from "./setup/test-file";
 
-test.serial("Tree-shakes correctly. #1", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
+test.serial("Tree-shakes correctly. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createExternalTestFiles(
+				"my-library",
+				`\
+				export enum Foo {}
+				export enum Bar {}
+				`
+			),
 			{
 				entry: true,
 				fileName: "index.ts",
 				text: `\
-					import {SyntaxKind, EmitHint} from "${typescriptModuleSpecifier}";
-					export type Baz = SyntaxKind;
+					import {Foo, Bar} from "my-library";
+					export type Baz = Foo;
 					`
 			}
 		],
@@ -26,8 +34,8 @@ test.serial("Tree-shakes correctly. #1", withTypeScript, async (t, {typescript, 
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		import {SyntaxKind} from "${typescriptModuleSpecifier}";
-		type Baz = SyntaxKind;
+		import {Foo} from "my-library";
+		type Baz = Foo;
 		export {Baz};
 		`)
 	);

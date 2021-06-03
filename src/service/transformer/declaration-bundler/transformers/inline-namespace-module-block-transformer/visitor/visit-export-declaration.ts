@@ -32,7 +32,9 @@ export function visitExportDeclaration(options: InlineNamespaceModuleBlockVisito
 		const originalSourceFile = getOriginalSourceFile(node, sourceFile, typescript);
 
 		const exportedBindings = [...((resolvedSourceFile as {symbol?: {exports?: Map<string, unknown>}}).symbol?.exports?.keys() ?? [])].map(binding =>
-			isIdentifierFree(lexicalEnvironment, binding, originalSourceFile.fileName) ? [binding, binding] : [binding, generateUniqueBinding(lexicalEnvironment, binding)]
+			binding !== "default" && isIdentifierFree(lexicalEnvironment, binding, originalSourceFile.fileName)
+				? [binding, binding]
+				: [binding, generateUniqueBinding(lexicalEnvironment, binding === "default" ? "_default" : binding)]
 		);
 
 		const namedImports = factory.createNamedImports(

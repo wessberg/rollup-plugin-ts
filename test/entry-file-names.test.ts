@@ -42,7 +42,6 @@ test("Supports rewritten paths with entryFileNames and chunkFileNames. #1", with
 		{
 			typescript,
 			debug: false,
-			dir: ".",
 			chunkFileNames: "shared/[name].js",
 			entryFileNames: "[name]/index.js"
 		}

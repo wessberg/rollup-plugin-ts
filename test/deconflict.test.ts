@@ -2,6 +2,7 @@ import test from "ava";
 import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
+import {createBuiltInModuleTestFiles, createExternalTestFiles} from "./setup/test-file";
 
 test.serial("Deconflicts symbols. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
@@ -401,15 +402,16 @@ test.serial("Deconflicts symbols. #7", withTypeScript, async (t, {typescript}) =
 	);
 });
 
-test.serial("Deconflicts symbols. #8", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
+test.serial("Deconflicts symbols. #8", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createExternalTestFiles("my-library", `export type Foo = string;`),
 			{
 				entry: true,
 				fileName: "index.ts",
 				text: `\
-					import {TS} from "./bar";
-          export function foo<T extends TS.Node> (): void {
+					import {NS} from "./bar";
+          export function foo<T extends NS.Foo> (): void {
           }
 					`
 			},
@@ -417,8 +419,8 @@ test.serial("Deconflicts symbols. #8", withTypeScript, async (t, {typescript, ty
 				entry: false,
 				fileName: "bar.ts",
 				text: `\
-          import * as TS from "${typescriptModuleSpecifier}";
-          export {TS};
+          import * as NS from "my-library";
+          export {NS};
 					`
 			}
 		],
@@ -434,8 +436,8 @@ test.serial("Deconflicts symbols. #8", withTypeScript, async (t, {typescript, ty
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		import * as TS from "${typescriptModuleSpecifier}";
-		declare function foo<T extends TS.Node>(): void;
+		import * as NS from "my-library";
+		declare function foo<T extends NS.Foo>(): void;
 		export { foo };
 		`)
 	);
@@ -571,14 +573,15 @@ test.serial("Deconflicts symbols. #10", withTypeScript, async (t, {typescript}) 
 	);
 });
 
-test.serial("Deconflicts symbols. #11", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
+test.serial("Deconflicts symbols. #11", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createExternalTestFiles("my-library", `export declare class MyClass {}`),
 			{
 				entry: true,
 				fileName: "index.ts",
 				text: `\
-					export {ModuleResolutionHost} from "./a";
+					export {MyClass} from "./a";
 					export {Bar} from "./b";
 					`
 			},
@@ -586,9 +589,9 @@ test.serial("Deconflicts symbols. #11", withTypeScript, async (t, {typescript, t
 				entry: false,
 				fileName: "a.ts",
 				text: `\
-					import {ModuleResolutionHost as TSModuleResolutionHost} from "${typescriptModuleSpecifier}";
+					import {MyClass as ExternalMyClass} from "my-library";
 
-					export class ModuleResolutionHost implements TSModuleResolutionHost {
+					export class MyClass implements ExternalMyClass {
 						fileExists(_fileName: string): boolean {
 							return true;
 						}
@@ -602,10 +605,10 @@ test.serial("Deconflicts symbols. #11", withTypeScript, async (t, {typescript, t
 				entry: false,
 				fileName: "b.ts",
 				text: `\
-					import {ModuleResolutionHost} from "${typescriptModuleSpecifier}";
+					import {MyClass} from "my-library";
 
 					export interface Bar {
-						moduleResolutionHost: ModuleResolutionHost;
+						myClass: MyClass;
 					};
 					`
 			}
@@ -622,31 +625,32 @@ test.serial("Deconflicts symbols. #11", withTypeScript, async (t, {typescript, t
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			import { ModuleResolutionHost as TSModuleResolutionHost } from "${typescriptModuleSpecifier}";
-			import { ModuleResolutionHost as ModuleResolutionHost$0 } from "${typescriptModuleSpecifier}";
-			declare class ModuleResolutionHost implements TSModuleResolutionHost {
+			import { MyClass as ExternalMyClass } from "my-library";
+			import { MyClass as MyClass$0 } from "my-library";
+			declare class MyClass implements ExternalMyClass {
 					fileExists(_fileName: string): boolean;
 					readFile(_fileName: string, _encoding?: string): string | undefined;
 			}
 			interface Bar {
-					moduleResolutionHost: ModuleResolutionHost$0;
+					myClass: MyClass$0;
 			}
-			export { ModuleResolutionHost, Bar };
+			export { MyClass, Bar };
 		`)
 	);
 });
 
-test.serial("Deconflicts symbols. #12", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
+test.serial("Deconflicts symbols. #12", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createExternalTestFiles("my-library", `export interface FooBarBaz {}`),
 			{
 				entry: true,
 				fileName: "index.ts",
 				text: `\
-					import {CustomTransformers} from "${typescriptModuleSpecifier}";
+					import {FooBarBaz} from "my-library";
 					export {Foo} from "./a";
 					export interface Bar {
-						transformers: CustomTransformers;
+						fooBarBaz: FooBarBaz;
 					}
 					`
 			},
@@ -654,10 +658,10 @@ test.serial("Deconflicts symbols. #12", withTypeScript, async (t, {typescript, t
 				entry: false,
 				fileName: "a.ts",
 				text: `\
-					import {CustomTransformers} from "${typescriptModuleSpecifier}";
+					import {FooBarBaz} from "my-library";
 
 					export interface Foo {
-						transformers: CustomTransformers;
+						fooBarBaz: FooBarBaz;
 					}
 					`
 			}
@@ -674,21 +678,22 @@ test.serial("Deconflicts symbols. #12", withTypeScript, async (t, {typescript, t
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			import { CustomTransformers } from "${typescriptModuleSpecifier}";
+			import { FooBarBaz } from "my-library";
 			interface Foo {
-					transformers: CustomTransformers;
+					fooBarBaz: FooBarBaz;
 			}
 			interface Bar {
-					transformers: CustomTransformers;
+					fooBarBaz: FooBarBaz;
 			}
 			export { Foo, Bar };
 		`)
 	);
 });
 
-test.serial("Deconflicts symbols. #13", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
+test.serial("Deconflicts symbols. #13", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createExternalTestFiles("my-library", `export declare class MyClass {}`),
 			{
 				entry: true,
 				fileName: "index.ts",
@@ -700,7 +705,7 @@ test.serial("Deconflicts symbols. #13", withTypeScript, async (t, {typescript, t
 				entry: false,
 				fileName: "a.ts",
 				text: `\
-					export {ModuleResolutionHost} from "./b";
+					export {MyClass} from "./b";
 					export {Bar} from "./c";
 			`
 			},
@@ -708,9 +713,9 @@ test.serial("Deconflicts symbols. #13", withTypeScript, async (t, {typescript, t
 				entry: false,
 				fileName: "b.ts",
 				text: `\
-					import {ModuleResolutionHost as TSModuleResolutionHost} from "${typescriptModuleSpecifier}";
+					import {MyClass as ExternalMyClass} from "my-library";
 
-					export class ModuleResolutionHost implements TSModuleResolutionHost {
+					export class MyClass implements ExternalMyClass {
 						fileExists(_fileName: string): boolean {
 							return true;
 						}
@@ -724,10 +729,10 @@ test.serial("Deconflicts symbols. #13", withTypeScript, async (t, {typescript, t
 				entry: false,
 				fileName: "c.ts",
 				text: `\
-					import {ModuleResolutionHost} from "${typescriptModuleSpecifier}";
+					import {MyClass} from "my-library";
 
 					export interface Bar {
-						moduleResolutionHost: ModuleResolutionHost;
+						myClass: MyClass;
 					};
 					`
 			}
@@ -744,32 +749,33 @@ test.serial("Deconflicts symbols. #13", withTypeScript, async (t, {typescript, t
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			import { ModuleResolutionHost as TSModuleResolutionHost } from "${typescriptModuleSpecifier}";
-			import { ModuleResolutionHost as ModuleResolutionHost$0 } from "${typescriptModuleSpecifier}";
-			declare class ModuleResolutionHost implements TSModuleResolutionHost {
+			import { MyClass as ExternalMyClass } from "my-library";
+			import { MyClass as MyClass$0 } from "my-library";
+			declare class MyClass implements ExternalMyClass {
 					fileExists(_fileName: string): boolean;
 					readFile(_fileName: string, _encoding?: string): string | undefined;
 			}
 			interface Bar {
-					moduleResolutionHost: ModuleResolutionHost$0;
+					myClass: MyClass$0;
 			}
-			export { ModuleResolutionHost, Bar };
+			export { MyClass, Bar };
 		`)
 	);
 });
 
-test.serial("Deconflicts symbols. #14", withTypeScript, async (t, {typescript, typescriptModuleSpecifier}) => {
+test("Deconflicts symbols. #14", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createExternalTestFiles("my-library", `export type Foo = string;`),
 			{
 				entry: true,
 				fileName: "index.ts",
 				text: `\
-        import {tsModule} from "./bar";
+        import {mlModule} from "./bar";
         import {IFoo} from "./baz";
 
         export class Foo extends IFoo {
-        	readonly ts: typeof tsModule;
+        	readonly ml: typeof mlModule;
         }
 			`
 			},
@@ -777,17 +783,17 @@ test.serial("Deconflicts symbols. #14", withTypeScript, async (t, {typescript, t
 				entry: false,
 				fileName: "bar.ts",
 				text: `\
-			import * as tsModuleType from "${typescriptModuleSpecifier}";
-			export const tsModule: { ts: typeof tsModuleType } = { ts: tsModuleType };
+			import * as mlModuleType from "my-library";
+			export const mlModule: { ml: typeof mlModuleType } = { ml: mlModuleType };
 			`
 			},
 			{
 				entry: false,
 				fileName: "baz.ts",
 				text: `\
-			import * as tsModule from "${typescriptModuleSpecifier}";
+			import * as mlModule from "my-library";
 			export class IFoo {
-				readonly otherTs: typeof tsModule;
+				readonly otherMl: typeof mlModule;
 			}
 			`
 			},
@@ -795,9 +801,9 @@ test.serial("Deconflicts symbols. #14", withTypeScript, async (t, {typescript, t
 				entry: false,
 				fileName: "qux.ts",
 				text: `\
-			import * as tsModule from "${typescriptModuleSpecifier}";
+			import * as mlModule from "my-library";
 			export class IBar {
-				readonly yetAnotherTs: typeof tsModule;
+				readonly yetAnotherMl: typeof mlModule;
 			}
 			`
 			}
@@ -814,16 +820,16 @@ test.serial("Deconflicts symbols. #14", withTypeScript, async (t, {typescript, t
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-			import * as tsModuleType from "${typescriptModuleSpecifier}";
-			import * as tsModule$0 from "${typescriptModuleSpecifier}";
-			declare const tsModule: {
-					ts: typeof tsModuleType;
+			import * as mlModuleType from "my-library";
+			import * as mlModule$0 from "my-library";
+			declare const mlModule: {
+					ml: typeof mlModuleType;
 			};
 			declare class IFoo {
-					readonly otherTs: typeof tsModule$0;
+					readonly otherMl: typeof mlModule$0;
 			}
 			declare class Foo extends IFoo {
-					readonly ts: typeof tsModule;
+					readonly ml: typeof mlModule;
 			}
 			export { Foo };
 		`)
@@ -1083,7 +1089,7 @@ test.serial("Deconflicts symbols. #20", withTypeScript, async (t, {typescript}) 
 		[
 			{
 				entry: true,
-				fileName: "virtual-src/components/a.ts",
+				fileName: "src/components/a.ts",
 				text: `\
 				export {Bar} from "./b";
         export const Foo = {} as unknown as import("..").Foo;
@@ -1091,7 +1097,7 @@ test.serial("Deconflicts symbols. #20", withTypeScript, async (t, {typescript}) 
 			},
 			{
 				entry: false,
-				fileName: "virtual-src/components/b.ts",
+				fileName: "src/components/b.ts",
 				text: `\
         type Foo = 2;
         export type Bar = Foo;
@@ -1099,7 +1105,7 @@ test.serial("Deconflicts symbols. #20", withTypeScript, async (t, {typescript}) 
 			},
 			{
 				entry: true,
-				fileName: "virtual-src/index.ts",
+				fileName: "src/index.ts",
 				text: `\
         export type Foo = {a: string; b: number};
 			`
@@ -1178,7 +1184,7 @@ test.serial("Deconflicts symbols. #22", withTypeScript, async (t, {typescript}) 
 		[
 			{
 				entry: true,
-				fileName: "virtual-src/index.ts",
+				fileName: "src/index.ts",
 				text: `\
 				export { default as foo } from "./foo";
 				export { default as bar } from "./bar";
@@ -1186,7 +1192,7 @@ test.serial("Deconflicts symbols. #22", withTypeScript, async (t, {typescript}) 
 			},
 			{
 				entry: false,
-				fileName: "virtual-src/foo.ts",
+				fileName: "src/foo.ts",
 				text: `\
         interface Foo {
 						<T, R>(value: T, fn: (value: T) => R): R;
@@ -1201,7 +1207,7 @@ test.serial("Deconflicts symbols. #22", withTypeScript, async (t, {typescript}) 
 			},
 			{
 				entry: false,
-				fileName: "virtual-src/bar.ts",
+				fileName: "src/bar.ts",
 				text: `\
         
 				interface Bar {
@@ -1246,7 +1252,7 @@ test.serial("Deconflicts symbols. #23", withTypeScript, async (t, {typescript}) 
 		[
 			{
 				entry: true,
-				fileName: "virtual-src/index.ts",
+				fileName: "src/index.ts",
 				text: `\
 				import { B } from "./b";
 				import { B as B2 } from "./b2";
@@ -1255,14 +1261,14 @@ test.serial("Deconflicts symbols. #23", withTypeScript, async (t, {typescript}) 
 			},
 			{
 				entry: false,
-				fileName: "virtual-src/b.ts",
+				fileName: "src/b.ts",
 				text: `\
         export class B { }
 			`
 			},
 			{
 				entry: false,
-				fileName: "virtual-src/b2.ts",
+				fileName: "src/b2.ts",
 				text: `\
 				export class B { }
 			`
@@ -1367,6 +1373,7 @@ test.serial("Won't deconflict overloaded function signatures #1", withTypeScript
 test.serial("Will allow local conflicting symbols with external module symbols. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createBuiltInModuleTestFiles("fs"),
 			{
 				entry: true,
 				fileName: "index.ts",
@@ -1434,6 +1441,7 @@ test.serial("Will allow local conflicting symbols with external module symbols. 
 test.serial("Will allow local conflicting symbols with external module symbols. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createBuiltInModuleTestFiles("fs"),
 			{
 				entry: true,
 				fileName: "index.ts",
@@ -1504,6 +1512,7 @@ test.serial("Will allow local conflicting symbols with external module symbols. 
 test.serial("Will allow local conflicting symbols with external module symbols. #3", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createBuiltInModuleTestFiles("fs"),
 			{
 				entry: true,
 				fileName: "index.ts",

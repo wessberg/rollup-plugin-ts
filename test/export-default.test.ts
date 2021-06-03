@@ -2,6 +2,7 @@ import test from "ava";
 import {withTypeScript} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
+import {createExternalTestFiles} from "./setup/test-file";
 
 test.serial("Handles default export assignments. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
@@ -317,19 +318,25 @@ test.serial("Handles default export assignments. #8", withTypeScript, async (t, 
 test.serial("Handles default exports inside ExportSpecifiers. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createExternalTestFiles(
+				"my-library",
+				`\
+					export default function foo (): void;
+				`
+			),
 			{
 				entry: true,
 				fileName: "index.ts",
 				text: `\
-          import magicString from './bar';
-					export const Foo = magicString;
+          import foo from './bar';
+					export const Foo = foo;
 					`
 			},
 			{
 				entry: false,
 				fileName: "bar.ts",
 				text: `\
-          export {default} from 'magic-string';
+          export {default} from 'my-library';
 					`
 			}
 		],
@@ -344,8 +351,8 @@ test.serial("Handles default exports inside ExportSpecifiers. #1", withTypeScrip
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		import magicString from "magic-string";
-		declare const Foo: typeof magicString;
+		import foo from "my-library";
+		declare const Foo: typeof foo;
 		export {Foo};
 		`)
 	);
@@ -354,19 +361,25 @@ test.serial("Handles default exports inside ExportSpecifiers. #1", withTypeScrip
 test.serial("Handles default exports inside ExportSpecifiers. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createExternalTestFiles(
+				"my-library",
+				`\
+					export default function foo (): void;
+				`
+			),
 			{
 				entry: true,
 				fileName: "index.ts",
 				text: `\
-          import magicString from './bar';
-					export const Foo = magicString;
+          import foo from './bar';
+					export const Foo = foo;
 					`
 			},
 			{
 				entry: false,
 				fileName: "bar.ts",
 				text: `\
-          export {default as default} from 'magic-string';
+          export {default as default} from 'my-library';
 					`
 			}
 		],
@@ -381,8 +394,8 @@ test.serial("Handles default exports inside ExportSpecifiers. #2", withTypeScrip
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		import magicString from "magic-string";
-		declare const Foo: typeof magicString;
+		import foo from "my-library";
+		declare const Foo: typeof foo;
 		export {Foo};
 		`)
 	);
@@ -391,6 +404,12 @@ test.serial("Handles default exports inside ExportSpecifiers. #2", withTypeScrip
 test.serial("Handles default exports inside ExportSpecifiers. #3", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createExternalTestFiles(
+				"my-library",
+				`\
+					export default function foo (): void;
+				`
+			),
 			{
 				entry: true,
 				fileName: "index.ts",
@@ -403,7 +422,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #3", withTypeScrip
 				entry: false,
 				fileName: "bar.ts",
 				text: `\
-          export {default as Bar} from 'magic-string';
+          export {default as Bar} from 'my-library';
 					`
 			}
 		],
@@ -419,7 +438,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #3", withTypeScrip
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		import { default as Bar } from "magic-string";
+		import { default as Bar } from "my-library";
 		declare const Foo: typeof Bar;
 		export {Foo};
 		`)

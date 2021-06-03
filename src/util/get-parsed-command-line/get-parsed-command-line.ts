@@ -4,7 +4,6 @@ import {ParsedCommandLineResult} from "./parsed-command-line-result";
 import {InputCompilerOptions, TsConfigResolver, TsConfigResolverWithFileName, TypescriptPluginOptions} from "../../plugin/typescript-plugin-options";
 import {TS} from "../../type/ts";
 import {finalizeParsedCommandLine} from "../finalize-parsed-command-line/finalize-parsed-command-line";
-import {FileSystem} from "../file-system/file-system";
 import {shouldDebugTsconfig} from "../is-debug/should-debug";
 import {logTsconfig} from "../logging/log-tsconfig";
 import path from "crosspath";
@@ -13,7 +12,7 @@ export interface GetParsedCommandLineOptions {
 	cwd: string;
 	tsconfig?: TypescriptPluginOptions["tsconfig"];
 	forcedCompilerOptions?: TS.CompilerOptions;
-	fileSystem: FileSystem;
+	fileSystem: TS.System;
 	typescript: typeof TS;
 	filter: (file: string) => boolean;
 	pluginOptions: TypescriptPluginOptions;

@@ -8,7 +8,7 @@ test("Won't produce empty declarations when output directory is not excluded fro
 		[
 			{
 				entry: true,
-				fileName: "virtual-src/index.ts",
+				fileName: "src/index.ts",
 				text: `\
         export interface Foo {
         	foo: string;
@@ -17,14 +17,14 @@ test("Won't produce empty declarations when output directory is not excluded fro
 			},
 			{
 				entry: false,
-				fileName: "virtual-dist/index.js",
+				fileName: "dist/index.js",
 				text: `\
         console.log(true);
 			`
 			},
 			{
 				entry: false,
-				fileName: "virtual-dist/index.d.ts",
+				fileName: "dist/index.d.ts",
 				text: `\
         interface Foo {
           foo: string;
@@ -35,8 +35,7 @@ test("Won't produce empty declarations when output directory is not excluded fro
 		],
 		{
 			typescript,
-			debug: false,
-			dir: "virtual-dist"
+			debug: false
 		}
 	);
 	const {
@@ -128,7 +127,6 @@ test("Won't produce empty declarations when baseUrl is outside of compilation ro
 		{
 			typescript,
 			debug: false,
-			dir: "out",
 			cwd: "subproject/packages/@foo/a",
 			tsconfig: "tsconfig.json"
 		}

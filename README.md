@@ -609,7 +609,8 @@ If this option is `true`, diagnostics won't be generated. This will improve perf
 
 #### `fileSystem`
 
-Optionally the [FileSystem](https://github.com/wessberg/rollup-plugin-ts/blob/master/src/util/file-system/file-system.ts) to use. This is useful for example when you want to provide a virtual FileSystem to read from or write to.
+Optionally the FileSystem to use. This is useful for example when you want to provide a virtual FileSystem to read from or write to.
+Note that this must conform with [the `System` interface declared by TypeScript](https://github.com/microsoft/TypeScript/blob/main/src/compiler/sys.ts#L1159), rather than the `fs` module.
 
 #### `hook`
 

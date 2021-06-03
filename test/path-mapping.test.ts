@@ -49,14 +49,14 @@ test("Supports path mapping. #2", withTypeScript, async (t, {typescript}) => {
 		[
 			{
 				entry: true,
-				fileName: "virtual-src/index.ts",
+				fileName: "src/index.ts",
 				text: `\
           		export * from "@/foo";
         	`
 			},
 			{
 				entry: false,
-				fileName: "virtual-src/foo.ts",
+				fileName: "src/foo.ts",
 				text: `\
 				export const Foo = "Foo";
 				`
@@ -68,7 +68,7 @@ test("Supports path mapping. #2", withTypeScript, async (t, {typescript}) => {
 			transpileOnly: true,
 			tsconfig: {
 				paths: {
-					"@/*": ["virtual-src/*"]
+					"@/*": ["src/*"]
 				}
 			}
 		}

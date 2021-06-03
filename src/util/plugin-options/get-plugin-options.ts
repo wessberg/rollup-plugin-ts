@@ -1,6 +1,5 @@
 import * as TSModule from "typescript";
 import {TypescriptPluginOptions} from "../../plugin/typescript-plugin-options";
-import {getRealFileSystem} from "../file-system/file-system";
 import {ensureAbsolute} from "../path/path-util";
 import path from "crosspath";
 
@@ -20,7 +19,7 @@ export function getPluginOptions(options: Partial<TypescriptPluginOptions>): Typ
 		exclude = [],
 		transpileOnly = false,
 		debug = false,
-		fileSystem = getRealFileSystem(typescript),
+		fileSystem = typescript.sys,
 		hook = {}
 	} = options;
 

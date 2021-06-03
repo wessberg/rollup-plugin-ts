@@ -1,7 +1,6 @@
 import {TS} from "../../type/ts";
 import {ModuleResolutionHostOptions} from "./module-resolution-host-options";
 import {ensureAbsolute} from "../../util/path/path-util";
-import {FileSystem} from "../../util/file-system/file-system";
 import {SupportedExtensions} from "../../util/get-supported-extensions/get-supported-extensions";
 import {VirtualFile, VirtualFileInput} from "./virtual-file";
 import {D_TS_EXTENSION, D_TS_MAP_EXTENSION} from "../../constant/constant";
@@ -70,7 +69,7 @@ export class ModuleResolutionHost implements TS.ModuleResolutionHost {
 		return new Set([...this.getFileNames()].filter(fileName => this.get(fileName)!.fromRollup));
 	}
 
-	getFileSystem(): FileSystem {
+	getFileSystem(): TS.System {
 		return this.options.fileSystem;
 	}
 
@@ -149,7 +148,10 @@ export class ModuleResolutionHost implements TS.ModuleResolutionHost {
 	 * Gets the real path for the given path. Meant to resolve symlinks
 	 */
 	realpath(p: string): string {
-		return path.normalize(this.getFileSystem().realpath(path.native.normalize(p)));
+		const normalized = path.native.normalize(p);
+		const fs = this.getFileSystem();
+		if (fs.realpath == null) return normalized;
+		return path.normalize(fs.realpath(normalized));
 	}
 
 	/**
