@@ -1,5 +1,4 @@
 import path from "crosspath";
-import {platform} from "os";
 import {
 	BABEL_RUNTIME_PREFIX_1,
 	BABEL_RUNTIME_PREFIX_2,
@@ -14,23 +13,8 @@ import {
 import {ExternalOption} from "rollup";
 import {ensureArray} from "../ensure-array/ensure-array";
 
-export const ROOT_DIRECTORY = path.parse(process.cwd()).root;
-export const PLATFORM = platform();
-export const DRIVE_LETTER_REGEXP = /^\w:/;
-
 export function isTypeScriptLib(p: string): boolean {
 	return p.startsWith(`lib.`) && p.endsWith(D_TS_EXTENSION);
-}
-
-/**
- * On Windows, it is important that all absolute paths are absolute, including the drive letter, because TypeScript assumes this
- */
-export function ensureHasDriveLetter(p: string): string {
-	if (PLATFORM !== "win32") return p;
-	if (DRIVE_LETTER_REGEXP.test(p)) return p;
-	if (p.startsWith(ROOT_DIRECTORY)) return p;
-	if (!path.isAbsolute(p)) return p;
-	return path.native.join(ROOT_DIRECTORY, p);
 }
 
 /**

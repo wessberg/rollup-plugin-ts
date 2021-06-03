@@ -30,7 +30,7 @@ specifiers:
   browserslist-generator: ^1.0.59
   chalk: ^4.1.1
   compatfactory: ^0.0.7
-  crosspath: ^0.0.8
+  crosspath: ^0.0.9
   eslint: ^7.27.0
   eslint-config-prettier: ^8.3.0
   eslint-plugin-import: ^2.23.4
@@ -82,7 +82,7 @@ dependencies:
   browserslist-generator: 1.0.59
   chalk: 4.1.1
   compatfactory: 0.0.7_typescript@4.3.2
-  crosspath: 0.0.8
+  crosspath: 0.0.9
   magic-string: 0.25.7
   ts-clone-node: 0.3.23_typescript@4.3.2
   tslib: 2.2.0
@@ -2310,7 +2310,7 @@ packages:
     dependencies:
       caniuse-lite: 1.0.30001233
       colorette: 1.2.2
-      electron-to-chromium: 1.3.744
+      electron-to-chromium: 1.3.745
       escalade: 3.1.1
       node-releases: 1.1.72
     dev: false
@@ -2852,8 +2852,8 @@ packages:
       which: 2.0.2
     dev: true
 
-  /crosspath/0.0.8:
-    resolution: {integrity: sha512-IKlS3MpP0fhJ50M6ltyLO7Q4NzwfhafpmolMH0EDKyyaY81HutF2mH4hLpCdm3fKZ/TSTW5qPIdTy62YnefEyQ==}
+  /crosspath/0.0.9:
+    resolution: {integrity: sha512-lhDiWhqHk1IQ0BiGN9/Ji7qEr9LwCG8taDCTgihII/6b91my+GvTNXDB7eKh/FySz488tkt2IboqBJTSZtc4Fw==}
     engines: {node: ">=10.0.0"}
     dependencies:
       "@types/node": 15.9.0
@@ -3062,8 +3062,8 @@ packages:
       safer-buffer: 2.1.2
     dev: true
 
-  /electron-to-chromium/1.3.744:
-    resolution: {integrity: sha512-o/vep/PvSXg+7buwCbVJXHY3zbjYVmFPwnMMnchESXgAzrfcasvbX/hQZHCFGG7YdZgdtwt1KTMyK9CyBxPbLA==}
+  /electron-to-chromium/1.3.745:
+    resolution: {integrity: sha512-ZZCx4CS3kYT3BREYiIXocDqlNPT56KfdTS1Ogo4yvxRriBqiEXCDTLIQZT/zNVtby91xTWMMxW2NBiXh8bpLHw==}
     dev: false
 
   /elegant-spinner/1.0.1:

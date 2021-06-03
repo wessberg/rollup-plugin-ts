@@ -4,7 +4,7 @@ import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
 import {emitDiagnostics} from "../service/emit/diagnostics/emit-diagnostics";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
-import {ensureHasDriveLetter, ensureRelative, getExtension, isBabelHelper, isMultiEntryModule} from "../util/path/path-util";
+import {ensureRelative, getExtension, isBabelHelper, isMultiEntryModule} from "../util/path/path-util";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
 import {TypescriptPluginOptions} from "./typescript-plugin-options";
 import {getPluginOptions} from "../util/plugin-options/get-plugin-options";
@@ -241,8 +241,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		/**
 		 * Transforms the given code and file
 		 */
-		async transform(this: PluginContext, code: string, fileInput: string): Promise<SourceDescription | undefined> {
-			const file = ensureHasDriveLetter(fileInput);
+		async transform(this: PluginContext, code: string, file: string): Promise<SourceDescription | undefined> {
 			const normalizedFile = path.normalize(file);
 			// If this file represents ROLLUP_PLUGIN_MULTI_ENTRY, we need to parse its' contents to understand which files it aliases.
 			// Following that, there's nothing more to do

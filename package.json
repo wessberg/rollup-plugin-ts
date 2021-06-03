@@ -112,7 +112,7 @@
 		"chalk": "^4.1.1",
 		"magic-string": "^0.25.7",
 		"tslib": "^2.2.0",
-		"crosspath": "^0.0.8"
+		"crosspath": "^0.0.9"
 	},
 	"peerDependencies": {
 		"rollup": ">=1.x || >=2.x",

@@ -12,3 +12,4 @@ const config = {
 		height: 150
 	}
 };
+module.exports = config;
