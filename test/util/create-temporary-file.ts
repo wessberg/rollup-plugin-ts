@@ -6,6 +6,7 @@ import {generateRandomHash} from "../../src/util/hash/generate-random-hash";
 
 export interface CreateTemporaryConfigFileResult {
 	cleanup(): void;
+	code: string;
 	path: string;
 	dir: string;
 }
@@ -20,6 +21,7 @@ export function createTemporaryFile(fileName: string, content: string, parser?: 
 	writeFileSync(p, formatCode(content, parser));
 	return {
 		cleanup: () => unlinkSync(p),
+		code: content,
 		path: path.normalize(p),
 		dir: path.dirname(p)
 	};
