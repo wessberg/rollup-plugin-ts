@@ -1,7 +1,5 @@
 <!-- SHADOW_SECTION_LOGO_START -->
 
-<div><img alt="Logo" src="https://raw.githubusercontent.com/wessberg/rollup-plugin-ts/master/documentation/asset/rollup-plugin-ts-logo.png" height="150"   /></div>
-
 <!-- SHADOW_SECTION_LOGO_END -->
 
 <!-- SHADOW_SECTION_DESCRIPTION_SHORT_START -->
@@ -12,13 +10,12 @@
 
 <!-- SHADOW_SECTION_BADGES_START -->
 
-<a href="https://npmcharts.com/compare/%40wessberg%2Frollup-plugin-ts?minimal=true"><img alt="Downloads per month" src="https://img.shields.io/npm/dm/%40wessberg%2Frollup-plugin-ts.svg"    /></a>
-<a href="https://www.npmjs.com/package/%40wessberg%2Frollup-plugin-ts"><img alt="NPM version" src="https://badge.fury.io/js/%40wessberg%2Frollup-plugin-ts.svg"    /></a>
+<a href="https://npmcharts.com/compare/rollup-plugin-ts?minimal=true"><img alt="Downloads per month" src="https://img.shields.io/npm/dm/rollup-plugin-ts.svg"    /></a>
+<a href="https://www.npmjs.com/package/rollup-plugin-ts"><img alt="NPM version" src="https://badge.fury.io/js/rollup-plugin-ts.svg"    /></a>
 <a href="https://david-dm.org/wessberg/rollup-plugin-ts"><img alt="Dependencies" src="https://img.shields.io/david/wessberg%2Frollup-plugin-ts.svg"    /></a>
 <a href="https://github.com/wessberg/rollup-plugin-ts/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/wessberg%2Frollup-plugin-ts.svg"    /></a>
 <a href="https://github.com/prettier/prettier"><img alt="code style: prettier" src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg"    /></a>
 <a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg"    /></a>
-<a href="https://www.patreon.com/bePatron?u=11315442"><img alt="Support on Patreon" src="https://img.shields.io/badge/patreon-donate-green.svg"    /></a>
 
 <!-- SHADOW_SECTION_BADGES_END -->
 
@@ -51,18 +48,6 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
 
 <!-- SHADOW_SECTION_BACKERS_START -->
 
-## Backers
-
-[Become a sponsor/backer](https://github.com/wessberg/rollup-plugin-ts?sponsor=1) and get your logo listed here.
-
-| <a href="https://usebubbles.com"><img alt="Bubbles" src="https://uploads-ssl.webflow.com/5d682047c28b217055606673/5e5360be16879c1d0dca6514_icon-thin-128x128%402x.png" height="70"   /></a> | <a href="https://github.com/cblanc"><img alt="Christopher Blanchard" src="https://avatars0.githubusercontent.com/u/2160685?s=400&v=4" height="70"   /></a> | <a href="https://github.com/ideal-postcodes"><img alt="Ideal Postcodes" src="https://avatars.githubusercontent.com/u/4996310?s=200&v=4" height="70"   /></a> | <a href="https://www.xerox.com"><img alt="Xerox" src="https://avatars.githubusercontent.com/u/9158512?s=200&v=4" height="70"   /></a> |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| [Bubbles](https://usebubbles.com)<br><strong>Twitter</strong>: [@usebubbles](https://twitter.com/usebubbles)                                                                                | [Christopher Blanchard](https://github.com/cblanc)                                                                                                         | [Ideal Postcodes](https://github.com/ideal-postcodes)                                                                                                        | [Xerox](https://www.xerox.com)                                                                                                        |
-
-### Patreon
-
-<a href="https://www.patreon.com/bePatron?u=11315442"><img alt="Patrons on Patreon" src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dwessberg%26type%3Dpatrons"  width="200"  /></a>
-
 <!-- SHADOW_SECTION_BACKERS_END -->
 
 <!-- SHADOW_SECTION_TOC_START -->
@@ -71,8 +56,6 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
 
 - [Description](#description)
   - [Features](#features)
-- [Backers](#backers)
-  - [Patreon](#patreon)
 - [Table of Contents](#table-of-contents)
 - [Install](#install)
   - [npm](#npm)
@@ -140,24 +123,24 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
 ### npm
 
 ```
-$ npm install @wessberg/rollup-plugin-ts --save-dev
+$ npm install rollup-plugin-ts
 ```
 
 ### Yarn
 
 ```
-$ yarn add @wessberg/rollup-plugin-ts --dev
+$ yarn add rollup-plugin-ts
 ```
 
 ### pnpm
 
 ```
-$ pnpm add @wessberg/rollup-plugin-ts --save-dev
+$ pnpm add rollup-plugin-ts
 ```
 
 ### Peer Dependencies
 
-`@wessberg/rollup-plugin-ts` depends on `rollup` and `typescript`, so you need to manually install these as development dependencies as well.
+`rollup-plugin-ts` depends on `rollup` and `typescript`, so you need to manually install these as well.
 
 <!-- SHADOW_SECTION_INSTALL_END -->
 
@@ -170,7 +153,7 @@ $ pnpm add @wessberg/rollup-plugin-ts --save-dev
 Using the plugin is as simple as it can be. Here's an example within a Rollup config:
 
 ```javascript
-import ts from "@wessberg/rollup-plugin-ts";
+import ts from "rollup-plugin-ts";
 export default {
 	// ...
 	plugins: [
@@ -761,7 +744,7 @@ Babel will then be used for all other syntax transformation from then on, depend
 
 ## Starter templates
 
-The following is an evolving list of starter templates for new projects using Rollup, TypeScript, and `@wessberg/rollup-plugin-ts` that you can take a look at and draw inspiration from.
+The following is an evolving list of starter templates for new projects using Rollup, TypeScript, and `rollup-plugin-ts` that you can take a look at and draw inspiration from.
 
 - [Library with CommonJS and ESM output and TypeScript declarations](https://repl.it/@wessberg/rollup-plugin-ts-library-cjs-esm-declarations-1)
 

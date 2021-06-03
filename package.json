@@ -1,5 +1,5 @@
 {
-	"name": "@wessberg/rollup-plugin-ts",
+	"name": "rollup-plugin-ts",
 	"version": "1.3.14",
 	"description": "A TypeScript Rollup plugin that bundles declarations and respects Browserslists",
 	"scripts": {
