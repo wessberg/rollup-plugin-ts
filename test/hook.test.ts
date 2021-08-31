@@ -81,12 +81,12 @@ test.serial("Diagnostics can be filtered with the 'diagnostics' hook. #1", withT
 	);
 });
 
-test.serial("External types can be retrieved with the 'declarationStats' hook. #1", withTypeScript, async (t, {typescript}) => {
+test.only("External types can be retrieved with the 'declarationStats' hook. #1", withTypeScript, async (t, {typescript}) => {
 	let stats: DeclarationStats | undefined;
 
 	await generateRollupBundle(
 		[
-			...createBuiltInModuleTestFiles("globals"),
+			...createBuiltInModuleTestFiles("buffer"),
 			...createExternalTestFiles("my-library", `export declare class Foo {}`),
 			{
 				entry: true,

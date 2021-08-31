@@ -46,7 +46,7 @@ export function createExternalTestFiles(module: string, text: string): TestFile[
 	];
 }
 
-export function createBuiltInModuleTestFiles(module: "fs" | "globals"): TestFile[] {
+export function createBuiltInModuleTestFiles(module: "fs" | "globals" | "buffer"): TestFile[] {
 	return [
 		{
 			entry: false,

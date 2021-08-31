@@ -44,7 +44,7 @@ test("Detects type reference directives and respects tree-shaking and code-split
 test("Detects type reference directives and respects tree-shaking and code-splitting. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
-			...createBuiltInModuleTestFiles("globals"),
+			...createBuiltInModuleTestFiles("buffer"),
 			{
 				entry: true,
 				fileName: "index.ts",
