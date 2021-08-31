@@ -113,7 +113,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// Re-assign the input options
 			rollupInputOptions = options;
 
-			const multiEntryPlugin = options.plugins?.find(plugin => plugin.name === "multi-entry");
+			const multiEntryPlugin = options.plugins?.find(plugin => plugin != null && typeof plugin !== "boolean" && plugin.name === "multi-entry");
 
 			// If the multi-entry plugin is being used, we can extract the name of the entry module
 			// based on it

@@ -7,12 +7,21 @@ import {areTempFilesEqual, createTemporaryFile} from "./util/create-temporary-fi
 import {getAppropriateEcmaVersionForBrowserslist} from "browserslist-generator";
 import {formatCode} from "./util/format-code";
 
-const handlePotentiallyAllowedFailingBabelError = (t: ExecutionContext, ex: Error): boolean => {
-	if (ex.message.startsWith("Multiple configuration files found. Please remove one")) {
+const getErrorText = (ex: unknown): string => {
+	if (ex == null || !(ex instanceof Error)) {
+		return String(ex);
+	}
+	return ex.message;
+}
+
+const handlePotentiallyAllowedFailingBabelError = (t: ExecutionContext, ex: unknown): boolean => {
+	const text = getErrorText(ex);
+
+	if (text.startsWith("Multiple configuration files found. Please remove one")) {
 		// There is no way to work around this crash that sometimes happens for unknown reasons on Github actions. Assume the test is passing. We can do this because the likelyhood of the error occurring for every environment and every node version is so unlikely that the test will still fail in practice if there is a problem that needs fixing
 		return true;
 	} else {
-		t.fail(ex.message);
+		t.fail(text);
 		throw ex;
 	}
 };
@@ -169,7 +178,7 @@ test.serial("Can resolve a babel config file by file path. #1", withTypeScript, 
 			}
 		);
 	} catch (ex) {
-		t.fail(ex);
+		t.fail(getErrorText(ex));
 		throw ex;
 	} finally {
 		unlinker.cleanup();
@@ -248,7 +257,7 @@ test.serial("Can resolve the nearest file-relative babel config. #1", withTypeSc
 			}
 		);
 	} catch (ex) {
-		t.fail(ex);
+		t.fail(getErrorText(ex));
 		throw ex;
 	} finally {
 		unlinker.cleanup();

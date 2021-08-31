@@ -417,7 +417,7 @@ export function createTypeScriptSystem({
 			try {
 				fs.mkdirSync(directoryName);
 			} catch (e) {
-				if (e.code !== "EEXIST") {
+				if (e == null || !(e instanceof Error) || (e as Error & {code: string}).code !== "EEXIST") {
 					// Failed for some other reason (access denied?); still throw
 					throw e;
 				}
