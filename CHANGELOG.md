@@ -1,3 +1,12 @@
+## [1.4.2](https://github.com/wessberg/rollup-plugin-ts/compare/v1.4.1...v1.4.2) (2021-09-16)
+
+
+### Bug Fixes
+
+* work around incorrect imports in some @babel/runtime/helpers/esm files that may break when using babel as a transpiler without the commonjs plugin or something similar ([d3daf35](https://github.com/wessberg/rollup-plugin-ts/commit/d3daf35d350591edece15b41e2b04b2aab211b63))
+
+
+
 ## [1.4.1](https://github.com/wessberg/rollup-plugin-ts/compare/v1.4.0...v1.4.1) (2021-08-31)
 
 
