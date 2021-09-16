@@ -23,7 +23,7 @@ import {ParsedCommandLineResult} from "../util/get-parsed-command-line/parsed-co
 import {takeBrowserslistOrComputeBasedOnCompilerOptions} from "../util/take-browserslist-or-compute-based-on-compiler-options/take-browserslist-or-compute-based-on-compiler-options";
 import {matchAll} from "@wessberg/stringutil";
 import {emitDeclarations} from "../service/emit/declaration/emit-declarations";
-import {replaceBabelEsmHelpers} from "../util/replace-babel-esm-helpers/replace-babel-esm-helpers";
+import {replaceBabelHelpers} from "../util/replace-babel-esm-helpers/replace-babel-esm-helpers";
 import {CompilerHost} from "../service/compiler-host/compiler-host";
 import {pickResolvedModule} from "../util/pick-resolved-module";
 import {emitBuildInfo} from "../service/emit/tsbuildinfo/emit-build-info";
@@ -190,8 +190,8 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			let updatedSourceDescription: SourceDescription | undefined;
 
 			// When targeting CommonJS and using babel as a transpiler, we may need to rewrite forced ESM paths for preserved external helpers to paths that are compatible with CommonJS.
-			if (pluginOptions.transpiler === "babel" && (outputOptions.format === "cjs" || outputOptions.format === "commonjs")) {
-				updatedSourceDescription = replaceBabelEsmHelpers(code, chunk.fileName);
+			if (pluginOptions.transpiler === "babel") {
+				updatedSourceDescription = replaceBabelHelpers(code, chunk.fileName, outputOptions.format === "cjs" || outputOptions.format === "commonjs" ? "cjs" : "esm");
 			}
 
 			if (babelConfigChunkFactory == null) {
@@ -243,6 +243,8 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 */
 		async transform(this: PluginContext, code: string, file: string): Promise<SourceDescription | undefined> {
 			const normalizedFile = path.normalize(file);
+			let sourceDescription: SourceDescription|undefined;
+
 			// If this file represents ROLLUP_PLUGIN_MULTI_ENTRY, we need to parse its' contents to understand which files it aliases.
 			// Following that, there's nothing more to do
 			if (isMultiEntryModule(normalizedFile, MULTI_ENTRY_MODULE)) {
@@ -251,8 +253,18 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			}
 
 			// Skip the file if it doesn't match the filter or if the helper cannot be transformed
-			if (!filter(normalizedFile) || isBabelHelper(normalizedFile)) {
+			if (!filter(normalizedFile)) {
 				return undefined;
+			}
+
+			// Some @babel/runtime helpers may depend on other helpers, but sometimes these are imported from the incorrect paths.
+			// For example, some @babel/runtime/helpers/esm files depend on CJS helpers where they actually should depend on esm helpers instead.
+			// In these cases, we'll have to transform the imports immediately since it will otherwise break for users who don't use something like the commonjs plugin,
+			// even though this is technically not a problem directly caused by or related to rollup-plugin-ts  
+			if (isBabelHelper(normalizedFile)) {
+				if (pluginOptions.transpiler === "babel") {
+					sourceDescription = replaceBabelHelpers(code, normalizedFile, "esm");
+				}
 			}
 
 			const hasJsonExtension = getExtension(normalizedFile) === JSON_EXTENSION;
@@ -265,11 +277,11 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 			// Only pass the file through Typescript if it's extension is supported. Otherwise, if we're going to continue on with Babel,
 			// Mock a SourceDescription. Otherwise, return bind undefined
-			const sourceDescription =
+			sourceDescription =
 				!host.isSupportedFileName(normalizedFile) || isJsInDisguise
 					? babelConfigResult != null
-						? {code, map: undefined}
-						: undefined
+						? sourceDescription ?? {code, map: undefined}
+						: sourceDescription
 					: (() => {
 							// Add the file to the LanguageServiceHost
 							host.add({fileName: normalizedFile, text: code, fromRollup: true});
@@ -305,7 +317,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				else {
 					const transpilationResult = await transformAsync(sourceDescription.code, {
 						...babelConfigResult.config,
-						filenameRelative: ensureRelative(cwd, file),
+						filenameRelative: ensureRelative(cwd, normalizedFile),
 						inputSourceMap: typeof sourceDescription.map === "string" ? JSON.parse(sourceDescription.map) : sourceDescription.map
 					});
 

@@ -40,8 +40,12 @@ export const BABELRC_FILENAME = ".babelrc";
 
 export const REGENERATOR_RUNTIME_NAME_1 = `${BABEL_RUNTIME_PREFIX_1}regenerator/index.js`;
 export const REGENERATOR_RUNTIME_NAME_2 = `${BABEL_RUNTIME_PREFIX_2}regenerator/index.js`;
-export const BABEL_REQUIRE_RUNTIME_HELPER_REGEXP_1 = new RegExp(`(require\\(["'\`])(${BABEL_RUNTIME_PREFIX_1}helpers/esm/[^"'\`]*)["'\`]\\)`);
-export const BABEL_REQUIRE_RUNTIME_HELPER_REGEXP_2 = new RegExp(`(require\\(["'\`])(${BABEL_RUNTIME_PREFIX_2}helpers/esm/[^"'\`]*)["'\`]\\)`);
+export const BABEL_REQUIRE_RUNTIME_HELPER_ESM_REGEXP_1 = new RegExp(`(require\\(["'\`])(${BABEL_RUNTIME_PREFIX_1}helpers/esm/[^"'\`]*)["'\`]\\)`);
+export const BABEL_REQUIRE_RUNTIME_HELPER_ESM_REGEXP_2 = new RegExp(`(require\\(["'\`])(${BABEL_RUNTIME_PREFIX_2}helpers/esm/[^"'\`]*)["'\`]\\)`);
+export const BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_1 = new RegExp(`(import\\s+\\w+\\s+from\\s+["'\`])(${BABEL_RUNTIME_PREFIX_1}helpers/[^"'\/\`]*)["'\`]`);
+export const BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_2 = new RegExp(`(import\\s+\\w+\\s+from\\s+["'\`])(${BABEL_RUNTIME_PREFIX_2}helpers/[^"'\/\`]*)["'\`]`);
+export const BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_3 = new RegExp(`(import\\s+["'\`])(${BABEL_RUNTIME_PREFIX_1}helpers/[^"'\/\`]*)["'\`]`);
+export const BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_4 = new RegExp(`(import\\s+["'\`])(${BABEL_RUNTIME_PREFIX_2}helpers/[^"'\/\`]*)["'\`]`);
 
 export const BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES = [];
 
