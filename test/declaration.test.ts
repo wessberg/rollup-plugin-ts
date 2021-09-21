@@ -825,3 +825,40 @@ test.serial("Flattens declarations. #20", withTypeScript, async (t, {typescript}
 		export { Foo };`)
 	);
 });
+
+test.serial("Flattens declarations. #21", withTypeScript, async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "src/index.ts",
+				text: `export * from "./foo";`
+			},
+			{
+				entry: false,
+				fileName: "src/foo.ts",
+				text: `\
+				export interface Foo {
+					path: (string | [string, string])[]
+				}`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`
+		interface Foo {
+			path: (string | [string, string])[];
+		}
+		export { Foo };
+		`)
+	);
+});

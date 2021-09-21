@@ -50,7 +50,7 @@ specifiers:
   sandhog: ^1.0.41
   semver: 7.3.5
   standard-changelog: ^2.0.27
-  ts-clone-node: ^0.3.27
+  ts-clone-node: ^0.3.28
   ts-node: 10.2.1
   tslib: ^2.3.1
   typescript: ^4.4.3
@@ -85,7 +85,7 @@ dependencies:
   compatfactory: 0.0.9_typescript@4.4.3
   crosspath: 0.0.9
   magic-string: 0.25.7
-  ts-clone-node: 0.3.27_typescript@4.4.3
+  ts-clone-node: 0.3.28_typescript@4.4.3
   tslib: 2.3.1
 
 devDependencies:
@@ -7131,8 +7131,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /ts-clone-node/0.3.27_typescript@4.4.3:
-    resolution: {integrity: sha512-DM1Ido4R+u0tckESTPe1XOmzSjY07t9kelYKgDYFpAGU2W9Glneu1Dg5n7HuVPkrlf/U4hI44ZKFabN2rsA7jQ==}
+  /ts-clone-node/0.3.28_typescript@4.4.3:
+    resolution: {integrity: sha512-NHNYN/memcKz+9QDSO6+7r4QtlFQSV2lOWG1yZFWWO/3KrmRFdariuvgdwonvRMaKEuWScAk3ucPm3m312u4JQ==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       typescript: ^3.x || ^4.x
