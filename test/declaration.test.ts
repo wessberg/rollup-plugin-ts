@@ -794,3 +794,34 @@ export { HelloWorld };
 `)
 	);
 });
+
+test.serial("Flattens declarations. #20", withTypeScript, async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "src/index.ts",
+				text: `export * from "./foo";`
+			},
+			{
+				entry: false,
+				fileName: "src/foo.ts",
+				text: `export type Foo = "bar"[]`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`
+		type Foo = "bar"[];
+		export { Foo };`)
+	);
+});
