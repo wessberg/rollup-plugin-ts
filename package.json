@@ -106,7 +106,7 @@
 		"@types/babel__core": "^7.1.16",
 		"@rollup/pluginutils": "^4.1.1",
 		"@wessberg/stringutil": "^1.0.19",
-		"ts-clone-node": "^0.3.26",
+		"ts-clone-node": "^0.3.27",
 		"compatfactory": "^0.0.9",
 		"browserslist-generator": "^1.0.61",
 		"browserslist": "^4.17.0",
