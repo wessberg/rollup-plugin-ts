@@ -108,7 +108,7 @@
 		"@wessberg/stringutil": "^1.0.19",
 		"ts-clone-node": "^0.3.28",
 		"compatfactory": "^0.0.9",
-		"browserslist-generator": "^1.0.61",
+		"browserslist-generator": "^1.0.62",
 		"browserslist": "^4.17.0",
 		"chalk": "^4.1.2",
 		"magic-string": "^0.25.7",
