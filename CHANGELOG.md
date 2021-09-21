@@ -1,3 +1,12 @@
+## [1.4.3](https://github.com/wessberg/rollup-plugin-ts/compare/v1.4.2...v1.4.3) (2021-09-21)
+
+
+### Bug Fixes
+
+* fix an issue where exporting ArrayTypeNodes from other files could lead to corruption of declaration files. Closes [#151](https://github.com/wessberg/rollup-plugin-ts/issues/151) ([27537be](https://github.com/wessberg/rollup-plugin-ts/commit/27537be12a8de72435e99661053ba17b74a3148f))
+
+
+
 ## [1.4.2](https://github.com/wessberg/rollup-plugin-ts/compare/v1.4.1...v1.4.2) (2021-09-16)
 
 
