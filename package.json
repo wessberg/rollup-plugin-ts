@@ -1,6 +1,6 @@
 {
 	"name": "rollup-plugin-ts",
-	"version": "1.4.5",
+	"version": "1.4.6",
 	"description": "A TypeScript Rollup plugin that bundles declarations and respects Browserslists",
 	"scripts": {
 		"generate:sandhog": "sandhog all --yes",
