@@ -89,6 +89,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 				includedSourceFiles: new Set<string>([firstEntrySourceFile.fileName]),
 				declarationToDeconflictedBindingMap: new Map<number, string>(),
 				preservedImports: new Map(),
+				inlinedModules: new Map(),
 
 				resolveSourceFile: (fileName, from) => {
 					for (const file of [fileName, `${fileName}/index`]) {

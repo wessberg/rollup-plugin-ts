@@ -13,10 +13,11 @@ import {noExportDeclarationTransformer} from "../no-export-declaration-transform
 import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
 import {logMetrics} from "../../../../../util/logging/log-metrics";
 import {logTransformer} from "../../../../../util/logging/log-transformer";
+import { getBindingFromLexicalEnvironment } from "../../util/get-binding-from-lexical-environment";
 
 export function moduleMerger(...transformers: DeclarationTransformer[]): DeclarationTransformer {
 	return options => {
-		const {typescript, context, factory, sourceFile, pluginOptions, printer, preservedImports} = options;
+		const {typescript, context, factory, sourceFile, pluginOptions, printer, preservedImports, inlinedModules} = options;
 
 		const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile) ? logMetrics(`Merging modules`, sourceFile.fileName) : undefined;
 
@@ -53,6 +54,15 @@ export function moduleMerger(...transformers: DeclarationTransformer[]): Declara
 						node
 					} as ModuleMergerVisitorOptions<U>)
 				) as VisitResult<U>,
+
+			getNameForInlinedModuleDeclaration (moduleSpecifier: string): string|undefined {
+				const name = inlinedModules.get(moduleSpecifier);
+				if (name == null) return undefined;
+				return getBindingFromLexicalEnvironment(options.lexicalEnvironment, name) ?? name;
+			},
+			markModuleDeclarationAsInlined (moduleSpecifier: string, name: string): void {
+				inlinedModules.set(moduleSpecifier, name);
+			},
 
 			shouldPreserveImportedSymbol(importedSymbol: ImportedSymbol): boolean {
 				let importedSymbols = preservedImports.get(importedSymbol.moduleSpecifier);

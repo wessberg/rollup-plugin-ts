@@ -57,6 +57,7 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 		const innerContent = factory.createIdentifier(namespaceName);
 
 		const importDeclarations: TS.ImportDeclaration[] = [];
+		const moduleDeclarations: TS.ModuleDeclaration[] = [];
 		const moduleBlock = factory.createModuleBlock([
 			...options.includeSourceFile(matchingSourceFile, {
 				allowDuplicate: true,
@@ -68,6 +69,9 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 					inlineNamespaceModuleBlockTransformer({
 						intentToAddImportDeclaration: importDeclaration => {
 							importDeclarations.push(importDeclaration);
+						},
+						intentToAddModuleDeclaration: moduleDeclaration => {
+							moduleDeclarations.push(moduleDeclaration);
 						}
 					})
 				]
@@ -76,6 +80,7 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 
 		options.prependNodes(
 			...importDeclarations.map(importDeclaration => preserveParents(importDeclaration, options)),
+			...moduleDeclarations.map(moduleDeclaration => preserveParents(moduleDeclaration, options)),
 			preserveParents(
 				factory.createModuleDeclaration(
 					undefined,

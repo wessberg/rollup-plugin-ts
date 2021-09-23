@@ -7,7 +7,7 @@ import {preserveMeta} from "../../util/clone-node-with-meta";
 import {DeclarationTransformer} from "../../declaration-bundler-options";
 import {InlineNamespaceModuleBlockOptions} from "./inline-namespace-module-block-options";
 
-export function inlineNamespaceModuleBlockTransformer({intentToAddImportDeclaration}: InlineNamespaceModuleBlockOptions): DeclarationTransformer {
+export function inlineNamespaceModuleBlockTransformer({intentToAddImportDeclaration, intentToAddModuleDeclaration}: InlineNamespaceModuleBlockOptions): DeclarationTransformer {
 	return options => {
 		const {typescript, context, sourceFile, pluginOptions, printer} = options;
 
@@ -19,6 +19,7 @@ export function inlineNamespaceModuleBlockTransformer({intentToAddImportDeclarat
 		const visitorOptions = {
 			...options,
 			intentToAddImportDeclaration,
+			intentToAddModuleDeclaration,
 
 			childContinuation: <U extends TS.Node>(node: U): U =>
 				typescript.visitEachChild(

@@ -127,51 +127,78 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 	}
 
 	// Otherwise, it if is a named NamespaceExport (such as 'export * as Foo from ".."), we can't just lose the module specifier since 'export * as Foo' isn't valid.
-	// Instead, we must declare the namespace inline and add an ExportDeclaration with a named export for it
+	// Instead, we must declare the namespace inline and add an ExportDeclaration with a named export for it. The namespace might already *be* inlined however,
+	// so we can potentially avoid inlining the same namespace multiple times
 	else if (typescript.isNamespaceExport?.(contResult.exportClause)) {
 		const importDeclarations: TS.ImportDeclaration[] = [];
+		const moduleDeclarations: TS.ModuleDeclaration[] = [];
 
-		// Otherwise, prepend the nodes for the SourceFile in a namespace declaration
-		const moduleBlock = factory.createModuleBlock([
-			...options.includeSourceFile(matchingSourceFile, {
-				allowDuplicate: true,
-				allowExports: "skip-optional",
-				lexicalEnvironment: cloneLexicalEnvironment(),
-				transformers: [
-					ensureNoDeclareModifierTransformer,
-					statementMerger({markAsModuleIfNeeded: false}),
-					inlineNamespaceModuleBlockTransformer({
-						intentToAddImportDeclaration: importDeclaration => {
-							importDeclarations.push(importDeclaration);
-						}
-					})
-				]
-			})
-		]);
+		const existingInlinedModuleDeclarationName =  updatedModuleSpecifier ?? moduleSpecifier == null ? undefined : options.getNameForInlinedModuleDeclaration( updatedModuleSpecifier ?? moduleSpecifier);
 
-		options.prependNodes(
-			...importDeclarations.map(importDeclaration => preserveParents(importDeclaration, options)),
-			preserveParents(
-				factory.createModuleDeclaration(
-					undefined,
-					ensureHasDeclareModifier(undefined, factory, typescript),
-					factory.createIdentifier(contResult.exportClause.name.text),
-					moduleBlock,
-					typescript.NodeFlags.Namespace
+
+		if (existingInlinedModuleDeclarationName == null) {
+			// Otherwise, prepend the nodes for the SourceFile in a namespace declaration
+			const moduleBlock = factory.createModuleBlock([
+				...options.includeSourceFile(matchingSourceFile, {
+					allowDuplicate: true,
+					allowExports: "skip-optional",
+					lexicalEnvironment: cloneLexicalEnvironment(),
+					transformers: [
+						ensureNoDeclareModifierTransformer,
+						statementMerger({markAsModuleIfNeeded: false}),
+						inlineNamespaceModuleBlockTransformer({
+							intentToAddImportDeclaration: importDeclaration => {
+								importDeclarations.push(importDeclaration);
+							},
+							intentToAddModuleDeclaration: moduleDeclaration => {
+								moduleDeclarations.push(moduleDeclaration);
+							}
+						})
+					]
+				})
+			]);
+
+			options.prependNodes(
+				...importDeclarations.map(importDeclaration => preserveParents(importDeclaration, options)),
+				...moduleDeclarations.map(moduleDeclaration => preserveParents(moduleDeclaration, options)),
+				preserveParents(
+					factory.createModuleDeclaration(
+						undefined,
+						ensureHasDeclareModifier(undefined, factory, typescript),
+						factory.createIdentifier(contResult.exportClause.name.text),
+						moduleBlock,
+						typescript.NodeFlags.Namespace
+					),
+					options
 				),
-				options
-			),
-			preserveParents(
-				factory.createExportDeclaration(
-					undefined,
-					undefined,
-					false,
-					factory.createNamedExports([factory.createExportSpecifier(undefined, factory.createIdentifier(contResult.exportClause.name.text))]),
-					undefined
-				),
-				options
+				preserveParents(
+					factory.createExportDeclaration(
+						undefined,
+						undefined,
+						false,
+						factory.createNamedExports([factory.createExportSpecifier(undefined, factory.createIdentifier(contResult.exportClause.name.text))]),
+						undefined
+					),
+					options
+				)
+			);
+			options.markModuleDeclarationAsInlined( updatedModuleSpecifier ?? moduleSpecifier!, contResult.exportClause.name.text);
+		} else {
+			options.prependNodes(
+				preserveParents(
+					factory.createExportDeclaration(
+						undefined,
+						undefined,
+						false,
+						factory.createNamedExports([
+							contResult.exportClause.name.text === existingInlinedModuleDeclarationName ? factory.createExportSpecifier(undefined, factory.createIdentifier(contResult.exportClause.name.text)) : factory.createExportSpecifier(factory.createIdentifier(existingInlinedModuleDeclarationName), factory.createIdentifier(contResult.exportClause.name.text))
+						]),
+						undefined
+					),
+					options
+				)
 			)
-		);
+		}
 	}
 
 	// Otherwise, preserve the continuation result, but without the ModuleSpecifier

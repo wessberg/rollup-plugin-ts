@@ -36,7 +36,7 @@ export function getImportedSymbolFromImportClauseName(clauseName: TS.Identifier,
 export function getImportedSymbolFromNamespaceImport(namespaceImport: TS.NamespaceImport, moduleSpecifier: string): ImportedSymbol {
 	return {
 		moduleSpecifier,
-		isDefaultImport: true,
+		isNamespaceImport: true,
 		propertyName: namespaceImport.name,
 		name: namespaceImport.name
 	};

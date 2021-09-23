@@ -16,4 +16,5 @@ export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptio
 	// Declarations are represented by IDs which are mapped a string, indicating the deconflicted names for them
 	declarationToDeconflictedBindingMap: Map<number, string>;
 	preservedImports: Map<string, Set<ImportedSymbol>>;
+	inlinedModules: Map<string, string>;
 }
