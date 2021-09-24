@@ -133,7 +133,7 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 		const importDeclarations: TS.ImportDeclaration[] = [];
 		const moduleDeclarations: TS.ModuleDeclaration[] = [];
 
-		const existingInlinedModuleDeclarationName =  updatedModuleSpecifier ?? moduleSpecifier == null ? undefined : options.getNameForInlinedModuleDeclaration( updatedModuleSpecifier ?? moduleSpecifier);
+		const existingInlinedModuleDeclarationName =  (updatedModuleSpecifier ?? moduleSpecifier) == null ? undefined : options.getNameForInlinedModuleDeclaration( updatedModuleSpecifier ?? moduleSpecifier!);
 
 
 		if (existingInlinedModuleDeclarationName == null) {
