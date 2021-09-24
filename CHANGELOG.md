@@ -1,3 +1,17 @@
+## [1.4.7](https://github.com/wessberg/rollup-plugin-ts/compare/v1.4.6...v1.4.7) (2021-09-24)
+
+
+### Bug Fixes
+
+* remove unused dependency ([e7a4c83](https://github.com/wessberg/rollup-plugin-ts/commit/e7a4c8316b8b0864443e07ef845b58d1f4ae95f1))
+
+
+### Features
+
+* avoid duplicating inlined module-/namespace declarations and hoist nested ones. [#149](https://github.com/wessberg/rollup-plugin-ts/issues/149) ([b21b20c](https://github.com/wessberg/rollup-plugin-ts/commit/b21b20c91e5793cb50ca579cb9f97c5357026b95))
+
+
+
 ## [1.4.6](https://github.com/wessberg/rollup-plugin-ts/compare/v1.4.5...v1.4.6) (2021-09-21)
 
 
