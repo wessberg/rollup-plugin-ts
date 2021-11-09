@@ -763,7 +763,7 @@ test.serial("Deconflicts symbols. #13", withTypeScript, async (t, {typescript}) 
 	);
 });
 
-test("Deconflicts symbols. #14", withTypeScript, async (t, {typescript}) => {
+test.serial("Deconflicts symbols. #14", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createExternalTestFiles("my-library", `export type Foo = string;`),
