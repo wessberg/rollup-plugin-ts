@@ -4,7 +4,7 @@ import {generateRollupBundle} from "./setup/setup-rollup";
 import json from "@rollup/plugin-json";
 import {formatCode} from "./util/format-code";
 
-test("Handles .JSON files that has been pre-transformed by other plugins. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles .JSON files that has been pre-transformed by other plugins. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

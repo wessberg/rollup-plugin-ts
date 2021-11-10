@@ -3,7 +3,7 @@ import {withTypeScript} from "./util/ts-macro";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import path from "crosspath";
 
-test("Supports rewritten paths with entryFileNames and chunkFileNames. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Supports rewritten paths with entryFileNames and chunkFileNames. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

@@ -3,7 +3,7 @@ import {withTypeScript} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Files are always treated as modules when generating declarations. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Files are always treated as modules when generating declarations. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -30,7 +30,7 @@ test("Files are always treated as modules when generating declarations. #1", wit
 	);
 });
 
-test("Files are always treated as modules when generating declarations. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Files are always treated as modules when generating declarations. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

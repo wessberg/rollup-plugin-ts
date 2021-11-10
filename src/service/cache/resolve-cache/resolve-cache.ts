@@ -98,7 +98,7 @@ export class ResolveCache {
 		// Otherwise, proceed
 		else {
 			// Make sure that the path is absolute from the cwd
-			resolvedModule.resolvedFileName = path.normalize(ensureAbsolute(cwd, resolvedModule.resolvedFileName!));
+			resolvedModule.resolvedFileName = path.includeDriveLetter(path.normalize(ensureAbsolute(cwd, resolvedModule.resolvedFileName!)));
 
 			if (resolvedModule.resolvedFileName.endsWith(D_TS_EXTENSION)) {
 				resolvedModule.resolvedAmbientFileName = resolvedModule.resolvedFileName;
@@ -106,7 +106,8 @@ export class ResolveCache {
 				resolvedModule.extension = D_TS_EXTENSION as TS.Extension;
 
 				if (isTslib(id)) {
-					const candidate = path.normalize(setExtension(resolvedModule.resolvedAmbientFileName, `.es6${JS_EXTENSION}`));
+					// Sometimes the drive letter is omitted by TypeScript on Windows here, which can lead to problems
+					const candidate = path.includeDriveLetter(path.normalize(setExtension(resolvedModule.resolvedAmbientFileName, `.es6${JS_EXTENSION}`)));
 
 					if (this.options.fileSystem.fileExists(path.native.normalize(candidate))) {
 						resolvedModule.resolvedFileName = candidate;

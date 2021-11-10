@@ -3,7 +3,7 @@ import {withTypeScript} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Won't inline modules marked as external. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Won't inline modules marked as external. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -41,7 +41,7 @@ test("Won't inline modules marked as external. #1", withTypeScript, async (t, {t
 	);
 });
 
-test("Won't inline modules marked as external. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Won't inline modules marked as external. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -84,7 +84,7 @@ test("Won't inline modules marked as external. #2", withTypeScript, async (t, {t
 	);
 });
 
-test("Won't inline modules marked as external. #3", withTypeScript, async (t, {typescript}) => {
+test.serial("Won't inline modules marked as external. #3", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

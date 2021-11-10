@@ -26,7 +26,7 @@ const handlePotentiallyAllowedFailingBabelError = (t: ExecutionContext, ex: unkn
 	}
 };
 
-test("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usage' option. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usage' option. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

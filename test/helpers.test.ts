@@ -3,7 +3,7 @@ import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {formatCode} from "./util/format-code";
 
-test("Will treat every file as a module with tslib. #1", withTypeScriptVersions(">=3.6"), async (t, {typescript}) => {
+test.serial("Will treat every file as a module with tslib. #1", withTypeScriptVersions(">=3.6"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -44,7 +44,7 @@ test("Will treat every file as a module with tslib. #1", withTypeScriptVersions(
 	);
 });
 
-test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -95,7 +95,7 @@ test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM.
 	);
 });
 
-test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #3", withTypeScript, async (t, {typescript}) => {
+test.serial("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #3", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
       {
@@ -165,7 +165,7 @@ test("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM.
 	);
 });
 
-test("Will use the proper @babel/runtime/helpers helpers when format is CJS. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Will use the proper @babel/runtime/helpers helpers when format is CJS. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

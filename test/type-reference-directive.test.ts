@@ -4,7 +4,7 @@ import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {createBuiltInModuleTestFiles, createExternalTestFiles} from "./setup/test-file";
 
-test("Detects type reference directives and respects tree-shaking and code-splitting. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createBuiltInModuleTestFiles("fs"),
@@ -41,7 +41,7 @@ test("Detects type reference directives and respects tree-shaking and code-split
 	);
 });
 
-test("Detects type reference directives and respects tree-shaking and code-splitting. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createBuiltInModuleTestFiles("buffer"),
@@ -71,7 +71,7 @@ test("Detects type reference directives and respects tree-shaking and code-split
 	);
 });
 
-test("Detects type reference directives and respects tree-shaking and code-splitting. #3", withTypeScript, async (t, {typescript}) => {
+test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #3", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createBuiltInModuleTestFiles("fs"),
@@ -146,7 +146,7 @@ test.serial("Detects type reference directives and respects tree-shaking and cod
 	);
 });
 
-test("Detects type reference directives and respects tree-shaking and code-splitting. #5", withTypeScript, async (t, {typescript}) => {
+test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #5", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -178,7 +178,7 @@ test("Detects type reference directives and respects tree-shaking and code-split
 	);
 });
 
-test("Detects type reference directives and respects tree-shaking and code-splitting. #6", withTypeScript, async (t, {typescript}) => {
+test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #6", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createExternalTestFiles(

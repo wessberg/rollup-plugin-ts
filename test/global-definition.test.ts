@@ -3,7 +3,7 @@ import {withTypeScript} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Detects d.ts files when matched by a ParsedCommandLine. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Detects d.ts files when matched by a ParsedCommandLine. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

@@ -4,7 +4,7 @@ import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {stripKnownExtension} from "../src/util/path/path-util";
 
-test("Declaration bundling supports code splitting. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Declaration bundling supports code splitting. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

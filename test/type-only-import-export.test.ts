@@ -3,7 +3,7 @@ import {withTypeScriptVersions} from "./util/ts-macro";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {formatCode} from "./util/format-code";
 
-test("Handles type-only imports and exports. #1", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+test.serial("Handles type-only imports and exports. #1", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

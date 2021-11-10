@@ -367,7 +367,6 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 	}
 
 	getSourceFile(fileName: string, languageVersion: TS.ScriptTarget = this.getScriptTarget()): TS.SourceFile | undefined {
-		// Sometimes the drive letter is omitted by TypeScript on Windows here, which can lead to problems
 		const absoluteFileName = path.includeDriveLetter(
 			isTypeScriptLib(fileName) ? path.join(this.getDefaultLibLocation(), fileName) : ensureAbsolute(this.getCwd(), fileName)
 		);

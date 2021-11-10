@@ -3,7 +3,7 @@ import {withTypeScript} from "./util/ts-macro";
 import {generateRollupBundle} from "./setup/setup-rollup";
 import {formatCode} from "./util/format-code";
 
-test("Correctly parse TypeScript config files within sub-directories. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Correctly parse TypeScript config files within sub-directories. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -68,7 +68,7 @@ test("Correctly parse TypeScript config files within sub-directories. #1", withT
 	);
 });
 
-test("Correctly parse TypeScript config files within sub-directories. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Correctly parse TypeScript config files within sub-directories. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

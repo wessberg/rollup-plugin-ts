@@ -4,7 +4,7 @@ import {generateRollupBundle} from "./setup/setup-rollup";
 import alias from "@rollup/plugin-alias";
 import {formatCode} from "./util/format-code";
 
-test("Integrates with @rollup/plugin-alias without problems. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Integrates with @rollup/plugin-alias without problems. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

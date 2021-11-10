@@ -3,7 +3,7 @@ import {withTypeScript} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Supports path mapping. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Supports path mapping. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -44,7 +44,7 @@ test("Supports path mapping. #1", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Supports path mapping. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Supports path mapping. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -86,7 +86,7 @@ test("Supports path mapping. #2", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Supports path mapping. #3", withTypeScript, async (t, {typescript}) => {
+test.serial("Supports path mapping. #3", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -130,7 +130,7 @@ test("Supports path mapping. #3", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Supports path mapping. #4", withTypeScript, async (t, {typescript}) => {
+test.serial("Supports path mapping. #4", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -172,7 +172,7 @@ test("Supports path mapping. #4", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Supports path mapping. #5", withTypeScript, async (t, {typescript}) => {
+test.serial("Supports path mapping. #5", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -214,7 +214,7 @@ test("Supports path mapping. #5", withTypeScript, async (t, {typescript}) => {
 	);
 });
 
-test("Supports path mapping. #6", withTypeScript, async (t, {typescript}) => {
+test.serial("Supports path mapping. #6", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

@@ -60,7 +60,7 @@ test.serial("Declaration maps correctly maps input sources. #1", withTypeScript,
 	);
 });
 
-test("Declaration maps correctly maps input sources. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Declaration maps correctly maps input sources. #2", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -99,7 +99,7 @@ test("Declaration maps correctly maps input sources. #2", withTypeScript, async 
 	);
 });
 
-test("Declaration maps respect rewritten output paths. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Declaration maps respect rewritten output paths. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

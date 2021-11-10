@@ -3,7 +3,7 @@ import {withTypeScript} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Won't produce empty declarations when output directory is not excluded from TypeScript. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Won't produce empty declarations when output directory is not excluded from TypeScript. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -53,7 +53,7 @@ test("Won't produce empty declarations when output directory is not excluded fro
 	);
 });
 
-test("Won't produce empty declarations when baseUrl is outside of compilation root. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Won't produce empty declarations when baseUrl is outside of compilation root. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

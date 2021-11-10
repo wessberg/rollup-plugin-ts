@@ -3,7 +3,7 @@ import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro";
 import {formatCode} from "./util/format-code";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Won't fail for .js extensions when allowJs is false. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Won't fail for .js extensions when allowJs is false. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -44,7 +44,7 @@ test("Won't fail for .js extensions when allowJs is false. #1", withTypeScript, 
 	);
 });
 
-test("Can generate declarations for .js sources when 'allowJs' is true. #1", withTypeScriptVersions(">=3.7"), async (t, {typescript}) => {
+test.serial("Can generate declarations for .js sources when 'allowJs' is true. #1", withTypeScriptVersions(">=3.7"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

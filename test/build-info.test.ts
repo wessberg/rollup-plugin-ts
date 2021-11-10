@@ -2,7 +2,7 @@ import test from "ava";
 import {withTypeScript} from "./util/ts-macro";
 import {generateRollupBundle} from "./setup/setup-rollup";
 
-test("Can generate .tsbuildinfo for a compilation unit. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Can generate .tsbuildinfo for a compilation unit. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -28,7 +28,7 @@ test("Can generate .tsbuildinfo for a compilation unit. #1", withTypeScript, asy
 	t.true(buildInfo != null);
 });
 
-test("Won't break for older TypeScript versions. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Won't break for older TypeScript versions. #1", withTypeScript, async (t, {typescript}) => {
 	await t.notThrowsAsync(
 		generateRollupBundle(
 			[
