@@ -13,11 +13,12 @@ import {BabelConfigFactory, FullConfig} from "./get-babel-config-result";
 import {TypescriptPluginBabelOptions} from "../../plugin/typescript-plugin-options";
 import {isDefined} from "../is-defined/is-defined";
 import type {ConfigItem, TransformOptions} from "@babel/core";
+import { BabelConfig } from "../../type/babel";
 
 /**
  * Returns true if the given babelConfig is IBabelInputOptions
  */
-function isBabelInputOptions(babelConfig?: TypescriptPluginBabelOptions["babelConfig"]): babelConfig is Partial<TransformOptions> {
+function isBabelInputOptions(babelConfig?: TypescriptPluginBabelOptions["babelConfig"]): babelConfig is Partial<BabelConfig> {
 	return babelConfig != null && typeof babelConfig !== "string";
 }
 

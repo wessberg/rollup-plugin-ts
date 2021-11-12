@@ -53,6 +53,7 @@
 		"@rollup/plugin-commonjs": "^21.0.1",
 		"@rollup/plugin-json": "^4.1.0",
 		"@rollup/plugin-multi-entry": "^4.1.0",
+		"@types/babel__core": "^7.1.16",
 		"@types/node": "^16.11.7",
 		"@types/prettier": "^2.4.1",
 		"@types/semver": "^7.3.9",
@@ -63,6 +64,7 @@
 		"@babel/runtime": "7.16.3",
 		"@babel/preset-env": "7.16.0",
 		"@babel/plugin-transform-runtime": "7.16.0",
+		"@swc/core": "1.2.108",
 		"ava": "3.15.0",
 		"babel-preset-minify": "^0.5.1",
 		"eslint": "^8.2.0",
@@ -98,7 +100,6 @@
 	},
 	"dependencies": {
 		"@rollup/pluginutils": "^4.1.1",
-		"@types/babel__core": "^7.1.16",
 		"@wessberg/stringutil": "^1.0.19",
 		"browserslist": "^4.17.6",
 		"browserslist-generator": "^1.0.64",

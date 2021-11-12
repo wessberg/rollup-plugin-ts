@@ -1,7 +1,7 @@
 import {CustomTransformersFunction} from "../util/merge-transformers/custom-transformer-options";
 import {TS} from "../type/ts";
-import {TransformOptions} from "@babel/core";
 import {DeclarationStats} from "../type/declaration-stats";
+import { BabelConfig } from "../type/babel";
 
 export type Transpiler = "typescript" | "babel";
 
@@ -53,7 +53,7 @@ export type TranspilationPhase = "file" | "chunk";
 export type EmitPathKind = OutputPathKind | "javascript";
 export type OutputPathHook = (path: string, kind: OutputPathKind) => string | undefined;
 export type DiagnosticsHook = (diagnostics: readonly TS.Diagnostic[]) => readonly TS.Diagnostic[] | undefined;
-export type BabelConfigHook = (config: TransformOptions | undefined, fileName: string | undefined, phase: TranspilationPhase) => TransformOptions | undefined;
+export type BabelConfigHook = (config: BabelConfig | undefined, fileName: string | undefined, phase: TranspilationPhase) => BabelConfig | undefined;
 export type DeclarationStatsHook = (stats: DeclarationStats) => DeclarationStats | undefined;
 
 export interface HookRecord {
@@ -92,7 +92,7 @@ export interface TypescriptPluginTypescriptOptions extends TypescriptPluginBaseO
 
 export interface TypescriptPluginBabelOptions extends TypescriptPluginBaseOptions {
 	transpiler: "babel";
-	babelConfig?: string | Partial<TransformOptions>;
+	babelConfig?: string | Partial<BabelConfig>;
 }
 
 export type TypescriptPluginOptions = TypescriptPluginTypescriptOptions | TypescriptPluginBabelOptions;
