@@ -8,11 +8,11 @@ import {
 	FORCED_BABEL_PRESET_ENV_OPTIONS,
 	FORCED_BABEL_YEARLY_PRESET_OPTIONS
 } from "../../constant/constant";
-import {ConfigItem, createConfigItem, loadOptions, loadPartialConfig, TransformOptions} from "@babel/core";
 import {GetBabelConfigOptions} from "./get-babel-config-options";
 import {BabelConfigFactory, FullConfig} from "./get-babel-config-result";
 import {TypescriptPluginBabelOptions} from "../../plugin/typescript-plugin-options";
 import {isDefined} from "../is-defined/is-defined";
+import type {ConfigItem, TransformOptions} from "@babel/core";
 
 /**
  * Returns true if the given babelConfig is IBabelInputOptions
@@ -84,10 +84,10 @@ function configItemIsAllowedDuringFilePhase(configItem: ConfigItem): boolean {
 /**
  * Gets a Babel Config based on the given options
  */
-export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOptions = {}, browserslist, phase, hook}: GetBabelConfigOptions): BabelConfigFactory {
+export function getBabelConfig({babel, babelConfig, cwd, forcedOptions = {}, defaultOptions = {}, browserslist, phase, hook}: GetBabelConfigOptions): BabelConfigFactory {
 	return (filename: string) => {
 		// Load a partial Babel config based on the input options
-		const partialConfig = loadPartialConfig(
+		const partialConfig = babel.loadPartialConfig(
 			// If babel options are provided directly
 			isBabelInputOptions(babelConfig)
 				? // If the given babelConfig is an object of input options, use that as the basis for the full config
@@ -119,7 +119,7 @@ export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOpt
 
 				// Apply the forced @babel/preset-env options here
 				if (isBabelPresetEnv(preset.file.resolved)) {
-					return createConfigItem(
+					return babel.createConfigItem(
 						[
 							preset.file.request,
 							{
@@ -142,7 +142,7 @@ export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOpt
 
 				// Apply the forced @babel/preset-es[2015|2016|2017...] options here
 				else if (isYearlyBabelPreset(preset.file.resolved)) {
-					return createConfigItem(
+					return babel.createConfigItem(
 						[
 							preset.file.request,
 							{
@@ -165,7 +165,7 @@ export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOpt
 
 				// Apply the forced @babel/preset-env options here
 				if (isBabelPluginTransformRuntime(plugin.file.resolved)) {
-					return createConfigItem(
+					return babel.createConfigItem(
 						[
 							plugin.file.request,
 							{
@@ -188,14 +188,18 @@ export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOpt
 			...otherForcedOptions,
 			presets: combineConfigItems(
 				(options.presets ?? []) as ConfigItem[],
-				defaultPresets == null ? undefined : (loadPartialConfig({presets: defaultPresets, ...configFileOption})?.options.presets as ConfigItem[] | null) ?? undefined,
-				forcedPresets == null ? undefined : (loadPartialConfig({presets: forcedPresets, ...configFileOption})?.options.presets as ConfigItem[] | null | undefined) ?? undefined,
+				defaultPresets == null ? undefined : (babel.loadPartialConfig({presets: defaultPresets, ...configFileOption})?.options.presets as ConfigItem[] | null) ?? undefined,
+				forcedPresets == null
+					? undefined
+					: (babel.loadPartialConfig({presets: forcedPresets, ...configFileOption})?.options.presets as ConfigItem[] | null | undefined) ?? undefined,
 				phase === "chunk"
 			),
 			plugins: combineConfigItems(
 				(options.plugins ?? []) as ConfigItem[],
-				defaultPlugins == null ? undefined : (loadPartialConfig({plugins: defaultPlugins, ...configFileOption})?.options.plugins as ConfigItem[] | null) ?? undefined,
-				forcedPlugins == null ? undefined : (loadPartialConfig({plugins: forcedPlugins, ...configFileOption})?.options.plugins as ConfigItem[] | null | undefined) ?? undefined,
+				defaultPlugins == null ? undefined : (babel.loadPartialConfig({plugins: defaultPlugins, ...configFileOption})?.options.plugins as ConfigItem[] | null) ?? undefined,
+				forcedPlugins == null
+					? undefined
+					: (babel.loadPartialConfig({plugins: forcedPlugins, ...configFileOption})?.options.plugins as ConfigItem[] | null | undefined) ?? undefined,
 				phase === "chunk"
 			)
 		};
@@ -207,7 +211,7 @@ export function getBabelConfig({babelConfig, cwd, forcedOptions = {}, defaultOpt
 
 		const combinedOptionsAfterHook = hook != null ? hook(combined, partialConfig.config ?? partialConfig.babelrc ?? undefined, phase) : combined;
 
-		const loadedOptions = (loadOptions({...combinedOptionsAfterHook, filename, ...configFileOption}) as FullConfig | null) ?? undefined;
+		const loadedOptions = (babel.loadOptions({...combinedOptionsAfterHook, filename, ...configFileOption}) as FullConfig | null) ?? undefined;
 
 		// Only return a config in the chunk phase if it includes at least one plugin or preset that is relevant to it
 		if (phase === "chunk") {

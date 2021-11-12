@@ -32,7 +32,7 @@ export type ChildVisitResult<T extends TS.Node> = T;
 
 export interface IncludeSourceFileOptions {
 	allowDuplicate: boolean;
-	allowExports: boolean|"skip-optional";
+	allowExports: boolean | "skip-optional";
 	lexicalEnvironment: LexicalEnvironment;
 	transformers: DeclarationTransformer[];
 }
@@ -46,8 +46,8 @@ export interface ModuleMergerVisitorOptions<T extends TS.Node> extends SourceFil
 
 	getMatchingSourceFile(moduleSpecifier: string, from: TS.SourceFile): TS.SourceFile | undefined;
 	shouldPreserveImportedSymbol(importedSymbol: ImportedSymbol): boolean;
-	getNameForInlinedModuleDeclaration (moduleSpecifier: string): string|undefined;
-	markModuleDeclarationAsInlined (moduleSpecifier: string, name: string): void;
+	getNameForInlinedModuleDeclaration(moduleSpecifier: string): string | undefined;
+	markModuleDeclarationAsInlined(moduleSpecifier: string, name: string): void;
 	includeSourceFile(sourceFile: TS.SourceFile, options?: Partial<IncludeSourceFileOptions>): Iterable<TS.Statement>;
 	prependNodes(...nodes: TS.Node[]): void;
 }

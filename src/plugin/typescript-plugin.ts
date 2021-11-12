@@ -15,7 +15,6 @@ import {ResolveCache} from "../service/cache/resolve-cache/resolve-cache";
 import {JSON_EXTENSION, REGENERATOR_RUNTIME_NAME_1, REGENERATOR_RUNTIME_NAME_2, ROLLUP_PLUGIN_VIRTUAL_PREFIX} from "../constant/constant";
 import {REGENERATOR_SOURCE} from "../lib/regenerator/regenerator";
 import {getDefaultBabelOptions} from "../util/get-default-babel-options/get-default-babel-options";
-import {transformAsync} from "@babel/core";
 import {createFilter} from "@rollup/pluginutils";
 import {mergeTransformers} from "../util/merge-transformers/merge-transformers";
 import {ensureArray} from "../util/ensure-array/ensure-array";
@@ -32,6 +31,7 @@ import {logEmit} from "../util/logging/log-emit";
 import {isJsonLike} from "../util/is-json-like/is-json-like";
 import {BabelConfigFactory} from "../util/get-babel-config/get-babel-config-result";
 import path from "crosspath";
+import {loadBabel} from "../util/transpiler-loader";
 
 /**
  * The name of the Rollup plugin
@@ -106,7 +106,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		/**
 		 * Invoked when Input options has been received by Rollup
 		 */
-		options(options: InputOptions): undefined {
+		async options(options: InputOptions): Promise<undefined> {
 			// Break if the options aren't different from the previous ones
 			if (rollupInputOptions != null) return;
 
@@ -140,6 +140,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				const computedBrowserslist = takeBrowserslistOrComputeBasedOnCompilerOptions(normalizedBrowserslist, parsedCommandLineResult.originalCompilerOptions, typescript);
 
 				const sharedBabelConfigFactoryOptions = {
+					babel: await loadBabel(),
 					cwd,
 					hook: pluginOptions.hook.babelConfig,
 					babelConfig: pluginOptions.babelConfig,
@@ -199,6 +200,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			}
 
 			const {config} = babelConfigChunkFactory(chunk.fileName);
+			const babel = await loadBabel();
 
 			// Don't proceed if there is no minification config
 			if (config == null) {
@@ -208,7 +210,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			const updatedCode = updatedSourceDescription != null ? updatedSourceDescription.code : code;
 			const updatedMap = updatedSourceDescription != null ? (updatedSourceDescription.map as ExistingRawSourceMap) : undefined;
 
-			const transpilationResult = await transformAsync(updatedCode, {
+			const transpilationResult = await babel.transformAsync(updatedCode, {
 				...config,
 				filenameRelative: ensureRelative(cwd, chunk.fileName),
 				...(updatedMap == null
@@ -243,7 +245,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 */
 		async transform(this: PluginContext, code: string, file: string): Promise<SourceDescription | undefined> {
 			const normalizedFile = path.normalize(file);
-			let sourceDescription: SourceDescription|undefined;
+			let sourceDescription: SourceDescription | undefined;
 
 			// If this file represents ROLLUP_PLUGIN_MULTI_ENTRY, we need to parse its' contents to understand which files it aliases.
 			// Following that, there's nothing more to do
@@ -260,7 +262,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// Some @babel/runtime helpers may depend on other helpers, but sometimes these are imported from the incorrect paths.
 			// For example, some @babel/runtime/helpers/esm files depend on CJS helpers where they actually should depend on esm helpers instead.
 			// In these cases, we'll have to transform the imports immediately since it will otherwise break for users who don't use something like the commonjs plugin,
-			// even though this is technically not a problem directly caused by or related to rollup-plugin-ts  
+			// even though this is technically not a problem directly caused by or related to rollup-plugin-ts
 			if (isBabelHelper(normalizedFile)) {
 				if (pluginOptions.transpiler === "babel") {
 					sourceDescription = replaceBabelHelpers(code, normalizedFile, "esm");
@@ -315,7 +317,8 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 				// Otherwise, pass it on to Babel to perform the rest of the transpilation steps
 				else {
-					const transpilationResult = await transformAsync(sourceDescription.code, {
+					const babel = await loadBabel();
+					const transpilationResult = await babel.transformAsync(sourceDescription.code, {
 						...babelConfigResult.config,
 						filenameRelative: ensureRelative(cwd, normalizedFile),
 						inputSourceMap: typeof sourceDescription.map === "string" ? JSON.parse(sourceDescription.map) : sourceDescription.map

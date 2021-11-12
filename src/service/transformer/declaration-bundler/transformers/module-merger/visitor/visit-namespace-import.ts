@@ -7,7 +7,7 @@ import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifi
 import {statementMerger} from "../../statement-merger/statement-merger";
 import {preserveParents} from "../../../util/clone-node-with-meta";
 import {inlineNamespaceModuleBlockTransformer} from "../../inline-namespace-module-block-transformer/inline-namespace-module-block-transformer";
-import { NamespaceImportedSymbol } from "../../track-imports-transformer/track-imports-transformer-visitor-options";
+import {NamespaceImportedSymbol} from "../../track-imports-transformer/track-imports-transformer-visitor-options";
 
 export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.NamespaceImport>): VisitResult<TS.NamespaceImport> {
 	const {node, factory, typescript, payload} = options;
@@ -73,7 +73,7 @@ export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.Name
 					),
 					{typescript}
 				)
-			)
+			);
 		}
 	}
 

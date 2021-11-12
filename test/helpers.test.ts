@@ -98,21 +98,34 @@ test.serial("Will use the proper @babel/runtime/helpers/esm helpers when format 
 test.serial("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #3", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
-      {
-        entry: false,
-        fileName: `node_modules/@babel/runtime/package.json`,
-        text: `
+			{
+				entry: false,
+				fileName: `node_modules/@babel/runtime/package.json`,
+				text: `
           {
             "name": "${module}",
             "version": "1.0.0",
             "types": "index.d.ts"
           }
         `
-      },
-      {
-        entry: false,
-        fileName: `node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn.js`,
-        text: `
+			},
+			{
+				entry: false,
+				fileName: `node_modules/@babel/runtime/helpers/esm/assertThisInitialized.js`,
+				text: `
+		  export default function _assertThisInitialized(self) {
+			if (self === void 0) {
+			  throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+			}
+		  
+			return self;
+		  } 
+		  `
+			},
+			{
+				entry: false,
+				fileName: `node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn.js`,
+				text: `
           import _typeof from "@babel/runtime/helpers/typeof";
           import assertThisInitialized from "./assertThisInitialized.js";
           export default function _possibleConstructorReturn(self, call) {
@@ -125,7 +138,7 @@ test.serial("Will use the proper @babel/runtime/helpers/esm helpers when format 
             return assertThisInitialized(self);
           }
         `
-      },
+			},
 			{
 				entry: true,
 				fileName: "index.ts",

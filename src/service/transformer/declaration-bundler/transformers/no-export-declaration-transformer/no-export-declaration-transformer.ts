@@ -9,7 +9,10 @@ import {preserveMeta} from "../../util/clone-node-with-meta";
 import {DeclarationTransformer} from "../../declaration-bundler-options";
 import {NoExportDeclarationTransformerOptions} from "./no-export-declaration-transformer-options";
 
-export function noExportDeclarationTransformer({preserveAliasedExports = false, preserveExportsWithModuleSpecifiers = false}: Partial<NoExportDeclarationTransformerOptions> = {}): DeclarationTransformer {
+export function noExportDeclarationTransformer({
+	preserveAliasedExports = false,
+	preserveExportsWithModuleSpecifiers = false
+}: Partial<NoExportDeclarationTransformerOptions> = {}): DeclarationTransformer {
 	return options => {
 		const {typescript, context, sourceFile, pluginOptions, printer} = options;
 
@@ -58,5 +61,5 @@ export function noExportDeclarationTransformer({preserveAliasedExports = false, 
 		fullBenchmark?.finish();
 
 		return result;
-	}
+	};
 }

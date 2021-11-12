@@ -12,7 +12,7 @@ const getErrorText = (ex: unknown): string => {
 		return String(ex);
 	}
 	return ex.message;
-}
+};
 
 const handlePotentiallyAllowedFailingBabelError = (t: ExecutionContext, ex: unknown): boolean => {
 	const text = getErrorText(ex);

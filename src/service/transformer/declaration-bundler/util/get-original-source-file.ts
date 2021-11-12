@@ -4,7 +4,7 @@ import {getOriginalNode} from "./get-original-node";
 
 export function getOriginalSourceFile<T extends SafeNode>(node: T, currentSourceFile: TS.SourceFile, typescript: typeof TS): TS.SourceFile {
 	const originalNode = getOriginalNode(node, typescript);
-	let sourceFile: TS.SourceFile|undefined = originalNode.getSourceFile();
+	let sourceFile: TS.SourceFile | undefined = originalNode.getSourceFile();
 	if (sourceFile != null) return sourceFile;
 
 	if (originalNode._parent != null) {

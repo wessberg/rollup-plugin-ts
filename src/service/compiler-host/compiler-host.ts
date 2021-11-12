@@ -367,9 +367,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 	}
 
 	getSourceFile(fileName: string, languageVersion: TS.ScriptTarget = this.getScriptTarget()): TS.SourceFile | undefined {
-		const absoluteFileName = path.includeDriveLetter(
-			isTypeScriptLib(fileName) ? path.join(this.getDefaultLibLocation(), fileName) : ensureAbsolute(this.getCwd(), fileName)
-		);
+		const absoluteFileName = path.includeDriveLetter(isTypeScriptLib(fileName) ? path.join(this.getDefaultLibLocation(), fileName) : ensureAbsolute(this.getCwd(), fileName));
 
 		if (this.sourceFiles.has(absoluteFileName)) {
 			return this.sourceFiles.get(absoluteFileName);

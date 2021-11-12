@@ -13,7 +13,9 @@ export function inlineNamespaceModuleBlockTransformer({intentToAddImportDeclarat
 
 		const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile) ? logMetrics(`Inlining ModuleBlock to be wrapped in a Namespace`, sourceFile.fileName) : undefined;
 
-		const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile) ? logTransformer("Inlining ModuleBlock to be wrapped in a Namespace", sourceFile, printer) : undefined;
+		const transformationLog = shouldDebugSourceFile(pluginOptions.debug, sourceFile)
+			? logTransformer("Inlining ModuleBlock to be wrapped in a Namespace", sourceFile, printer)
+			: undefined;
 
 		// Prepare some VisitorOptions
 		const visitorOptions = {

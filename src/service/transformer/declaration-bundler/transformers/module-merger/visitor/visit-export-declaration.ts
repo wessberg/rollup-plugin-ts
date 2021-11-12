@@ -133,8 +133,8 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 		const importDeclarations: TS.ImportDeclaration[] = [];
 		const moduleDeclarations: TS.ModuleDeclaration[] = [];
 
-		const existingInlinedModuleDeclarationName =  (updatedModuleSpecifier ?? moduleSpecifier) == null ? undefined : options.getNameForInlinedModuleDeclaration( updatedModuleSpecifier ?? moduleSpecifier!);
-
+		const existingInlinedModuleDeclarationName =
+			(updatedModuleSpecifier ?? moduleSpecifier) == null ? undefined : options.getNameForInlinedModuleDeclaration(updatedModuleSpecifier ?? moduleSpecifier!);
 
 		if (existingInlinedModuleDeclarationName == null) {
 			// Otherwise, prepend the nodes for the SourceFile in a namespace declaration
@@ -182,7 +182,7 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 					options
 				)
 			);
-			options.markModuleDeclarationAsInlined( updatedModuleSpecifier ?? moduleSpecifier!, contResult.exportClause.name.text);
+			options.markModuleDeclarationAsInlined(updatedModuleSpecifier ?? moduleSpecifier!, contResult.exportClause.name.text);
 		} else {
 			options.prependNodes(
 				preserveParents(
@@ -191,13 +191,15 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 						undefined,
 						false,
 						factory.createNamedExports([
-							contResult.exportClause.name.text === existingInlinedModuleDeclarationName ? factory.createExportSpecifier(undefined, factory.createIdentifier(contResult.exportClause.name.text)) : factory.createExportSpecifier(factory.createIdentifier(existingInlinedModuleDeclarationName), factory.createIdentifier(contResult.exportClause.name.text))
+							contResult.exportClause.name.text === existingInlinedModuleDeclarationName
+								? factory.createExportSpecifier(undefined, factory.createIdentifier(contResult.exportClause.name.text))
+								: factory.createExportSpecifier(factory.createIdentifier(existingInlinedModuleDeclarationName), factory.createIdentifier(contResult.exportClause.name.text))
 						]),
 						undefined
 					),
 					options
 				)
-			)
+			);
 		}
 	}
 
