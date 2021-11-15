@@ -7,6 +7,10 @@ import {
 	KNOWN_EXTENSIONS,
 	NODE_MODULES,
 	NODE_MODULES_MATCH_PATH,
+	REGENERATOR_RUNTIME_NAME_1,
+	REGENERATOR_RUNTIME_NAME_2,
+	REGENERATOR_RUNTIME_NAME_3,
+	REGENERATOR_RUNTIME_VIRTUAL_SRC,
 	ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY,
 	SWC_HELPERS_PREFIX,
 	TSLIB_NAME
@@ -46,6 +50,10 @@ export function isTslib(p: string): boolean {
  */
 export function isBabelHelper(p: string): boolean {
 	return includesBabelEsmHelper(p) || isBabelCjsHelper(p);
+}
+
+export function isRegeneratorRuntime (p: string): boolean {
+	return p.endsWith(REGENERATOR_RUNTIME_NAME_1) || p.endsWith(REGENERATOR_RUNTIME_NAME_2) || p.endsWith(REGENERATOR_RUNTIME_NAME_3) || p === REGENERATOR_RUNTIME_VIRTUAL_SRC;
 }
 
 /**

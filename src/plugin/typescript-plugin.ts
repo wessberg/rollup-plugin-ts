@@ -4,13 +4,13 @@ import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
 import {emitDiagnostics} from "../service/emit/diagnostics/emit-diagnostics";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
-import {ensureRelative, getExtension, isBabelHelper, isMultiEntryModule, isSwcHelper} from "../util/path/path-util";
+import {ensureRelative, getExtension, isBabelHelper, isMultiEntryModule, isRegeneratorRuntime, isSwcHelper} from "../util/path/path-util";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
 import {TypescriptPluginOptions} from "./typescript-plugin-options";
 import {getPluginOptions} from "../util/plugin-options/get-plugin-options";
 import {getBrowserslist} from "../util/get-browserslist/get-browserslist";
 import {ResolveCache} from "../service/cache/resolve-cache/resolve-cache";
-import {JSON_EXTENSION, REGENERATOR_RUNTIME_NAME_1, REGENERATOR_RUNTIME_NAME_2, ROLLUP_PLUGIN_VIRTUAL_PREFIX} from "../constant/constant";
+import {JSON_EXTENSION, REGENERATOR_RUNTIME_VIRTUAL_SRC, ROLLUP_PLUGIN_VIRTUAL_PREFIX} from "../constant/constant";
 import {REGENERATOR_SOURCE} from "../lib/regenerator/regenerator";
 import {createFilter} from "@rollup/pluginutils";
 import {mergeTransformers} from "../util/merge-transformers/merge-transformers";
@@ -436,6 +436,10 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// Don't proceed if there is no parent (in which case this is an entry module)
 			if (parent == null) return null;
 
+			if (id === "regenerator-runtime") {
+				return REGENERATOR_RUNTIME_VIRTUAL_SRC;
+			}
+
 			const resolveResult = host.resolve(id, parent);
 
 			const pickedResolveResult = resolveResult == null ? undefined : pickResolvedModule(resolveResult, false);
@@ -448,9 +452,9 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * being used
 		 */
 		load(this: PluginContext, id: string): string | null {
-			const normalizedId = path.normalize(id);
 			// Return the alternative source for the regenerator runtime if that file is attempted to be loaded
-			if (normalizedId.endsWith(REGENERATOR_RUNTIME_NAME_1) || normalizedId.endsWith(REGENERATOR_RUNTIME_NAME_2)) {
+			if (isRegeneratorRuntime(path.normalize(id))) {
+
 				return REGENERATOR_SOURCE;
 			}
 			return null;

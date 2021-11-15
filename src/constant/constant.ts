@@ -11,6 +11,9 @@ export const D_TS_EXTENSION = `.d${TS_EXTENSION}`;
 export const D_TS_MAP_EXTENSION = `.d${TS_EXTENSION}${SOURCE_MAP_EXTENSION}`;
 export const TSBUILDINFO_EXTENSION = `.tsbuildinfo`;
 
+export const ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY = "\0rollup-plugin-multi-entry:entry-point";
+export const ROLLUP_PLUGIN_VIRTUAL_PREFIX = `\0virtual:`;
+
 export const KNOWN_EXTENSIONS = new Set([
 	D_TS_EXTENSION,
 	D_TS_MAP_EXTENSION,
@@ -41,6 +44,8 @@ export const BABELRC_FILENAME = ".babelrc";
 
 export const REGENERATOR_RUNTIME_NAME_1 = `${BABEL_RUNTIME_PREFIX_1}regenerator/index.js`;
 export const REGENERATOR_RUNTIME_NAME_2 = `${BABEL_RUNTIME_PREFIX_2}regenerator/index.js`;
+export const REGENERATOR_RUNTIME_NAME_3 = `regenerator-runtime/runtime.js`;
+export const REGENERATOR_RUNTIME_VIRTUAL_SRC = `${ROLLUP_PLUGIN_VIRTUAL_PREFIX}regenerator-runtime`;
 export const BABEL_REQUIRE_RUNTIME_HELPER_ESM_REGEXP_1 = new RegExp(`(require\\(["'\`])(${BABEL_RUNTIME_PREFIX_1}helpers/esm/[^"'\`]*)["'\`]\\)`);
 export const BABEL_REQUIRE_RUNTIME_HELPER_ESM_REGEXP_2 = new RegExp(`(require\\(["'\`])(${BABEL_RUNTIME_PREFIX_2}helpers/esm/[^"'\`]*)["'\`]\\)`);
 export const BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_1 = new RegExp(`(import\\s+\\w+\\s+from\\s+["'\`])(${BABEL_RUNTIME_PREFIX_1}helpers/[^"'/\`]*)["'\`]`);
@@ -106,5 +111,3 @@ export const FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS = {
 	useESModules: true
 } as const;
 
-export const ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY = "\0rollup-plugin-multi-entry:entry-point";
-export const ROLLUP_PLUGIN_VIRTUAL_PREFIX = `\0virtual:`;
