@@ -25,7 +25,11 @@ const fsWorker = new CachedFs({fs});
 const tslibDir = path.dirname(require.resolve("tslib"));
 const nodeTypesDir = path.dirname(require.resolve("@types/node/package.json"));
 
-export function createExternalTestFiles(module: string, text: string): TestFile[] {
+export interface CreateExternalTestFilesOptions {
+	fileName: string;
+}
+
+export function createExternalTestFiles(module: string, text: string, {fileName = "index.d.ts"}: Partial<CreateExternalTestFilesOptions> = {}): TestFile[] {
 	return [
 		{
 			entry: false,
@@ -34,13 +38,13 @@ export function createExternalTestFiles(module: string, text: string): TestFile[
 				{
 					"name": "${module}",
 					"version": "1.0.0",
-					"types": "index.d.ts"
+					"types": "${fileName}"
 				}
 			`
 		},
 		{
 			entry: false,
-			fileName: `node_modules/${module}/index.d.ts`,
+			fileName: `node_modules/${module}/${fileName}`,
 			text
 		}
 	];
@@ -76,17 +80,53 @@ export function createBuiltInModuleTestFiles(module: "fs" | "globals" | "buffer"
 
 export function createTestFileStructure(input: MaybeArray<TestFile>, context: TestContext): TestFileStructure {
 	const tsModuleNames = [`typescript-${context.typescript.version.replace(/\./g, "-")}`, "typescript"];
-	let tsDir: string | undefined;
+	let tsLibsDir: string | undefined;
+	let swcHelperDir: string | undefined;
+	let babelRuntimeDir: string | undefined;
+
 	for (const tsModuleName of tsModuleNames) {
 		try {
-			tsDir = path.dirname(require.resolve(tsModuleName));
+			tsLibsDir = path.join(path.dirname(require.resolve(`${tsModuleName}/package.json`)), "lib");
 			break;
-		} catch (ex) {}
+		} catch (ex) {
+			// Noop
+		}
 	}
-	if (tsDir == null) {
+	if (tsLibsDir == null) {
 		throw new ReferenceError(`No TypeScript directory could be resolved inside node_modules`);
 	}
-	const builtInLibs = fs.readdirSync(tsDir).filter(file => file.startsWith("lib.") && file.endsWith(".d.ts"));
+
+	if (context.loadSwcHelpers) {
+		try {
+			swcHelperDir = path.dirname(require.resolve("@swc/helpers/package.json"));
+		} catch (ex) {
+			throw new ReferenceError(`No @swc/helpers directory could be resolved inside node_modules`);
+		}
+	}
+
+	if (context.loadBabelHelpers) {
+		try {
+			babelRuntimeDir = path.dirname(require.resolve("@babel/runtime/package.json"));
+		} catch (ex) {
+			throw new ReferenceError(`No @babel/runtime directory could be resolved inside node_modules`);
+		}
+	}
+
+	const builtInLibs = fs.readdirSync(tsLibsDir).filter(file => file.startsWith("lib.") && file.endsWith(".d.ts"));
+
+	const swcHelperFiles =
+		context.loadSwcHelpers && swcHelperDir != null ? ["package.json", ...fs.readdirSync(path.join(swcHelperDir, "lib")).map(file => path.join("lib", file))] : [];
+	const babelRuntimeHelperFiles =
+		context.loadBabelHelpers && babelRuntimeDir != null
+			? [
+					"package.json",
+					...fs
+						.readdirSync(path.join(babelRuntimeDir, "helpers"))
+						.filter(file => file !== "esm")
+						.map(file => path.join("helpers", file)),
+					...fs.readdirSync(path.join(babelRuntimeDir, "helpers/esm")).map(file => path.join("helpers/esm", file))
+			  ]
+			: [];
 
 	const DEFAULT_FILES: TestFileRecord[] = [
 		{
@@ -95,8 +135,18 @@ export function createTestFileStructure(input: MaybeArray<TestFile>, context: Te
 			internal: true
 		},
 		...builtInLibs.map(lib => ({
-			fileName: path.join(tsDir!, lib),
-			text: fsWorker.readFile(path.native.join(tsDir!, lib)) ?? "",
+			fileName: path.join(tsLibsDir!, lib),
+			text: fsWorker.readFile(path.native.join(tsLibsDir!, lib)) ?? "",
+			internal: true
+		})),
+		...swcHelperFiles.map(file => ({
+			fileName: path.join(`node_modules/@swc/helpers`, file),
+			text: fsWorker.readFile(path.native.join(swcHelperDir!, file)) ?? "",
+			internal: true
+		})),
+		...babelRuntimeHelperFiles.map(file => ({
+			fileName: path.join(`node_modules/@babel/runtime`, file),
+			text: fsWorker.readFile(path.native.join(babelRuntimeDir!, file)) ?? "",
 			internal: true
 		}))
 	];

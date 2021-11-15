@@ -33,6 +33,7 @@ export const SOURCE_MAP_COMMENT_REGEXP = /\/\/# sourceMappingURL=(\S*)/;
 export const TSLIB_NAME = `tslib${D_TS_EXTENSION}`;
 export const BABEL_RUNTIME_PREFIX_1 = "@babel/runtime/";
 export const BABEL_RUNTIME_PREFIX_2 = "babel-runtime/";
+export const SWC_HELPERS_PREFIX = "@swc/helpers";
 
 export const BABEL_CONFIG_JS_FILENAME = "babel.config.js";
 export const BABEL_CONFIG_JSON_FILENAME = "babel.config.json";
@@ -46,6 +47,10 @@ export const BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_1 = new RegExp(`(import\\s+\
 export const BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_2 = new RegExp(`(import\\s+\\w+\\s+from\\s+["'\`])(${BABEL_RUNTIME_PREFIX_2}helpers/[^"'/\`]*)["'\`]`);
 export const BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_3 = new RegExp(`(import\\s+["'\`])(${BABEL_RUNTIME_PREFIX_1}helpers/[^"'/\`]*)["'\`]`);
 export const BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_4 = new RegExp(`(import\\s+["'\`])(${BABEL_RUNTIME_PREFIX_2}helpers/[^"'/\`]*)["'\`]`);
+
+const swcHelpersVariableName = `swcHelpers`;
+export const SWC_IMPORT_HELPERS_REGEXP = new RegExp(`import\\s+\\*\\s+as\\s+${swcHelpersVariableName}\\s+from\\s+["'\`]${SWC_HELPERS_PREFIX}["'\`];?\\n?\\r?`);
+export const SWC_HELPER_USAGE_REGEXP = new RegExp(`${swcHelpersVariableName}\\.(\\w+)`);
 
 export const BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES = [];
 
@@ -78,20 +83,28 @@ export const BABEL_MINIFY_PLUGIN_NAMES = [
 	"babel-plugin-transform-undefined-to-void"
 ];
 
+export const FORCED_SWC_MODULE_OPTIONS = {
+	type: "es6"
+} as const;
+
+export const FORCED_SWC_JSC_OPTIONS = {
+	externalHelpers: true
+} as const;
+
 export const FORCED_BABEL_PRESET_ENV_OPTIONS = {
 	modules: false
-};
+} as const;
 
 export const FORCED_BABEL_YEARLY_PRESET_OPTIONS = {
 	...FORCED_BABEL_PRESET_ENV_OPTIONS
-};
+} as const;
 
 export const FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS = {
 	helpers: true,
 	regenerator: true,
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	useESModules: true
-};
+} as const;
 
 export const ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY = "\0rollup-plugin-multi-entry:entry-point";
 export const ROLLUP_PLUGIN_VIRTUAL_PREFIX = `\0virtual:`;

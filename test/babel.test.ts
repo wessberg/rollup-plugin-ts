@@ -6,6 +6,7 @@ import {BABEL_CONFIG_JS_FILENAME, BABEL_CONFIG_JSON_FILENAME, BABELRC_FILENAME} 
 import {areTempFilesEqual, createTemporaryFile} from "./util/create-temporary-file";
 import {getAppropriateEcmaVersionForBrowserslist} from "browserslist-generator";
 import {formatCode} from "./util/format-code";
+import {createExternalTestFiles} from "./setup/test-file";
 
 const getErrorText = (ex: unknown): string => {
 	if (ex == null || !(ex instanceof Error)) {
@@ -29,6 +30,7 @@ const handlePotentiallyAllowedFailingBabelError = (t: ExecutionContext, ex: unkn
 test.serial("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usage' option. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
+			...createExternalTestFiles("core-js", `export {}`, {fileName: `modules/es.array.includes.js`}),
 			{
 				entry: true,
 				fileName: "index.ts",
@@ -45,6 +47,9 @@ test.serial("Doesn't break when combining @babel/preset-env with the useBuiltins
 			tsconfig: {
 				target: "es5",
 				allowJs: true
+			},
+			rollupOptions: {
+				external: file => file.includes(`core-js`)
 			},
 			babelConfig: {
 				presets: [
@@ -418,4 +423,149 @@ test.serial("Will apply minification-related plugins only in the renderChunk pha
 
 	t.false(isMinifiedInTransformPhase);
 	t.true(isMinifiedInChunkPhase);
+});
+
+test.serial("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #1", withTypeScript, async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+						(async () => {})();
+					`
+			}
+		],
+		{
+			typescript,
+			transpiler: "babel",
+			loadBabelHelpers: true,
+			rollupOptions: {
+				external: fileName => fileName.includes("@babel")
+			},
+
+			tsconfig: {
+				target: "es3"
+			}
+		}
+	);
+	const {
+		bundle: {
+			output: [file]
+		}
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		import _asyncToGenerator from '@babel/runtime/helpers/esm/asyncToGenerator';
+		import _regeneratorRuntime from '@babel/runtime/regenerator';
+		
+		_asyncToGenerator(
+		/*#__PURE__*/ _regeneratorRuntime.mark(function _callee() {
+			return _regeneratorRuntime.wrap(function _callee$(_context) {
+				while (1) {
+					switch (_context.prev = _context.next) {
+						case 0:
+						case "end":
+							return _context.stop();
+					}
+				}
+			}, _callee);
+		}))();
+			`)
+	);
+});
+
+test.serial("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #3", withTypeScript, async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+        class ObjX extends Object {}
+
+					`
+			}
+		],
+		{
+			typescript,
+			transpiler: "babel",
+			loadBabelHelpers: true,
+			rollupOptions: {
+				external: fileName => fileName.includes("@babel") && fileName.includes("typeof")
+			},
+
+			tsconfig: {
+				target: "es3"
+			}
+		}
+	);
+	const {
+		bundle: {
+			output: [file]
+		}
+	} = bundle;
+
+	t.deepEqual(formatCode(file.code), formatCode(`import '@babel/runtime/helpers/esm/typeof';`));
+});
+
+test.serial("Will use the proper @babel/runtime/helpers helpers when format is CJS. #1", withTypeScript, async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+						(async () => {})();
+					`
+			}
+		],
+		{
+			typescript,
+			transpiler: "babel",
+			loadBabelHelpers: true,
+			format: "cjs",
+			rollupOptions: {
+				external: fileName => fileName.includes("@babel")
+			},
+
+			tsconfig: {
+				target: "es3"
+			}
+		}
+	);
+	const {
+		bundle: {
+			output: [file]
+		}
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		'use strict';
+
+		var _asyncToGenerator = require('@babel/runtime/helpers/asyncToGenerator');
+		var _regeneratorRuntime = require('@babel/runtime/regenerator');
+		
+		function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+		
+		var _asyncToGenerator__default = /*#__PURE__*/_interopDefaultLegacy(_asyncToGenerator);
+		var _regeneratorRuntime__default = /*#__PURE__*/_interopDefaultLegacy(_regeneratorRuntime);
+		
+		_asyncToGenerator__default['default']( /*#__PURE__*/_regeneratorRuntime__default['default'].mark(function _callee() {
+			return _regeneratorRuntime__default['default'].wrap(function _callee$(_context) {
+				while (1) {
+					switch (_context.prev = _context.next) {
+						case 0:
+						case "end":
+							return _context.stop();
+					}
+				}
+			}, _callee);
+		}))();
+			`)
+	);
 });

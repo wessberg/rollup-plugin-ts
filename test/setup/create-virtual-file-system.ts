@@ -6,7 +6,7 @@ import {FileSystem} from "../../src/util/file-system/file-system";
 export function createVirtualFileSystem(files: TestFileRecord[]): FileSystem {
 	const vol = new Volume();
 	for (const file of files) {
-		vol.mkdirSync(path.native.dirname(file.fileName), {recursive: true});
+		vol.mkdirSync(path.native.normalize(path.dirname(file.fileName)), {recursive: true});
 		vol.writeFileSync(path.native.normalize(file.fileName), file.text);
 	}
 

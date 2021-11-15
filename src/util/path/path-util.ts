@@ -8,6 +8,7 @@ import {
 	NODE_MODULES,
 	NODE_MODULES_MATCH_PATH,
 	ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY,
+	SWC_HELPERS_PREFIX,
 	TSLIB_NAME
 } from "../../constant/constant";
 import {ExternalOption} from "rollup";
@@ -45,6 +46,13 @@ export function isTslib(p: string): boolean {
  */
 export function isBabelHelper(p: string): boolean {
 	return includesBabelEsmHelper(p) || isBabelCjsHelper(p);
+}
+
+/**
+ * Returns true if the given path represents a swc helper
+ */
+export function isSwcHelper(p: string): boolean {
+	return path.normalize(p).includes(`${SWC_HELPERS_PREFIX}`);
 }
 
 /**

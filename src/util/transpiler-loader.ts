@@ -1,4 +1,5 @@
 import {Babel} from "../type/babel";
+import {Swc} from "../type/swc";
 import {listFormat} from "./list-format";
 
 /**
@@ -6,13 +7,22 @@ import {listFormat} from "./list-format";
  */
 let babelModule: typeof Babel | undefined;
 
-export async function loadBabel(): Promise<typeof Babel> {
-	if (babelModule != null) {
-		return babelModule;
-	}
+/**
+ * The swc module is optionally imported on-demand as needed
+ */
+let swcModule: typeof Swc | undefined;
 
-	// To use babel, the following modules must be installed
-	const moduleNames = ["@babel/core", "@babel/runtime", "@babel/plugin-transform-runtime", "@babel/preset-env"] as const;
+export async function loadBabel(): Promise<typeof Babel> {
+	return (babelModule ??= await loadModules("babel", "@babel/core", ["@babel/runtime", "@babel/plugin-transform-runtime", "@babel/preset-env"]));
+}
+
+export async function loadSwc(): Promise<typeof Swc> {
+	return (swcModule ??= await loadModules("swc", "@swc/core", ["@swc/helpers"]));
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function loadModules<TCoreModule extends string, TSubModules extends string[]>(context: string, coreModule: TCoreModule, subModules?: TSubModules): Promise<any> {
+	const moduleNames = [coreModule, ...(subModules ?? [])] as const;
 
 	// We could be using Promise.allSettled here, but since we still allow Node v10 we'll have to shim it here.
 	// Once we move up to Node v12.9 or newer, we can replace this with simply Promise.allSettled
@@ -40,10 +50,6 @@ export async function loadBabel(): Promise<typeof Babel> {
 
 	const [core] = results;
 
-	if (core.status === "fulfilled") {
-		babelModule = core.value;
-	}
-
 	const rejectedModuleNames = moduleNames.filter((moduleName, index) => {
 		const result = results[index];
 		if (result.status === "fulfilled") return false;
@@ -57,18 +63,18 @@ export async function loadBabel(): Promise<typeof Babel> {
 		);
 	});
 
-	if (rejectedModuleNames.length > 0) {
+	if (core.status === "rejected" || rejectedModuleNames.length > 0) {
 		const formattedRejectedModuleNames = listFormat(rejectedModuleNames, "and", rejectedModuleName => `"${rejectedModuleName}"`);
 
 		throw new ReferenceError(
-			`The following babel ${
+			`The following ${context} ${
 				rejectedModuleNames.length === 1 ? "dependency" : "dependencies"
 			} could not be found within your node_modules folder: ${formattedRejectedModuleNames}. Make sure to install ${
 				rejectedModuleNames.length === 1 ? "it" : "them"
-			} if you want to use babel for transpilation`
+			} if you want to use ${context} for transpilation`
 		);
 	}
 
-	// At this point, the babel module will always be defined
-	return babelModule!;
+	// At this point, the core module will always be defined
+	return core.value;
 }

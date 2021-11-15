@@ -17,8 +17,8 @@ function getForcedModuleKindOption({pluginOptions}: GetForcedCompilerOptionsOpti
  * Gets the ScriptTarget to force
  */
 function getForcedScriptTargetOption({pluginOptions, browserslist}: GetForcedCompilerOptionsOptions): {target?: TS.ScriptTarget} {
-	// If Babel should perform the transpilation, always target the latest ECMAScript version and let Babel take care of the rest
-	if (pluginOptions.transpiler === "babel") {
+	// If anything else than TypeScript should perform the transpilation, always target the latest ECMAScript version and let the transpiler take care of the rest
+	if (pluginOptions.transpiler !== "typescript") {
 		return {target: pluginOptions.typescript.ScriptTarget.ESNext};
 	}
 

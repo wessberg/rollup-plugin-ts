@@ -3,15 +3,17 @@ import {InputCompilerOptions, TypescriptPluginOptions} from "../../src/plugin/ty
 import path from "crosspath";
 
 export interface TestContext {
-	typescript: typeof TS;
-	debug: TypescriptPluginOptions["debug"];
 	cwd: string;
 	dist: string;
+	transpileOnly: boolean;
+	loadBabelHelpers: boolean;
+	loadSwcHelpers: boolean;
+	typescript: typeof TS;
+	debug: TypescriptPluginOptions["debug"];
 	hook: TypescriptPluginOptions["hook"];
 	transpiler: TypescriptPluginOptions["transpiler"];
 	exclude: TypescriptPluginOptions["exclude"];
 	include: TypescriptPluginOptions["include"];
-	transpileOnly: boolean;
 	tsconfig: Partial<InputCompilerOptions> | string;
 }
 
@@ -23,6 +25,8 @@ export function createTestContext({
 	hook = {outputPath: p => p},
 	transpileOnly = false,
 	transpiler = "typescript",
+	loadBabelHelpers = false,
+	loadSwcHelpers = false,
 	tsconfig = {},
 	exclude = [],
 	include = []
@@ -38,6 +42,8 @@ export function createTestContext({
 		typescript,
 		cwd,
 		dist,
+		loadBabelHelpers,
+		loadSwcHelpers,
 		hook,
 		transpileOnly,
 		transpiler,

@@ -1,9 +1,10 @@
 import {CustomTransformersFunction} from "../util/merge-transformers/custom-transformer-options";
 import {TS} from "../type/ts";
 import {DeclarationStats} from "../type/declaration-stats";
-import { BabelConfig } from "../type/babel";
+import {BabelConfig} from "../type/babel";
+import {SwcConfig} from "../type/swc";
 
-export type Transpiler = "typescript" | "babel";
+export type Transpiler = "typescript" | "babel" | "swc";
 
 export interface DebugTransformerData {
 	kind: "transformer";
@@ -54,12 +55,14 @@ export type EmitPathKind = OutputPathKind | "javascript";
 export type OutputPathHook = (path: string, kind: OutputPathKind) => string | undefined;
 export type DiagnosticsHook = (diagnostics: readonly TS.Diagnostic[]) => readonly TS.Diagnostic[] | undefined;
 export type BabelConfigHook = (config: BabelConfig | undefined, fileName: string | undefined, phase: TranspilationPhase) => BabelConfig | undefined;
+export type SwcConfigHook = (config: SwcConfig | undefined, fileName: string | undefined, phase: TranspilationPhase) => SwcConfig | undefined;
 export type DeclarationStatsHook = (stats: DeclarationStats) => DeclarationStats | undefined;
 
 export interface HookRecord {
 	outputPath: OutputPathHook;
 	diagnostics: DiagnosticsHook;
 	babelConfig: BabelConfigHook;
+	swcConfig: SwcConfigHook;
 	declarationStats: DeclarationStatsHook;
 }
 
@@ -95,4 +98,9 @@ export interface TypescriptPluginBabelOptions extends TypescriptPluginBaseOption
 	babelConfig?: string | Partial<BabelConfig>;
 }
 
-export type TypescriptPluginOptions = TypescriptPluginTypescriptOptions | TypescriptPluginBabelOptions;
+export interface TypescriptPluginSwcOptions extends TypescriptPluginBaseOptions {
+	transpiler: "swc";
+	swcConfig?: string | Partial<SwcConfig>;
+}
+
+export type TypescriptPluginOptions = TypescriptPluginTypescriptOptions | TypescriptPluginBabelOptions | TypescriptPluginSwcOptions;

@@ -1,7 +1,7 @@
 import {Plugin, rollup, RollupOptions, RollupOutput} from "rollup";
 import commonjs from "@rollup/plugin-commonjs";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
-import {HookRecord, InputCompilerOptions, TypescriptPluginBabelOptions, TypescriptPluginOptions} from "../../src/plugin/typescript-plugin-options";
+import {HookRecord, InputCompilerOptions, TypescriptPluginBabelOptions, TypescriptPluginOptions, TypescriptPluginSwcOptions} from "../../src/plugin/typescript-plugin-options";
 import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, TSBUILDINFO_EXTENSION} from "../../src/constant/constant";
 import {TS} from "../../src/type/ts";
 import {logVirtualFiles} from "../../src/util/logging/log-virtual-files";
@@ -22,7 +22,8 @@ export interface GenerateRollupBundleResult {
 
 export interface GenerateRollupBundleOptions {
 	dist: string;
-
+	loadBabelHelpers: boolean;
+	loadSwcHelpers: boolean;
 	rollupOptions: Partial<RollupOptions>;
 	format: "esm" | "cjs";
 	tsconfig: Partial<InputCompilerOptions> | string;
@@ -37,6 +38,7 @@ export interface GenerateRollupBundleOptions {
 	transpiler: TypescriptPluginOptions["transpiler"];
 	transformers: TypescriptPluginOptions["transformers"];
 	babelConfig: TypescriptPluginBabelOptions["babelConfig"];
+	swcConfig: TypescriptPluginSwcOptions["swcConfig"];
 	browserslist: TypescriptPluginOptions["browserslist"];
 	chunkFileNames: string;
 	entryFileNames: string;
@@ -57,6 +59,7 @@ export async function generateRollupBundle(
 		transformers,
 		browserslist,
 		babelConfig,
+		swcConfig,
 		...options
 	}: Partial<GenerateRollupBundleOptions> = {}
 ): Promise<GenerateRollupBundleResult> {
@@ -143,12 +146,7 @@ export async function generateRollupBundle(
 		...rollupOptions,
 		onwarn: (warning, defaultHandler) => {
 			// Eat all irrelevant Rollup warnings (such as 'Generated an empty chunk: "index") while running tests
-			if (
-				!warning.message.includes("Generated an empty chunk") &&
-				!warning.message.includes("but could not be resolved") &&
-				!warning.message.includes(`Circular dependency:`) &&
-				!warning.message.includes(`Conflicting namespaces:`)
-			) {
+			if (!warning.message.includes("Generated an empty chunk") && !warning.message.includes(`Circular dependency:`) && !warning.message.includes(`Conflicting namespaces:`)) {
 				defaultHandler(warning);
 			}
 		},
@@ -165,7 +163,8 @@ export async function generateRollupBundle(
 				fileSystem,
 				transformers,
 				browserslist,
-				babelConfig
+				babelConfig,
+				swcConfig
 			}),
 			...(rollupOptions.plugins == null ? [] : rollupOptions.plugins),
 			...postPlugins

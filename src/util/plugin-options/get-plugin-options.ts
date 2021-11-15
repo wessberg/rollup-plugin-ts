@@ -38,17 +38,29 @@ export function getPluginOptions(options: Partial<TypescriptPluginOptions>): Typ
 		hook
 	};
 
-	// If we're to use Typescript, return the Typescript-options
-	if (transpiler === "typescript") {
-		return {
-			...baseOptions,
-			transpiler: "typescript"
-		};
-	} else {
-		return {
-			...baseOptions,
-			...("babelConfig" in options ? {babelConfig: options.babelConfig} : {}),
-			transpiler: "babel"
-		};
+	switch (transpiler) {
+		case "babel": {
+			return {
+				...baseOptions,
+				...("babelConfig" in options ? {babelConfig: options.babelConfig} : {}),
+				transpiler: "babel"
+			};
+		}
+
+		case "swc": {
+			return {
+				...baseOptions,
+				...("swcConfig" in options ? {swcConfig: options.swcConfig} : {}),
+				transpiler: "swc"
+			};
+		}
+
+		// TypeScript
+		default: {
+			return {
+				...baseOptions,
+				transpiler: "typescript"
+			};
+		}
 	}
 }
