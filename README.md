@@ -88,16 +88,10 @@ Tooling in the JavaScript ecosystem can often be complex, and this is very much 
   - [Combining Typescript with a Browserslist](#combining-typescript-with-a-browserslist)
     - [Using the plugin with Typescript, but without Browserslists](#using-the-plugin-with-typescript-but-without-browserslists)
   - [Combining Typescript with Babel](#combining-typescript-with-babel)
-    - [Installing Babel peer dependencies with npm](#installing-babel-peer-dependencies-with-npm)
-    - [Installing Babel peer dependencies with Yarn](#installing-babel-peer-dependencies-with-yarn)
-    - [Installing Babel peer dependencies with pnpm](#installing-babel-peer-dependencies-with-pnpm)
-    * [Special handling for minification plugins/presets](#special-handling-for-minification-pluginspresets)
-    * [`@babel/runtime` and external helpers](#babelruntime-and-external-helpers)
-    * [`@babel/runtime` and polyfills](#babelruntime-and-polyfills)
+    - [Special handling for minification plugins/presets](#special-handling-for-minification-pluginspresets)
+    - [`@babel/runtime` and external helpers](#babelruntime-and-external-helpers)
+    - [`@babel/runtime` and polyfills](#babelruntime-and-polyfills)
   - [Combining Typescript with swc](#combining-typescript-with-swc)
-    - [Installing swc peer dependencies with npm](#installing-swc-peer-dependencies-with-npm)
-    - [Installing swc peer dependencies with Yarn](#installing-swc-peer-dependencies-with-yarn)
-    - [Installing swc peer dependencies with pnpm](#installing-swc-peer-dependencies-with-pnpm)
   - [Using `Custom Transformers`](#using-custom-transformers)
 - [Declaration files](#declaration-files)
 - [Examples](#examples)
@@ -314,19 +308,19 @@ ts({
 
 Now, all that remains is to simply install the peer dependencies relevant to `babel`. Please install `@babel/core`, `@babel/runtime`, `@babel/plugin-transform-runtime`, and `@babel/preset-env` as well with your package manager:
 
-#### Installing Babel peer dependencies with npm
+**npm**
 
 ```
 $ npm install @babel/core @babel/runtime @babel/plugin-transform-runtime @babel/preset-env --save-dev
 ```
 
-#### Installing Babel peer dependencies with Yarn
+**Yarn**
 
 ```
 $ yarn add @babel/core @babel/runtime @babel/plugin-transform-runtime @babel/preset-env --dev
 ```
 
-#### Installing Babel peer dependencies with pnpm
+**pnpm**
 
 ```
 $ pnpm add @babel/core @babel/runtime @babel/plugin-transform-runtime @babel/preset-env --save-dev
@@ -369,19 +363,19 @@ ts({
 
 Now, all that remains is to simply install the peer dependencies relevant to `swc`. Please install `@swc/core` and `@swc/helpers` as well with your package manager:
 
-#### Installing swc peer dependencies with npm
+**npm**
 
 ```
 $ npm install @swc/core @swc/helpers --save-dev
 ```
 
-#### Installing swc peer dependencies with Yarn
+**Yarn**
 
 ```
 $ yarn add @swc/core @swc/helpers --dev
 ```
 
-#### Installing swc peer dependencies with pnpm
+**pnpm**
 
 ```
 $ pnpm add @swc/core @swc/helpers --save-dev
