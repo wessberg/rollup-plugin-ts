@@ -88,6 +88,9 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 			module: typescript.ModuleKind.System,
 			emitDeclarationOnly: true,
 
+			// This can cause TS2612 errors that wouldn't otherwise happen
+			useDefineForClassFields: false,
+
 			// Never allow these options for bundled declarations
 			composite: false,
 			incremental: false,
