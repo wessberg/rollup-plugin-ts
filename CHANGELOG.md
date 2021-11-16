@@ -1,3 +1,21 @@
+# [2.0.0](https://github.com/wessberg/rollup-plugin-ts/compare/v1.4.7...v2.0.0) (2021-11-16)
+
+
+### Bug Fixes
+
+* add support for shimming regenerator-runtime when using swc as a transpiler ([1513fc5](https://github.com/wessberg/rollup-plugin-ts/commit/1513fc51a408846b9e9b9222b3f275dbb3481f37))
+* ensure that the drive letter is prefixed to absolute paths on Windows when getSourceFile is called internally from TypeScript ([f368af3](https://github.com/wessberg/rollup-plugin-ts/commit/f368af358fb3ce891a966bb8d34aceb42edda126))
+* ensure that the drive letter is prefixed to absolute paths on Windows when getSourceFile is called internally from TypeScript ([cf6d3cc](https://github.com/wessberg/rollup-plugin-ts/commit/cf6d3cc0109167319da969a4bb35c20b5f130f1a))
+* when emiting declarations, always use define for class fields to work around limitations introduced in TypeScript 4.3 for when bundling declarations when a subclass overrides a property from the parent class but doesn't provide an initializer ([b25a494](https://github.com/wessberg/rollup-plugin-ts/commit/b25a4946bc8a83c2baa8649e7b55451247466488))
+
+
+### Features
+
+* add support for swc as a transpiler as an alternative to babel. [#155](https://github.com/wessberg/rollup-plugin-ts/issues/155) ([e84d21c](https://github.com/wessberg/rollup-plugin-ts/commit/e84d21c020c03733ad369880f98b2b01b2bad777))
+* no longer depend on @babel/core types in npm package ([d91ec74](https://github.com/wessberg/rollup-plugin-ts/commit/d91ec7424b184040302e7e64a52d53d968b30aa4))
+
+
+
 ## [1.4.7](https://github.com/wessberg/rollup-plugin-ts/compare/v1.4.6...v1.4.7) (2021-09-24)
 
 
