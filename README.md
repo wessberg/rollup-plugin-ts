@@ -6,7 +6,7 @@
 
 <!-- SHADOW_SECTION_DESCRIPTION_SHORT_START -->
 
-> A TypeScript Rollup plugin that bundles declarations and respects Browserslists
+> A TypeScript Rollup plugin that bundles declarations, respects Browserslists, and enables seamless integration with transpilers such as babel and swc
 
 <!-- SHADOW_SECTION_DESCRIPTION_SHORT_END -->
 
@@ -28,9 +28,11 @@
 
 <!-- SHADOW_SECTION_DESCRIPTION_LONG_END -->
 
-This is a Rollup plugin that enables integration between Typescript, Babel, Browserslists, and Rollup.
-It is first and foremost a Typescript plugin that enables full interoperability with Rollup. With it comes
-very powerful bundling and tree-shaking of generated Typescript declaration files that works seamlessly with code splitting.
+This is first and foremost a TypeScript plugin for Rollup that brings the best of both together in a package that also respects [Browserslists](https://github.com/browserslist/browserslist), bundles declaration files, and enables seamless integration with other transpilers such as [Babel](https://babeljs.io) and [swc](https://swc.rs/).
+
+One of the most powerful features of `rollup-plugin-ts` is declaration bundling and tree-shaking that works seamlessly with code splitting. That means you'll always get the smallest possible declaration files that match exactly what you're exporting, without any superflous type information.
+
+Tooling in the JavaScript ecosystem can often be complex, and this is very much the case when intending to combine TypeScript with other tools such as Babel and Browserslists while still maintaining the [unique emit capabilities of `tsc`]([Emit-less types](https://github.com/rollup/rollup-plugin-typescript/issues/28)). `rollup-plugin-ts` differs from other TypeScript plugins in being opiniated about how some of these tools integrate in order to achieve the most optimal behavior with the smallest possible computational overhead. For example, when combined with another transpiler such as Babel, TypeScript handles diagnostics, declarations, and stripping away types, while Babel is used for syntax transformations.
 
 <!-- SHADOW_SECTION_FEATURES_START -->
 
@@ -38,12 +40,13 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
 
 <!-- SHADOW_SECTION_FEATURES_END -->
 
-- Compiler diagnostics are correctly emitted and brought into the Rollup build lifecycle
-- [Emit-less types](https://github.com/rollup/rollup-plugin-typescript/issues/28) are correctly handled
-- Generation and bundling of Definition files (`.d.ts`) are supported and fully supports code splitting
-- Incremental compilation is supported.
+- Enables you to bundle your TypeScript applications and libraries with Rollup
+- Generates, bundles, and tree-shakes declaration files (`.d.ts`) and fully supports code splitting.
+- Integrates seamlessly with other transpilers such as [Babel](https://babeljs.io) and [swc](https://swc.rs/), such that TypeScript handles diagnostics, declarations, and stripping away types, and another transpiler is used for syntax transformation.
+- Emits Compiler diagnostics and brings them into the Rollup build lifecycle
+- Correctly handles [Emit-less types](https://github.com/rollup/rollup-plugin-typescript/issues/28)
+- Supports Incremental compilation.
 - A [Browserslist](https://github.com/browserslist/browserslist) can be provided instead of a target version of ECMAScript such that your code is transpiled in relation to the baseline of browsers defined in your Browserslist instead.
-- Babel can be used as the transpiler, rather than Typescript, such that Typescript handles diagnostics, declarations, and stripping away types, and Babel is used for syntax transformation.
 
 <!-- SHADOW_SECTION_FEATURE_IMAGE_START -->
 
@@ -85,16 +88,24 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
   - [Combining Typescript with a Browserslist](#combining-typescript-with-a-browserslist)
     - [Using the plugin with Typescript, but without Browserslists](#using-the-plugin-with-typescript-but-without-browserslists)
   - [Combining Typescript with Babel](#combining-typescript-with-babel)
-    - [Special handling for minification plugins/presets](#special-handling-for-minification-pluginspresets)
-    - [`@babel/runtime` and external helpers](#babelruntime-and-external-helpers)
-    - [`@babel/runtime` and polyfills](#babelruntime-and-polyfills)
-  - [Using `CustomTransformers`](#using-customtransformers)
+    - [Installing Babel peer dependencies with npm](#installing-babel-peer-dependencies-with-npm)
+    - [Installing Babel peer dependencies with Yarn](#installing-babel-peer-dependencies-with-yarn)
+    - [Installing Babel peer dependencies with pnpm](#installing-babel-peer-dependencies-with-pnpm)
+    * [Special handling for minification plugins/presets](#special-handling-for-minification-pluginspresets)
+    * [`@babel/runtime` and external helpers](#babelruntime-and-external-helpers)
+    * [`@babel/runtime` and polyfills](#babelruntime-and-polyfills)
+  - [Combining Typescript with swc](#combining-typescript-with-swc)
+    - [Installing swc peer dependencies with npm](#installing-swc-peer-dependencies-with-npm)
+    - [Installing swc peer dependencies with Yarn](#installing-swc-peer-dependencies-with-yarn)
+    - [Installing swc peer dependencies with pnpm](#installing-swc-peer-dependencies-with-pnpm)
+  - [Using `Custom Transformers`](#using-custom-transformers)
 - [Declaration files](#declaration-files)
 - [Examples](#examples)
   - [Pure Typescript example](#pure-typescript-example)
   - [Typescript with Browserslist example](#typescript-with-browserslist-example)
   - [Typescript, Babel, and Browserslist example](#typescript-babel-and-browserslist-example)
-  - [Pure Typescript with CustomTransformers](#pure-typescript-with-customtransformers)
+  - [Typescript, swc, and Browserslist example](#typescript-swc-and-browserslist-example)
+  - [Pure Typescript with Custom Transformers](#pure-typescript-with-custom-transformers)
   - [Advanced example of using Typescript, Babel, and Browserslists together](#advanced-example-of-using-typescript-babel-and-browserslists-together)
   - [Passing a specific TypeScript version](#passing-a-specific-typescript-version)
 - [Hooks](#hooks)
@@ -105,6 +116,7 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
 - [Full list of plugin options](#full-list-of-plugin-options)
   - [`transpiler`](#transpiler)
   - [`babelConfig`](#babelconfig)
+  - [`swcConfig`](#swcconfig)
   - [`tsconfig`](#tsconfig)
   - [`browserslist`](#browserslist)
   - [`cwd`](#cwd)
@@ -119,6 +131,7 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
   - [Ignored/overridden TypeScript options](#ignoredoverridden-typescript-options)
     - [Behavior of esModuleInterop](#behavior-of-esmoduleinterop)
   - [Ignored/overridden Babel options](#ignoredoverridden-babel-options)
+  - [Ignored/overridden swc options](#ignoredoverridden-swc-options)
   - [Default Babel plugins](#default-babel-plugins)
 - [Contributing](#contributing)
 - [Maintainers](#maintainers)
@@ -127,6 +140,7 @@ very powerful bundling and tree-shaking of generated Typescript declaration file
   - [Why wouldn't you use just TypeScript?](#why-wouldnt-you-use-just-typescript)
   - [Okay, then why wouldn't you use just babel?](#okay-then-why-wouldnt-you-use-just-babel)
   - [When combined with Babel, what does TypeScript do, and what does Babel do?](#when-combined-with-babel-what-does-typescript-do-and-what-does-babel-do)
+  - [When combined with swc, what does TypeScript do, and what does Babel do?](#when-combined-with-swc-what-does-typescript-do-and-what-does-babel-do)
   - [Why is @babel/plugin-transform-runtime and tslib included by default?](#why-is-babelplugin-transform-runtime-and-tslib-included-by-default)
 - [Starter templates](#starter-templates)
 - [License](#license)
@@ -158,6 +172,8 @@ $ pnpm add rollup-plugin-ts --save-dev
 ### Peer Dependencies
 
 `rollup-plugin-ts` depends on `rollup` and `typescript`, so you need to manually install these as development dependencies as well.
+
+You may also need to install additional peer dependencies such as `@babel/core`, `@babel/runtime`, `@babel/preset-env`, `@babel/plugin-transform-runtime`, `@swc/core`, or `@swc/helpers` depending on the features you are going to use. Refer to the documentation for the specific cases where any of these may be relevant.
 
 <!-- SHADOW_SECTION_INSTALL_END -->
 
@@ -288,7 +304,7 @@ ts({
 This plugin makes it really easy to use Typescript for reporting diagnostics, generating declaration files, and stripping types, but then using Babel for all other syntax transformations.
 One very strong use case for this is to use [`@babel/preset-env`](https://babeljs.io/docs/en/babel-preset-env). Another one is that you get the entire ecosystem of Babel plugins at your disposal.
 
-To use Babel, simply set the `transpiler` plugin option to `"babel"`:
+To use Babel, first set the `transpiler` plugin option to `"babel"`:
 
 ```javascript
 ts({
@@ -296,8 +312,30 @@ ts({
 });
 ```
 
-That's it! The plugin will attempt to locate a `babel.config.js` file or a `.babelrc` file and use the options, plugins, and presets found there.
-By default, some combination of presets and plugins will be applied depending on the config options you provide. See [this section](#default-babel-plugins) for more details.
+Now, all that remains is to simply install the peer dependencies relevant to `babel`. Please install `@babel/core`, `@babel/runtime`, `@babel/plugin-transform-runtime`, and `@babel/preset-env` as well with your package manager:
+
+#### Installing Babel peer dependencies with npm
+
+```
+$ npm install @babel/core @babel/runtime @babel/plugin-transform-runtime @babel/preset-env --save-dev
+```
+
+#### Installing Babel peer dependencies with Yarn
+
+```
+$ yarn add @babel/core @babel/runtime @babel/plugin-transform-runtime @babel/preset-env --dev
+```
+
+#### Installing Babel peer dependencies with pnpm
+
+```
+$ pnpm add @babel/core @babel/runtime @babel/plugin-transform-runtime @babel/preset-env --save-dev
+```
+
+Don't worry if you don't, `rollup-plugin-ts` will warn you about exactly which dependencies are missing once you run it.
+
+Once you're done installing peer dependencies, that's it! The plugin will attempt to locate a `babel.config.js` file or a `.babelrc` file and use the options, plugins, and presets found there.
+By default, some combination of presets and plugins will be applied depending on the config options you provide, while others will be forced at all times for interoperability reasons. See [this section](#default-babel-plugins) for more details.
 
 #### Special handling for minification plugins/presets
 
@@ -315,9 +353,48 @@ You don't have to do anything.
 Babel supports injecting polyfills where needed and in relation to the target environment. By default, this plugin **will not** add polyfills to your chunks since there are arguably better ways of applying polyfills such as lazy-loading depending on feature support or using something like [Polyfill.app](https://github.com/wessberg/polyfiller).
 If you would like this behavior, simply add either `@babel/plugin-transform-runtime` to your Babel config with the `corejs` option set to true, or add `@babel/preset-env` to your Babel config with the `useBuiltIns` option set to `usage`.
 
-### Using `CustomTransformers`
+### Combining Typescript with swc
 
-This plugin enables you to pass in [`CustomTransformers`](https://github.com/Microsoft/TypeScript/pull/13940) which allows you to transform the Typescript AST during code transpilation.
+Just like with [Babel](#combining-typescript-with-babel), this plugin makes it trivial to use TypeScript for reporting diagnostics, generating declaration files, and stripping types, but then using swc for all other syntax transformations.
+
+Swc is a much faster alternative to Babel, built in Rust, that attempts to be as close to a drop-in replacement for Babel as possible. It is not nearly as mature and doesn't have as big a plugin ecosystem yet, but can often be much faster than Babel. And like Babel, it also has [first-class support for Browserslists](https://swc.rs/docs/configuration/supported-browsers) which will be used to decide which syntax transformations to apply depending on language support in the target environments.
+
+To use swc, first set the `transpiler` plugin option to `"swc"`:
+
+```javascript
+ts({
+	transpiler: "swc"
+});
+```
+
+Now, all that remains is to simply install the peer dependencies relevant to `swc`. Please install `@swc/core` and `@swc/helpers` as well with your package manager:
+
+#### Installing swc peer dependencies with npm
+
+```
+$ npm install @swc/core @swc/helpers --save-dev
+```
+
+#### Installing swc peer dependencies with Yarn
+
+```
+$ yarn add @swc/core @swc/helpers --dev
+```
+
+#### Installing swc peer dependencies with pnpm
+
+```
+$ pnpm add @swc/core @swc/helpers --save-dev
+```
+
+Don't worry if you don't, `rollup-plugin-ts` will warn you about exactly which dependencies are missing once you run it.
+
+Once you're done installing peer dependencies, that's it! The plugin will attempt to locate a `.swcrc` file and use the options found there.
+By default, some combination of options will be applied depending on the config options you provide, while others will be forced at all times for interoperability reasons. See [this section](#default-babel-plugins) for more details.
+
+### Using `Custom Transformers`
+
+This plugin enables you to pass in [`Custom Transformers`](https://github.com/Microsoft/TypeScript/pull/13940) which allows you to transform the Typescript AST during code transpilation.
 This enables you to very efficiently transform Typescript before code generation and additionally enables you to use this plugin with tools that leverage this, such as some modern web frameworks and libraries do.
 
 ## Declaration files
@@ -380,7 +457,22 @@ ts({
 });
 ```
 
-### Pure Typescript with CustomTransformers
+### Typescript, swc, and Browserslist example
+
+[As described here](#combining-typescript-with-swc), a `.swcrc` file will automatically be found by the plugin if available. This example shows how you can provide one explicitly.
+And, [as described here](#typescript-with-browserslist-example), the same goes for Browserslists.
+
+```javascript
+ts({
+	transpiler: "swc",
+	browserslist: ["last 1 version", "> 1%"],
+	swcConfig: {
+		minify: true
+	}
+});
+```
+
+### Pure Typescript with Custom Transformers
 
 ```javascript
 ts({
@@ -545,16 +637,22 @@ The plugin options are documented in more detail across this README, but the ful
 
 #### `transpiler`
 
-Type: `"typescript" | "babel"`
+Type: `"typescript" | "babel" | "swc"`
 
-Can be any of `"babel"` or `"typescript"` (default: `"typescript"`).
-See [this section](#combining-typescript-with-babel) and [this section](#when-combined-with-babel-what-does-typescript-do-and-what-does-babel-do) for details on how `rollup-plugin-ts` works when `"babel"` is being used as a transpiler.
+Can be any of `"babel"`, `"swc"`, or `"typescript"` (default: `"typescript"`).
+See [this section](#combining-typescript-with-babel) and [this section](#when-combined-with-babel-what-does-typescript-do-and-what-does-babel-do) for details on how `rollup-plugin-ts` works when `"babel"` is being used as a transpiler, and [this section](#combining-typescript-with-swc) for how it works when `"swc"` is being used as a transpiler.
 
 #### `babelConfig`
 
-Type: `string | Partial<IBabelInputOptions>`
+Type: `string | Partial<BabelConfig>`
 
 This option will only be respected when `"babel"` is being used as the `transpiler` and can be used to provide a [Babel config](https://babeljs.io/docs/en/options) or a path to one.
+
+#### `swcConfig`
+
+Type: `string | Partial<SwcConfig>`
+
+This option will only be respected when `"swc"` is being used as the `transpiler` and can be used to provide a [swc config](https://swc.rs/docs/configuration/swcrc) or a path to one.
 
 #### `tsconfig`
 
@@ -627,7 +725,7 @@ To provide a seamless experience, Rollup always take precedence when conflicts a
 The following [CompilerOptions](https://www.typescriptlang.org/docs/handbook/compiler-options.html) from a `tsconfig` will be ignored:
 
 | Property              | Reason                                                                                                                                                                                                                                                                                                                                                                                     |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --- |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `outDir`              | Rollup, not TypeScript, will decide where to emit chunks.                                                                                                                                                                                                                                                                                                                                  |
 | `module`              | Rollup, not TypeScript, is the decider of which module system(s) to target based on your Rollup configuration.                                                                                                                                                                                                                                                                             |
 | `outFile`             | This option produces flat output and only works with the module formats AMD and SystemJS. Rollup will be the decider of how to split code.                                                                                                                                                                                                                                                 |
@@ -638,7 +736,7 @@ The following [CompilerOptions](https://www.typescriptlang.org/docs/handbook/com
 | `moduleResolution`    | Node-module resolution will always be used. This is required for `importHelpers` to work and in general, to make TypeScript able to resolve external libraries. Note that you still need to add the [nodeResolve](https://github.com/rollup/rollup-plugin-node-resolve) plugin in order to include external libraries within your bundle unless `allowJs` is `true` within your `tsconfig` |
 | `noEmit`              | TypeScript should always be able to emit assets, but those will be delegated to Rollup.                                                                                                                                                                                                                                                                                                    |
 | `noEmitOnError`       | See above.                                                                                                                                                                                                                                                                                                                                                                                 |
-| `emitDeclarationOnly` | See above.                                                                                                                                                                                                                                                                                                                                                                                 |     |
+| `emitDeclarationOnly` | See above.                                                                                                                                                                                                                                                                                                                                                                                 |
 | `noEmitHelpers`       | TypeScript should always be able to emit helpers, since the `importHelpers` option is forced                                                                                                                                                                                                                                                                                               |
 | `noResolve`           | TypeScript should always be able to resolve things. Otherwise, compilation might break.                                                                                                                                                                                                                                                                                                    |
 | `watch`               | Rollup, not TypeScript, will watch files if run in watch mode. Efficient caching will still be used for optimum performance.                                                                                                                                                                                                                                                               |
@@ -672,6 +770,19 @@ The following [Babel options](https://babeljs.io/docs/en/options) will be ignore
 | `only`       | See above                                                                                                                                                                                                                              |
 | `sourceType` | Will always use `module`. Rollup will then decide what to do based on the output format                                                                                                                                                |
 
+### Ignored/overridden swc options
+
+The following [Babel options](https://swc.rs/docs/configuration/swcrc) will be ignored:
+
+| Property     | Reason                                                                                                                                                                                                                                 |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sourceMaps` | swc will always be instructed to produce SourceMaps. Rollup then decides whether or not to include them (and if they should be inlined).                                                                                               |
+| `cwd`        | The `cwd` option provided to the plugin will always be used.                                                                                                                                                                           |
+| `cwd`        | See above.                                                                                                                                                                                                                             |
+| `test`       | Rollup itself will decide which files to include in the transformation process based on your code. This plugin itself takes a `include` property which you should use instead if you want to explicitly allow specific files or globs. |
+| `exclude`    | See above                                                                                                                                                                                                                              |
+| `isModule`   | Will always use `true`. Rollup will then decide what to do based on the output format                                                                                                                                                  |
+
 ### Default Babel plugins
 
 If you decide to use Babel as the transpiler with the `transpiler` plugin option set to `"babel"`, some best-practice default plugins and presets will be applied such that you don't have to configure anything on your own.
@@ -681,15 +792,10 @@ If you provide these presets or plugins yourself through the found or provided B
 
 Here's table with a full overview of the specifics:
 
-| Preset/Plugin                                      | Condition                                                                                                              | Reason                                                                                                                                                                                                                                                                                                                                                                                                   |
-| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@babel/preset-env`                                | A Browserslist is provided or found automatically, and you don't provide this preset yourself within your Babel config | This preset enables you to base your syntax transformations on the specific browsers/environment you want your application or library to target. It will "_Just Work"_                                                                                                                                                                                                                                   |
-| `@babel/plugin-transform-runtime`                  | You don't provide this plugin yourself within your Babel config                                                        | Depending on your configuration, async functions may be rewritten to use [Regenerator Runtime](https://github.com/facebook/regenerator/tree/master/packages/regenerator-runtime), and there may be one or more Babel helpers injected within your code. `@babel/plugin-runtime` allows this plugin to avoid duplicating these helpers, and instead make them shared across Chunks seamlessly via Rollup. |
-| `@babel/plugin-proposal-object-rest-spread`        | You don't provide this plugin yourself within your Babel config                                                        | This plugin is needed in order to enable parsing [Object Rest/Spread](https://github.com/tc39/proposal-object-rest-spread) syntax, something that is a Stage 4 proposal for ECMAScript and [will be part of ES2018](https://github.com/tc39/proposals/blob/master/finished-proposals.md).                                                                                                                |
-| `@babel/plugin-proposal-async-generator-functions` | You don't provide this plugin yourself within your Babel config                                                        | This plugin is needed in order to support [Asynchronous Iteration](https://github.com/tc39/proposal-async-iteration) syntax, something that is a Stage 4 proposal for ECMAScript and [will be part of ES2018](https://github.com/tc39/proposals/blob/master/finished-proposals.md).                                                                                                                      |
-| `@babel/plugin-proposal-optional-catch-binding`    | You don't provide this plugin yourself within your Babel config                                                        | This plugin is needed in order to support [Optional Catch Binding](https://github.com/tc39/proposal-optional-catch-binding) syntax, something that is a Stage 4 proposal for ECMAScript and [will be part of ES2019](https://github.com/tc39/proposals/blob/master/finished-proposals.md).                                                                                                               |
-| `@babel/plugin-proposal-unicode-property-regex`    | You don't provide this plugin yourself within your Babel config                                                        | This plugin is needed in order to support [RegExp Unicode Property Escapes](https://github.com/tc39/proposal-regexp-unicode-property-escapes) syntax, something that is a Stage 4 proposal for ECMAScript and [will be part of ES2018](https://github.com/tc39/proposals/blob/master/finished-proposals.md).                                                                                             |
-| `@babel/plugin-proposal-json-strings`              | You don't provide this plugin yourself within your Babel config                                                        | This plugin is needed in order to support [JSON superset](https://github.com/tc39/proposal-json-superset) syntax, something that is a Stage 4 proposal for ECMAScript and [will be part of ES2019](https://github.com/tc39/proposals/blob/master/finished-proposals.md).                                                                                                                                 |
+| Preset/Plugin                     | Condition                                                                                                              | Reason                                                                                                                                                                                                                                                                                                                                                                                                   |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@babel/preset-env`               | A Browserslist is provided or found automatically, and you don't provide this preset yourself within your Babel config | This preset enables you to base your syntax transformations on the specific browsers/environment you want your application or library to target. It will "_Just Work"_                                                                                                                                                                                                                                   |
+| `@babel/plugin-transform-runtime` | You don't provide this plugin yourself within your Babel config                                                        | Depending on your configuration, async functions may be rewritten to use [Regenerator Runtime](https://github.com/facebook/regenerator/tree/master/packages/regenerator-runtime), and there may be one or more Babel helpers injected within your code. `@babel/plugin-runtime` allows this plugin to avoid duplicating these helpers, and instead make them shared across Chunks seamlessly via Rollup. |
 
 <!-- SHADOW_SECTION_CONTRIBUTING_START -->
 
@@ -754,6 +860,12 @@ First, TypeScript will be used for:
 3. Removing TypeScript-specific features such as types, type-only imports, enums, and TypeScript decorators.
 
 Babel will then be used for all other syntax transformation from then on, depending on the combination of default, provided, and forced presets and plugins.
+
+#### When combined with swc, what does TypeScript do, and what does Babel do?
+
+[This FAQ answer applies to swc as well](#when-combined-with-babel-what-does-typescript-do-and-what-does-babel-do).
+
+Additionally, if swc is instructed to apply minification, it will do that for every generated chunk, rather than on a per-file basis, to ensure the most optimal optimizations and smallest possible output.
 
 #### Why is @babel/plugin-transform-runtime and tslib included by default?
 
