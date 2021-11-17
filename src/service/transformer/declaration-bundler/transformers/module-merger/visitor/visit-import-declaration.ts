@@ -36,7 +36,14 @@ export function visitImportDeclaration(options: ModuleMergerVisitorOptions<TS.Im
 
 	// Otherwise, update the ModuleSpecifier
 	return preserveMeta(
-		factory.updateImportDeclaration(contResult, contResult.decorators, contResult.modifiers, contResult.importClause, factory.createStringLiteral(updatedModuleSpecifier)),
+		factory.updateImportDeclaration(
+			contResult,
+			contResult.decorators,
+			contResult.modifiers,
+			contResult.importClause,
+			factory.createStringLiteral(updatedModuleSpecifier),
+			contResult.assertClause
+		),
 		contResult,
 		options
 	);

@@ -54,6 +54,7 @@ export function visitImportSpecifier(options: ModuleMergerVisitorOptions<TS.Impo
 							undefined,
 							factory.createNamedImports([
 								factory.createImportSpecifier(
+									false,
 									propertyName.text === "default"
 										? factory.createIdentifier("default")
 										: exportedSymbol.propertyName.text === contResult.name.text

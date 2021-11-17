@@ -51,6 +51,7 @@ export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.Expo
 						false,
 						factory.createNamedExports([
 							factory.createExportSpecifier(
+								false,
 								propertyName.text === "default"
 									? factory.createIdentifier("default")
 									: !("propertyName" in namedExportedSymbol) || namedExportedSymbol.propertyName == null || namedExportedSymbol.propertyName.text === contResult.name.text
@@ -70,6 +71,7 @@ export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.Expo
 			return preserveMeta(
 				factory.updateExportSpecifier(
 					contResult,
+					false,
 					!("propertyName" in namedExportedSymbol) || namedExportedSymbol.propertyName == null || namedExportedSymbol.propertyName.text === contResult.name.text
 						? undefined
 						: factory.createIdentifier(namedExportedSymbol.propertyName.text),

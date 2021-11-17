@@ -110,4 +110,3 @@ export const FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS = {
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	useESModules: true
 } as const;
-

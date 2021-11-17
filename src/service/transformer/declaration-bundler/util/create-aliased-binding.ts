@@ -39,7 +39,7 @@ export function createAliasedBinding({
 								undefined,
 								undefined,
 								false,
-								factory.createNamedExports([factory.createExportSpecifier(undefined, factory.createIdentifier(propertyName))])
+								factory.createNamedExports([factory.createExportSpecifier(false, undefined, factory.createIdentifier(propertyName))])
 							)
 						])
 					),

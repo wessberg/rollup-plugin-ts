@@ -7,5 +7,5 @@ export function visitImportSpecifier({node, continuation, factory}: TreeShakerVi
 		return undefined;
 	}
 
-	return node.name === nameContinuationResult ? node : factory.updateImportSpecifier(node, node.propertyName, nameContinuationResult);
+	return node.name === nameContinuationResult ? node : factory.updateImportSpecifier(node, false, node.propertyName, nameContinuationResult);
 }

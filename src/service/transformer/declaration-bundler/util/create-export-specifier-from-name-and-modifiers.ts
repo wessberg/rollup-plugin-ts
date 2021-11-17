@@ -61,6 +61,7 @@ export function createExportSpecifierFromNameAndModifiers({
 		const propertyNameText = name;
 		const nameText = "default";
 		const exportSpecifier = factory.createExportSpecifier(
+			false,
 			propertyNameText === nameText ? undefined : factory.createIdentifier(propertyNameText),
 			factory.createIdentifier(nameText)
 		);
@@ -73,6 +74,7 @@ export function createExportSpecifierFromNameAndModifiers({
 		const propertyNameText = name;
 		const nameText = propertyNameText;
 		const exportSpecifier = factory.createExportSpecifier(
+			false,
 			propertyNameText === nameText ? undefined : factory.createIdentifier(propertyNameText),
 			factory.createIdentifier(nameText)
 		);

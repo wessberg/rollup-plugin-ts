@@ -15,18 +15,30 @@ export function getScriptTargetFromBrowserslist(browserslist: string[], typescri
 		// Support older TypeScript versions that may not supported ES2016 as a ScriptTarget with nullish coalescing
 		case "es2016":
 			return typescript.ScriptTarget.ES2016 ?? typescript.ScriptTarget.ES2015;
-		// Support older TypeScript versions that may not supported ES2016 as a ScriptTarget with nullish coalescing
+		// Support older TypeScript versions that may not supported ES2017 as a ScriptTarget with nullish coalescing
 		case "es2017":
 			return typescript.ScriptTarget.ES2017 ?? typescript.ScriptTarget.ES2016 ?? typescript.ScriptTarget.ES2015;
-		// Support older TypeScript versions that may not supported ES2016 as a ScriptTarget with nullish coalescing
+		// Support older TypeScript versions that may not supported ES2018 as a ScriptTarget with nullish coalescing
 		case "es2018":
 			return typescript.ScriptTarget.ES2018 ?? typescript.ScriptTarget.ES2017 ?? typescript.ScriptTarget.ES2016 ?? typescript.ScriptTarget.ES2015;
-		// Support older TypeScript versions that may not supported ES2016 as a ScriptTarget with nullish coalescing
+		// Support older TypeScript versions that may not supported ES2019 as a ScriptTarget with nullish coalescing
 		case "es2019":
 			return typescript.ScriptTarget.ES2019 ?? typescript.ScriptTarget.ES2018 ?? typescript.ScriptTarget.ES2017 ?? typescript.ScriptTarget.ES2016 ?? typescript.ScriptTarget.ES2015;
-		// Support older TypeScript versions that may not supported ES2016 as a ScriptTarget with nullish coalescing
+		// Support older TypeScript versions that may not supported ES2020 as a ScriptTarget with nullish coalescing
 		case "es2020":
 			return (
+				typescript.ScriptTarget.ES2020 ??
+				typescript.ScriptTarget.ES2019 ??
+				typescript.ScriptTarget.ES2018 ??
+				typescript.ScriptTarget.ES2017 ??
+				typescript.ScriptTarget.ES2016 ??
+				typescript.ScriptTarget.ES2015
+			);
+		// Support older TypeScript versions that may not supported ES2021 as a ScriptTarget with nullish coalescing
+		case "es2021":
+		case "es2022":
+			return (
+				typescript.ScriptTarget.ES2021 ??
 				typescript.ScriptTarget.ES2020 ??
 				typescript.ScriptTarget.ES2019 ??
 				typescript.ScriptTarget.ES2018 ??
@@ -43,7 +55,7 @@ export function getScriptTargetFromBrowserslist(browserslist: string[], typescri
 export function getEcmaVersionForScriptTarget(
 	scriptTarget: TS.ScriptTarget,
 	typescript: typeof TS
-): "es3" | "es5" | "es2015" | "es2016" | "es2017" | "es2018" | "es2019" | "es2020" {
+): "es3" | "es5" | "es2015" | "es2016" | "es2017" | "es2018" | "es2019" | "es2020" | "es2021" | "es2022" {
 	switch (scriptTarget) {
 		case typescript.ScriptTarget.ES3:
 			return "es3";
@@ -60,9 +72,12 @@ export function getEcmaVersionForScriptTarget(
 		case typescript.ScriptTarget.ES2019:
 			return "es2019";
 		case typescript.ScriptTarget.ES2020:
-		case typescript.ScriptTarget.ES2021:
-		case typescript.ScriptTarget.ESNext:
-		case typescript.ScriptTarget.JSON:
 			return "es2020";
+		case typescript.ScriptTarget.ES2021:
+			return "es2021";
+		case typescript.ScriptTarget.ESNext:
+		case typescript.ScriptTarget.Latest:
+		case typescript.ScriptTarget.JSON:
+			return "es2021";
 	}
 }

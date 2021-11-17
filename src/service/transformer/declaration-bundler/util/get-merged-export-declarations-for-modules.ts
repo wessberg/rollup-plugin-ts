@@ -110,9 +110,9 @@ export function getMergedExportDeclarationsForModules(options: TransformerBaseOp
 				bindings.add(alias);
 
 				if (propertyName === alias) {
-					exportSpecifiers.push(factory.createExportSpecifier(undefined, alias));
+					exportSpecifiers.push(factory.createExportSpecifier(false, undefined, alias));
 				} else {
-					exportSpecifiers.push(factory.createExportSpecifier(propertyName, alias));
+					exportSpecifiers.push(factory.createExportSpecifier(false, propertyName, alias));
 				}
 			}
 		}

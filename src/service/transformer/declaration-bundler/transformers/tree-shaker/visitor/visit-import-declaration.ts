@@ -11,5 +11,5 @@ export function visitImportDeclaration({node, continuation, factory}: TreeShaker
 
 	return importClauseContinuationResult === node.importClause
 		? node
-		: factory.updateImportDeclaration(node, node.decorators, node.modifiers, importClauseContinuationResult, node.moduleSpecifier);
+		: factory.updateImportDeclaration(node, node.decorators, node.modifiers, importClauseContinuationResult, node.moduleSpecifier, node.assertClause);
 }

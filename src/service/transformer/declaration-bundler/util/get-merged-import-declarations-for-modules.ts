@@ -145,8 +145,8 @@ export function getMergedImportDeclarationsForModules(options: TransformerBaseOp
 							factory.createNamedImports(
 								collection.map(record =>
 									record.propertyName !== record.alias
-										? factory.createImportSpecifier(factory.createIdentifier(record.propertyName), factory.createIdentifier(record.alias))
-										: factory.createImportSpecifier(undefined, factory.createIdentifier(record.alias))
+										? factory.createImportSpecifier(false, factory.createIdentifier(record.propertyName), factory.createIdentifier(record.alias))
+										: factory.createImportSpecifier(false, undefined, factory.createIdentifier(record.alias))
 								)
 							)
 						),

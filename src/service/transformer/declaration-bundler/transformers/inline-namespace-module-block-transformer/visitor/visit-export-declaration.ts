@@ -39,7 +39,7 @@ export function visitExportDeclaration(options: InlineNamespaceModuleBlockVisito
 
 		const namedImports = factory.createNamedImports(
 			exportedBindings.map(([name, deconflictedName]) =>
-				factory.createImportSpecifier(name === deconflictedName ? undefined : factory.createIdentifier(name), factory.createIdentifier(deconflictedName))
+				factory.createImportSpecifier(false, name === deconflictedName ? undefined : factory.createIdentifier(name), factory.createIdentifier(deconflictedName))
 			)
 		);
 
@@ -49,11 +49,11 @@ export function visitExportDeclaration(options: InlineNamespaceModuleBlockVisito
 
 		const namedExports = factory.createNamedExports(
 			exportedBindings.map(([name, deconflictedName]) =>
-				factory.createExportSpecifier(name === deconflictedName ? undefined : factory.createIdentifier(deconflictedName), factory.createIdentifier(name))
+				factory.createExportSpecifier(false, name === deconflictedName ? undefined : factory.createIdentifier(deconflictedName), factory.createIdentifier(name))
 			)
 		);
 
-		return preserveParents(factory.updateExportDeclaration(node, node.decorators, node.modifiers, node.isTypeOnly, namedExports, undefined), options);
+		return preserveParents(factory.updateExportDeclaration(node, node.decorators, node.modifiers, node.isTypeOnly, namedExports, undefined, node.assertClause), options);
 	}
 
 	return node;

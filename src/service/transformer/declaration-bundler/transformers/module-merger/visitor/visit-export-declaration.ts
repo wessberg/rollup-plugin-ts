@@ -50,6 +50,7 @@ function generateExportDeclarations(options: GenerateExportDeclarationsOptions, 
 		// Otherwise, we can just add an ExportDeclaration with an ExportSpecifier
 		else {
 			const exportSpecifier = factory.createExportSpecifier(
+				false,
 				symbol.propertyName.text === symbol.name.text ? undefined : factory.createIdentifier(symbol.propertyName.text),
 				factory.createIdentifier(symbol.name.text)
 			);
@@ -109,7 +110,8 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 				contResult.modifiers,
 				contResult.isTypeOnly,
 				contResult.exportClause,
-				factory.createStringLiteral(updatedModuleSpecifier)
+				factory.createStringLiteral(updatedModuleSpecifier),
+				contResult.assertClause
 			),
 			contResult,
 			options
@@ -176,7 +178,7 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 						undefined,
 						undefined,
 						false,
-						factory.createNamedExports([factory.createExportSpecifier(undefined, factory.createIdentifier(contResult.exportClause.name.text))]),
+						factory.createNamedExports([factory.createExportSpecifier(false, undefined, factory.createIdentifier(contResult.exportClause.name.text))]),
 						undefined
 					),
 					options
@@ -192,8 +194,8 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 						false,
 						factory.createNamedExports([
 							contResult.exportClause.name.text === existingInlinedModuleDeclarationName
-								? factory.createExportSpecifier(undefined, factory.createIdentifier(contResult.exportClause.name.text))
-								: factory.createExportSpecifier(factory.createIdentifier(existingInlinedModuleDeclarationName), factory.createIdentifier(contResult.exportClause.name.text))
+								? factory.createExportSpecifier(false, undefined, factory.createIdentifier(contResult.exportClause.name.text))
+								: factory.createExportSpecifier(false, factory.createIdentifier(existingInlinedModuleDeclarationName), factory.createIdentifier(contResult.exportClause.name.text))
 						]),
 						undefined
 					),
@@ -205,7 +207,7 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 
 	// Otherwise, preserve the continuation result, but without the ModuleSpecifier
 	return preserveMeta(
-		factory.updateExportDeclaration(contResult, contResult.decorators, contResult.modifiers, contResult.isTypeOnly, contResult.exportClause, undefined),
+		factory.updateExportDeclaration(contResult, contResult.decorators, contResult.modifiers, contResult.isTypeOnly, contResult.exportClause, undefined, contResult.assertClause),
 		contResult,
 		options
 	);

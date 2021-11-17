@@ -454,7 +454,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		load(this: PluginContext, id: string): string | null {
 			// Return the alternative source for the regenerator runtime if that file is attempted to be loaded
 			if (isRegeneratorRuntime(path.normalize(id))) {
-
 				return REGENERATOR_SOURCE;
 			}
 			return null;

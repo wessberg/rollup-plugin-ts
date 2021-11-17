@@ -39,7 +39,8 @@ export function visitImportDeclaration(options: StatementMergerVisitorOptions<TS
 			node.decorators,
 			node.modifiers,
 			factory.updateImportClause(node.importClause, first.importClause.isTypeOnly, first.importClause.name, first.importClause.namedBindings),
-			node.moduleSpecifier
+			node.moduleSpecifier,
+			node.assertClause
 		),
 		...other
 	];

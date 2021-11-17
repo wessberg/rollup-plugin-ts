@@ -13,7 +13,7 @@ test.serial("Supports Custom Transformers, including on bundled declarations. #1
 			if (ts.isClassDeclaration(node)) {
 				return factory.updateClassDeclaration(node, node.decorators, node.modifiers, factory.createIdentifier("Bar"), node.typeParameters, node.heritageClauses, node.members);
 			} else if (ts.isExportSpecifier(node)) {
-				return factory.updateExportSpecifier(node, node.propertyName, factory.createIdentifier("Bar"));
+				return factory.updateExportSpecifier(node, false, node.propertyName, factory.createIdentifier("Bar"));
 			} else {
 				return ts.visitEachChild(node, visitNode, context);
 			}

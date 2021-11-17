@@ -29,5 +29,8 @@ export function visitExportDeclaration(options: StatementMergerVisitorOptions<TS
 				: factory.createNamespaceExport(factory.createIdentifier(first.exportClause.name.text));
 	}
 
-	return [preserveMeta(factory.updateExportDeclaration(node, node.decorators, node.modifiers, node.isTypeOnly, exportClause, node.moduleSpecifier), node, options), ...other];
+	return [
+		preserveMeta(factory.updateExportDeclaration(node, node.decorators, node.modifiers, node.isTypeOnly, exportClause, node.moduleSpecifier, node.assertClause), node, options),
+		...other
+	];
 }

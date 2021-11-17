@@ -15,6 +15,7 @@ export function deconflictMappedTypeNode(options: DeconflicterVisitorOptions<TS.
 	const typeParameterContResult = continuation(node.typeParameter, nextContinuationOptions);
 	const typeContResult = node.type == null ? undefined : continuation(node.type, nextContinuationOptions);
 	const nameTypeContResult = node.nameType == null ? undefined : continuation(node.nameType, nextContinuationOptions);
+	const membersContResult = node.members == null ? undefined : factory.createNodeArray(node.members.map(member => continuation(member, nextContinuationOptions)));
 
 	const isIdentical = typeParameterContResult === node.typeParameter && typeContResult === node.type && nameTypeContResult === node.nameType;
 
@@ -22,5 +23,9 @@ export function deconflictMappedTypeNode(options: DeconflicterVisitorOptions<TS.
 		return node;
 	}
 
-	return preserveMeta(factory.updateMappedTypeNode(node, node.readonlyToken, typeParameterContResult, nameTypeContResult, node.questionToken, typeContResult), node, options);
+	return preserveMeta(
+		factory.updateMappedTypeNode(node, node.readonlyToken, typeParameterContResult, nameTypeContResult, node.questionToken, typeContResult, membersContResult),
+		node,
+		options
+	);
 }
