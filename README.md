@@ -88,6 +88,7 @@ Tooling in the JavaScript ecosystem can often be complex, and this is very much 
   - [Combining Typescript with a Browserslist](#combining-typescript-with-a-browserslist)
     - [Using the plugin with Typescript, but without Browserslists](#using-the-plugin-with-typescript-but-without-browserslists)
   - [Combining Typescript with Babel](#combining-typescript-with-babel)
+    - [`@babel/preset-env` behavior (and how to opt out)](#babelpreset-env-behavior-and-how-to-opt-out)
     - [Special handling for minification plugins/presets](#special-handling-for-minification-pluginspresets)
     - [`@babel/runtime` and external helpers](#babelruntime-and-external-helpers)
     - [`@babel/runtime` and polyfills](#babelruntime-and-polyfills)
@@ -330,6 +331,19 @@ Don't worry if you don't, `rollup-plugin-ts` will warn you about exactly which d
 
 Once you're done installing peer dependencies, that's it! The plugin will attempt to locate a `babel.config.js` file or a `.babelrc` file and use the options, plugins, and presets found there.
 By default, some combination of presets and plugins will be applied depending on the config options you provide, while others will be forced at all times for interoperability reasons. See [this section](#default-babel-plugins) for more details.
+
+#### `@babel/preset-env` behavior (and how to opt out)
+
+By default, when using Babel as the transpiler, `@babel/preset-env` will be used as a preset that respects the browserslist that was either provided directly as a plugin option, or was resolved inside the root of your project, or was computed based on your `tsconfig.json` file.
+
+If you don't want this behavior, simply pass the `browserslist: false` option to the plugin. Doing so will never apply `@babel/preset-env` and not apply any additional syntax transformations:
+
+```javascript
+ts({
+	transpiler: "babel",
+	browserslist: false
+});
+```
 
 #### Special handling for minification plugins/presets
 
