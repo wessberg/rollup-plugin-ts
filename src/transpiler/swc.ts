@@ -16,8 +16,14 @@ export interface GetSwcConfigOptions {
 
 export type SwcConfigFactory = (filename: string) => Options | undefined;
 
-function readConfig(config: TypescriptPluginSwcOptions["swcConfig"] = `.swcrc`, cwd: string, fileSystem: TS.System): SwcConfig {
-	if (typeof config === "string") {
+function readConfig(config: TypescriptPluginSwcOptions["swcConfig"], cwd: string, fileSystem: TS.System): SwcConfig {
+	if (config == null) {
+		const absoluteConfig = path.normalize(path.join(cwd, `.swcrc`));
+		if (!fileSystem.fileExists(absoluteConfig)) {
+			return {};
+		}
+		return JSON.parse(fileSystem.readFile(absoluteConfig)!);
+	} else if (typeof config === "string") {
 		const absoluteConfig = path.normalize(path.isAbsolute(config) ? config : path.join(cwd, config));
 		if (!fileSystem.fileExists(absoluteConfig)) {
 			throw new ReferenceError(`Could not find swc config at path: ${config}`);
