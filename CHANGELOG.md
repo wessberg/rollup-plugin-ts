@@ -1,3 +1,12 @@
+## [2.0.1](https://github.com/wessberg/rollup-plugin-ts/compare/v2.0.0...v2.0.1) (2021-11-17)
+
+
+### Bug Fixes
+
+* fix a problem with resolving swc configs ([677c928](https://github.com/wessberg/rollup-plugin-ts/commit/677c9286994e729cd497a86411cae897eb2b9715))
+
+
+
 # [2.0.0](https://github.com/wessberg/rollup-plugin-ts/compare/v1.4.7...v2.0.0) (2021-11-16)
 
 
