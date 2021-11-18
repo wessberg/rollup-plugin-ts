@@ -7,7 +7,7 @@ import {ensureNodeFactory} from "compatfactory";
 
 test.serial("Supports Custom Transformers, including on bundled declarations. #1", withTypeScript, async (t, {typescript}) => {
 	const transformer: (ts: typeof TS) => TS.TransformerFactory<TS.SourceFile> = ts => context => sourceFile => {
-		const factory = (context.factory as TS.NodeFactory | undefined) ?? ts;
+		const factory = ensureNodeFactory(context.factory ?? ts);
 
 		function visitNode(node: TS.Node): TS.VisitResult<TS.Node> {
 			if (ts.isClassDeclaration(node)) {
