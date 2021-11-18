@@ -1,3 +1,12 @@
+## [2.0.3](https://github.com/wessberg/rollup-plugin-ts/compare/v2.0.2...v2.0.3) (2021-11-18)
+
+
+### Bug Fixes
+
+* group ExportDeclarations by not just module specifiers but also whether or not they or their individual ExportSpecifiers are 'isTypeOnly'. Fixes [#153](https://github.com/wessberg/rollup-plugin-ts/issues/153) ([493014c](https://github.com/wessberg/rollup-plugin-ts/commit/493014c7572df8498f2754efbdfa8458765be403))
+
+
+
 ## [2.0.2](https://github.com/wessberg/rollup-plugin-ts/compare/v2.0.1...v2.0.2) (2021-11-17)
 
 
