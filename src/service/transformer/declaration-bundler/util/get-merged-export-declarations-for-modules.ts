@@ -4,26 +4,45 @@ import {preserveParents} from "./clone-node-with-meta";
 import {TransformerBaseOptions} from "../transformers/transformer-base-options";
 
 export type MergedExportDeclarationsMap = Map<string | undefined, TS.ExportDeclaration[]>;
+export type ExportedAliasedBindingsForModuleMap = Map<string | undefined, Set<string>>;
+
+export interface GetMergedExportDeclarationsForModulesResult {
+	mergedExports: MergedExportDeclarationsMap;
+	exportedBindings: ExportedAliasedBindingsForModuleMap;
+}
+
+export interface GetMergedExportDeclarationsForModulesOptions extends TransformerBaseOptions {
+	inputBindings?: ExportedAliasedBindingsForModuleMap;
+	isTypeOnly: boolean;
+}
+
 
 /**
  * Merges the exports based on the given Statements
  */
-export function getMergedExportDeclarationsForModules(options: TransformerBaseOptions): MergedExportDeclarationsMap {
-	const {sourceFile, factory, typescript} = options;
+export function getMergedExportDeclarationsForModules(options: GetMergedExportDeclarationsForModulesOptions): GetMergedExportDeclarationsForModulesResult {
+	const {sourceFile, factory, typescript, isTypeOnly, inputBindings} = options;
 	const exports = sourceFile.statements.filter(typescript.isExportDeclaration);
 	const exportAssignments = sourceFile.statements.filter(typescript.isExportAssignment);
 
 	const moduleToExportDeclarations: MergedExportDeclarationsMap = new Map();
-	const moduleSpecifierToAliasedExportedBindings: Map<string | undefined, Map<string, Set<string>>> = new Map();
+	const moduleSpecifierToAliasedExportedBindings = new Map<string | undefined, Map<string, Set<string>>>();
+	const moduleSpecifierToExportedBindings: ExportedAliasedBindingsForModuleMap = new Map();
 	const namedNamespaceExportsFromModulesMap: Map<string, Set<string>> = new Map();
 	const reExportedSpecifiers = new Set<string | undefined>();
 
 	for (const exportAssignment of exportAssignments) {
 		let aliasedExportedBindings = moduleSpecifierToAliasedExportedBindings.get(undefined);
+		let exportedBindings = moduleSpecifierToExportedBindings.get(undefined);
 
 		if (aliasedExportedBindings == null) {
 			aliasedExportedBindings = new Map();
 			moduleSpecifierToAliasedExportedBindings.set(undefined, aliasedExportedBindings);
+		}
+
+		if (exportedBindings == null) {
+			exportedBindings = new Set();
+			moduleSpecifierToExportedBindings.set(undefined, exportedBindings);
 		}
 
 		// If the Expression isn't an identifier, skip this ExportAssignment
@@ -39,9 +58,12 @@ export function getMergedExportDeclarationsForModules(options: TransformerBaseOp
 			aliasedExportedBindings.set(propertyName, setForExportedBinding);
 		}
 		setForExportedBinding.add(alias);
+		exportedBindings.add(alias);
 	}
 
 	for (const exportDeclaration of exports) {
+		if (exportDeclaration.isTypeOnly !== isTypeOnly) continue;
+
 		// If the ModuleSpecifier is given and it isn't a string literal, leave it as it is
 		if (exportDeclaration.moduleSpecifier != null && !typescript.isStringLiteralLike(exportDeclaration.moduleSpecifier)) {
 			continue;
@@ -50,11 +72,17 @@ export function getMergedExportDeclarationsForModules(options: TransformerBaseOp
 		const specifierText = exportDeclaration.moduleSpecifier?.text;
 
 		let aliasedExportedBindings = moduleSpecifierToAliasedExportedBindings.get(specifierText);
+		let exportedBindings = moduleSpecifierToExportedBindings.get(specifierText);
 		let namedNamespaceExports = specifierText == null ? undefined : namedNamespaceExportsFromModulesMap.get(specifierText);
 
 		if (aliasedExportedBindings == null) {
 			aliasedExportedBindings = new Map();
 			moduleSpecifierToAliasedExportedBindings.set(specifierText, aliasedExportedBindings);
+		}
+
+		if (exportedBindings == null) {
+			exportedBindings = new Set();
+			moduleSpecifierToExportedBindings.set(specifierText, exportedBindings);
 		}
 
 		if (namedNamespaceExports == null && specifierText != null) {
@@ -74,6 +102,7 @@ export function getMergedExportDeclarationsForModules(options: TransformerBaseOp
 						aliasedExportedBindings.set(propertyName, setForExportedBinding);
 					}
 					setForExportedBinding.add(alias);
+					exportedBindings.add(alias);
 				}
 			}
 
@@ -101,12 +130,13 @@ export function getMergedExportDeclarationsForModules(options: TransformerBaseOp
 		if (exportedBindings.size === 0) continue;
 
 		const exportSpecifiers: TS.ExportSpecifier[] = [];
+		const inputBindingsForSpecifier = inputBindings?.get(specifier);
 		const bindings = new Set<string>();
 
 		for (const [propertyName, aliases] of exportedBindings) {
 			for (const alias of aliases) {
 				// If a binding, A, is exported already, it cannot be exported again.
-				if (bindings.has(alias)) continue;
+				if (bindings.has(alias) || Boolean(inputBindingsForSpecifier?.has(alias))) continue;
 				bindings.add(alias);
 
 				if (propertyName === alias) {
@@ -116,6 +146,9 @@ export function getMergedExportDeclarationsForModules(options: TransformerBaseOp
 				}
 			}
 		}
+
+		// If no export specifiers were constucted, don't create a new ExportDeclaration
+		if (exportSpecifiers.length < 1) continue;
 
 		let exportDeclarationsForModule = moduleToExportDeclarations.get(specifier);
 		if (exportDeclarationsForModule == null) {
@@ -127,7 +160,7 @@ export function getMergedExportDeclarationsForModules(options: TransformerBaseOp
 				factory.createExportDeclaration(
 					undefined,
 					undefined,
-					false,
+					isTypeOnly,
 					factory.createNamedExports(exportSpecifiers),
 					specifier == null ? undefined : factory.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
 				),
@@ -150,7 +183,7 @@ export function getMergedExportDeclarationsForModules(options: TransformerBaseOp
 					factory.createExportDeclaration(
 						undefined,
 						undefined,
-						false,
+						isTypeOnly,
 						factory.createNamespaceExport(factory.createIdentifier(name)),
 						factory.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
 					),
@@ -160,5 +193,8 @@ export function getMergedExportDeclarationsForModules(options: TransformerBaseOp
 		}
 	}
 
-	return moduleToExportDeclarations;
+	return {
+		mergedExports: moduleToExportDeclarations,
+		exportedBindings: moduleSpecifierToExportedBindings
+	};
 }

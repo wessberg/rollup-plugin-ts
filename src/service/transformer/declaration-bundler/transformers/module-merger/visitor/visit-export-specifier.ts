@@ -22,7 +22,7 @@ export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.Expo
 
 	const namedExportedSymbol =
 		propertyName.text === "default"
-			? locateExportedSymbolForSourceFile({defaultExport: true}, {...options, sourceFile: payload.matchingSourceFile.fileName})
+			? locateExportedSymbolForSourceFile({defaultExport: true }, {...options, sourceFile: payload.matchingSourceFile.fileName})
 			: locateExportedSymbolForSourceFile({defaultExport: false, name: propertyName.text}, {...options, sourceFile: payload.matchingSourceFile.fileName}) ??
 			  locateExportedSymbolForSourceFile({namespaceExport: true}, {...options, sourceFile: payload.matchingSourceFile.fileName});
 
@@ -48,7 +48,7 @@ export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.Expo
 					factory.createExportDeclaration(
 						undefined,
 						undefined,
-						false,
+						payload.isTypeOnly,
 						factory.createNamedExports([
 							factory.createExportSpecifier(
 								false,

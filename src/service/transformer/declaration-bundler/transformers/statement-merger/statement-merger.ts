@@ -21,9 +21,11 @@ export function statementMerger({markAsModuleIfNeeded}: StatementMergerOptions):
 
 		// Merge all of the imports
 		const mergedImports = getMergedImportDeclarationsForModules(options);
-		const mergedExports = getMergedExportDeclarationsForModules(options);
+		const {mergedExports, exportedBindings} = getMergedExportDeclarationsForModules({...options, isTypeOnly: false});
+		const {mergedExports: mergedTypeOnlyExports} = getMergedExportDeclarationsForModules({...options, inputBindings: exportedBindings, isTypeOnly: true});
 		const includedImportedModules = new Set<string>();
 		const includedExportedModules = new Set<string | undefined>();
+		const includedTypeOnlyExportedModules = new Set<string | undefined>();
 
 		// Prepare some VisitorOptions
 		const visitorOptions: Omit<StatementMergerVisitorOptions<TS.Node>, "node"> = {
@@ -35,10 +37,13 @@ export function statementMerger({markAsModuleIfNeeded}: StatementMergerOptions):
 				return mergedImports.get(module);
 			},
 
-			preserveExportedModuleIfNeeded(module: string | undefined): TS.ExportDeclaration[] | undefined {
-				if (includedExportedModules.has(module)) return undefined;
-				includedExportedModules.add(module);
-				return mergedExports.get(module);
+			preserveExportedModuleIfNeeded(module: string | undefined, typeOnly: boolean): TS.ExportDeclaration[] | undefined {
+				const selectedIncludedExportedModules = typeOnly ? includedTypeOnlyExportedModules : includedExportedModules;
+				const selectedMergedExports = typeOnly ? mergedTypeOnlyExports : mergedExports;
+
+				if (selectedIncludedExportedModules.has(module)) return undefined;
+				selectedIncludedExportedModules.add(module);
+				return selectedMergedExports.get(module);
 			},
 
 			childContinuation: <U extends TS.Node>(node: U): U | undefined =>

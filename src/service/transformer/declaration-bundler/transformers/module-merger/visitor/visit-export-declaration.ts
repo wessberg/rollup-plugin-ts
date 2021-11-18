@@ -60,7 +60,7 @@ function generateExportDeclarations(options: GenerateExportDeclarationsOptions, 
 					factory.createExportDeclaration(
 						undefined,
 						undefined,
-						false,
+						symbol.isTypeOnly,
 						factory.createNamedExports([exportSpecifier]),
 						symbol.moduleSpecifier == null || generatedModuleSpecifier == null || matchingSourceFile != null ? undefined : factory.createStringLiteral(generatedModuleSpecifier)
 					),
@@ -90,7 +90,8 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 
 	const payload = {
 		moduleSpecifier,
-		matchingSourceFile
+		matchingSourceFile,
+		isTypeOnly: node.isTypeOnly
 	};
 
 	const contResult = options.childContinuation(node, payload);

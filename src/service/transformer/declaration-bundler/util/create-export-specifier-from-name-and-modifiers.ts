@@ -4,6 +4,7 @@ import {ExportedSymbol} from "../transformers/track-exports-transformer/track-ex
 import {ImportedSymbol} from "../transformers/track-imports-transformer/track-imports-transformer-visitor-options";
 
 export interface CreateExportSpecifierFromNameAndModifiersOptions {
+	isTypeOnly?: boolean;
 	name: string;
 	modifiers: TS.ModifiersArray | undefined;
 	typescript: typeof TS;
@@ -42,9 +43,10 @@ export function getImportedSymbolFromNamespaceImport(namespaceImport: TS.Namespa
 	};
 }
 
-export function getExportedSymbolFromExportSpecifier(specifier: TS.ExportSpecifier, moduleSpecifier: string | undefined): ExportedSymbol {
+export function getExportedSymbolFromExportSpecifier(specifier: TS.ExportSpecifier, parentIsTypeOnly?: boolean|undefined, moduleSpecifier?: string | undefined): ExportedSymbol {
 	return {
 		moduleSpecifier,
+		isTypeOnly: specifier.isTypeOnly || Boolean(parentIsTypeOnly),
 		isDefaultExport: specifier.name.text === "default",
 		propertyName: specifier.propertyName ?? specifier.name,
 		name: specifier.name
@@ -55,33 +57,34 @@ export function createExportSpecifierFromNameAndModifiers({
 	name,
 	modifiers,
 	typescript,
-	factory
+	factory,
+	isTypeOnly = false
 }: CreateExportSpecifierFromNameAndModifiersOptions): CreateExportSpecifierFromNameAndModifiersResult {
 	if (hasDefaultExportModifier(modifiers, typescript)) {
 		const propertyNameText = name;
 		const nameText = "default";
 		const exportSpecifier = factory.createExportSpecifier(
-			false,
+			isTypeOnly,
 			propertyNameText === nameText ? undefined : factory.createIdentifier(propertyNameText),
 			factory.createIdentifier(nameText)
 		);
 
 		return {
 			exportSpecifier,
-			exportedSymbol: getExportedSymbolFromExportSpecifier(exportSpecifier, undefined)
+			exportedSymbol: getExportedSymbolFromExportSpecifier(exportSpecifier)
 		};
 	} else {
 		const propertyNameText = name;
 		const nameText = propertyNameText;
 		const exportSpecifier = factory.createExportSpecifier(
-			false,
+			isTypeOnly,
 			propertyNameText === nameText ? undefined : factory.createIdentifier(propertyNameText),
 			factory.createIdentifier(nameText)
 		);
 
 		return {
 			exportSpecifier,
-			exportedSymbol: getExportedSymbolFromExportSpecifier(exportSpecifier, undefined)
+			exportedSymbol: getExportedSymbolFromExportSpecifier(exportSpecifier)
 		};
 	}
 }

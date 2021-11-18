@@ -11,7 +11,8 @@ export function visitExportDeclaration(options: StatementMergerVisitorOptions<TS
 	}
 
 	// Otherwise, replace this ExportDeclaration with merged exports from the module
-	const replacements = options.preserveExportedModuleIfNeeded(node.moduleSpecifier?.text);
+	const replacements = options.preserveExportedModuleIfNeeded(node.moduleSpecifier?.text, node.isTypeOnly);
+
 	if (replacements == null || replacements.length === 0) return undefined;
 	const [first, ...other] = replacements;
 

@@ -6,6 +6,7 @@ export interface NamedExportedSymbol extends ExportedSymbolBase {
 	// The raw module specifier with no modifications
 	moduleSpecifier: string | undefined;
 	isDefaultExport: boolean;
+	isTypeOnly: boolean;
 	name: TS.Identifier;
 	propertyName: TS.Identifier;
 }

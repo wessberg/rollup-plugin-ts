@@ -21,6 +21,6 @@ export function visitExportDeclaration({node, typescript, markAsExported}: Track
 
 	// Otherwise, check all ExportSpecifiers
 	for (const exportSpecifier of (node.exportClause as TS.NamedExports).elements) {
-		markAsExported(getExportedSymbolFromExportSpecifier(exportSpecifier, node.moduleSpecifier?.text));
+		markAsExported(getExportedSymbolFromExportSpecifier(exportSpecifier, node.isTypeOnly, node.moduleSpecifier?.text));
 	}
 }

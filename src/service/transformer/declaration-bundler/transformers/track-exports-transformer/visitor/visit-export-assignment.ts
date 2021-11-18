@@ -8,6 +8,7 @@ export function visitExportAssignment(options: TrackExportsTransformerVisitorOpt
 	if (identifier != null) {
 		markAsExported({
 			isDefaultExport: true,
+			isTypeOnly: false,
 			moduleSpecifier: undefined,
 			name: identifier,
 			propertyName: identifier

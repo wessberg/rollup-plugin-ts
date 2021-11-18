@@ -12,5 +12,5 @@ export function visitExportAssignment(
 	}
 
 	// Otherwise, replace this ExportDeclaration with merged exports from the module
-	return options.preserveExportedModuleIfNeeded(undefined);
+	return options.preserveExportedModuleIfNeeded(undefined, false);
 }

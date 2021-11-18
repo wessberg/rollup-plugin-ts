@@ -6,7 +6,7 @@ export interface StatementMergerVisitorOptions<T extends TS.Node> extends Source
 	node: T;
 
 	preserveImportedModuleIfNeeded(module: string): TS.ImportDeclaration[] | undefined;
-	preserveExportedModuleIfNeeded(module: string | undefined): TS.ExportDeclaration[] | undefined;
+	preserveExportedModuleIfNeeded(module: string | undefined, typeOnly: boolean): TS.ExportDeclaration[] | undefined;
 	childContinuation<U extends TS.Node>(node: U): U | undefined;
 	continuation<U extends TS.Node>(node: U): U | undefined;
 }

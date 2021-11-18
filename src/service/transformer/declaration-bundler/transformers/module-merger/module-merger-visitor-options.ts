@@ -11,13 +11,18 @@ export type PayloadMap = {
 		| TS.SyntaxKind.ImportDeclaration
 		| TS.SyntaxKind.ImportClause
 		| TS.SyntaxKind.NamedImports
-		| TS.SyntaxKind.NamedExports
-		| TS.SyntaxKind.ExportDeclaration
 		? {
 				moduleSpecifier: string | undefined;
 				matchingSourceFile: TS.SourceFile | undefined;
 		  }
-		: undefined;
+		: Key extends
+		| TS.SyntaxKind.NamedExports
+		|  TS.SyntaxKind.ExportDeclaration
+		? {
+			isTypeOnly: boolean;
+			moduleSpecifier: string | undefined;
+			matchingSourceFile: TS.SourceFile | undefined;
+		} : undefined;
 };
 
 export type VisitResult<T extends TS.Node> = T extends TS.ImportTypeNode
