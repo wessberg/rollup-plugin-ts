@@ -62,7 +62,7 @@ export function getMergedExportDeclarationsForModules(options: GetMergedExportDe
 	}
 
 	for (const exportDeclaration of exports) {
-		if (exportDeclaration.isTypeOnly !== isTypeOnly) continue;
+		if (Boolean(exportDeclaration.isTypeOnly) !== Boolean(isTypeOnly)) continue;
 
 		// If the ModuleSpecifier is given and it isn't a string literal, leave it as it is
 		if (exportDeclaration.moduleSpecifier != null && !typescript.isStringLiteralLike(exportDeclaration.moduleSpecifier)) {

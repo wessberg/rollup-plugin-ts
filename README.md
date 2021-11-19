@@ -34,6 +34,8 @@ One of the most powerful features of `rollup-plugin-ts` is declaration bundling 
 
 Tooling in the JavaScript ecosystem can often be complex, and this is very much the case when intending to combine TypeScript with other tools such as Babel and Browserslists while still maintaining the [unique emit capabilities of `tsc`](https://github.com/rollup/rollup-plugin-typescript/issues/28). `rollup-plugin-ts` differs from other TypeScript plugins in being opiniated about how some of these tools integrate in order to achieve the most optimal behavior with the smallest possible computational overhead. For example, when combined with another transpiler such as Babel, TypeScript handles diagnostics, declarations, and stripping away types, while Babel is used for syntax transformations.
 
+At the same time, `rollup-plugin-ts` has a very robust test suite that runs tests across all minor versions of TypeScript since v3.4 to ensure that everything works no matter which version of TypeScript you or your team is using.
+
 <!-- SHADOW_SECTION_FEATURES_START -->
 
 ### Features
@@ -47,6 +49,7 @@ Tooling in the JavaScript ecosystem can often be complex, and this is very much 
 - Correctly handles [Emit-less types](https://github.com/rollup/rollup-plugin-typescript/issues/28)
 - Supports Incremental compilation.
 - A [Browserslist](https://github.com/browserslist/browserslist) can be provided instead of a target version of ECMAScript such that your code is transpiled in relation to the baseline of browsers defined in your Browserslist instead.
+- Robust, with a comprehensive test suite that runs against all minor versions of TypeScript from v3.4 and up.
 
 <!-- SHADOW_SECTION_FEATURE_IMAGE_START -->
 

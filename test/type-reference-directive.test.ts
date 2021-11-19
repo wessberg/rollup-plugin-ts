@@ -28,6 +28,7 @@ test.serial("Detects type reference directives and respects tree-shaking and cod
 	const {
 		declarations: [file]
 	} = bundle;
+
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
