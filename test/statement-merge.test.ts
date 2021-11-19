@@ -168,7 +168,7 @@ test.serial("Merges identical statements correctly. #3", withTypeScript, async (
 	);
 });
 
-test("Merges identical statements correctly. #4", withTypeScript, async (t, {typescript}) => {
+test.serial("Merges identical statements correctly. #4", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
