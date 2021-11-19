@@ -1,3 +1,12 @@
+## [2.0.4](https://github.com/wessberg/rollup-plugin-ts/compare/v2.0.3...v2.0.4) (2021-11-19)
+
+
+### Bug Fixes
+
+* regression in v2.0.3 on TypeScript <= 3.7 where ExportDeclarations could be dropped ([f56c91c](https://github.com/wessberg/rollup-plugin-ts/commit/f56c91c907a5eb0b190920b2c3c1eac7b0ab5f9b))
+
+
+
 ## [2.0.3](https://github.com/wessberg/rollup-plugin-ts/compare/v2.0.2...v2.0.3) (2021-11-18)
 
 
