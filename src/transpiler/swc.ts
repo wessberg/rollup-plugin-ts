@@ -62,7 +62,7 @@ export function getSwcConfigFactory({fileSystem, swcConfig, cwd, browserslist, p
 				...inputConfig.jsc,
 				parser: {
 					syntax: "ecmascript",
-					jsx: false,
+					...(inputConfig.jsc?.parser?.syntax === "typescript" ? {} : {jsx: false}),
 					...inputConfig.jsc?.parser
 				},
 				...FORCED_SWC_JSC_OPTIONS
