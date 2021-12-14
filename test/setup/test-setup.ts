@@ -2,7 +2,7 @@
 import {createTestContext, TestContext} from "./test-context";
 import {createTestFileStructure, TestFile, TestFileStructure} from "./test-file";
 import {createVirtualFileSystem} from "./create-virtual-file-system";
-import {MaybeArray} from "helpertypes";
+import {MaybeArray, PartialExcept} from "helpertypes";
 import {TS} from "../../src/type/ts";
 import {createTypeScriptSystem} from "../util/create-typescript-system";
 
@@ -12,7 +12,7 @@ export interface TestSetup {
 	fileStructure: TestFileStructure;
 }
 
-export function createTestSetup(inputFiles: MaybeArray<TestFile>, options?: Partial<TestContext>): TestSetup {
+export function createTestSetup(inputFiles: MaybeArray<TestFile>, options: PartialExcept<TestContext, "typescript">): TestSetup {
 	const context = createTestContext(options);
 	const fileStructure = createTestFileStructure(inputFiles, context);
 	const fileSystem = createVirtualFileSystem(fileStructure.files);

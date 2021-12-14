@@ -9,7 +9,7 @@ import {shouldDebugVirtualFiles} from "../../src/util/is-debug/should-debug";
 import path from "crosspath";
 import {createTestSetup} from "./test-setup";
 import {TestFile} from "./test-file";
-import {MaybeArray} from "helpertypes";
+import {MaybeArray, PartialExcept} from "helpertypes";
 import {FileResult} from "./test-result";
 
 export interface GenerateRollupBundleResult {
@@ -61,7 +61,7 @@ export async function generateRollupBundle(
 		babelConfig,
 		swcConfig,
 		...options
-	}: Partial<GenerateRollupBundleOptions> = {}
+	}: PartialExcept<GenerateRollupBundleOptions, "typescript">
 ): Promise<GenerateRollupBundleResult> {
 	let {
 		context,

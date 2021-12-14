@@ -1,6 +1,7 @@
 import {TS} from "../../src/type/ts";
 import {InputCompilerOptions, TypescriptPluginOptions} from "../../src/plugin/typescript-plugin-options";
 import path from "crosspath";
+import { PartialExcept } from "helpertypes";
 
 export interface TestContext {
 	cwd: string;
@@ -19,7 +20,7 @@ export interface TestContext {
 
 export function createTestContext({
 	debug = process.env.DEBUG === "true",
-	typescript = TS,
+	typescript,
 	cwd = process.cwd(),
 	dist = cwd,
 	hook = {outputPath: p => p},
@@ -30,7 +31,7 @@ export function createTestContext({
 	tsconfig = {},
 	exclude = [],
 	include = []
-}: Partial<TestContext> = {}): TestContext {
+}: PartialExcept<TestContext, "typescript">): TestContext {
 	if (!path.isAbsolute(cwd)) {
 		cwd = path.join(process.cwd(), cwd);
 	}

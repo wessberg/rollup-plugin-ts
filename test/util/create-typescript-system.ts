@@ -4,6 +4,7 @@ import {TS} from "../../src/type/ts";
 import path from "crosspath";
 import {FileSystem} from "../../src/util/file-system/file-system";
 import {OS} from "../../src/util/os/os";
+import { PartialExcept } from "helpertypes";
 
 /**
  * TypeScript has a lot of internal helpers that aren't exposed.
@@ -60,12 +61,12 @@ export interface CreateTypeScriptSystemOptions {
  * @link {https://github.com/microsoft/TypeScript/issues/44379} See this issue for more details
  */
 export function createTypeScriptSystem({
-	typescript: _typescript = TS,
+	typescript: _typescript,
 	fs = fsModule,
 	os = osModule,
 	cwd = process.cwd(),
 	executingFileName = __filename
-}: Partial<CreateTypeScriptSystemOptions>): TS.System {
+}: PartialExcept<CreateTypeScriptSystemOptions, "typescript">): TS.System {
 	const typescript = _typescript as TSExtended;
 	const wildcardCharCodes = [42, 63];
 	const platform = os.platform();
