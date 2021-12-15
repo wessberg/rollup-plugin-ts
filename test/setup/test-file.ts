@@ -50,7 +50,7 @@ export function createExternalTestFiles(module: string, text: string, {fileName 
 	];
 }
 
-export function createBuiltInModuleTestFiles(module: "fs" | "globals" | "buffer"): TestFile[] {
+export function createBuiltInModuleTestFiles(...modules: ("fs" | "globals" | "buffer")[]): TestFile[] {
 	return [
 		{
 			entry: false,
@@ -70,11 +70,11 @@ export function createBuiltInModuleTestFiles(module: "fs" | "globals" | "buffer"
 				/// <reference path="./${module}.d.ts" />
 				`
 		},
-		{
+		...modules.map(module => ({
 			entry: false,
 			fileName: `node_modules/@types/node/${module}.d.ts`,
 			text: fsWorker.readFile(path.native.join(nodeTypesDir, `${module}.d.ts`)) ?? ""
-		}
+		}))
 	];
 }
 
