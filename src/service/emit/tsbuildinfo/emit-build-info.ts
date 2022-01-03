@@ -1,4 +1,4 @@
-import {OutputBundle, OutputOptions, PluginContext} from "rollup";
+import {OutputOptions, PluginContext} from "rollup";
 import {CompilerHost} from "../../compiler-host/compiler-host";
 import {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options";
 import path from "crosspath";
@@ -9,7 +9,6 @@ import {logEmit} from "../../../util/logging/log-emit";
 
 export interface EmitBuildInfoOptions {
 	pluginContext: PluginContext;
-	bundle: OutputBundle;
 	host: CompilerHost;
 	pluginOptions: TypescriptPluginOptions;
 	outputOptions: OutputOptions;

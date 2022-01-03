@@ -10,7 +10,7 @@ export function takeBundledFilesNames(bundle: OutputBundle): Set<string> {
 	Object.values(bundle).forEach(value => {
 		if (isOutputChunk(value)) {
 			Object.keys(value.modules).forEach(fileName => bundledFilenames.add(path.normalize(fileName)));
-		} else {
+		} else if ("fileName" in value) {
 			bundledFilenames.add(path.normalize(value.fileName));
 		}
 	});

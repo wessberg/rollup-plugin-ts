@@ -63,18 +63,20 @@ export function createBuiltInModuleTestFiles(...modules: ("fs" | "globals" | "bu
 				}
 			`
 		},
-		{
-			entry: false,
-			fileName: "node_modules/@types/node/index.d.ts",
-			text: `
-				/// <reference path="./${module}.d.ts" />
-				`
-		},
-		...modules.map(module => ({
-			entry: false,
-			fileName: `node_modules/@types/node/${module}.d.ts`,
-			text: fsWorker.readFile(path.native.join(nodeTypesDir, `${module}.d.ts`)) ?? ""
-		}))
+		...modules.flatMap(module => [
+			{
+				entry: false,
+				fileName: "node_modules/@types/node/index.d.ts",
+				text: `
+					/// <reference path="./${module}.d.ts" />
+					`
+			},
+			{
+				entry: false,
+				fileName: `node_modules/@types/node/${module}.d.ts`,
+				text: fsWorker.readFile(path.native.join(nodeTypesDir, `${module}.d.ts`)) ?? ""
+			}
+		])
 	];
 }
 

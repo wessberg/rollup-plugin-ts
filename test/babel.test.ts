@@ -508,7 +508,7 @@ test.serial("Will use the proper @babel/runtime/helpers/esm helpers when format 
 		}
 	} = bundle;
 
-	t.deepEqual(formatCode(file.code), formatCode(`import '@babel/runtime/helpers/esm/typeof';`));
+	t.true(formatCode(file.code).includes(`@babel/runtime/helpers/esm/typeof`));
 });
 
 test.serial("Will use the proper @babel/runtime/helpers helpers when format is CJS. #1", withTypeScript, async (t, {typescript}) => {

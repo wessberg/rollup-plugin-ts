@@ -464,6 +464,8 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		generateBundle(this: PluginContext, outputOptions: OutputOptions, bundle: OutputBundle): void {
 			// If debugging is active, log the outputted files
 			for (const file of Object.values(bundle)) {
+				if (!("fileName" in file)) continue;
+
 				const normalizedFileName = path.normalize(file.fileName);
 				const text = "code" in file ? file.code : file.source.toString();
 				if (shouldDebugEmit(pluginOptions.debug, normalizedFileName, text, "javascript")) {
@@ -481,7 +483,6 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			if (Boolean(parsedCommandLineResult.parsedCommandLine.options.incremental) || Boolean(parsedCommandLineResult.parsedCommandLine.options.composite)) {
 				emitBuildInfo({
 					host,
-					bundle,
 					outputOptions,
 					pluginOptions,
 					pluginContext: this
