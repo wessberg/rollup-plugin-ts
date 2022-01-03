@@ -4,12 +4,15 @@ import {FORCED_SWC_JSC_OPTIONS, FORCED_SWC_MODULE_OPTIONS} from "../constant/con
 import {SwcConfigHook, TranspilationPhase, TypescriptPluginSwcOptions} from "../plugin/typescript-plugin-options";
 import {SwcConfig} from "../type/swc";
 import {TS} from "../type/ts";
+import {getEcmaVersionForScriptTarget} from "../util/get-script-target-from-browserslist/get-script-target-from-browserslist";
 
 export interface GetSwcConfigOptions {
 	cwd: string;
 	fileSystem: TS.System;
 	swcConfig: TypescriptPluginSwcOptions["swcConfig"];
 	browserslist: string[] | undefined;
+	ecmaVersion: TS.ScriptTarget | undefined;
+	typescript: typeof TS;
 	phase: TranspilationPhase;
 	hook: SwcConfigHook | undefined;
 }
@@ -37,7 +40,7 @@ function readConfig(config: TypescriptPluginSwcOptions["swcConfig"], cwd: string
 /**
  * Gets a Swc Config based on the given options
  */
-export function getSwcConfigFactory({fileSystem, swcConfig, cwd, browserslist, phase, hook}: GetSwcConfigOptions): SwcConfigFactory {
+export function getSwcConfigFactory({fileSystem, swcConfig, cwd, browserslist, ecmaVersion, phase, typescript, hook}: GetSwcConfigOptions): SwcConfigFactory {
 	const inputConfig = readConfig(swcConfig, cwd, fileSystem);
 
 	return filename => {
@@ -65,6 +68,11 @@ export function getSwcConfigFactory({fileSystem, swcConfig, cwd, browserslist, p
 					...(inputConfig.jsc?.parser?.syntax === "typescript" ? {} : {jsx: false}),
 					...inputConfig.jsc?.parser
 				},
+				...(browserslist == null && ecmaVersion != null
+					? {
+							target: getEcmaVersionForScriptTarget(ecmaVersion, typescript)
+					  }
+					: {}),
 				...FORCED_SWC_JSC_OPTIONS
 			},
 			env: {

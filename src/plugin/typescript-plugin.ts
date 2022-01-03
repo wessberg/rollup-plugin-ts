@@ -193,16 +193,14 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				}
 
 				case "swc": {
-					// Prepare a swc config if swc should be the transpiler
-					// A browserslist may already be provided, but if that is not the case, one can be computed based on the "target" from the tsconfig
-					const computedBrowserslist = takeBrowserslistOrComputeBasedOnCompilerOptions(normalizedBrowserslist, parsedCommandLineResult.originalCompilerOptions, typescript);
-
 					const sharedSwcConfigFactoryOptions = {
 						cwd,
 						fileSystem,
+						typescript,
 						hook: pluginOptions.hook.swcConfig,
 						swcConfig: pluginOptions.swcConfig,
-						browserslist: computedBrowserslist
+						browserslist: normalizedBrowserslist === false ? undefined : normalizedBrowserslist,
+						ecmaVersion: parsedCommandLineResult.originalCompilerOptions.target
 					};
 
 					swcConfigFileFactory = getSwcConfigFactory({
