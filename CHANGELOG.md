@@ -1,3 +1,18 @@
+## [2.0.5](https://github.com/wessberg/rollup-plugin-ts/compare/v2.0.4...v2.0.5) (2022-01-03)
+
+
+### Bug Fixes
+
+* don't break when another plugin declares an asset that only later receives a source. Fixes [#162](https://github.com/wessberg/rollup-plugin-ts/issues/162) ([3ec4c86](https://github.com/wessberg/rollup-plugin-ts/commit/3ec4c865bc8a97c26d026d28279027a549d8bca9))
+* swc reject when set parser to typescript ([3770470](https://github.com/wessberg/rollup-plugin-ts/commit/37704705c165058db8dcfb0f1cb44164eb7e9d1a))
+
+
+### Features
+
+* when using swc and no browserslist could be resolved, pass the ecma version directly as a target instead of generating a browserslist based on it. Closes [#163](https://github.com/wessberg/rollup-plugin-ts/issues/163) ([a2e88e5](https://github.com/wessberg/rollup-plugin-ts/commit/a2e88e58004fdab3aa4247c4e1c7ab6702c20dd1))
+
+
+
 ## [2.0.4](https://github.com/wessberg/rollup-plugin-ts/compare/v2.0.3...v2.0.4) (2021-11-19)
 
 
