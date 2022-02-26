@@ -92,9 +92,7 @@ export const FORCED_SWC_MODULE_OPTIONS = {
 	type: "es6"
 } as const;
 
-export const FORCED_SWC_JSC_OPTIONS = {
-	externalHelpers: true
-} as const;
+export const FORCED_SWC_JSC_OPTIONS = {} as const;
 
 export const FORCED_BABEL_PRESET_ENV_OPTIONS = {
 	modules: false

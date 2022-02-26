@@ -62,6 +62,8 @@ export function getSwcConfigFactory({fileSystem, swcConfig, cwd, browserslist, e
 			jsc: {
 				// Loose breaks things such as spreading an iterable that isn't an array
 				loose: false,
+				// By default, import @swc/helpers instead of inlining them
+				externalHelpers: true,
 				...inputConfig.jsc,
 				parser: {
 					syntax: "ecmascript",

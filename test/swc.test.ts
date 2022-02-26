@@ -120,6 +120,48 @@ test.serial("Can use swc for transpilation. #2", withTypeScript, async (t, {type
 	);
 });
 
+test.serial("Can use swc without externalHelpers", withTypeScript, async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+					typeof "";
+					`
+			}
+		],
+		{
+			typescript,
+			transpiler: "swc",
+			loadSwcHelpers: true,
+			swcConfig: {
+				jsc: {
+					externalHelpers: false,
+				}
+			},
+			exclude: [],
+			tsconfig: {
+				target: "es5",
+				allowJs: true
+			}
+		}
+	);
+	const {
+		js: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		var _typeof = function(obj) {
+			return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj;
+		};
+		_typeof("");
+		`)
+	);
+});
+
 test.serial("Supports swc minification. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
