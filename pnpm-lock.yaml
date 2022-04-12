@@ -23,7 +23,7 @@ specifiers:
   ava: 3.15.0
   babel-preset-minify: ^0.5.1
   browserslist: ^4.20.2
-  browserslist-generator: ^1.0.65
+  browserslist-generator: ^1.0.66
   chalk: 4.1.2
   compatfactory: ^0.0.13
   crosspath: 1.0.0
@@ -66,7 +66,7 @@ dependencies:
   '@rollup/pluginutils': 4.2.0
   '@wessberg/stringutil': 1.0.19
   browserslist: 4.20.2
-  browserslist-generator: 1.0.65
+  browserslist-generator: 1.0.66
   chalk: 4.1.2
   compatfactory: 0.0.13_typescript@4.6.3
   crosspath: 1.0.0
@@ -2578,32 +2578,20 @@ packages:
       fill-range: 7.0.1
     dev: true
 
-  /browserslist-generator/1.0.65:
-    resolution: {integrity: sha512-2+p27BTZ0T6fGAn57IZOoGRTDqIhaHVPHWTg5ZejMA/SKaQG1ChvfOnb9sxqRwLMUGtrUXbX0QQA7H1s6oQh0A==}
+  /browserslist-generator/1.0.66:
+    resolution: {integrity: sha512-aFDax4Qzh29DdyhHQBD2Yu2L5OvaDnvYFMbmpLrLwwaNK4H6dHEhC/Nxv93/+mfAA+a/t94ln0P2JZvHO6LZDA==}
     engines: {node: '>=8.0.0'}
     dependencies:
       '@mdn/browser-compat-data': 4.1.16
       '@types/object-path': 0.11.1
       '@types/semver': 7.3.9
       '@types/ua-parser-js': 0.7.36
-      browserslist: 4.18.1
+      browserslist: 4.20.2
       caniuse-lite: 1.0.30001328
-      isbot: 3.3.4
+      isbot: 3.4.5
       object-path: 0.11.8
       semver: 7.3.7
       ua-parser-js: 1.0.2
-    dev: false
-
-  /browserslist/4.18.1:
-    resolution: {integrity: sha512-8ScCzdpPwR2wQh8IT82CA2VgDwjHyqMovPBZSNH54+tm4Jk2pCuv90gmAdH6J84OCRWi0b4gMe6O6XPXuJnjgQ==}
-    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
-    hasBin: true
-    dependencies:
-      caniuse-lite: 1.0.30001328
-      electron-to-chromium: 1.4.107
-      escalade: 3.1.1
-      node-releases: 2.0.3
-      picocolors: 1.0.0
     dev: false
 
   /browserslist/4.20.2:
@@ -4766,8 +4754,8 @@ packages:
     resolution: {integrity: sha1-u5NdSFgsuhaMBoNJV6VKPgcSTxE=}
     dev: true
 
-  /isbot/3.3.4:
-    resolution: {integrity: sha512-a6o/e6nBMoRGvoovg5NT2r/N7S4398yCDXc6HgEOILdBAjYv05SX1MBhgc8SHnEJdRyLfOpAPqc10ezLWkj7rQ==}
+  /isbot/3.4.5:
+    resolution: {integrity: sha512-+KD6q1BBtw0iK9aGBGSfxJ31/ZgizKRjhm8ebgJUBMx0aeeQuIJ1I72beCoIrltIZGrSm4vmrxRxrG5n1aUTtw==}
     engines: {node: '>=12'}
     dev: false
 

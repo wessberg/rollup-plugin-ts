@@ -18,7 +18,7 @@
 		"preversion": "npm run lint && pnpm run build",
 		"version": "pnpm run preversion && pnpm run generate:all && git add .",
 		"release": "np --no-cleanup --no-yarn --no-tests",
-		"update:check": "pnpx npm-check-updates -x typescript-* --dep dev,prod",
+		"update:check": "pnpx npm-check-updates -x typescript-*,ava,chalk --dep dev,prod",
 		"update:commit": "pnpx npm-check-updates -u -x typescript-*,ava,chalk --dep dev,prod && pnpm update && pnpm install"
 	},
 	"keywords": [
@@ -104,7 +104,7 @@
 		"@rollup/pluginutils": "^4.2.0",
 		"@wessberg/stringutil": "^1.0.19",
 		"browserslist": "^4.20.2",
-		"browserslist-generator": "^1.0.65",
+		"browserslist-generator": "^1.0.66",
 		"chalk": "4.1.2",
 		"compatfactory": "^0.0.13",
 		"crosspath": "1.0.0",

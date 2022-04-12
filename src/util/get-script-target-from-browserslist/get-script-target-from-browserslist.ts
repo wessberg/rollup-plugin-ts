@@ -36,8 +36,18 @@ export function getScriptTargetFromBrowserslist(browserslist: string[], typescri
 			);
 		// Support older TypeScript versions that may not supported ES2021 as a ScriptTarget with nullish coalescing
 		case "es2021":
+			return (
+				typescript.ScriptTarget.ES2021 ??
+				typescript.ScriptTarget.ES2020 ??
+				typescript.ScriptTarget.ES2019 ??
+				typescript.ScriptTarget.ES2018 ??
+				typescript.ScriptTarget.ES2017 ??
+				typescript.ScriptTarget.ES2016 ??
+				typescript.ScriptTarget.ES2015
+			);
 		case "es2022":
 			return (
+				typescript.ScriptTarget.ES2022 ??
 				typescript.ScriptTarget.ES2021 ??
 				typescript.ScriptTarget.ES2020 ??
 				typescript.ScriptTarget.ES2019 ??
@@ -75,9 +85,11 @@ export function getEcmaVersionForScriptTarget(
 			return "es2020";
 		case typescript.ScriptTarget.ES2021:
 			return "es2021";
+			case typescript.ScriptTarget.ES2022:
+			return "es2022";
 		case typescript.ScriptTarget.ESNext:
 		case typescript.ScriptTarget.Latest:
 		case typescript.ScriptTarget.JSON:
-			return "es2021";
+			return "es2022";
 	}
 }
