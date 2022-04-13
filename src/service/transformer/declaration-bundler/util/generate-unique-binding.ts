@@ -14,7 +14,7 @@ export function generateUniqueBinding(lexicalEnvironment: LexicalEnvironment, ca
 			counter = parseInt(value.slice(candidate.length + DECONFLICT_SUFFIX.length));
 		}
 
-		return `${candidate}${DECONFLICT_SUFFIX}${counter + 1}`;
+		return isNaN(counter) ? candidate : `${candidate}${DECONFLICT_SUFFIX}${counter + 1}`;
 	}
 
 	if (lexicalEnvironment.parent == null) {

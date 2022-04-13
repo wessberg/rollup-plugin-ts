@@ -7,6 +7,8 @@ import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
 import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifier-transformer/ensure-no-declare-modifier-transformer";
 import {statementMerger} from "../../statement-merger/statement-merger";
 import {inlineNamespaceModuleBlockTransformer} from "../../inline-namespace-module-block-transformer/inline-namespace-module-block-transformer";
+import {addBindingToLexicalEnvironment} from "../../../util/add-binding-to-lexical-environment";
+import {getOriginalSourceFile} from "../../../util/get-original-source-file";
 
 export interface GenerateExportDeclarationsOptions extends Omit<ModuleMergerVisitorOptions<TS.ExportDeclaration>, "node"> {}
 
@@ -75,7 +77,7 @@ function generateExportDeclarations(options: GenerateExportDeclarationsOptions, 
 }
 
 export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.ExportDeclaration>): VisitResult<TS.ExportDeclaration> {
-	const {node, factory, typescript} = options;
+	const {node, factory, typescript, sourceFile} = options;
 	const moduleSpecifier = node.moduleSpecifier == null || !typescript.isStringLiteralLike(node.moduleSpecifier) ? undefined : node.moduleSpecifier.text;
 	const updatedModuleSpecifier =
 		moduleSpecifier == null
@@ -87,7 +89,6 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 			  });
 
 	const matchingSourceFile = moduleSpecifier == null ? undefined : options.getMatchingSourceFile(moduleSpecifier, options.sourceFile);
-
 	const payload = {
 		moduleSpecifier,
 		matchingSourceFile,
@@ -96,8 +97,23 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 
 	const contResult = options.childContinuation(node, payload);
 
+	// Inside a file that will be merged into one of the entry sourcefiles for a chunk, when a binding is exported locally by another name, it should be
+	// added to the lexical environment such that we'll know later on that this binding is known by is aliased name going forward
+	if (updatedModuleSpecifier == null && contResult.exportClause != null && typescript.isNamedExports(contResult.exportClause)) {
+		if (contResult.exportClause != null && typescript.isNamedExports(contResult.exportClause)) {
+			const originalSourceFile = getOriginalSourceFile(node, sourceFile, typescript);
+
+			for (const exportSpecifier of contResult.exportClause.elements) {
+				if (exportSpecifier.propertyName != null && exportSpecifier.propertyName.text !== exportSpecifier.name.text) {
+					addBindingToLexicalEnvironment(options.lexicalEnvironment, originalSourceFile.fileName, exportSpecifier.propertyName.text, exportSpecifier.name.text);
+				}
+			}
+		}
+	}
+
 	// If no SourceFile was resolved
 	if (matchingSourceFile == null) {
+
 		// If the module specifier didn't change, preserve the export as it is.
 		if (moduleSpecifier === updatedModuleSpecifier || updatedModuleSpecifier == null) {
 			return contResult;

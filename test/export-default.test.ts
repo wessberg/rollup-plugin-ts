@@ -488,3 +488,190 @@ test.serial("Handles default exports inside ExportSpecifiers. #4", withTypeScrip
 		`)
 	);
 });
+
+test.serial("Handles default exports inside ExportSpecifiers. #5", withTypeScript, async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+				import Foo from "./foo";
+				
+				export { Foo };
+					`
+			},
+			{
+				entry: false,
+				fileName: "foo.ts",
+				text: `\
+				export { default } from "./bar";
+					`
+			},
+			{
+				entry: false,
+				fileName: "bar.ts",
+				text: `\
+				export default 2;
+					`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare const _default: 2;
+		declare const Foo: typeof _default;
+		export { Foo };
+		`)
+	);
+});
+
+test.serial("Handles default exports inside ExportSpecifiers. #6", withTypeScript, async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+				import Foo from "./foo";
+				
+				export { Foo };
+					`
+			},
+			{
+				entry: false,
+				fileName: "foo.ts",
+				text: `\
+				export { A as default } from "./bar";
+					`
+			},
+			{
+				entry: false,
+				fileName: "bar.ts",
+				text: `\
+				const foo = 2;
+				export {foo as A};
+					`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare const foo = 2;
+  		declare const Foo: typeof foo;
+		export { Foo };
+		`)
+	);
+});
+
+test.serial("Handles default exports inside ExportSpecifiers. #7", withTypeScript, async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+				import {A} from "./foo";
+				
+				export { A };
+					`
+			},
+			{
+				entry: false,
+				fileName: "foo.ts",
+				text: `\
+				export { A } from "./bar";
+					`
+			},
+			{
+				entry: false,
+				fileName: "bar.ts",
+				text: `\
+				const foo = 2;
+				export {foo as A};
+					`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare const foo = 2;
+		export { foo as A };
+		`)
+	);
+});
+
+test.serial("Handles default exports inside ExportSpecifiers. #8", withTypeScript, async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+				import {A} from "./foo";
+				
+				const B = A;
+				export { A as ARenamed, B };
+					`
+			},
+			{
+				entry: false,
+				fileName: "foo.ts",
+				text: `\
+				export { A } from "./bar";
+					`
+			},
+			{
+				entry: false,
+				fileName: "bar.ts",
+				text: `\
+				const foo = 2;
+				export {foo as A};
+					`
+			}
+		],
+		{
+			typescript,
+			debug: false
+		}
+	);
+	const {
+		declarations: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		declare const foo = 2;
+		declare const B = 2;
+		export { foo as ARenamed, B }
+		`)
+	);
+});
