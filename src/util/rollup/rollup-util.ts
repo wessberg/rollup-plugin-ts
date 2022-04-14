@@ -43,6 +43,12 @@ function inputValuesAreEqual(a: unknown, b: unknown, path: string[] = []): Equal
 		} else {
 			return {equal: true};
 		}
+	} else if (typeof a === "function") {
+		if (typeof b !== "function") return {equal: false, path};
+		else if (a.toString() !== b.toString()) return {equal: false, path};
+		else {
+			return {equal: true};
+		}
 	} else {
 		return {equal: true};
 	}
