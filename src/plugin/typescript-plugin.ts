@@ -1,4 +1,4 @@
-import {ExistingRawSourceMap, InputOptions, OutputBundle, OutputOptions, Plugin, PluginContext, RenderedChunk, SourceDescription} from "rollup";
+import {ExistingRawSourceMap, InputOptions, OutputBundle, OutputOptions, Plugin, PluginContext, RenderedChunk, RollupCache, SourceDescription} from "rollup";
 import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line";
 import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options";
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
@@ -29,6 +29,7 @@ import path from "crosspath";
 import {loadBabel, loadSwc} from "../util/transpiler-loader";
 import {BabelConfigFactory, getBabelConfig, getDefaultBabelOptions, getForcedBabelOptions, replaceBabelHelpers} from "../transpiler/babel";
 import {getSwcConfigFactory, SwcConfigFactory} from "../transpiler/swc";
+import {inputOptionsAreEqual} from "../util/rollup/rollup-util";
 
 /**
  * The name of the Rollup plugin
@@ -98,6 +99,11 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	let rollupInputOptions: InputOptions;
 
 	/**
+	 * The previously emitted Rollup cache used as input, if any
+	 */
+	let inputCache: RollupCache | undefined;
+
+	/**
 	 * A Set of the entry filenames for when using rollup-plugin-multi-entry (we need to track this for generating valid declarations)
 	 */
 	let MULTI_ENTRY_FILE_NAMES: Set<string> | undefined;
@@ -107,7 +113,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	 */
 	let MULTI_ENTRY_MODULE: string | undefined;
 
-	const addAndEmitFile = (fileName: string, text: string, dependencyCb: (dependency: string) => void): SourceDescription | undefined => {
+	const addFile = (fileName: string, text: string, dependencyCb: (dependency: string) => void): void => {
 		// Add the file to the CompilerHost
 		host.add({fileName, text, fromRollup: true});
 
@@ -121,6 +127,10 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				dependencyCb(pickedDependency);
 			}
 		}
+	};
+
+	const addAndEmitFile = (fileName: string, text: string, dependencyCb: (dependency: string) => void): SourceDescription | undefined => {
+		addFile(fileName, text, dependencyCb);
 
 		// Get some EmitOutput, optionally from the cache if the file contents are unchanged
 		const emitOutput = host.emit(fileName, false);
@@ -136,10 +146,13 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * Invoked when Input options has been received by Rollup
 		 */
 		async options(options: InputOptions): Promise<undefined> {
-			// Break if the options aren't different from the previous ones
-			if (rollupInputOptions != null) return;
+			// Always update the input cache
+			inputCache = typeof options.cache === "boolean" ? undefined : options.cache;
 
-			// Re-assign the input options
+			// Don't proceed if the options are identical to the previous ones
+			if (rollupInputOptions != null && inputOptionsAreEqual(rollupInputOptions, options)) return;
+
+			// Re-assign the full input options
 			rollupInputOptions = options;
 
 			const multiEntryPlugin = options.plugins?.find(plugin => plugin != null && typeof plugin !== "boolean" && plugin.name === "multi-entry");
@@ -462,6 +475,23 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		 * from the LanguageService
 		 */
 		generateBundle(this: PluginContext, outputOptions: OutputOptions, bundle: OutputBundle): void {
+			// If a cache was provided to Rollup,
+			// some or all files may not have been added to the CompilerHost
+			// and therefore it will not be possible to compile correct diagnostics,
+			// declarations, and/or .buildinfo. To work around this, we'll have to make sure
+			// all files that are part of the compilation unit is in fact added to the CompilerHost
+			if (inputCache != null) {
+				for (const module of inputCache.modules) {
+					const normalizedFile = path.normalize(module.id);
+
+					// Don't proceed if we already know about that file
+					if (host.has(normalizedFile)) continue;
+
+					// Add to the CompilerHost
+					addFile(normalizedFile, module.originalCode, dependency => this.addWatchFile(dependency));
+				}
+			}
+
 			// If debugging is active, log the outputted files
 			for (const file of Object.values(bundle)) {
 				if (!("fileName" in file)) continue;

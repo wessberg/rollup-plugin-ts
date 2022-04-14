@@ -1,4 +1,4 @@
-import {Plugin, rollup, RollupOptions, RollupOutput} from "rollup";
+import {Plugin, rollup, RollupBuild, RollupCache, RollupOptions, RollupOutput} from "rollup";
 import commonjs from "@rollup/plugin-commonjs";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
 import {HookRecord, InputCompilerOptions, TypescriptPluginBabelOptions, TypescriptPluginOptions, TypescriptPluginSwcOptions} from "../../src/plugin/typescript-plugin-options";
@@ -42,6 +42,7 @@ export interface GenerateRollupBundleOptions {
 	browserslist: TypescriptPluginOptions["browserslist"];
 	chunkFileNames: string;
 	entryFileNames: string;
+	runCachedBuild: boolean;
 }
 
 /**
@@ -52,6 +53,7 @@ export async function generateRollupBundle(
 	{
 		rollupOptions = {},
 		format = "esm",
+		runCachedBuild = false,
 		prePlugins = [],
 		postPlugins = [],
 		entryFileNames,
@@ -141,37 +143,51 @@ export async function generateRollupBundle(
 		}
 	}
 
-	const result = await rollup({
-		input,
-		...rollupOptions,
-		onwarn: (warning, defaultHandler) => {
-			// Eat all irrelevant Rollup warnings (such as 'Generated an empty chunk: "index") while running tests
-			if (!warning.message.includes("Generated an empty chunk") && !warning.message.includes(`Circular dependency:`) && !warning.message.includes(`Conflicting namespaces:`)) {
-				defaultHandler(warning);
-			}
-		},
-		plugins: [
-			{
-				name: "VirtualFileResolver",
-				resolveId,
-				load
-			},
-			commonjs(),
-			...prePlugins,
-			typescriptRollupPlugin({
-				...context,
-				fileSystem,
-				transformers,
-				browserslist,
-				babelConfig,
-				swcConfig
-			}),
-			...(rollupOptions.plugins == null ? [] : rollupOptions.plugins),
-			...postPlugins
-		]
-	});
+	let cache: RollupCache | undefined;
+	let result: RollupBuild | undefined;
 
-	const extraFiles: {type: "chunk" | "asset"; source: string; fileName: string}[] = [];
+	while (true) {
+		result = await rollup({
+			input,
+			cache,
+			...rollupOptions,
+			onwarn: (warning, defaultHandler) => {
+				// Eat all irrelevant Rollup warnings (such as 'Generated an empty chunk: "index") while running tests
+				if (!warning.message.includes("Generated an empty chunk") && !warning.message.includes(`Circular dependency:`) && !warning.message.includes(`Conflicting namespaces:`)) {
+					defaultHandler(warning);
+				}
+			},
+			plugins: [
+				{
+					name: "VirtualFileResolver",
+					resolveId,
+					load
+				},
+				commonjs(),
+				...prePlugins,
+				typescriptRollupPlugin({
+					...context,
+					fileSystem,
+					transformers,
+					browserslist,
+					babelConfig,
+					swcConfig
+				}),
+				...(rollupOptions.plugins == null ? [] : rollupOptions.plugins),
+				...postPlugins
+			]
+		});
+
+		if (runCachedBuild && cache == null) {
+			cache = result.cache;
+
+			// Run again, this time with caching
+			continue;
+		} else {
+			break;
+		}
+	}
+
 	const bundle = await result.generate({
 		dir: context.dist,
 		format,
@@ -180,7 +196,7 @@ export async function generateRollupBundle(
 		...(chunkFileNames == null ? {} : {chunkFileNames})
 	});
 
-	for (const file of [...bundle.output, ...extraFiles]) {
+	for (const file of bundle.output) {
 		if (file.type === "chunk" && "code" in file) {
 			js.push({
 				code: file.code,
