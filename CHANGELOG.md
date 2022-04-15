@@ -1,3 +1,12 @@
+## [2.0.7](https://github.com/wessberg/rollup-plugin-ts/compare/v2.0.6...v2.0.7) (2022-04-15)
+
+
+### Bug Fixes
+
+* fix a regression when a Rollup cache is being used where unsupported files would be attempted to be added to the CompilerHost and crash the compilation. Fixes [#178](https://github.com/wessberg/rollup-plugin-ts/issues/178) ([630d5ae](https://github.com/wessberg/rollup-plugin-ts/commit/630d5aea0c9db085b7ecf169f097382d1ac2c2ed))
+
+
+
 ## [2.0.6](https://github.com/wessberg/rollup-plugin-ts/compare/v2.0.5...v2.0.6) (2022-04-15)
 
 
