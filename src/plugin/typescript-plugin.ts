@@ -139,6 +139,27 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		return getSourceDescriptionFromEmitOutput(emitOutput);
 	};
 
+	const isFileRelevant = (code: string, file: string): {relevant: boolean; isSupportedByCompilerHost: boolean} => {
+		const normalizedFile = path.normalize(file);
+
+		// Skip the file if it doesn't match the filter or if the helper cannot be transformed
+		if (!filter(normalizedFile)) {
+			return {relevant: false, isSupportedByCompilerHost: false};
+		}
+
+		const hasJsonExtension = getExtension(normalizedFile) === JSON_EXTENSION;
+
+		// Files with a .json extension may not necessarily be JSON, for example
+		// if a JSON plugin came before rollup-plugin-ts, in which case it shouldn't be treated
+		// as JSON.
+		const isJsInDisguise = hasJsonExtension && !isJsonLike(code);
+
+		return {
+			relevant: true,
+			isSupportedByCompilerHost: host.isSupportedFileName(normalizedFile) && !isJsInDisguise
+		};
+	};
+
 	return {
 		name: PLUGIN_NAME,
 
@@ -355,17 +376,9 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				return undefined;
 			}
 
-			// Skip the file if it doesn't match the filter or if the helper cannot be transformed
-			if (!filter(normalizedFile)) {
-				return undefined;
-			}
+			const {relevant, isSupportedByCompilerHost} = isFileRelevant(code, file);
 
-			const hasJsonExtension = getExtension(normalizedFile) === JSON_EXTENSION;
-
-			// Files with a .json extension may not necessarily be JSON, for example
-			// if a JSON plugin came before rollup-plugin-ts, in which case it shouldn't be treated
-			// as JSON.
-			const isJsInDisguise = hasJsonExtension && !isJsonLike(code);
+			if (!relevant) return undefined;
 
 			switch (pluginOptions.transpiler) {
 				case "babel": {
@@ -383,7 +396,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 					// Only pass the file through Typescript if it's extension is supported.
 					// Otherwise, return whatever transformations that may have been applied to the source description already
-					if (host.isSupportedFileName(normalizedFile) && !isJsInDisguise) {
+					if (isSupportedByCompilerHost) {
 						sourceDescription = addAndEmitFile(normalizedFile, sourceDescription.code, dependency => this.addWatchFile(dependency)) ?? sourceDescription;
 					}
 
@@ -411,7 +424,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 					// Only pass the file through Typescript if it's extension is supported.
 					// Otherwise, return whatever transformations that may have been applied to the source description already
-					if (host.isSupportedFileName(normalizedFile) && !isJsInDisguise) {
+					if (isSupportedByCompilerHost) {
 						sourceDescription = addAndEmitFile(normalizedFile, sourceDescription.code, dependency => this.addWatchFile(dependency)) ?? sourceDescription;
 					}
 
@@ -435,7 +448,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				default: {
 					// Only pass the file through Typescript if it's extension is supported.
 					// Otherwise, return whatever transformations that may have been applied to the source description already
-					return !host.isSupportedFileName(normalizedFile) || isJsInDisguise ? undefined : addAndEmitFile(normalizedFile, code, dependency => this.addWatchFile(dependency));
+					return !isSupportedByCompilerHost ? undefined : addAndEmitFile(normalizedFile, code, dependency => this.addWatchFile(dependency));
 				}
 			}
 		},
@@ -485,7 +498,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 					const normalizedFile = path.normalize(module.id);
 
 					// Don't proceed if we already know about that file
-					if (host.has(normalizedFile)) continue;
+					if (host.has(normalizedFile) || !isFileRelevant(module.originalCode, normalizedFile).isSupportedByCompilerHost) continue;
 
 					// Add to the CompilerHost
 					addFile(normalizedFile, module.originalCode, dependency => this.addWatchFile(dependency));
