@@ -1,3 +1,20 @@
+## [2.0.6](https://github.com/wessberg/rollup-plugin-ts/compare/v2.0.5...v2.0.6) (2022-04-15)
+
+
+### Bug Fixes
+
+* correctly add aliased re-exported bindings to lexical environment at all times. Fixes [#109](https://github.com/wessberg/rollup-plugin-ts/issues/109) ([16d24fa](https://github.com/wessberg/rollup-plugin-ts/commit/16d24fa1660d581b0e93d1566ef9dea2dc8fd179))
+* correctly alias re-exported bindings which themselves may be aliased from other source files from the same chunk. Closes [#176](https://github.com/wessberg/rollup-plugin-ts/issues/176) ([364b50b](https://github.com/wessberg/rollup-plugin-ts/commit/364b50b3b919a643ae96549f00a94c401ebc0ba9))
+
+
+### Features
+
+* add support for target ES2022 ([6eec842](https://github.com/wessberg/rollup-plugin-ts/commit/6eec842ca92c01f8f68f21c7da73aadefa307fba))
+* add TypeScript v4.6 support ([c387ff7](https://github.com/wessberg/rollup-plugin-ts/commit/c387ff7c7007bd63893edd273031db5a2747c991))
+* generate correct declarations, diagnostics, and .tsbuildinfo when a Rollup cache is being used. Fixes [#140](https://github.com/wessberg/rollup-plugin-ts/issues/140) ([afa76ed](https://github.com/wessberg/rollup-plugin-ts/commit/afa76ed6fb7b74714bd54543b9302ebf49bc7074))
+
+
+
 ## [2.0.5](https://github.com/wessberg/rollup-plugin-ts/compare/v2.0.4...v2.0.5) (2022-01-03)
 
 
