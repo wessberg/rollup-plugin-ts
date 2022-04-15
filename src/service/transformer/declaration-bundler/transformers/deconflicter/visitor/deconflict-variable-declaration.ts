@@ -6,6 +6,8 @@ import {generateUniqueBinding} from "../../../util/generate-unique-binding";
 import {getIdForNode} from "../../../util/get-id-for-node";
 import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {getOriginalSourceFile} from "../../../util/get-original-source-file";
+import {isNodeInternalAlias} from "../../../util/node-util";
+import {getParentNode} from "../../../util/get-parent-node";
 
 /**
  * Deconflicts the given VariableDeclaration.
@@ -13,12 +15,16 @@ import {getOriginalSourceFile} from "../../../util/get-original-source-file";
 export function deconflictVariableDeclaration(options: DeconflicterVisitorOptions<TS.VariableDeclaration>): TS.VariableDeclaration | undefined {
 	const {node, continuation, lexicalEnvironment, factory, typescript, sourceFile, declarationToDeconflictedBindingMap} = options;
 	let nameContResult: TS.VariableDeclaration["name"];
+	const variableDeclarationList = getParentNode(node);
+	const upperNode = variableDeclarationList == null ? node : getParentNode(variableDeclarationList) ?? variableDeclarationList;
 
 	if (typescript.isIdentifier(node.name)) {
 		const id = getIdForNode(options);
 		const originalSourceFile = getOriginalSourceFile(node, sourceFile, typescript);
 
-		if (isIdentifierFree(lexicalEnvironment, node.name.text, originalSourceFile.fileName)) {
+		if (id != null) declarationToDeconflictedBindingMap.set(id, node.name.text);
+
+		if (isIdentifierFree(lexicalEnvironment, node.name.text, originalSourceFile.fileName, isNodeInternalAlias(upperNode, typescript))) {
 			nameContResult = node.name;
 			if (id != null) declarationToDeconflictedBindingMap.set(id, node.name.text);
 

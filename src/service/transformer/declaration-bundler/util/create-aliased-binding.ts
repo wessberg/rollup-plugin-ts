@@ -5,6 +5,7 @@ import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-opti
 import {generateUniqueBinding} from "./generate-unique-binding";
 import {preserveParents} from "./clone-node-with-meta";
 import {TransformerBaseOptions} from "../transformers/transformer-base-options";
+import {markAsInternalAlias} from "./node-util";
 
 export interface CreateAliasedBindingOptions extends TransformerBaseOptions {
 	node: TS.Node | TS.Symbol | undefined;
@@ -28,35 +29,34 @@ export function createAliasedBinding({
 	switch (declaration?.kind) {
 		case typescript.SyntaxKind.ClassDeclaration:
 		case typescript.SyntaxKind.ClassExpression: {
-			return [
-				preserveParents(
-					factory.createModuleDeclaration(
-						undefined,
-						undefined,
-						factory.createIdentifier(moduleBinding),
-						factory.createModuleBlock([
-							factory.createExportDeclaration(
-								undefined,
-								undefined,
-								false,
-								factory.createNamedExports([factory.createExportSpecifier(false, undefined, factory.createIdentifier(propertyName))])
-							)
-						])
-					),
-					{typescript}
-				),
-
-				preserveParents(
-					factory.createImportEqualsDeclaration(
+			const moduleDeclaration = factory.createModuleDeclaration(
+				undefined,
+				undefined,
+				factory.createIdentifier(moduleBinding),
+				factory.createModuleBlock([
+					factory.createExportDeclaration(
 						undefined,
 						undefined,
 						false,
-						factory.createIdentifier(name),
-						factory.createQualifiedName(factory.createIdentifier(moduleBinding), factory.createIdentifier(propertyName))
-					),
-					{typescript}
-				)
-			];
+						factory.createNamedExports([factory.createExportSpecifier(false, undefined, factory.createIdentifier(propertyName))])
+					)
+				])
+			);
+
+			const importEqualsDeclaration = factory.createImportEqualsDeclaration(
+				undefined,
+				undefined,
+				false,
+				factory.createIdentifier(name),
+				factory.createQualifiedName(factory.createIdentifier(moduleBinding), factory.createIdentifier(propertyName))
+			);
+
+			// Typically module declarations are left in.
+			// However, these should be treeshakeable.
+			markAsInternalAlias(moduleDeclaration, typescript);
+			markAsInternalAlias(importEqualsDeclaration, typescript);
+
+			return [preserveParents(moduleDeclaration, {typescript}), preserveParents(importEqualsDeclaration, {typescript})];
 		}
 		case typescript.SyntaxKind.FunctionDeclaration:
 		case typescript.SyntaxKind.FunctionExpression:
@@ -64,33 +64,36 @@ export function createAliasedBinding({
 		case typescript.SyntaxKind.VariableDeclaration:
 		case typescript.SyntaxKind.VariableStatement:
 		case typescript.SyntaxKind.ExportAssignment: {
-			return [
-				preserveParents(
-					factory.createVariableStatement(
-						ensureHasDeclareModifier(undefined, factory, typescript),
-						factory.createVariableDeclarationList(
-							[factory.createVariableDeclaration(factory.createIdentifier(name), undefined, factory.createTypeQueryNode(factory.createIdentifier(propertyName)))],
-							typescript.NodeFlags.Const
-						)
-					),
-					{typescript}
+			const variableStatement = factory.createVariableStatement(
+				ensureHasDeclareModifier(undefined, factory, typescript),
+				factory.createVariableDeclarationList(
+					[factory.createVariableDeclaration(factory.createIdentifier(name), undefined, factory.createTypeQueryNode(factory.createIdentifier(propertyName)))],
+					typescript.NodeFlags.Const
 				)
-			];
+			);
+			markAsInternalAlias(variableStatement, typescript);
+			return [preserveParents(variableStatement, {typescript})];
 		}
 
 		default: {
-			return [
-				preserveParents(
-					factory.createTypeAliasDeclaration(
-						undefined,
-						undefined,
-						factory.createIdentifier(name),
-						undefined,
-						factory.createTypeReferenceNode(factory.createIdentifier(propertyName), undefined)
-					),
-					{typescript}
-				)
-			];
+			const alias =
+				propertyName === "_default"
+					? factory.createVariableStatement(
+							ensureHasDeclareModifier(undefined, factory, typescript),
+							factory.createVariableDeclarationList(
+								[factory.createVariableDeclaration(factory.createIdentifier(name), undefined, factory.createTypeQueryNode(factory.createIdentifier(propertyName)))],
+								typescript.NodeFlags.Const
+							)
+					  )
+					: factory.createTypeAliasDeclaration(
+							undefined,
+							undefined,
+							factory.createIdentifier(name),
+							undefined,
+							factory.createTypeReferenceNode(factory.createIdentifier(propertyName), undefined)
+					  );
+			markAsInternalAlias(alias, typescript);
+			return [preserveParents(alias, {typescript})];
 		}
 	}
 }

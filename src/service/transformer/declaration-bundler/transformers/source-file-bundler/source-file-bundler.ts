@@ -80,6 +80,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 				...options,
 				context,
 				factory,
+				entrySourceFilesForChunk: entrySourceFiles,
 				otherEntrySourceFilesForChunk,
 				sourceFile: firstEntrySourceFile,
 				lexicalEnvironment: {

@@ -9,6 +9,7 @@ import {ContinuationOptions} from "../deconflicter-options";
 import {getIdForNode} from "../../../util/get-id-for-node";
 import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {getOriginalSourceFile} from "../../../util/get-original-source-file";
+import { isNodeInternalAlias } from "../../../util/node-util";
 
 /**
  * Deconflicts the given TypeAliasDeclaration.
@@ -19,7 +20,7 @@ export function deconflictTypeAliasDeclaration(options: DeconflicterVisitorOptio
 	const id = getIdForNode(options);
 	const originalSourceFile = getOriginalSourceFile(node, sourceFile, typescript);
 
-	if (isIdentifierFree(lexicalEnvironment, node.name.text, originalSourceFile.fileName)) {
+	if (isIdentifierFree(lexicalEnvironment, node.name.text, originalSourceFile.fileName, isNodeInternalAlias(node, typescript))) {
 		nameContResult = node.name;
 		if (id != null) declarationToDeconflictedBindingMap.set(id, node.name.text);
 

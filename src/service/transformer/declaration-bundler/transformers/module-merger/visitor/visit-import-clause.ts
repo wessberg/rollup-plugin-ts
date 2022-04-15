@@ -6,6 +6,7 @@ import {createAliasedBinding} from "../../../util/create-aliased-binding";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
 import {locateExportedSymbolForSourceFile} from "../../../util/locate-exported-symbol";
 import {getAliasedDeclaration} from "../../../util/get-aliased-declaration";
+import { ensureNonreservedWord } from "../../../util/generate-unique-binding";
 
 export function visitImportClause(options: ModuleMergerVisitorOptions<TS.ImportClause>): VisitResult<TS.ImportClause> {
 	const {node, payload, factory, typescript} = options;
@@ -68,11 +69,13 @@ export function visitImportClause(options: ModuleMergerVisitorOptions<TS.ImportC
 		// If they don't, we'll need to alias it
 		else if (defaultExportedSymbol.propertyName.text !== contResult.name.text) {
 			const declaration = getAliasedDeclaration({...options, node: contResult.name});
+			const safePropertyName = ensureNonreservedWord(defaultExportedSymbol.propertyName.text);
+
 			options.prependNodes(
 				...createAliasedBinding({
 					...options,
 					node: declaration,
-					propertyName: defaultExportedSymbol.propertyName.text,
+					propertyName: safePropertyName,
 					name: contResult.name.text
 				})
 			);

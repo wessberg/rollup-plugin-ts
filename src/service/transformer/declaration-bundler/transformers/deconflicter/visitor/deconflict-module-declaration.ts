@@ -9,6 +9,7 @@ import {getIdForNode} from "../../../util/get-id-for-node";
 import {preserveMeta} from "../../../util/clone-node-with-meta";
 import {getOriginalSourceFile} from "../../../util/get-original-source-file";
 import {getBindingFromLexicalEnvironment} from "../../../util/get-binding-from-lexical-environment";
+import { isNodeInternalAlias } from "../../../util/node-util";
 
 /**
  * Deconflicts the given ModuleDeclaration.
@@ -37,7 +38,7 @@ export function deconflictModuleDeclaration(options: DeconflicterVisitorOptions<
 		}
 	}
 
-	if (isIdentifierFree(lexicalEnvironment, node.name.text, originalSourceFile.fileName)) {
+	if (isIdentifierFree(lexicalEnvironment, node.name.text, originalSourceFile.fileName, isNodeInternalAlias(node, typescript))) {
 		nameContResult = node.name;
 		if (id != null) declarationToDeconflictedBindingMap.set(id, node.name.text);
 

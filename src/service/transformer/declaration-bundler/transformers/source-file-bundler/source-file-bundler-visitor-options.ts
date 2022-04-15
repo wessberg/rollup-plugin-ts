@@ -7,8 +7,10 @@ import {TransformerBaseOptions} from "../transformer-base-options";
 export type SourceFileResolver = (fileName: string, from: string) => TS.SourceFile | undefined;
 
 export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptions, TransformerBaseOptions {
+	allowExports?: boolean|"skip-optional";
 	resolveSourceFile: SourceFileResolver;
 	context: TS.TransformationContext;
+	entrySourceFilesForChunk: TS.SourceFile[];
 	otherEntrySourceFilesForChunk: TS.SourceFile[];
 	lexicalEnvironment: LexicalEnvironment;
 	includedSourceFiles: Set<string>;

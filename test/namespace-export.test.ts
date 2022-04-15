@@ -353,7 +353,7 @@ test.serial("Handles namespace exports. #7", withTypeScriptVersions(">=3.8"), as
 	);
 });
 
-test.serial("Handles namespace exports. #8", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+test("Handles namespace exports. #8", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{

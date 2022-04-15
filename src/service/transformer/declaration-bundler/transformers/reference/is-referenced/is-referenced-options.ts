@@ -7,4 +7,5 @@ export interface IsReferencedOptions<T extends TS.Node> extends GetIdentifiersWi
 	sourceFileToNodeToReferencedIdentifiersCache: SourceFileToNodeToReferencedIdentifiersCache;
 	seenNodes?: Set<TS.Node>;
 	node: T;
+	referencedNode?: TS.Node;
 }

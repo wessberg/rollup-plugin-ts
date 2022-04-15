@@ -37,6 +37,9 @@ import {checkTemplateLiteralTypeNode} from "./visitor/check-template-literal-typ
 import {isTemplateLiteralTypeNode} from "../../../../../../util/predicates/predicates";
 import {checkTemplateLiteralTypeSpan} from "./visitor/check-template-literal-type-span";
 import {checkTypeReferenceNode} from "./visitor/check-type-reference-node";
+import {isNodeInternalAlias} from "../../../util/node-util";
+import {getParentNode} from "../../../util/get-parent-node";
+import {checkImportEqualsDeclaration} from "./visitor/check-import-equals-declaration";
 
 /**
  * Visits the given node. Returns true if it references the node to check for references, and false otherwise
@@ -90,6 +93,8 @@ function checkNode({node, originalNode, ...options}: ReferenceVisitorOptions): s
 		return checkVariableDeclaration({node, originalNode, ...options});
 	} else if (options.typescript.isExportDeclaration(node)) {
 		return checkExportDeclaration({node, originalNode, ...options});
+	} else if (options.typescript.isImportEqualsDeclaration(node)) {
+		return checkImportEqualsDeclaration({node, originalNode, ...options});
 	} else if (options.typescript.isExportAssignment(node)) {
 		return checkExportAssignment({node, originalNode, ...options});
 	} else if (options.typescript.isExportSpecifier(node)) {
@@ -133,15 +138,20 @@ function getReferencingNodes(originalNode: TS.Node, identifiers: Set<string>, ca
  * Returns true if the given Node is referenced within the given options
  */
 export function isReferenced<T extends TS.Node>({seenNodes = new Set(), ...options}: IsReferencedOptions<T>): boolean {
-	// Exports are always referenced and should never be removed
+	// Exports are always referenced and should never be removed, unless located within module declarations that themselves will be removed
 	if (
 		options.typescript.isExportDeclaration(options.node) ||
 		options.typescript.isExportSpecifier(options.node) ||
 		options.typescript.isExportAssignment(options.node) ||
 		hasExportModifier(options.node, options.typescript) ||
-		options.typescript.isModuleDeclaration(options.node)
+		(options.typescript.isModuleDeclaration(options.node) && !isNodeInternalAlias(options.node, options.typescript))
 	) {
-		return true;
+		const parentNode = getParentNode(options.node);
+		if (parentNode == null || !options.typescript.isModuleBlock(parentNode)) {
+			return true;
+		} else {
+			return isReferenced({...options, seenNodes, node: getParentNode(parentNode)});
+		}
 	}
 
 	// If it has been computed previously, use the cached result
@@ -149,7 +159,7 @@ export function isReferenced<T extends TS.Node>({seenNodes = new Set(), ...optio
 		return options.referenceCache.get(options.node)!;
 	}
 
-	// Assume that the node is referenced if the received node has been visited before in the recursive stack
+	// Assume that the node is referenced if we've seen it before
 	if (seenNodes.has(options.node)) {
 		return true;
 	} else {
@@ -169,7 +179,8 @@ export function isReferenced<T extends TS.Node>({seenNodes = new Set(), ...optio
 	const referencingNodes = collectReferences(options, identifiers);
 
 	// Compute the result
-	const result = referencingNodes.length > 0 && referencingNodes.some(referencingNode => isReferenced({...options, seenNodes, node: referencingNode}));
+	const result =
+		referencingNodes.length > 0 && referencingNodes.some(referencingNode => isReferenced({...options, seenNodes, node: referencingNode, referencedNode: options.node}));
 
 	// Cache the result
 	options.referenceCache.set(options.node, result);

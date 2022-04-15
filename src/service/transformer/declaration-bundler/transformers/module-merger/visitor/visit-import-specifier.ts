@@ -6,6 +6,7 @@ import {locateExportedSymbolForSourceFile} from "../../../util/locate-exported-s
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
 import {getAliasedDeclaration} from "../../../util/get-aliased-declaration";
 import {preserveParents} from "../../../util/clone-node-with-meta";
+import { ensureNonreservedWord } from "../../../util/generate-unique-binding";
 
 export function visitImportSpecifier(options: ModuleMergerVisitorOptions<TS.ImportSpecifier>): VisitResult<TS.ImportSpecifier> {
 	const {node, payload, factory} = options;
@@ -71,11 +72,12 @@ export function visitImportSpecifier(options: ModuleMergerVisitorOptions<TS.Impo
 			);
 		} else if (contResult.propertyName != null) {
 			const declaration = getAliasedDeclaration({...options, node: contResult.propertyName});
+			const safePropertyName = ensureNonreservedWord(exportedSymbol.propertyName.text);
 			options.prependNodes(
 				...createAliasedBinding({
 					...options,
 					node: declaration,
-					propertyName: exportedSymbol.propertyName.text,
+					propertyName: safePropertyName,
 					name: contResult.name.text
 				})
 			);

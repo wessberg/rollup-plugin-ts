@@ -1,6 +1,14 @@
 import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options";
 
 export const DECONFLICT_SUFFIX = "$";
+const RESERVED_WORDS = new Set(["default"]);
+
+export function ensureNonreservedWord (word: string): string {
+	if (RESERVED_WORDS.has(word)) {
+		return `__${word}`;
+	}
+	return word;
+}
 
 export function generateUniqueBinding(lexicalEnvironment: LexicalEnvironment, candidate: string): string {
 	let counter = -1;
@@ -14,7 +22,7 @@ export function generateUniqueBinding(lexicalEnvironment: LexicalEnvironment, ca
 			counter = parseInt(value.slice(candidate.length + DECONFLICT_SUFFIX.length));
 		}
 
-		return isNaN(counter) ? candidate : `${candidate}${DECONFLICT_SUFFIX}${counter + 1}`;
+		return `${candidate}${DECONFLICT_SUFFIX}${counter + 1}`;
 	}
 
 	if (lexicalEnvironment.parent == null) {

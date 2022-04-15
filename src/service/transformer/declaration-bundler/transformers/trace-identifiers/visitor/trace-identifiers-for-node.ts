@@ -14,6 +14,7 @@ import {TraceIdentifiersVisitorOptions} from "../trace-identifiers-visitor-optio
 import {traceIdentifiersForExportAssignment} from "./trace-identifiers-for-export-assignment";
 import {traceIdentifiersForCallExpression} from "./trace-identifiers-for-call-expression";
 import {traceIdentifiersForNewExpression} from "./trace-identifiers-for-new-expression";
+import {traceIdentifiersForImportEqualsDeclaration} from "./trace-identifiers-for-import-equals-declaration";
 
 /**
  * Traces identifiers for the given Node, potentially generating new unique variable names for them
@@ -27,6 +28,7 @@ export function traceIdentifiersForNode({node, ...options}: TraceIdentifiersVisi
 	else if (options.typescript.isNamespaceImport(node)) traceIdentifiersForNamespaceImport({...options, node});
 	else if (options.typescript.isImportSpecifier(node)) traceIdentifiersForImportSpecifier({...options, node});
 	else if (options.typescript.isExportSpecifier(node)) traceIdentifiersForExportSpecifier({...options, node});
+	else if (options.typescript.isImportEqualsDeclaration(node)) traceIdentifiersForImportEqualsDeclaration({...options, node});
 	else if (options.typescript.isIdentifier(node)) traceIdentifiersForIdentifier({...options, node});
 	else if (options.typescript.isInterfaceDeclaration(node)) traceIdentifiersForInterfaceDeclaration({...options, node});
 	else if (options.typescript.isTypeAliasDeclaration(node)) traceIdentifiersForTypeAliasDeclaration({...options, node});

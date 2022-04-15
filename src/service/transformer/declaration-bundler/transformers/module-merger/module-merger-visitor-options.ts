@@ -21,6 +21,7 @@ export type PayloadMap = {
 		? {
 			isTypeOnly: boolean;
 			moduleSpecifier: string | undefined;
+			updatedModuleSpecifier?: string | undefined;
 			matchingSourceFile: TS.SourceFile | undefined;
 		} : undefined;
 };
