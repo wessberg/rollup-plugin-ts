@@ -5,6 +5,7 @@ import {MaybeArray} from "helpertypes";
 import {ensureArray} from "../../src/util/ensure-array/ensure-array";
 import {generateRandomPath} from "../../src/util/hash/generate-random-hash";
 import {CachedFs} from "../../src/service/cache/cached-fs";
+import {stripNodePrefixFromModuleSpecifier} from "../../src/util/path/path-util";
 
 export interface TestFileRecord {
 	fileName: string;
@@ -50,7 +51,9 @@ export function createExternalTestFiles(module: string, text: string, {fileName 
 	];
 }
 
-export function createBuiltInModuleTestFiles(...modules: ("fs" | "globals" | "buffer")[]): TestFile[] {
+export type SupportedBuiltInModuleBase = "fs" | "globals" | "buffer" | "dns";
+export type SuppportedBuiltInModule = SupportedBuiltInModuleBase | `node:${SupportedBuiltInModuleBase}`;
+export function createBuiltInModuleTestFiles(...modules: SuppportedBuiltInModule[]): TestFile[] {
 	return [
 		{
 			entry: false,
@@ -68,13 +71,13 @@ export function createBuiltInModuleTestFiles(...modules: ("fs" | "globals" | "bu
 				entry: false,
 				fileName: "node_modules/@types/node/index.d.ts",
 				text: `
-					/// <reference path="./${module}.d.ts" />
+					/// <reference path="./${stripNodePrefixFromModuleSpecifier(module)}.d.ts" />
 					`
 			},
 			{
 				entry: false,
-				fileName: `node_modules/@types/node/${module}.d.ts`,
-				text: fsWorker.readFile(path.native.join(nodeTypesDir, `${module}.d.ts`)) ?? ""
+				fileName: `node_modules/@types/node/${stripNodePrefixFromModuleSpecifier(module)}.d.ts`,
+				text: fsWorker.readFile(path.native.join(nodeTypesDir, `${stripNodePrefixFromModuleSpecifier(module)}.d.ts`)) ?? ""
 			}
 		])
 	];

@@ -38,6 +38,10 @@ export function isExternalLibrary(p: string): boolean {
 	return (!p.startsWith(".") && !p.startsWith("/")) || p.includes(NODE_MODULES_MATCH_PATH);
 }
 
+export function stripNodePrefixFromModuleSpecifier (moduleSpecifier: string): string {
+	return moduleSpecifier.startsWith("node:") ? moduleSpecifier.slice("node:".length) : moduleSpecifier;
+}
+
 /**
  * Returns true if the given id represents tslib
  */
