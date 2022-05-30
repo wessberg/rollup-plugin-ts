@@ -448,6 +448,12 @@ And, it even works in complex code splitting scenarios:
 
 <img alt="Plugin emitted code with code splitting" src="https://raw.githubusercontent.com/wessberg/rollup-plugin-ts/master/documentation/asset/plugin-output-example-code-splitting.png" height="250"   />
 
+if you're using TypeScript v4.7 or newer, the extension of your declaration files will depend on the extensions of your output files as controlled by your Rollup config:
+
+- `.js` output files will produce `.d.ts` and optionally `.d.ts.map` files
+- `.mjs` output files will produce `.d.mts` and optionally `.d.mts.map` files
+- `.cjs` output files will produce `.d.cts` and optionally `.d.cts.map` files
+
 ## Examples
 
 ### Pure Typescript example
