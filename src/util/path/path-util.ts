@@ -26,7 +26,12 @@ export function isTypeScriptLib(p: string): boolean {
 	return p.startsWith(`lib.`) && p.endsWith(D_TS_EXTENSION);
 }
 
-
+export function removeSearchPathFromFilename (p: string): string {
+	if (p.includes(`?`)) {
+		return p.slice(0, p.indexOf(`?`));
+	}
+	return p;
+}
 
 /**
  * Gets the extension of the given file
@@ -92,6 +97,13 @@ export function isBabelCjsHelper(p: string): boolean {
  */
 export function isBabelPresetEnv(p: string): boolean {
 	return path.normalize(p).includes("@babel/preset-env") || path.normalize(p).includes("babel-preset-env");
+}
+
+/**
+ * Returns true if the given path represents @babel/preset-typescript
+ */
+ export function isBabelPresetTypescript(p: string): boolean {
+	return path.normalize(p).includes("@babel/preset-typescript");
 }
 
 /**
@@ -173,6 +185,15 @@ export function ensureHasLeadingDotAndPosix(p: string, externalGuard = true): st
 	if (posixPath.startsWith(".")) return posixPath;
 	if (posixPath.startsWith("/")) return `.${posixPath}`;
 	return `./${posixPath}`;
+}
+
+/**
+ * Ensure that the given path has a leading "."
+ */
+ export function ensureHasNoLeadingDotAndPosix(p: string,): string {
+	const posixPath = path.normalize(p);
+	if (posixPath.startsWith("./")) return posixPath.slice(2);
+	return posixPath;
 }
 
 /**

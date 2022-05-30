@@ -7,7 +7,7 @@ import {getSupportedExtensions, SupportedExtensions} from "../util/get-supported
 import {ensureRelative, getExtension, isBabelHelper, isMultiEntryModule, isRegeneratorRuntime, isSwcHelper} from "../util/path/path-util.js";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames.js";
 import {TypescriptPluginOptions} from "./typescript-plugin-options.js";
-import {getPluginOptions} from "../util/plugin-options/get-plugin-options.js";
+import {getPluginOptions, getTranspilerOptions, isUsingTranspiler} from "../util/plugin-options/get-plugin-options.js";
 import {getBrowserslist} from "../util/get-browserslist/get-browserslist.js";
 import {ResolveCache} from "../service/cache/resolve-cache/resolve-cache.js";
 import {JSON_EXTENSION, REGENERATOR_RUNTIME_VIRTUAL_SRC, ROLLUP_PLUGIN_VIRTUAL_PREFIX} from "../constant/constant.js";
@@ -43,6 +43,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	const pluginOptions: TypescriptPluginOptions = getPluginOptions(pluginInputOptions);
 	const {include, exclude, tsconfig, cwd, browserslist, typescript, fileSystem, transpileOnly} = pluginOptions;
 	const transformers = pluginOptions.transformers == null ? [] : ensureArray(pluginOptions.transformers);
+	const transpilerOptions = getTranspilerOptions(pluginOptions.transpiler);
 
 	// Make sure to normalize the received Browserslist
 	const normalizedBrowserslist = getBrowserslist({browserslist, cwd, fileSystem});
@@ -129,14 +130,71 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		}
 	};
 
-	const addAndEmitFile = (fileName: string, text: string, dependencyCb: (dependency: string) => void): SourceDescription | undefined => {
-		addFile(fileName, text, dependencyCb);
-
+	const emitFile = (fileName: string): SourceDescription | undefined => {
 		// Get some EmitOutput, optionally from the cache if the file contents are unchanged
-		const emitOutput = host.emit(fileName, false);
+		const emitOutput = host.emit(path.normalize(fileName), false);
 
 		// Return the emit output results to Rollup
 		return getSourceDescriptionFromEmitOutput(emitOutput);
+	};
+
+	const transpileWithBabel = async (fileName: string, input: SourceDescription, initial = false): Promise<SourceDescription | undefined> => {
+		// Conditionally initialize babel at this point.
+		// Only require @babel/preset-typescript if relevant for the initial emit that may include TypeScript specific syntax
+		const babel = await loadBabel(initial);
+		const babelConfigResult = babelConfigFileFactory!(fileName, initial);
+
+		const transpilationResult = await babel.transformAsync(input.code, {
+			...babelConfigResult.config,
+			filenameRelative: ensureRelative(cwd, path.normalize(fileName)),
+			inputSourceMap: typeof input.map === "string" ? JSON.parse(input.map) : input.map
+		});
+
+		return transpilationResult?.code == null
+			? undefined
+			: {
+					code: transpilationResult.code,
+					map: transpilationResult.map ?? undefined
+			  };
+	};
+
+	const transpileWithSwc = async (fileName: string, input: SourceDescription, initial = false): Promise<SourceDescription | undefined> => {
+		// Conditionally initialize swc at this point
+		const swc = await loadSwc();
+		const swcConfigResult = swcConfigFileFactory!(fileName, initial);
+
+		const transpilationResult = await swc.transform(input.code, {
+			...swcConfigResult,
+			inputSourceMap: typeof input.map === "string" ? input.map : JSON.stringify(input.map)
+		});
+
+		return transpilationResult?.code == null
+			? undefined
+			: {
+					code: transpilationResult.code,
+					map: transpilationResult.map ?? undefined
+			  };
+	};
+
+	/**
+	 * This little helper is used in very rare cases, when something other than the TypeScript Compiler APIs has removed TypeScript specific features, and TypeScript should now strictly
+	 * be used for applying additional syntax lowering. This will happen when something like babel or swc is used for TypeScript syntax, but typescript/tsc is used for other syntax.
+	 * This is likely a very rare, odd scenario, and one that bypasses the Compiler host entirely. It is, however, completely OK, and the closest tsc provides to a simple transformation,
+	 * akin to what babel and swc provides.
+	 */
+	const transpileWithTypescript = (fileName: string, input: SourceDescription): SourceDescription | undefined => {
+		const transpilationResult = typescript.transpileModule(input.code, {
+			compilerOptions: host.getCompilationSettings(),
+			fileName: path.normalize(fileName),
+			transformers: host.getCustomTransformers(),
+			// We've moved on from the TypeScript specific parts at this point, so do not report any diagnostics here. This is purely a syntax transformation!
+			reportDiagnostics: false
+		});
+
+		return {
+			code: transpilationResult.outputText,
+			map: transpilationResult.sourceMapText
+		};
 	};
 
 	const isFileRelevant = (code: string, file: string): {relevant: boolean; isSupportedByCompilerHost: boolean} => {
@@ -197,57 +255,55 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 				forcedCompilerOptions: getForcedCompilerOptions({pluginOptions, rollupInputOptions, browserslist: normalizedBrowserslist})
 			});
 
-			switch (pluginOptions.transpiler) {
-				case "babel": {
-					// Prepare a Babel config if Babel should be the transpiler
-					// A browserslist may already be provided, but if that is not the case, one can be computed based on the "target" from the tsconfig
-					const computedBrowserslist = takeBrowserslistOrComputeBasedOnCompilerOptions(normalizedBrowserslist, parsedCommandLineResult.originalCompilerOptions, typescript);
+			if (isUsingTranspiler("babel", transpilerOptions)) {
+				// Prepare a Babel config if Babel should be the transpiler for some or all emit
+				// A browserslist may already be provided, but if that is not the case, one can be computed based on the "target" from the tsconfig
+				const computedBrowserslist = takeBrowserslistOrComputeBasedOnCompilerOptions(normalizedBrowserslist, parsedCommandLineResult.originalCompilerOptions, typescript);
 
-					const sharedBabelConfigFactoryOptions = {
-						babel: await loadBabel(),
-						cwd,
-						hook: pluginOptions.hook.babelConfig,
-						babelConfig: pluginOptions.babelConfig,
-						forcedOptions: getForcedBabelOptions({cwd}),
-						defaultOptions: getDefaultBabelOptions({browserslist: computedBrowserslist}),
-						browserslist: computedBrowserslist,
-						rollupInputOptions
-					};
+				const sharedBabelConfigFactoryOptions = {
+					babel: await loadBabel(),
+					cwd,
+					hook: pluginOptions.hook.babelConfig,
+					babelConfig: pluginOptions.babelConfig,
+					forcedOptions: getForcedBabelOptions({cwd}),
+					defaultOptions: getDefaultBabelOptions({browserslist: computedBrowserslist, transpilerOptions}),
+					browserslist: computedBrowserslist,
+					rollupInputOptions
+				};
 
-					babelConfigFileFactory = getBabelConfig({
-						...sharedBabelConfigFactoryOptions,
-						phase: "file"
-					});
+				babelConfigFileFactory = getBabelConfig({
+					...sharedBabelConfigFactoryOptions,
+					phase: "file"
+				});
 
-					babelConfigChunkFactory = getBabelConfig({
-						...sharedBabelConfigFactoryOptions,
-						phase: "chunk"
-					});
-					break;
-				}
+				babelConfigChunkFactory = getBabelConfig({
+					...sharedBabelConfigFactoryOptions,
+					phase: "chunk"
+				});
+			}
 
-				case "swc": {
-					const sharedSwcConfigFactoryOptions = {
-						cwd,
-						fileSystem,
-						typescript,
-						hook: pluginOptions.hook.swcConfig,
-						swcConfig: pluginOptions.swcConfig,
-						browserslist: normalizedBrowserslist === false ? undefined : normalizedBrowserslist,
-						ecmaVersion: parsedCommandLineResult.originalCompilerOptions.target
-					};
+			if (isUsingTranspiler("swc", transpilerOptions)) {
+				// Prepare a swc config file factory if swc should be the transpiler for some or all emit
+				const sharedSwcConfigFactoryOptions = {
+					cwd,
+					fileSystem,
+					typescript,
+					pluginOptions,
+					hook: pluginOptions.hook.swcConfig,
+					swcConfig: pluginOptions.swcConfig,
+					browserslist: normalizedBrowserslist === false ? undefined : normalizedBrowserslist,
+					ecmaVersion: parsedCommandLineResult.originalCompilerOptions.target
+				};
 
-					swcConfigFileFactory = getSwcConfigFactory({
-						...sharedSwcConfigFactoryOptions,
-						phase: "file"
-					});
+				swcConfigFileFactory = getSwcConfigFactory({
+					...sharedSwcConfigFactoryOptions,
+					phase: "file"
+				});
 
-					swcConfigChunkFactory = getSwcConfigFactory({
-						...sharedSwcConfigFactoryOptions,
-						phase: "chunk"
-					});
-					break;
-				}
+				swcConfigChunkFactory = getSwcConfigFactory({
+					...sharedSwcConfigFactoryOptions,
+					phase: "chunk"
+				});
 			}
 
 			SUPPORTED_EXTENSIONS = getSupportedExtensions(
@@ -280,78 +336,72 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		async renderChunk(this: PluginContext, code: string, chunk: RenderedChunk, outputOptions: OutputOptions): Promise<SourceDescription | null> {
 			let updatedSourceDescription: SourceDescription | undefined;
 
-			switch (pluginOptions.transpiler) {
-				case "babel": {
-					const {config} = babelConfigChunkFactory!(chunk.fileName);
-					const babel = await loadBabel();
+			if (transpilerOptions.otherSyntax === "babel") {
+				const {config} = babelConfigChunkFactory!(chunk.fileName);
+				const babel = await loadBabel();
 
-					// When targeting CommonJS and using babel as a transpiler, we may need to rewrite forced ESM paths for preserved external helpers to paths that are compatible with CommonJS.
-					updatedSourceDescription = replaceBabelHelpers(code, chunk.fileName, outputOptions.format === "cjs" || outputOptions.format === "commonjs" ? "cjs" : "esm");
+				// When targeting CommonJS and using babel as a transpiler, we may need to rewrite forced ESM paths for preserved external helpers to paths that are compatible with CommonJS.
+				updatedSourceDescription = replaceBabelHelpers(code, chunk.fileName, outputOptions.format === "cjs" || outputOptions.format === "commonjs" ? "cjs" : "esm");
 
-					// Don't proceed if there is no minification config
-					if (config == null) {
-						return updatedSourceDescription ?? null;
-					}
-
-					const updatedCode = updatedSourceDescription != null ? updatedSourceDescription.code : code;
-					const updatedMap = updatedSourceDescription != null ? (updatedSourceDescription.map as ExistingRawSourceMap) : undefined;
-
-					const transpilationResult = await babel.transformAsync(updatedCode, {
-						...config,
-						filenameRelative: ensureRelative(cwd, chunk.fileName),
-						...(updatedMap == null
-							? {}
-							: {
-									inputSourceMap: {...updatedMap, file: updatedMap.file ?? ""}
-							  })
-					});
-
-					if (transpilationResult == null || transpilationResult.code == null) {
-						return updatedSourceDescription == null ? null : updatedSourceDescription;
-					}
-
-					// Return the results
-					return {
-						code: transpilationResult.code,
-						map: transpilationResult.map ?? undefined
-					};
-				}
-
-				case "swc": {
-					const config = swcConfigChunkFactory!(chunk.fileName);
-					const swc = await loadSwc();
-
-					// Don't proceed if there is no minification config
-					if (config == null) {
-						return updatedSourceDescription ?? null;
-					}
-
-					const updatedCode = updatedSourceDescription != null ? updatedSourceDescription.code : code;
-					const updatedMap = updatedSourceDescription != null ? (updatedSourceDescription.map as ExistingRawSourceMap) : undefined;
-
-					const transpilationResult = await swc.transform(updatedCode, {
-						...config,
-						...(updatedMap == null
-							? {}
-							: {
-									inputSourceMap: JSON.stringify(updatedMap)
-							  })
-					});
-
-					if (transpilationResult == null || transpilationResult.code == null) {
-						return updatedSourceDescription == null ? null : updatedSourceDescription;
-					}
-
-					// Return the results
-					return {
-						code: transpilationResult.code,
-						map: transpilationResult.map ?? undefined
-					};
-				}
-
-				default: {
+				// Don't proceed if there is no minification config
+				if (config == null) {
 					return updatedSourceDescription ?? null;
 				}
+
+				const updatedCode = updatedSourceDescription != null ? updatedSourceDescription.code : code;
+				const updatedMap = updatedSourceDescription != null ? (updatedSourceDescription.map as ExistingRawSourceMap) : undefined;
+
+				const transpilationResult = await babel.transformAsync(updatedCode, {
+					...config,
+					filenameRelative: ensureRelative(cwd, chunk.fileName),
+					...(updatedMap == null
+						? {}
+						: {
+								inputSourceMap: {...updatedMap, file: updatedMap.file ?? ""}
+						  })
+				});
+
+				if (transpilationResult == null || transpilationResult.code == null) {
+					return updatedSourceDescription == null ? null : updatedSourceDescription;
+				}
+
+				// Return the results
+				return {
+					code: transpilationResult.code,
+					map: transpilationResult.map ?? undefined
+				};
+			} else if (transpilerOptions.otherSyntax === "swc") {
+				const config = swcConfigChunkFactory!(chunk.fileName);
+				const swc = await loadSwc();
+
+				// Don't proceed if there is no minification config
+				if (config == null) {
+					return updatedSourceDescription ?? null;
+				}
+
+				const updatedCode = updatedSourceDescription != null ? updatedSourceDescription.code : code;
+				const updatedMap = updatedSourceDescription != null ? (updatedSourceDescription.map as ExistingRawSourceMap) : undefined;
+
+				const transpilationResult = await swc.transform(updatedCode, {
+					...config,
+					...(updatedMap == null
+						? {}
+						: {
+								inputSourceMap: JSON.stringify(updatedMap)
+						  })
+				});
+
+				if (transpilationResult == null || transpilationResult.code == null) {
+					return updatedSourceDescription == null ? null : updatedSourceDescription;
+				}
+
+				// Return the results
+				return {
+					code: transpilationResult.code,
+					map: transpilationResult.map ?? undefined
+				};
+			} else {
+				return updatedSourceDescription ?? null;
 			}
 		},
 
@@ -381,75 +431,58 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 			if (!relevant) return undefined;
 
-			switch (pluginOptions.transpiler) {
-				case "babel": {
-					const babel = await loadBabel();
-					const babelConfigResult = babelConfigFileFactory!(file);
-					let sourceDescription: SourceDescription = {code, map: undefined};
+			let sourceDescription: SourceDescription = {code, map: undefined};
 
-					// Some @babel/runtime helpers may depend on other helpers, but sometimes these are imported from the incorrect paths.
-					// For example, some @babel/runtime/helpers/esm files depend on CJS helpers where they actually should depend on esm helpers instead.
-					// In these cases, we'll have to transform the imports immediately since it will otherwise break for users who don't use something like the commonjs plugin,
-					// even though this is technically not a problem directly caused by or related to rollup-plugin-ts
-					if (isBabelHelper(normalizedFile)) {
-						sourceDescription = replaceBabelHelpers(code, normalizedFile, "esm") ?? sourceDescription;
-					}
+			// Some @babel/runtime helpers may depend on other helpers, but sometimes these are imported from the incorrect paths.
+			// For example, some @babel/runtime/helpers/esm files depend on CJS helpers where they actually should depend on esm helpers instead.
+			// In these cases, we'll have to transform the imports immediately since it will otherwise break for users who don't use something like the commonjs plugin,
+			// even though this is technically not a problem directly caused by or related to rollup-plugin-ts
+			if (isUsingTranspiler("babel", transpilerOptions) && isBabelHelper(normalizedFile)) {
+				sourceDescription = replaceBabelHelpers(code, normalizedFile, "esm") ?? sourceDescription;
+			}
 
-					// Only pass the file through Typescript if it's extension is supported.
-					// Otherwise, return whatever transformations that may have been applied to the source description already
+			// Only add the file to the Typescript CompilerHost if its extension is supported.
+			if (isSupportedByCompilerHost) {
+				addFile(normalizedFile, sourceDescription.code, dependency => this.addWatchFile(dependency));
+			}
+
+			switch (transpilerOptions.typescriptSyntax) {
+				case "typescript": {
 					if (isSupportedByCompilerHost) {
-						sourceDescription = addAndEmitFile(normalizedFile, sourceDescription.code, dependency => this.addWatchFile(dependency)) ?? sourceDescription;
+						sourceDescription = emitFile(file) ?? sourceDescription;
 					}
 
-					const transpilationResult = await babel.transformAsync(sourceDescription.code, {
-						...babelConfigResult.config,
-						filenameRelative: ensureRelative(cwd, normalizedFile),
-						inputSourceMap: typeof sourceDescription.map === "string" ? JSON.parse(sourceDescription.map) : sourceDescription.map
-					});
+					break;
+				}
 
-					if (transpilationResult == null || transpilationResult.code == null) {
-						return sourceDescription;
-					}
-
-					// Return the results
-					return {
-						code: transpilationResult.code,
-						map: transpilationResult.map ?? undefined
-					};
+				case "babel": {
+					sourceDescription = (await transpileWithBabel(file, sourceDescription, true)) ?? sourceDescription;
+					break;
 				}
 
 				case "swc": {
-					const swc = await loadSwc();
-					const swcConfigResult = swcConfigFileFactory!(file);
-					let sourceDescription: SourceDescription = {code, map: undefined};
-
-					// Only pass the file through Typescript if it's extension is supported.
-					// Otherwise, return whatever transformations that may have been applied to the source description already
-					if (isSupportedByCompilerHost) {
-						sourceDescription = addAndEmitFile(normalizedFile, sourceDescription.code, dependency => this.addWatchFile(dependency)) ?? sourceDescription;
-					}
-
-					const transpilationResult = await swc.transform(sourceDescription.code, {
-						...swcConfigResult,
-						inputSourceMap: typeof sourceDescription.map === "string" ? sourceDescription.map : JSON.stringify(sourceDescription.map)
-					});
-
-					if (transpilationResult == null || transpilationResult.code == null) {
-						return sourceDescription;
-					}
-
-					// Return the results
-					return {
-						code: transpilationResult.code,
-						map: transpilationResult.map ?? undefined
-					};
+					sourceDescription = (await transpileWithSwc(file, sourceDescription, true)) ?? sourceDescription;
+					break;
 				}
+			}
 
-				// TypeScript
-				default: {
-					// Only pass the file through Typescript if it's extension is supported.
-					// Otherwise, return whatever transformations that may have been applied to the source description already
-					return !isSupportedByCompilerHost ? undefined : addAndEmitFile(normalizedFile, code, dependency => this.addWatchFile(dependency));
+			// If the same transpiler is used for both TypeScript- and other syntax,
+			// return the generated source description at this point.
+			if (transpilerOptions.otherSyntax === transpilerOptions.typescriptSyntax) {
+				return sourceDescription;
+			} else {
+				switch (transpilerOptions.otherSyntax) {
+					case "typescript": {
+						return transpileWithTypescript(file, sourceDescription) ?? sourceDescription;
+					}
+
+					case "babel": {
+						return (await transpileWithBabel(file, sourceDescription)) ?? sourceDescription;
+					}
+
+					case "swc": {
+						return (await transpileWithSwc(file, sourceDescription)) ?? sourceDescription;
+					}
 				}
 			}
 		},

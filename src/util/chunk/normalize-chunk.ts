@@ -4,6 +4,7 @@ import {PathsResult, preparePaths} from "../../service/transformer/declaration-b
 import {CompilerHost} from "../../service/compiler-host/compiler-host.js";
 import {ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY} from "../../constant/constant.js";
 import path from "crosspath";
+import { removeSearchPathFromFilename } from "../path/path-util.js";
 
 export interface PreNormalizedChunk {
 	fileName: string;
@@ -35,11 +36,7 @@ export function preNormalizeChunk(chunk: OutputChunk): PreNormalizedChunk {
 }
 
 function normalizeChunkFilename(filename: string): string {
-	const normalized = path.normalize(filename);
-	if (normalized.includes(`?`)) {
-		return normalized.slice(0, normalized.indexOf(`?`));
-	}
-	return normalized;
+	return removeSearchPathFromFilename(path.normalize(filename));
 }
 
 export function normalizeChunk(chunk: PreNormalizedChunk, {host, outputOptions, relativeOutDir, multiEntryModule, multiEntryFileNames}: NormalizeChunkOptions): NormalizedChunk {

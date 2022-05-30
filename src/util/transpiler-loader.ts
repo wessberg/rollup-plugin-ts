@@ -12,8 +12,13 @@ let babelModule: typeof Babel | undefined;
  */
 let swcModule: typeof Swc | undefined;
 
-export async function loadBabel(): Promise<typeof Babel> {
-	return (babelModule ??= await loadModules("babel", "@babel/core", ["@babel/runtime", "@babel/plugin-transform-runtime", "@babel/preset-env"]));
+export async function loadBabel(assertHasPresetTypescript = false): Promise<typeof Babel> {
+	return (babelModule ??= await loadModules("babel", "@babel/core", [
+		"@babel/runtime",
+		"@babel/plugin-transform-runtime",
+		"@babel/preset-env",
+		...(assertHasPresetTypescript ? [`@babel/preset-typescript`] : [])
+	]));
 }
 
 export async function loadSwc(): Promise<typeof Swc> {

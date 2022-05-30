@@ -1,8 +1,16 @@
 import {OutputOptions, Plugin, rollup, RollupBuild, RollupCache, RollupOptions, RollupOutput} from "rollup";
-import commonjs from "@rollup/plugin-commonjs";
+// import commonjs from "@rollup/plugin-commonjs";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin.js";
-import {HookRecord, InputCompilerOptions, TypescriptPluginBabelOptions, TypescriptPluginOptions, TypescriptPluginSwcOptions} from "../../src/plugin/typescript-plugin-options.js";
-import {D_CTS_EXTENSION, D_CTS_MAP_EXTENSION, D_MTS_EXTENSION, D_MTS_MAP_EXTENSION, D_TS_EXTENSION, D_TS_MAP_EXTENSION, TSBUILDINFO_EXTENSION} from "../../src/constant/constant.js";
+import {HookRecord, InputCompilerOptions, TypescriptPluginOptions} from "../../src/plugin/typescript-plugin-options.js";
+import {
+	D_CTS_EXTENSION,
+	D_CTS_MAP_EXTENSION,
+	D_MTS_EXTENSION,
+	D_MTS_MAP_EXTENSION,
+	D_TS_EXTENSION,
+	D_TS_MAP_EXTENSION,
+	TSBUILDINFO_EXTENSION
+} from "../../src/constant/constant.js";
 import {TS} from "../../src/type/ts.js";
 import {logVirtualFiles} from "../../src/util/logging/log-virtual-files.js";
 import {shouldDebugVirtualFiles} from "../../src/util/is-debug/should-debug.js";
@@ -11,7 +19,7 @@ import {createTestSetup} from "./test-setup.js";
 import {TestFile} from "./test-file.js";
 import {MaybeArray, PartialExcept} from "helpertypes";
 import {FileResult} from "./test-result.js";
-import {setExtension} from "../../src/util/path/path-util.js";
+import {removeSearchPathFromFilename, setExtension} from "../../src/util/path/path-util.js";
 
 export interface GenerateRollupBundleResult {
 	bundle: RollupOutput;
@@ -38,8 +46,8 @@ export interface GenerateRollupBundleOptions {
 	exclude: TypescriptPluginOptions["exclude"];
 	transpiler: TypescriptPluginOptions["transpiler"];
 	transformers: TypescriptPluginOptions["transformers"];
-	babelConfig: TypescriptPluginBabelOptions["babelConfig"];
-	swcConfig: TypescriptPluginSwcOptions["swcConfig"];
+	babelConfig: TypescriptPluginOptions["babelConfig"];
+	swcConfig: TypescriptPluginOptions["swcConfig"];
 	browserslist: TypescriptPluginOptions["browserslist"];
 	chunkFileNames: string;
 	entryFileNames: string;
@@ -96,7 +104,10 @@ export async function generateRollupBundle(
 			for (const ext of ["", ".ts", ".mts", ".cts", ".js", ".mjs", ".cjs"]) {
 				for (const withExtension of [`${currentAbsolute}${ext}`, setExtension(currentAbsolute, ext)]) {
 					const matchedFile = userFiles.find(file => path.normalize(file.fileName) === path.normalize(withExtension));
-					if (matchedFile != null) return path.native.normalize(withExtension);
+
+					if (matchedFile != null) {
+						return path.native.normalize(withExtension);
+					}
 				}
 			}
 		}
@@ -104,9 +115,10 @@ export async function generateRollupBundle(
 	};
 
 	const load = (id: string): string | null => {
-		const normalized = path.normalize(id);
+		const normalized = removeSearchPathFromFilename(path.normalize(id));
 		const matchedFile = userFiles.find(file => path.normalize(file.fileName) === path.normalize(normalized));
-		return matchedFile == null ? null : matchedFile.text;
+
+		return matchedFile?.text ?? null;
 	};
 
 	const declarations: FileResult[] = [];
@@ -165,7 +177,7 @@ export async function generateRollupBundle(
 					resolveId,
 					load
 				},
-				commonjs(),
+				// commonjs(),
 				...prePlugins,
 				typescriptRollupPlugin({
 					...context,

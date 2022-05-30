@@ -1,5 +1,5 @@
 import test, {ExecutionContext} from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro.js";
 import {ConfigItem} from "@babel/core";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 import {BABEL_CONFIG_JS_FILENAME, BABEL_CONFIG_JSON_FILENAME, BABELRC_FILENAME} from "../src/constant/constant.js";
@@ -400,6 +400,7 @@ test.serial("Will apply minification-related plugins only in the renderChunk pha
 			debug: false,
 			typescript,
 			transpiler: "babel",
+
 			browserslist: false,
 			postPlugins: [
 				{
@@ -573,3 +574,217 @@ test.serial("Will use the proper @babel/runtime/helpers helpers when format is C
 			`)
 	);
 });
+
+test.serial("Will use @babel/preset-typescript if available for the initial emit by default. #1", withTypeScript, async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.ts",
+				text: `\
+					const enum Animals {
+						Fish
+					}
+					console.log(Animals.Fish);
+					`
+			}
+		],
+		{
+			typescript,
+			transpiler: "babel",
+			babelConfig: {
+				presets: [
+					[
+						"@babel/preset-typescript",
+						{
+							optimizeConstEnums: true
+						}
+					]
+				]
+			}
+		}
+	);
+	const {
+		js: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		console.log(0);
+		`)
+	);
+});
+
+test.serial("Will use @babel/preset-typescript if available for the initial emit by default. #2", withTypeScript, async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "index.custom",
+				text: `\
+					export const foo: string = "Hello, World!";
+					`
+			}
+		],
+		{
+			typescript,
+			transpiler: "babel",
+			babelConfig: {
+				presets: [
+					[
+						"@babel/preset-typescript",
+						{
+							allExtensions: true
+						}
+					]
+				]
+			}
+		}
+	);
+	const {
+		js: [file]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(file.code),
+		formatCode(`\
+		const foo = "Hello, World!";
+
+		export { foo };
+		`)
+	);
+});
+
+test.serial(
+	"Will use @babel/preset-typescript if available for the initial emit by default, even if it isn't present in the user's babel config. #1",
+	withTypeScript,
+	async (t, {typescript}) => {
+		const bundle = await generateRollupBundle(
+			[
+				{
+					entry: true,
+					fileName: "index.ts",
+					text: `\
+					export const foo: string = "Hello, World!";
+					`
+				}
+			],
+			{
+				typescript,
+				transpiler: "babel"
+			}
+		);
+		const {
+			js: [file]
+		} = bundle;
+
+		t.deepEqual(
+			formatCode(file.code),
+			formatCode(`\
+		const foo = "Hello, World!";
+
+		export { foo };
+		`)
+		);
+	}
+);
+
+test.serial(
+	"Will use the Typescript Compiler APIs for the initial emit, even if @babel/preset-typescript is available, if passed as the transpiler option for typescript syntax. #1",
+	withTypeScriptVersions(`<4.7`),
+	async (t, {typescript}) => {
+		const bundle = await generateRollupBundle(
+			[
+				{
+					entry: true,
+					fileName: "index.ts",
+					text: `\
+					export const enum Animals {
+						Fish
+					}
+					console.log(Animals.Fish);
+					`
+				}
+			],
+			{
+				typescript,
+				transpiler: {
+					typescriptSyntax: "typescript",
+					otherSyntax: "babel"
+				},
+				babelConfig: {
+					presets: [
+						[
+							"@babel/preset-typescript",
+							{
+								optimizeConstEnums: true
+							}
+						]
+					]
+				}
+			}
+		);
+		const {
+			js: [file]
+		} = bundle;
+
+		t.deepEqual(
+			formatCode(file.code),
+			formatCode(`\
+		console.log(0
+		/* Fish */
+		);`)
+		);
+	}
+);
+
+test.serial(
+	"Will use the Typescript Compiler APIs for the initial emit, even if @babel/preset-typescript is available, if passed as the transpiler option for typescript syntax. #2",
+	withTypeScriptVersions(`>=4.7`),
+	async (t, {typescript}) => {
+		const bundle = await generateRollupBundle(
+			[
+				{
+					entry: true,
+					fileName: "index.ts",
+					text: `\
+					export const enum Animals {
+						Fish
+					}
+					console.log(Animals.Fish);
+					`
+				}
+			],
+			{
+				typescript,
+				transpiler: {
+					typescriptSyntax: "typescript",
+					otherSyntax: "babel"
+				},
+				babelConfig: {
+					presets: [
+						[
+							"@babel/preset-typescript",
+							{
+								optimizeConstEnums: true
+							}
+						]
+					]
+				}
+			}
+		);
+		const {
+			js: [file]
+		} = bundle;
+
+		t.deepEqual(
+			formatCode(file.code),
+			formatCode(`\
+		console.log(
+			0
+			/* Animals.Fish */
+		);`)
+		);
+	}
+);

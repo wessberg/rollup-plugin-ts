@@ -62,6 +62,7 @@
 		"@babel/core": "7.18.2",
 		"@babel/runtime": "7.18.3",
 		"@babel/preset-env": "7.18.2",
+		"@babel/preset-typescript": "7.17.12",
 		"@babel/plugin-transform-runtime": "7.18.2",
 		"@swc/core": "1.2.194",
 		"@swc/helpers": "0.3.16",
@@ -116,6 +117,7 @@
 		"@babel/core": ">=6.x || >=7.x",
 		"@babel/runtime": ">=6.x || >=7.x",
 		"@babel/preset-env": ">=6.x || >=7.x",
+		"@babel/preset-typescript": ">=6.x || >=7.x",
 		"@babel/plugin-transform-runtime": ">=6.x || >=7.x",
 		"@swc/core": ">=1.x",
 		"@swc/helpers": ">=0.2",
@@ -130,6 +132,9 @@
 			"optional": true
 		},
 		"@babel/preset-env": {
+			"optional": true
+		},
+		"@babel/preset-typescript": {
 			"optional": true
 		},
 		"@babel/plugin-transform-runtime": {

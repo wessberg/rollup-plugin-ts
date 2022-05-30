@@ -14,7 +14,7 @@
 
 <a href="https://npmcharts.com/compare/rollup-plugin-ts?minimal=true"><img alt="Downloads per month" src="https://img.shields.io/npm/dm/rollup-plugin-ts.svg"    /></a>
 <a href="https://www.npmjs.com/package/rollup-plugin-ts"><img alt="NPM version" src="https://badge.fury.io/js/rollup-plugin-ts.svg"    /></a>
-<a href="https://david-dm.org/wessberg/rollup-plugin-ts"><img alt="Dependencies" src="https://img.shields.io/david/wessberg%2Frollup-plugin-ts.svg"    /></a>
+<img alt="Dependencies" src="https://img.shields.io/librariesio/github/wessberg%2Frollup-plugin-ts.svg"    />
 <a href="https://github.com/wessberg/rollup-plugin-ts/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/wessberg%2Frollup-plugin-ts.svg"    /></a>
 <a href="https://github.com/prettier/prettier"><img alt="code style: prettier" src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg"    /></a>
 <a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg"    /></a>
@@ -32,7 +32,7 @@ This is first and foremost a TypeScript plugin for Rollup that brings the best o
 
 One of the most powerful features of `rollup-plugin-ts` is declaration bundling and tree-shaking that works seamlessly with code splitting. That means you'll always get the smallest possible declaration files that match exactly what you're exporting, without any superflous type information.
 
-Tooling in the JavaScript ecosystem can often be complex, and this is very much the case when intending to combine TypeScript with other tools such as Babel and Browserslists while still maintaining the [unique emit capabilities of `tsc`](https://github.com/rollup/rollup-plugin-typescript/issues/28). `rollup-plugin-ts` differs from other TypeScript plugins in being opiniated about how some of these tools integrate in order to achieve the most optimal behavior with the smallest possible computational overhead. For example, when combined with another transpiler such as Babel, TypeScript handles diagnostics, declarations, and stripping away types, while Babel is used for syntax transformations.
+Tooling in the JavaScript ecosystem can often be complex, and this is very much the case when intending to combine TypeScript with other tools such as Babel and Browserslists while still maintaining the [unique emit capabilities of `tsc`](https://github.com/rollup/rollup-plugin-typescript/issues/28). `rollup-plugin-ts` differs from other TypeScript plugins in being opiniated about how some of these tools integrate in order to achieve the most optimal behavior with the smallest possible computational overhead. For example, when combined with another transpiler such as Babel, TypeScript handles diagnostics and declarations, while Babel is used for part of or all of the syntax transformations. You can even configure which transpiler takes care of the TypeScript-specific syntax, and which transpiler takes care of the remaining syntax. For example, you can let the TypeScript compiler strip away type information, while handling the rest of the syntax transformation with babel or swc.
 
 At the same time, `rollup-plugin-ts` has a very robust test suite that runs tests across all minor versions of TypeScript since v3.4 to ensure that everything works no matter which version of TypeScript you or your team is using.
 
@@ -44,7 +44,7 @@ At the same time, `rollup-plugin-ts` has a very robust test suite that runs test
 
 - Enables you to bundle your TypeScript applications and libraries with Rollup
 - Generates, bundles, and tree-shakes declaration files (`.d.ts`) and fully supports code splitting.
-- Integrates seamlessly with other transpilers such as [Babel](https://babeljs.io) and [swc](https://swc.rs/), such that TypeScript handles diagnostics, declarations, and stripping away types, and another transpiler is used for syntax transformation.
+- Integrates seamlessly with other transpilers such as [Babel](https://babeljs.io) and [swc](https://swc.rs/), such that TypeScript handles diagnostics, declarations, and another transpiler is used for parts of or the entire syntax transformation.
 - Emits Compiler diagnostics and brings them into the Rollup build lifecycle
 - Correctly handles [Emit-less types](https://github.com/rollup/rollup-plugin-typescript/issues/28)
 - Supports Incremental compilation.
@@ -171,7 +171,7 @@ $ pnpm add rollup-plugin-ts --save-dev
 
 `rollup-plugin-ts` depends on `rollup` and `typescript`, so you need to manually install these as development dependencies as well.
 
-You may also need to install additional peer dependencies such as `@babel/core`, `@babel/runtime`, `@babel/preset-env`, `@babel/plugin-transform-runtime`, `@swc/core`, or `@swc/helpers` depending on the features you are going to use. Refer to the documentation for the specific cases where any of these may be relevant.
+You may also need to install additional peer dependencies such as `@babel/core`, `@babel/runtime`, `@babel/preset-env`, `@babel/preset-typescript`, `@babel/plugin-transform-runtime`, `@swc/core`, or `@swc/helpers` depending on the features you are going to use. Refer to the documentation for the specific cases where any of these may be relevant.
 
 <!-- SHADOW_SECTION_INSTALL_END -->
 
@@ -299,7 +299,7 @@ ts({
 
 ### Combining Typescript with Babel
 
-This plugin makes it really easy to use Typescript for reporting diagnostics, generating declaration files, and stripping types, but then using Babel for all other syntax transformations.
+This plugin makes it really easy to use Typescript for reporting diagnostics and generating declaration files, but then using Babel for all syntax transformations.
 One very strong use case for this is to use [`@babel/preset-env`](https://babeljs.io/docs/en/babel-preset-env). Another one is that you get the entire ecosystem of Babel plugins at your disposal.
 
 To use Babel, first set the `transpiler` plugin option to `"babel"`:
@@ -310,24 +310,24 @@ ts({
 });
 ```
 
-Now, all that remains is to simply install the peer dependencies relevant to `babel`. Please install `@babel/core`, `@babel/runtime`, `@babel/plugin-transform-runtime`, and `@babel/preset-env` as well with your package manager:
+Now, all that remains is to simply install the peer dependencies relevant to `babel`. Please install `@babel/core`, `@babel/runtime`, `@babel/plugin-transform-runtime`, `@babel/preset-typescript`, and `@babel/preset-env` as well with your package manager:
 
 **npm**
 
 ```
-$ npm install @babel/core @babel/runtime @babel/plugin-transform-runtime @babel/preset-env --save-dev
+$ npm install @babel/core @babel/runtime @babel/plugin-transform-runtime @babel/preset-typescript @babel/preset-env --save-dev
 ```
 
 **Yarn**
 
 ```
-$ yarn add @babel/core @babel/runtime @babel/plugin-transform-runtime @babel/preset-env --dev
+$ yarn add @babel/core @babel/runtime @babel/plugin-transform-runtime @babel-preset-typescript @babel/preset-env --dev
 ```
 
 **pnpm**
 
 ```
-$ pnpm add @babel/core @babel/runtime @babel/plugin-transform-runtime @babel/preset-env --save-dev
+$ pnpm add @babel/core @babel/runtime @babel/plugin-transform-runtime @babel/preset-typescript @babel/preset-env --save-dev
 ```
 
 Don't worry if you don't, `rollup-plugin-ts` will warn you about exactly which dependencies are missing once you run it.
@@ -403,10 +403,31 @@ Don't worry if you don't, `rollup-plugin-ts` will warn you about exactly which d
 Once you're done installing peer dependencies, that's it! The plugin will attempt to locate a `.swcrc` file and use the options found there.
 By default, some combination of options will be applied depending on the config options you provide, while others will be forced at all times for interoperability reasons. See [this section](#default-babel-plugins) for more details.
 
+### Mixing transpilers
+
+By default, the transpiler you select, such as `typescript`, `babel`, or `swc`, is used for the entire syntax transformation. However, you may want to mix these. There can be quite good reasons why you may want that, [as described here](#okay-then-why-wouldnt-you-use-just-babel). 
+In short, you may find value in using the TypeScript compiler for stripping away the TypeScript specific syntax, and then delegate the remaining syntax transformations to swc or babel.
+
+To accomplish this, the `transpiler` option also allows for an options record:
+
+```javascript
+ts({
+	transpiler: {
+		typescriptSyntax: "typescript",
+		otherSyntax: "babel"
+	}
+});
+```
+
+In this example, the TypeScript compiler will first remove features such as types, type-only imports, enums, and decorators.
+Babel will then be used for all other syntax transformation from then on, depending on the combination of default, provided, and forced presets and plugins.
+
 ### Using `Custom Transformers`
 
 This plugin enables you to pass in [`Custom Transformers`](https://github.com/Microsoft/TypeScript/pull/13940) which allows you to transform the Typescript AST during code transpilation.
 This enables you to very efficiently transform Typescript before code generation and additionally enables you to use this plugin with tools that leverage this, such as some modern web frameworks and libraries do.
+
+Please note that if you want to combine Custom Transformers with other transpilers such as `babel`, you must mix them such that the `typeScript` transpiler is used for the `typescriptSyntax` option as [described above](#mixing-transpilers).
 
 ## Declaration files
 
@@ -468,6 +489,23 @@ ts({
 });
 ```
 
+### Typescript, Babel, and Browserslist example with mixed transpilers
+
+This is like [the example above](#typescript-babel-and-browserslist-example), but with the addition of [mixing transpilers](#mixing-transpilers).
+
+```javascript
+ts({
+	transpiler: {
+		typescriptSyntax: "typescript",
+		otherSyntax: "babel"
+	},
+	browserslist: ["last 1 version", "> 1%"],
+	babelConfig: {
+		plugins: ["my-babel-plugin"]
+	}
+});
+```
+
 ### Typescript, swc, and Browserslist example
 
 [As described here](#combining-typescript-with-swc), a `.swcrc` file will automatically be found by the plugin if available. This example shows how you can provide one explicitly.
@@ -476,6 +514,23 @@ And, [as described here](#typescript-with-browserslist-example), the same goes f
 ```javascript
 ts({
 	transpiler: "swc",
+	browserslist: ["last 1 version", "> 1%"],
+	swcConfig: {
+		minify: true
+	}
+});
+```
+
+### Typescript, swc, and Browserslist example with mixed transpilers
+
+This is like [the example above](#typescript-swc-and-browserslist-example), but with the addition of [mixing transpilers](#mixing-transpilers).
+
+```javascript
+ts({
+	transpiler: {
+		typescriptSyntax: "typescript",
+		otherSyntax: "swc"
+	},
 	browserslist: ["last 1 version", "> 1%"],
 	swcConfig: {
 		minify: true
@@ -506,8 +561,12 @@ const APP_ROOT = "/some/project/root/folder";
 const awesomeFrameworkTransformers = getAwesomeFrameworkCustomTransformers();
 
 ts({
-	// Use Babel for Syntax transformations
-	transpiler: "babel",
+	// Use TypeScript for stripping away types and other TypeScript-specific features,
+	// and then use babel for the remaining transformation.
+	transpiler: {
+		typescriptSyntax: "typescript",
+		otherSyntax: "babel"
+	},
 	// Don't use process.cwd(), but instead another root directory
 	cwd: APP_ROOT,
 	// Load a different tsconfig file in production
@@ -648,10 +707,11 @@ The plugin options are documented in more detail across this README, but the ful
 
 #### `transpiler`
 
-Type: `"typescript" | "babel" | "swc"`
+Type: `"typescript" | "babel" | "swc"| {typescriptSyntax: "typescript" | "babel" | "swc"; otherSyntax: "typescript" | "babel" | "swc"}`
 
 Can be any of `"babel"`, `"swc"`, or `"typescript"` (default: `"typescript"`).
-See [this section](#combining-typescript-with-babel) and [this section](#when-combined-with-babel-what-does-typescript-do-and-what-does-babel-do) for details on how `rollup-plugin-ts` works when `"babel"` is being used as a transpiler, and [this section](#combining-typescript-with-swc) for how it works when `"swc"` is being used as a transpiler.
+Alternatively, it can be an options object with properties `typescriptSyntax` and `otherSyntax`, where any of the aforementioned transpilers can be used in combination.
+See [this section](#mixing-transpilers) for details on how to combine transpilers.
 
 #### `babelConfig`
 
@@ -806,6 +866,7 @@ Here's table with a full overview of the specifics:
 | Preset/Plugin                     | Condition                                                                                                              | Reason                                                                                                                                                                                                                                                                                                                                                                                                   |
 | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `@babel/preset-env`               | A Browserslist is provided or found automatically, and you don't provide this preset yourself within your Babel config | This preset enables you to base your syntax transformations on the specific browsers/environment you want your application or library to target. It will "_Just Work"_                                                                                                                                                                                                                                   |
+| `@babel/preset-typescript`        | Babel is being used for transforming TypeScript-specific syntax.                                                       | This preset enables you to transform TypeScript-specific syntax. If you declare this in your own babel config, your configuration options will still be respected.                                                                                                                                                                                                                                       |
 | `@babel/plugin-transform-runtime` | You don't provide this plugin yourself within your Babel config                                                        | Depending on your configuration, async functions may be rewritten to use [Regenerator Runtime](https://github.com/facebook/regenerator/tree/master/packages/regenerator-runtime), and there may be one or more Babel helpers injected within your code. `@babel/plugin-runtime` allows this plugin to avoid duplicating these helpers, and instead make them shared across Chunks seamlessly via Rollup. |
 
 <!-- SHADOW_SECTION_CONTRIBUTING_START -->
@@ -851,24 +912,27 @@ This means that you can use things like classes and lexical scoping in browsers 
 
 #### Okay, then why wouldn't you use just babel?
 
-Babel has recently received support for [parsing and transforming TypeScript](https://babeljs.io/docs/en/babel-plugin-transform-typescript). It would be intriguing to just use Babel for everything. However, there are significant caveats:
+Babel has support for [parsing and transforming TypeScript](https://babeljs.io/docs/en/babel-plugin-transform-typescript). While Babel can be used for everything, there are some caveats:
 
 The Babel compiler works on a file-by-file basis, meaning it is simple to use and reason about, whereas the TypeScript compiler works with _Programs_, or in other words sets of related _SourceFiles_.
 This gives TypeScript the advantage over Babel that it has a greater understanding of your codebase in general and can understand your types across files.
-In the context of this plugin, this enables TypeScript to do things that you simply wouldn't be able to do with the TypeScript plugin for Babel:
-
-1. Emit TypeScript diagnostics
-2. Emit TypeScript declaration (`.d.ts`) files and TypeScript declaration map (`.d.ts.map`) files.
-3. Remove type-only imports that wouldn't otherwise be transformed by Rollup and would lead to issues like [this one](https://github.com/rollup/rollup-plugin-typescript/issues/28)
-4. Use `const enums` and all other files that will require type information.
 
 #### When combined with Babel, what does TypeScript do, and what does Babel do?
 
-First, TypeScript will be used for:
+When you use Babel as a transpiler in its default configuration, the TypeScript Compiler will have the responsibility of:
 
-1. Reporting diagnostics.
-2. Emitting TypeScript declaration (`.d.ts`) files and TypeScript declaration map (`.d.ts.map`) files.
-3. Removing TypeScript-specific features such as types, type-only imports, enums, and TypeScript decorators.
+- Emitting TypeScript diagnostics
+- Emitting TypeScript declaration (`.d.ts`) files and TypeScript declaration map (`.d.ts.map`) files.
+
+Babel will then purely perform syntax transformations based on your configuration.
+
+You can also opt in to using the TypeScript compiler to remove TypeScript specific syntax from your code when combined with babel. This grants you the power to combine the strengths of the TypeScript compiler,
+which understands the structure of your codebase, with the flexibility and plugin ecosystem of Babel.
+
+Please read [this section](#mixing-transpilers) for details on how you can mix transpilers to achieve that. In such a setup, TypeScript is also responsible for:
+
+- Removing TypeScript-specific features such as types, type-only imports, enums, and TypeScript decorators.
+- Other TypeScript features that may require understanding the relationship between your files.
 
 Babel will then be used for all other syntax transformation from then on, depending on the combination of default, provided, and forced presets and plugins.
 

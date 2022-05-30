@@ -2,6 +2,7 @@ import {GetForcedCompilerOptionsOptions} from "./get-forced-compiler-options-opt
 import {getScriptTargetFromBrowserslist} from "../get-script-target-from-browserslist/get-script-target-from-browserslist.js";
 import {getOutDir} from "../get-out-dir/get-out-dir.js";
 import {TS} from "../../type/ts.js";
+import { getTranspilerOptions } from "../plugin-options/get-plugin-options.js";
 
 /**
  * Gets the ModuleKind to force
@@ -17,8 +18,8 @@ function getForcedModuleKindOption({pluginOptions}: GetForcedCompilerOptionsOpti
  * Gets the ScriptTarget to force
  */
 function getForcedScriptTargetOption({pluginOptions, browserslist}: GetForcedCompilerOptionsOptions): {target?: TS.ScriptTarget} {
-	// If anything else than TypeScript should perform the transpilation, always target the latest ECMAScript version and let the transpiler take care of the rest
-	if (pluginOptions.transpiler !== "typescript") {
+	// If anything else than TypeScript should perform the rest of the transpilation after stripping TypeScript syntax, always target the latest ECMAScript version and let the other transpiler take care of the rest
+	if (getTranspilerOptions(pluginOptions.transpiler).otherSyntax !== "typescript") {
 		return {target: pluginOptions.typescript.ScriptTarget.ESNext};
 	}
 

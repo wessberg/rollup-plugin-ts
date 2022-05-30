@@ -1,5 +1,5 @@
 import TSModule from "typescript";
-import {TypescriptPluginOptions} from "../../plugin/typescript-plugin-options.js";
+import {Transpiler, TranspilerOptions, TypescriptPluginOptions} from "../../plugin/typescript-plugin-options.js";
 import {ensureAbsolute} from "../path/path-util.js";
 import path from "crosspath";
 
@@ -7,7 +7,7 @@ import path from "crosspath";
  * Gets normalized PluginOptions based on the given ones
  */
 export function getPluginOptions(options: Partial<TypescriptPluginOptions>): TypescriptPluginOptions {
-	// Destructure the options and provide defaults
+	// Destructure the options and provide default
 	const {
 		browserslist,
 		transpiler = "typescript",
@@ -20,47 +20,39 @@ export function getPluginOptions(options: Partial<TypescriptPluginOptions>): Typ
 		transpileOnly = false,
 		debug = false,
 		fileSystem = typescript.sys,
+		babelConfig = {},
+		swcConfig = {},
 		hook = {}
 	} = options;
 
-	// These options will be used no matter what
-	const baseOptions = {
+	return {
 		typescript,
+		transpiler,
 		browserslist,
 		cwd: ensureAbsolute(process.cwd(), cwd),
 		exclude,
 		include,
 		transformers,
 		tsconfig,
+		babelConfig,
+		swcConfig,
 		transpileOnly,
 		debug,
 		fileSystem,
 		hook
 	};
+}
 
-	switch (transpiler) {
-		case "babel": {
-			return {
-				...baseOptions,
-				...("babelConfig" in options ? {babelConfig: options.babelConfig} : {}),
-				transpiler: "babel"
-			};
-		}
-
-		case "swc": {
-			return {
-				...baseOptions,
-				...("swcConfig" in options ? {swcConfig: options.swcConfig} : {}),
-				transpiler: "swc"
-			};
-		}
-
-		// TypeScript
-		default: {
-			return {
-				...baseOptions,
-				transpiler: "typescript"
-			};
-		}
+export function getTranspilerOptions (transpiler: TypescriptPluginOptions["transpiler"]): TranspilerOptions {
+	if (typeof transpiler === "string") {
+		return {
+			typescriptSyntax: transpiler,
+			otherSyntax: transpiler
+		};
 	}
+	return transpiler;
+}
+
+export function isUsingTranspiler (transpiler: Transpiler, options: TranspilerOptions): boolean {
+	return options.typescriptSyntax === transpiler || options.otherSyntax === transpiler;
 }

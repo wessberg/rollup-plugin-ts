@@ -58,7 +58,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 	const referenceCache: ReferenceCache = new Map();
 
 	let virtualOutFile = preparePaths({
-		fileName: `index${getDeclarationOutExtension(options.outputOptions)}`,
+		fileName: `index${getDeclarationOutExtension(options.outputOptions, options.host.getSupportedExtensions())}`,
 		relativeOutDir: relativeDeclarationOutDir,
 		absoluteOutDir: absoluteDeclarationOutDir
 	});
@@ -124,13 +124,13 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 
 	for (const chunk of normalizedChunks) {
 		let declarationPaths = preparePaths({
-			fileName: setExtension(chunk.paths.fileName, getDeclarationOutExtension(options.outputOptions, chunk)),
+			fileName: setExtension(chunk.paths.fileName, getDeclarationOutExtension(options.outputOptions, options.host.getSupportedExtensions(), chunk)),
 			relativeOutDir: relativeDeclarationOutDir,
 			absoluteOutDir: absoluteDeclarationOutDir
 		});
 
 		let declarationMapPaths = preparePaths({
-			fileName: setExtension(chunk.paths.fileName, getDeclarationOutExtension(options.outputOptions, chunk, true)),
+			fileName: setExtension(chunk.paths.fileName, getDeclarationOutExtension(options.outputOptions, options.host.getSupportedExtensions(), chunk, true)),
 			relativeOutDir: relativeDeclarationOutDir,
 			absoluteOutDir: absoluteDeclarationOutDir
 		});

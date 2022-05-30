@@ -5,9 +5,7 @@ export {
 	TypescriptPluginOptions,
 	BrowserslistConfig,
 	BrowserslistPathConfig,
-	BrowserslistQueryConfig,
-	TypescriptPluginBabelOptions,
-	TypescriptPluginTypescriptOptions
+	BrowserslistQueryConfig
 } from "./plugin/typescript-plugin-options.js";
 
 export {default} from "./plugin/typescript-plugin.js";

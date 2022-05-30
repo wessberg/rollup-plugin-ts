@@ -14,10 +14,18 @@ import {
 	BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_3,
 	BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_4
 } from "../constant/constant.js";
-import {BabelConfigHook, TranspilationPhase, TypescriptPluginBabelOptions} from "../plugin/typescript-plugin-options.js";
+import {BabelConfigHook, TranspilationPhase, TranspilerOptions, TypescriptPluginOptions} from "../plugin/typescript-plugin-options.js";
 import {Babel, BabelConfig} from "../type/babel.js";
 import {isDefined} from "../util/is-defined/is-defined.js";
-import {isBabelPluginTransformRuntime, isBabelPresetEnv, isYearlyBabelPreset, resolveModule, somePathsAreRelated} from "../util/path/path-util.js";
+import {
+	isBabelPluginTransformRuntime,
+	isBabelPresetEnv,
+	isBabelPresetTypescript,
+	isYearlyBabelPreset,
+	removeSearchPathFromFilename,
+	resolveModule,
+	somePathsAreRelated
+} from "../util/path/path-util.js";
 import {SourceMap} from "rollup";
 import MagicString from "magic-string";
 import {matchAll} from "@wessberg/stringutil";
@@ -51,18 +59,20 @@ export function getForcedBabelOptions({cwd}: GetForcedBabelOptionsOptions): Tran
 
 export interface GetDefaultBabelOptionsOptions {
 	browserslist?: string[];
+	transpilerOptions: TranspilerOptions;
 }
 
 /**
  * Retrieves the Babel config options that will be used by default. If the user provides the same keys/presets/plugins, *they*
  * will take precedence
  */
-export function getDefaultBabelOptions({browserslist}: GetDefaultBabelOptionsOptions): TransformOptions {
+export function getDefaultBabelOptions({browserslist, transpilerOptions}: GetDefaultBabelOptionsOptions): TransformOptions {
 	const includePresetEnv = browserslist != null;
+	const includePresetTypescript = transpilerOptions.typescriptSyntax === "babel";
 
 	return {
 		presets: [
-			// Use @babel/preset-env when a Browserslist has been given
+			// Use @babel/preset-typescript when Babel is responsible for transforming TypeScript specific syntax
 			...(!includePresetEnv
 				? []
 				: [
@@ -79,6 +89,17 @@ export function getDefaultBabelOptions({browserslist}: GetDefaultBabelOptionsOpt
 								targets: {
 									browsers: browserslist
 								}
+							}
+						]
+				  ]),
+			// Use @babel/preset-env when a Browserslist has been given
+			...(!includePresetTypescript
+				? []
+				: [
+						[
+							resolveModule("@babel/preset-typescript"),
+							{
+								// There are no default options here
 							}
 						]
 				  ])
@@ -110,7 +131,7 @@ export interface GetBabelConfigOptions {
 	babel: typeof Babel;
 	cwd: string;
 	hook: BabelConfigHook | undefined;
-	babelConfig: TypescriptPluginBabelOptions["babelConfig"];
+	babelConfig: TypescriptPluginOptions["babelConfig"];
 	browserslist: string[] | undefined;
 	forcedOptions: TransformOptions | undefined;
 	defaultOptions: TransformOptions | undefined;
@@ -139,25 +160,26 @@ export interface GetBabelConfigResult {
 	config: FullConfig | undefined;
 }
 
-export type BabelConfigFactory = (filename: string) => GetBabelConfigResult;
+export type BabelConfigFactory = (filename: string, inTypescriptStep?: boolean) => GetBabelConfigResult;
 
 /**
  * Gets a Babel Config based on the given options
  */
 export function getBabelConfig({babel, babelConfig, cwd, forcedOptions = {}, defaultOptions = {}, browserslist, phase, hook}: GetBabelConfigOptions): BabelConfigFactory {
-	return (filename: string) => {
+	return (filename: string, inTypescriptStep = false) => {
+
 		// Load a partial Babel config based on the input options
 		const partialConfig = babel.loadPartialConfig(
 			// If babel options are provided directly
-			isBabelConfig(babelConfig)
+			isBabelConfig(babelConfig) && Object.keys(babelConfig).length > 0
 				? // If the given babelConfig is an object of input options, use that as the basis for the full config
 				  {cwd, root: cwd, ...babelConfig}
 				: // Load the path to a babel config provided to the plugin if any, otherwise try to resolve it
 				  {
 						cwd,
 						root: cwd,
-						filename,
-						...(babelConfig == null ? {} : {configFile: babelConfig})
+						filename: removeSearchPathFromFilename(filename),
+						...(babelConfig == null || typeof babelConfig !== "string" ? {} : {configFile: babelConfig})
 				  }
 		);
 
@@ -170,6 +192,7 @@ export function getBabelConfig({babel, babelConfig, cwd, forcedOptions = {}, def
 		const {options} = partialConfig;
 		const {presets: forcedPresets, plugins: forcedPlugins, ...otherForcedOptions} = forcedOptions;
 		const {presets: defaultPresets, plugins: defaultPlugins, ...otherDefaultOptions} = defaultOptions;
+
 		const configFileOption: TransformOptions = {configFile: false, babelrc: false};
 
 		// If users have provided presets of their own, ensure that they are using respecting the forced options
@@ -223,7 +246,6 @@ export function getBabelConfig({babel, babelConfig, cwd, forcedOptions = {}, def
 			options.plugins = (options.plugins as ConfigItem[]).map((plugin: ConfigItem) => {
 				if (plugin.file == null) return plugin;
 
-				// Apply the forced @babel/preset-env options here
 				if (isBabelPluginTransformRuntime(plugin.file.resolved)) {
 					return babel.createConfigItem(
 						[
@@ -252,7 +274,8 @@ export function getBabelConfig({babel, babelConfig, cwd, forcedOptions = {}, def
 				forcedPresets == null
 					? undefined
 					: (babel.loadPartialConfig({presets: forcedPresets, ...configFileOption})?.options.presets as ConfigItem[] | null | undefined) ?? undefined,
-				phase === "chunk"
+				phase === "chunk",
+				inTypescriptStep
 			),
 			plugins: combineConfigItems(
 				(options.plugins ?? []) as ConfigItem[],
@@ -260,7 +283,8 @@ export function getBabelConfig({babel, babelConfig, cwd, forcedOptions = {}, def
 				forcedPlugins == null
 					? undefined
 					: (babel.loadPartialConfig({plugins: forcedPlugins, ...configFileOption})?.options.plugins as ConfigItem[] | null | undefined) ?? undefined,
-				phase === "chunk"
+				phase === "chunk",
+				inTypescriptStep
 			)
 		};
 
@@ -292,14 +316,20 @@ export function getBabelConfig({babel, babelConfig, cwd, forcedOptions = {}, def
 	};
 }
 
-function isBabelConfig(babelConfig?: TypescriptPluginBabelOptions["babelConfig"]): babelConfig is Partial<BabelConfig> {
+function isBabelConfig(babelConfig?: TypescriptPluginOptions["babelConfig"]): babelConfig is Partial<BabelConfig> {
 	return babelConfig != null && typeof babelConfig !== "string";
 }
 
 /**
  * Combines the given two sets of presets
  */
-function combineConfigItems(userItems: ConfigItem[], defaultItems: ConfigItem[] = [], forcedItems: ConfigItem[] = [], inChunkPhase: boolean): ConfigItem[] {
+function combineConfigItems(
+	userItems: ConfigItem[],
+	defaultItems: ConfigItem[] = [],
+	forcedItems: ConfigItem[] = [],
+	inChunkPhase: boolean,
+	inTypescriptStep: boolean
+): ConfigItem[] {
 	const namesInUserItems = new Set(userItems.map(item => item.file?.resolved).filter(isDefined));
 	const namesInForcedItems = new Set(forcedItems.map(item => item.file?.resolved).filter(isDefined));
 	const userItemsHasYearlyPreset = [...namesInUserItems].some(isYearlyBabelPreset);
@@ -324,6 +354,9 @@ function combineConfigItems(userItems: ConfigItem[], defaultItems: ConfigItem[] 
 		]
 			// Filter out those options that do not apply depending on whether or not to apply minification
 			.filter(configItem => (inChunkPhase ? configItemIsAllowedDuringChunkPhase(configItem) : configItemIsAllowedDuringFilePhase(configItem)))
+
+			// Only allow @babel/preset-typescript if we're actually in the initial TypeScript phase
+			.filter(configItem => configItem.file?.resolved == null || !isBabelPresetTypescript(configItem.file?.resolved) || inTypescriptStep)
 	);
 }
 

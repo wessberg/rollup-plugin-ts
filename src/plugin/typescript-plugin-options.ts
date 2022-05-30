@@ -6,6 +6,11 @@ import {SwcConfig} from "../type/swc.js";
 
 export type Transpiler = "typescript" | "babel" | "swc";
 
+export interface TranspilerOptions {
+	typescriptSyntax: Transpiler;
+	otherSyntax: Transpiler;
+}
+
 export interface DebugTransformerData {
 	kind: "transformer";
 	fileName: string;
@@ -74,9 +79,11 @@ export interface InputCompilerOptions extends Omit<TS.CompilerOptions, "module" 
 	target: string;
 }
 
-export interface TypescriptPluginBaseOptions {
-	transpiler: Transpiler;
+export interface TypescriptPluginOptions {
+	transpiler: Transpiler|TranspilerOptions;
 	tsconfig?: string | Partial<TS.CompilerOptions> | Partial<InputCompilerOptions> | TS.ParsedCommandLine | TsConfigResolver | TsConfigResolverWithFileName;
+	babelConfig?: string | Partial<BabelConfig>;
+	swcConfig?: string | Partial<SwcConfig>;
 	browserslist?: false | string[] | string | BrowserslistConfig;
 	cwd: string;
 	transformers?: (TS.CustomTransformers | CustomTransformersFunction)[] | TS.CustomTransformers | CustomTransformersFunction;
@@ -88,19 +95,3 @@ export interface TypescriptPluginBaseOptions {
 	debug: boolean | DebugOptionCallback;
 	typescript: typeof TS;
 }
-
-export interface TypescriptPluginTypescriptOptions extends TypescriptPluginBaseOptions {
-	transpiler: "typescript";
-}
-
-export interface TypescriptPluginBabelOptions extends TypescriptPluginBaseOptions {
-	transpiler: "babel";
-	babelConfig?: string | Partial<BabelConfig>;
-}
-
-export interface TypescriptPluginSwcOptions extends TypescriptPluginBaseOptions {
-	transpiler: "swc";
-	swcConfig?: string | Partial<SwcConfig>;
-}
-
-export type TypescriptPluginOptions = TypescriptPluginTypescriptOptions | TypescriptPluginBabelOptions | TypescriptPluginSwcOptions;

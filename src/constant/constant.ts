@@ -106,6 +106,7 @@ export const BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES = [];
 export const BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES = ["@babel/plugin-transform-runtime", "babel-plugin-transform-runtime"];
 
 export const BABEL_MINIFY_PRESET_NAMES = ["babel-preset-minify"];
+export const BABEL_PRESET_TYPESCRIPT_NAMES = ["@babel/preset-typescript"];
 
 export const BABEL_MINIFY_PLUGIN_NAMES = [
 	"babel-plugin-transform-minify-booleans",
