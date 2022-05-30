@@ -1,6 +1,6 @@
-import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {TS} from "../../../../../../../type/ts";
-import {isSymbolIdentifier} from "../../../../util/is-symbol-identifier";
+import {ReferenceVisitorOptions} from "../reference-visitor-options.js";
+import {TS} from "../../../../../../../type/ts.js";
+import {isSymbolIdentifier} from "../../../../util/is-symbol-identifier.js";
 
 export function checkMethodSignature({node, continuation, typescript}: ReferenceVisitorOptions<TS.MethodSignature>): string[] {
 	const referencedIdentifiers: string[] = [];

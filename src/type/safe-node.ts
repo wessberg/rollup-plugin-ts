@@ -1,4 +1,4 @@
-import {TS} from "./ts";
+import {TS} from "./ts.js";
 
 export interface SafeNode extends TS.Node {
 	// eslint-disable-next-line @typescript-eslint/naming-convention

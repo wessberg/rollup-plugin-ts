@@ -1,4 +1,4 @@
-import {stripKnownExtension} from "../../../../util/path/path-util";
+import {stripKnownExtension} from "../../../../util/path/path-util.js";
 import {camelCase} from "@wessberg/stringutil";
 import path from "crosspath";
 

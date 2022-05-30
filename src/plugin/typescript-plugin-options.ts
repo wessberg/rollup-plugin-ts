@@ -1,8 +1,8 @@
-import {CustomTransformersFunction} from "../util/merge-transformers/custom-transformer-options";
-import {TS} from "../type/ts";
-import {DeclarationStats} from "../type/declaration-stats";
-import {BabelConfig} from "../type/babel";
-import {SwcConfig} from "../type/swc";
+import {CustomTransformersFunction} from "../util/merge-transformers/custom-transformer-options.js";
+import {TS} from "../type/ts.js";
+import {DeclarationStats} from "../type/declaration-stats.js";
+import {BabelConfig} from "../type/babel.js";
+import {SwcConfig} from "../type/swc.js";
 
 export type Transpiler = "typescript" | "babel" | "swc";
 

@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import {getFormattedDateTimePrefix} from "./get-formatted-date-time-prefix";
+import {getFormattedDateTimePrefix} from "./get-formatted-date-time-prefix.js";
 
 export interface LogMetrics {
 	finish(): void;

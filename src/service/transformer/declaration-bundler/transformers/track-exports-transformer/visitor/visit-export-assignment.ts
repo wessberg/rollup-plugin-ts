@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts";
-import {TrackExportsTransformerVisitorOptions} from "../track-exports-transformer-visitor-options";
+import {TS} from "../../../../../../type/ts.js";
+import {TrackExportsTransformerVisitorOptions} from "../track-exports-transformer-visitor-options.js";
 
 export function visitExportAssignment(options: TrackExportsTransformerVisitorOptions<TS.ExportAssignment>): void {
 	const {node, typescript, markAsExported} = options;

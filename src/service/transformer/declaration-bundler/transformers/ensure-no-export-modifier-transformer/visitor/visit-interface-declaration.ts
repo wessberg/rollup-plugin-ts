@@ -1,7 +1,7 @@
-import {TS} from "../../../../../../type/ts";
-import {EnsureNoExportModifierTransformerVisitorOptions} from "../ensure-no-export-modifier-transformer-visitor-options";
-import {preserveMeta} from "../../../util/clone-node-with-meta";
-import {hasExportModifier, removeExportModifier} from "../../../util/modifier-util";
+import {TS} from "../../../../../../type/ts.js";
+import {EnsureNoExportModifierTransformerVisitorOptions} from "../ensure-no-export-modifier-transformer-visitor-options.js";
+import {preserveMeta} from "../../../util/clone-node-with-meta.js";
+import {hasExportModifier, removeExportModifier} from "../../../util/modifier-util.js";
 
 export function visitInterfaceDeclaration(options: EnsureNoExportModifierTransformerVisitorOptions<TS.InterfaceDeclaration>): TS.InterfaceDeclaration {
 	const {node, factory, typescript} = options;

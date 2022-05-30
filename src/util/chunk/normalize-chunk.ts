@@ -1,8 +1,8 @@
 import {OutputChunk, OutputOptions} from "rollup";
-import {getOutDir} from "../get-out-dir/get-out-dir";
-import {PathsResult, preparePaths} from "../../service/transformer/declaration-bundler/util/prepare-paths/prepare-paths";
-import {CompilerHost} from "../../service/compiler-host/compiler-host";
-import {ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY} from "../../constant/constant";
+import {getOutDir} from "../get-out-dir/get-out-dir.js";
+import {PathsResult, preparePaths} from "../../service/transformer/declaration-bundler/util/prepare-paths/prepare-paths.js";
+import {CompilerHost} from "../../service/compiler-host/compiler-host.js";
+import {ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY} from "../../constant/constant.js";
 import path from "crosspath";
 
 export interface PreNormalizedChunk {
@@ -28,10 +28,18 @@ export interface NormalizeChunkOptions {
 
 export function preNormalizeChunk(chunk: OutputChunk): PreNormalizedChunk {
 	return {
-		modules: Object.keys(chunk.modules).map(path.normalize),
+		modules: Object.keys(chunk.modules).map(normalizeChunkFilename),
 		fileName: path.normalize(chunk.fileName),
 		isEntry: chunk.isEntry
 	};
+}
+
+function normalizeChunkFilename(filename: string): string {
+	const normalized = path.normalize(filename);
+	if (normalized.includes(`?`)) {
+		return normalized.slice(0, normalized.indexOf(`?`));
+	}
+	return normalized;
 }
 
 export function normalizeChunk(chunk: PreNormalizedChunk, {host, outputOptions, relativeOutDir, multiEntryModule, multiEntryFileNames}: NormalizeChunkOptions): NormalizedChunk {
@@ -48,6 +56,9 @@ export function normalizeChunk(chunk: PreNormalizedChunk, {host, outputOptions, 
 			isMultiEntryChunk = true;
 		}
 	}
+
+	// Ensure that there are no duplicates
+	chunk.modules = [...new Set(chunk.modules)];
 
 	const visitableModules = chunk.modules.filter(module => host.isSupportedFileName(module, true));
 

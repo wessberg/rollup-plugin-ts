@@ -1,9 +1,9 @@
-import {TS} from "../../../../../../type/ts";
-import {TrackDependenciesTransformerVisitorOptions} from "../track-dependencies-transformer-visitor-options";
-import {visitImportDeclaration} from "./visit-import-declaration";
-import {visitImportTypeNode} from "./visit-import-type-node";
-import {visitModuleDeclaration} from "./visit-module-declaration";
-import {visitExportDeclaration} from "./visit-export-declaration";
+import {TS} from "../../../../../../type/ts.js";
+import {TrackDependenciesTransformerVisitorOptions} from "../track-dependencies-transformer-visitor-options.js";
+import {visitImportDeclaration} from "./visit-import-declaration.js";
+import {visitImportTypeNode} from "./visit-import-type-node.js";
+import {visitModuleDeclaration} from "./visit-module-declaration.js";
+import {visitExportDeclaration} from "./visit-export-declaration.js";
 
 export function visitNode({node, ...options}: TrackDependenciesTransformerVisitorOptions<TS.Node>): void {
 	if (options.typescript.isImportDeclaration(node)) {

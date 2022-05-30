@@ -14,13 +14,19 @@ import {
 	ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY,
 	SWC_HELPERS_PREFIX,
 	TSLIB_NAME
-} from "../../constant/constant";
+} from "../../constant/constant.js";
 import {ExternalOption} from "rollup";
-import {ensureArray} from "../ensure-array/ensure-array";
+import {ensureArray} from "../ensure-array/ensure-array.js";
+import {createRequire} from "module";
+
+// Until import.meta.resolve becomes stable, we'll have to do this instead
+export const resolveModule = createRequire(import.meta.url).resolve;
 
 export function isTypeScriptLib(p: string): boolean {
 	return p.startsWith(`lib.`) && p.endsWith(D_TS_EXTENSION);
 }
+
+
 
 /**
  * Gets the extension of the given file
@@ -38,7 +44,7 @@ export function isExternalLibrary(p: string): boolean {
 	return (!p.startsWith(".") && !p.startsWith("/")) || p.includes(NODE_MODULES_MATCH_PATH);
 }
 
-export function stripNodePrefixFromModuleSpecifier (moduleSpecifier: string): string {
+export function stripNodePrefixFromModuleSpecifier(moduleSpecifier: string): string {
 	return moduleSpecifier.startsWith("node:") ? moduleSpecifier.slice("node:".length) : moduleSpecifier;
 }
 

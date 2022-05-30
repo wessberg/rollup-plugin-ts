@@ -1,8 +1,8 @@
 import path from "crosspath";
 import {unlinkSync, existsSync, writeFileSync, mkdirSync} from "fs";
 import {tmpdir} from "os";
-import {formatCode} from "./format-code";
-import {generateRandomHash} from "../../src/util/hash/generate-random-hash";
+import {formatCode} from "./format-code.js";
+import {generateRandomHash} from "../../src/util/hash/generate-random-hash.js";
 
 export interface CreateTemporaryConfigFileResult {
 	cleanup(): void;

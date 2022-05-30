@@ -1,8 +1,8 @@
 import test from "ava";
-import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro";
-import {formatCode} from "./util/format-code";
-import {generateRollupBundle} from "./setup/setup-rollup";
-import {createBuiltInModuleTestFiles, createExternalTestFiles} from "./setup/test-file";
+import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro.js";
+import {formatCode} from "./util/format-code.js";
+import {generateRollupBundle} from "./setup/setup-rollup.js";
+import {createBuiltInModuleTestFiles, createExternalTestFiles} from "./setup/test-file.js";
 
 test.serial("Deconflicts symbols. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(

@@ -1,7 +1,7 @@
 import {OutputOptions} from "rollup";
-import {ensureRelative} from "../path/path-util";
+import {ensureRelative} from "../path/path-util.js";
 import path from "crosspath";
-import {generateRandomHash} from "../hash/generate-random-hash";
+import {generateRandomHash} from "../hash/generate-random-hash.js";
 
 /**
  * Gets the destination directory to use based on the given Rollup output options

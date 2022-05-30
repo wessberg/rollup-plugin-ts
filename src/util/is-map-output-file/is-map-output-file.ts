@@ -1,6 +1,6 @@
-import {D_TS_MAP_EXTENSION, SOURCE_MAP_EXTENSION} from "../../constant/constant";
-import {getExtension} from "../path/path-util";
-import {TS} from "../../type/ts";
+import {D_TS_MAP_EXTENSION, SOURCE_MAP_EXTENSION} from "../../constant/constant.js";
+import {getExtension} from "../path/path-util.js";
+import {TS} from "../../type/ts.js";
 
 /**
  * Returns true if the given OutputFile represents a SourceMap

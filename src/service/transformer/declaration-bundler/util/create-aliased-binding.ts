@@ -1,11 +1,11 @@
-import {TS} from "../../../../type/ts";
-import {ensureHasDeclareModifier} from "./modifier-util";
-import {getAliasedDeclarationFromSymbol, isSymbol} from "./get-aliased-declaration";
-import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options";
-import {generateUniqueBinding} from "./generate-unique-binding";
-import {preserveParents} from "./clone-node-with-meta";
-import {TransformerBaseOptions} from "../transformers/transformer-base-options";
-import {markAsInternalAlias} from "./node-util";
+import {TS} from "../../../../type/ts.js";
+import {ensureHasDeclareModifier} from "./modifier-util.js";
+import {getAliasedDeclarationFromSymbol, isSymbol} from "./get-aliased-declaration.js";
+import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options.js";
+import {generateUniqueBinding} from "./generate-unique-binding.js";
+import {preserveParents} from "./clone-node-with-meta.js";
+import {TransformerBaseOptions} from "../transformers/transformer-base-options.js";
+import {markAsInternalAlias} from "./node-util.js";
 
 export interface CreateAliasedBindingOptions extends TransformerBaseOptions {
 	node: TS.Node | TS.Symbol | undefined;

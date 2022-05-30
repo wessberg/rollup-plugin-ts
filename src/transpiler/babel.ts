@@ -13,11 +13,11 @@ import {
 	BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_2,
 	BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_3,
 	BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_4
-} from "../constant/constant";
-import {BabelConfigHook, TranspilationPhase, TypescriptPluginBabelOptions} from "../plugin/typescript-plugin-options";
-import {Babel, BabelConfig} from "../type/babel";
-import {isDefined} from "../util/is-defined/is-defined";
-import {isBabelPluginTransformRuntime, isBabelPresetEnv, isYearlyBabelPreset, somePathsAreRelated} from "../util/path/path-util";
+} from "../constant/constant.js";
+import {BabelConfigHook, TranspilationPhase, TypescriptPluginBabelOptions} from "../plugin/typescript-plugin-options.js";
+import {Babel, BabelConfig} from "../type/babel.js";
+import {isDefined} from "../util/is-defined/is-defined.js";
+import {isBabelPluginTransformRuntime, isBabelPresetEnv, isYearlyBabelPreset, resolveModule, somePathsAreRelated} from "../util/path/path-util.js";
 import {SourceMap} from "rollup";
 import MagicString from "magic-string";
 import {matchAll} from "@wessberg/stringutil";
@@ -44,7 +44,7 @@ export function getForcedBabelOptions({cwd}: GetForcedBabelOptionsOptions): Tran
 		sourceType: "module",
 		plugins: [
 			// Needed to make babel understand dynamic imports
-			require.resolve("@babel/plugin-syntax-dynamic-import")
+			resolveModule("@babel/plugin-syntax-dynamic-import")
 		]
 	};
 }
@@ -67,7 +67,7 @@ export function getDefaultBabelOptions({browserslist}: GetDefaultBabelOptionsOpt
 				? []
 				: [
 						[
-							require.resolve("@babel/preset-env"),
+							resolveModule("@babel/preset-env"),
 							{
 								...FORCED_BABEL_PRESET_ENV_OPTIONS,
 								// Loose breaks things such as spreading an iterable that isn't an array
@@ -88,15 +88,15 @@ export function getDefaultBabelOptions({browserslist}: GetDefaultBabelOptionsOpt
 			...(includePresetEnv
 				? []
 				: [
-						require.resolve("@babel/plugin-proposal-object-rest-spread"),
-						require.resolve("@babel/plugin-proposal-async-generator-functions"),
-						require.resolve("@babel/plugin-proposal-optional-catch-binding"),
-						require.resolve("@babel/plugin-proposal-unicode-property-regex"),
-						require.resolve("@babel/plugin-proposal-json-strings")
+						resolveModule("@babel/plugin-proposal-object-rest-spread"),
+						resolveModule("@babel/plugin-proposal-async-generator-functions"),
+						resolveModule("@babel/plugin-proposal-optional-catch-binding"),
+						resolveModule("@babel/plugin-proposal-unicode-property-regex"),
+						resolveModule("@babel/plugin-proposal-json-strings")
 				  ]),
 			// Force the use of helpers (e.g. the runtime). But *don't* apply polyfills.
 			[
-				require.resolve("@babel/plugin-transform-runtime"),
+				resolveModule("@babel/plugin-transform-runtime"),
 				{
 					...FORCED_BABEL_PLUGIN_TRANSFORM_RUNTIME_OPTIONS,
 					corejs: false

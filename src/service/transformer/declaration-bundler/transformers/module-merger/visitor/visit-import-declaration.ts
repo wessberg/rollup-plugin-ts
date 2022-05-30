@@ -1,7 +1,7 @@
-import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options";
-import {TS} from "../../../../../../type/ts";
-import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
-import {preserveMeta} from "../../../util/clone-node-with-meta";
+import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
+import {TS} from "../../../../../../type/ts.js";
+import {generateModuleSpecifier} from "../../../util/generate-module-specifier.js";
+import {preserveMeta} from "../../../util/clone-node-with-meta.js";
 
 export function visitImportDeclaration(options: ModuleMergerVisitorOptions<TS.ImportDeclaration>): VisitResult<TS.ImportDeclaration> {
 	const {node, factory, typescript} = options;

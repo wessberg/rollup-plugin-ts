@@ -1,15 +1,15 @@
-import {DeclarationBundlerOptions, DeclarationTransformer} from "../../declaration-bundler-options";
-import {TS} from "../../../../../type/ts";
-import {applyTransformers} from "../../util/apply-transformers";
-import {getChunkFilename} from "../../util/get-chunk-filename";
-import {SourceFileBundlerVisitorOptions} from "./source-file-bundler-visitor-options";
-import {formatLibReferenceDirective} from "../../util/format-lib-reference-directive";
-import {formatTypeReferenceDirective} from "../../util/format-type-reference-directive";
-import {pickResolvedModule} from "../../../../../util/pick-resolved-module";
-import {trackImportsTransformer} from "../track-imports-transformer/track-imports-transformer";
-import {trackExportsTransformer} from "../track-exports-transformer/track-exports-transformer";
-import {statsCollector} from "../stats-collector/stats-collector";
-import {TypeReference} from "../../util/get-type-reference-module-from-file-name";
+import {DeclarationBundlerOptions, DeclarationTransformer} from "../../declaration-bundler-options.js";
+import {TS} from "../../../../../type/ts.js";
+import {applyTransformers} from "../../util/apply-transformers.js";
+import {getChunkFilename} from "../../util/get-chunk-filename.js";
+import {SourceFileBundlerVisitorOptions} from "./source-file-bundler-visitor-options.js";
+import {formatLibReferenceDirective} from "../../util/format-lib-reference-directive.js";
+import {formatTypeReferenceDirective} from "../../util/format-type-reference-directive.js";
+import {pickResolvedModule} from "../../../../../util/pick-resolved-module.js";
+import {trackImportsTransformer} from "../track-imports-transformer/track-imports-transformer.js";
+import {trackExportsTransformer} from "../track-exports-transformer/track-exports-transformer.js";
+import {statsCollector} from "../stats-collector/stats-collector.js";
+import {TypeReference} from "../../util/get-type-reference-module-from-file-name.js";
 import {ensureNodeFactory} from "compatfactory";
 
 function needsInitialize(options: DeclarationBundlerOptions): boolean {
@@ -18,7 +18,7 @@ function needsInitialize(options: DeclarationBundlerOptions): boolean {
 
 export function sourceFileBundler(options: DeclarationBundlerOptions, ...transformers: DeclarationTransformer[]): TS.TransformerFactory<TS.Bundle | TS.SourceFile> {
 	return context => bundle => {
-		const {typescript} = options;
+		const {typescript, host} = options;
 		const factory = ensureNodeFactory(context.factory ?? typescript);
 
 		// A Bundle of SourceFiles is expected. In case the SourceFileBundler is invoked with something other than that, do an early return
@@ -80,6 +80,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 				...options,
 				context,
 				factory,
+				extensions: host.getSupportedExtensions(),
 				entrySourceFilesForChunk: entrySourceFiles,
 				otherEntrySourceFilesForChunk,
 				sourceFile: firstEntrySourceFile,

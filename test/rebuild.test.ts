@@ -1,7 +1,7 @@
 import test from "ava";
-import {withTypeScript} from "./util/ts-macro";
-import {formatCode} from "./util/format-code";
-import {generateRollupBundle} from "./setup/setup-rollup";
+import {withTypeScript} from "./util/ts-macro.js";
+import {formatCode} from "./util/format-code.js";
+import {generateRollupBundle} from "./setup/setup-rollup.js";
 
 test.serial("Won't produce empty declarations when output directory is not excluded from TypeScript. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(

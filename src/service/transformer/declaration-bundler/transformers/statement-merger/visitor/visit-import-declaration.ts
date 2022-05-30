@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts";
-import {StatementMergerVisitorOptions} from "../statement-merger-visitor-options";
+import {TS} from "../../../../../../type/ts.js";
+import {StatementMergerVisitorOptions} from "../statement-merger-visitor-options.js";
 
 export function visitImportDeclaration(options: StatementMergerVisitorOptions<TS.ImportDeclaration>): TS.ImportDeclaration[] | TS.ImportDeclaration | undefined {
 	const {node, factory, typescript} = options;

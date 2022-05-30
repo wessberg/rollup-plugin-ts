@@ -1,8 +1,8 @@
-import {CompilerHost} from "../../service/compiler-host/compiler-host";
-import {ExtendedResolvedModule} from "../../service/cache/resolve-cache/extended-resolved-module";
-import {getExtension} from "../path/path-util";
-import {D_TS_EXTENSION} from "../../constant/constant";
-import {trackDependenciesTransformer} from "../../service/transformer/declaration-bundler/transformers/track-dependencies-transformer/track-dependencies-transformer";
+import {CompilerHost} from "../../service/compiler-host/compiler-host.js";
+import {ExtendedResolvedModule} from "../../service/cache/resolve-cache/extended-resolved-module.js";
+import {getExtension} from "../path/path-util.js";
+import {D_TS_EXTENSION} from "../../constant/constant.js";
+import {trackDependenciesTransformer} from "../../service/transformer/declaration-bundler/transformers/track-dependencies-transformer/track-dependencies-transformer.js";
 
 export interface GetModuleDependenciesOptions {
 	compilerHost: CompilerHost;

@@ -1,12 +1,12 @@
-import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options";
-import {TS} from "../../../../../../type/ts";
-import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
-import {preserveMeta, preserveParents, preserveSymbols} from "../../../util/clone-node-with-meta";
-import {ensureHasDeclareModifier} from "../../../util/modifier-util";
-import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
-import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifier-transformer/ensure-no-declare-modifier-transformer";
-import {statementMerger} from "../../statement-merger/statement-merger";
-import {inlineNamespaceModuleBlockTransformer} from "../../inline-namespace-module-block-transformer/inline-namespace-module-block-transformer";
+import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
+import {TS} from "../../../../../../type/ts.js";
+import {generateModuleSpecifier} from "../../../util/generate-module-specifier.js";
+import {preserveMeta, preserveParents, preserveSymbols} from "../../../util/clone-node-with-meta.js";
+import {ensureHasDeclareModifier} from "../../../util/modifier-util.js";
+import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment.js";
+import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifier-transformer/ensure-no-declare-modifier-transformer.js";
+import {statementMerger} from "../../statement-merger/statement-merger.js";
+import {inlineNamespaceModuleBlockTransformer} from "../../inline-namespace-module-block-transformer/inline-namespace-module-block-transformer.js";
 
 export interface GenerateExportDeclarationsOptions extends Omit<ModuleMergerVisitorOptions<TS.ExportDeclaration>, "node"> {}
 

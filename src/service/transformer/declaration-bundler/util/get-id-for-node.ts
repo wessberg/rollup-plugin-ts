@@ -1,10 +1,10 @@
-import {getSymbolAtLocation, GetSymbolAtLocationOptions} from "./get-symbol-at-location";
-import {TS} from "../../../../type/ts";
-import {generateRandomHash, generateRandomIntegerHash} from "../../../../util/hash/generate-random-hash";
-import {getOriginalNode} from "./get-original-node";
-import {getParentNode} from "./get-parent-node";
-import {getAliasedDeclaration} from "./get-aliased-declaration";
-import {SafeNode} from "../../../../type/safe-node";
+import {getSymbolAtLocation, GetSymbolAtLocationOptions} from "./get-symbol-at-location.js";
+import {TS} from "../../../../type/ts.js";
+import {generateRandomHash, generateRandomIntegerHash} from "../../../../util/hash/generate-random-hash.js";
+import {getOriginalNode} from "./get-original-node.js";
+import {getParentNode} from "./get-parent-node.js";
+import {getAliasedDeclaration} from "./get-aliased-declaration.js";
+import {SafeNode} from "../../../../type/safe-node.js";
 
 /**
  * According to TypeScript, multiple namespace imports, identically named, from the same module may have different IDs, because they are all local bindings in their respective modules.

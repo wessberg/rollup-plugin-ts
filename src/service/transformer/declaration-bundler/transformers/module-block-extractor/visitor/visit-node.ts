@@ -1,6 +1,6 @@
-import {visitModuleDeclaration} from "./visit-module-declaration";
-import {ModuleBlockExtractorVisitorOptions} from "../module-block-extractor-visitor-options";
-import {TS} from "../../../../../../type/ts";
+import {visitModuleDeclaration} from "./visit-module-declaration.js";
+import {ModuleBlockExtractorVisitorOptions} from "../module-block-extractor-visitor-options.js";
+import {TS} from "../../../../../../type/ts.js";
 
 export function visitNode<T extends TS.Node>({node, ...options}: ModuleBlockExtractorVisitorOptions<T>): TS.Node | TS.Node[] | undefined {
 	if (options.typescript.isModuleDeclaration(node)) {

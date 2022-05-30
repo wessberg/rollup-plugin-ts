@@ -1,8 +1,8 @@
 import test from "ava";
-import {withTypeScript} from "./util/ts-macro";
-import {generateRollupBundle} from "./setup/setup-rollup";
+import {withTypeScript} from "./util/ts-macro.js";
+import {generateRollupBundle} from "./setup/setup-rollup.js";
 import json from "@rollup/plugin-json";
-import {formatCode} from "./util/format-code";
+import {formatCode} from "./util/format-code.js";
 
 test.serial("Handles .JSON files that has been pre-transformed by other plugins. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(

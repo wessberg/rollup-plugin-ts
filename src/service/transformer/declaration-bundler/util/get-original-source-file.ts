@@ -1,6 +1,6 @@
-import {SafeNode} from "../../../../type/safe-node";
-import {TS} from "../../../../type/ts";
-import {getOriginalNode} from "./get-original-node";
+import {SafeNode} from "../../../../type/safe-node.js";
+import {TS} from "../../../../type/ts.js";
+import {getOriginalNode} from "./get-original-node.js";
 
 export function getOriginalSourceFile<T extends SafeNode>(node: T, currentSourceFile: TS.SourceFile, typescript: typeof TS): TS.SourceFile {
 	const originalNode = getOriginalNode(node, typescript);

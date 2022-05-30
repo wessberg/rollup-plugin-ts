@@ -1,5 +1,5 @@
-import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {TS} from "../../../../../../../type/ts";
+import {ReferenceVisitorOptions} from "../reference-visitor-options.js";
+import {TS} from "../../../../../../../type/ts.js";
 
 export function checkBindingElement({node, continuation, typescript}: ReferenceVisitorOptions<TS.BindingElement>): string[] {
 	const referencedIdentifiers: string[] = [];

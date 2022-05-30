@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts";
-import {StatementMergerVisitorOptions} from "../statement-merger-visitor-options";
+import {TS} from "../../../../../../type/ts.js";
+import {StatementMergerVisitorOptions} from "../statement-merger-visitor-options.js";
 
 export function visitExportAssignment(
 	options: StatementMergerVisitorOptions<TS.ExportAssignment>

@@ -1,35 +1,35 @@
 import {ExistingRawSourceMap, InputOptions, OutputBundle, OutputOptions, Plugin, PluginContext, RenderedChunk, RollupCache, SourceDescription} from "rollup";
-import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line";
-import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options";
-import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output";
-import {emitDiagnostics} from "../service/emit/diagnostics/emit-diagnostics";
-import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions";
-import {ensureRelative, getExtension, isBabelHelper, isMultiEntryModule, isRegeneratorRuntime, isSwcHelper} from "../util/path/path-util";
-import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames";
-import {TypescriptPluginOptions} from "./typescript-plugin-options";
-import {getPluginOptions} from "../util/plugin-options/get-plugin-options";
-import {getBrowserslist} from "../util/get-browserslist/get-browserslist";
-import {ResolveCache} from "../service/cache/resolve-cache/resolve-cache";
-import {JSON_EXTENSION, REGENERATOR_RUNTIME_VIRTUAL_SRC, ROLLUP_PLUGIN_VIRTUAL_PREFIX} from "../constant/constant";
-import {REGENERATOR_SOURCE} from "../lib/regenerator/regenerator";
+import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line.js";
+import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options.js";
+import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output.js";
+import {emitDiagnostics} from "../service/emit/diagnostics/emit-diagnostics.js";
+import {getSupportedExtensions, SupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions.js";
+import {ensureRelative, getExtension, isBabelHelper, isMultiEntryModule, isRegeneratorRuntime, isSwcHelper} from "../util/path/path-util.js";
+import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames.js";
+import {TypescriptPluginOptions} from "./typescript-plugin-options.js";
+import {getPluginOptions} from "../util/plugin-options/get-plugin-options.js";
+import {getBrowserslist} from "../util/get-browserslist/get-browserslist.js";
+import {ResolveCache} from "../service/cache/resolve-cache/resolve-cache.js";
+import {JSON_EXTENSION, REGENERATOR_RUNTIME_VIRTUAL_SRC, ROLLUP_PLUGIN_VIRTUAL_PREFIX} from "../constant/constant.js";
+import {REGENERATOR_SOURCE} from "../lib/regenerator/regenerator.js";
 import {createFilter} from "@rollup/pluginutils";
-import {mergeTransformers} from "../util/merge-transformers/merge-transformers";
-import {ensureArray} from "../util/ensure-array/ensure-array";
-import {ParsedCommandLineResult} from "../util/get-parsed-command-line/parsed-command-line-result";
-import {takeBrowserslistOrComputeBasedOnCompilerOptions} from "../util/take-browserslist-or-compute-based-on-compiler-options/take-browserslist-or-compute-based-on-compiler-options";
+import {mergeTransformers} from "../util/merge-transformers/merge-transformers.js";
+import {ensureArray} from "../util/ensure-array/ensure-array.js";
+import {ParsedCommandLineResult} from "../util/get-parsed-command-line/parsed-command-line-result.js";
+import {takeBrowserslistOrComputeBasedOnCompilerOptions} from "../util/take-browserslist-or-compute-based-on-compiler-options/take-browserslist-or-compute-based-on-compiler-options.js";
 import {matchAll} from "@wessberg/stringutil";
-import {emitDeclarations} from "../service/emit/declaration/emit-declarations";
-import {CompilerHost} from "../service/compiler-host/compiler-host";
-import {pickResolvedModule} from "../util/pick-resolved-module";
-import {emitBuildInfo} from "../service/emit/tsbuildinfo/emit-build-info";
-import {shouldDebugEmit} from "../util/is-debug/should-debug";
-import {logEmit} from "../util/logging/log-emit";
-import {isJsonLike} from "../util/is-json-like/is-json-like";
+import {emitDeclarations} from "../service/emit/declaration/emit-declarations.js";
+import {CompilerHost} from "../service/compiler-host/compiler-host.js";
+import {pickResolvedModule} from "../util/pick-resolved-module.js";
+import {emitBuildInfo} from "../service/emit/tsbuildinfo/emit-build-info.js";
+import {shouldDebugEmit} from "../util/is-debug/should-debug.js";
+import {logEmit} from "../util/logging/log-emit.js";
+import {isJsonLike} from "../util/is-json-like/is-json-like.js";
 import path from "crosspath";
-import {loadBabel, loadSwc} from "../util/transpiler-loader";
-import {BabelConfigFactory, getBabelConfig, getDefaultBabelOptions, getForcedBabelOptions, replaceBabelHelpers} from "../transpiler/babel";
-import {getSwcConfigFactory, SwcConfigFactory} from "../transpiler/swc";
-import {inputOptionsAreEqual} from "../util/rollup/rollup-util";
+import {loadBabel, loadSwc} from "../util/transpiler-loader.js";
+import {BabelConfigFactory, getBabelConfig, getDefaultBabelOptions, getForcedBabelOptions, replaceBabelHelpers} from "../transpiler/babel.js";
+import {getSwcConfigFactory, SwcConfigFactory} from "../transpiler/swc.js";
+import {inputOptionsAreEqual} from "../util/rollup/rollup-util.js";
 
 /**
  * The name of the Rollup plugin
@@ -91,7 +91,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	/**
 	 * All supported extensions
 	 */
-	let SUPPORTED_EXTENSIONS: Set<string>;
+	let SUPPORTED_EXTENSIONS: SupportedExtensions;
 
 	/**
 	 * The InputOptions provided to Rollup
@@ -252,7 +252,8 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 			SUPPORTED_EXTENSIONS = getSupportedExtensions(
 				Boolean(parsedCommandLineResult.parsedCommandLine.options.allowJs),
-				Boolean(parsedCommandLineResult.parsedCommandLine.options.resolveJsonModule)
+				Boolean(parsedCommandLineResult.parsedCommandLine.options.resolveJsonModule),
+				typescript
 			);
 
 			// Hook up a CompilerHost

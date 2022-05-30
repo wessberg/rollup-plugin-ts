@@ -1,7 +1,7 @@
-import {GetForcedCompilerOptionsOptions} from "./get-forced-compiler-options-options";
-import {getScriptTargetFromBrowserslist} from "../get-script-target-from-browserslist/get-script-target-from-browserslist";
-import {getOutDir} from "../get-out-dir/get-out-dir";
-import {TS} from "../../type/ts";
+import {GetForcedCompilerOptionsOptions} from "./get-forced-compiler-options-options.js";
+import {getScriptTargetFromBrowserslist} from "../get-script-target-from-browserslist/get-script-target-from-browserslist.js";
+import {getOutDir} from "../get-out-dir/get-out-dir.js";
+import {TS} from "../../type/ts.js";
 
 /**
  * Gets the ModuleKind to force

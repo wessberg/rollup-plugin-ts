@@ -1,10 +1,10 @@
-import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options";
-import {addBindingToLexicalEnvironment} from "../../../util/add-binding-to-lexical-environment";
-import {isIdentifierFree} from "../../../util/is-identifier-free";
-import {generateUniqueBinding} from "../../../util/generate-unique-binding";
-import {TS} from "../../../../../../type/ts";
-import {preserveMeta} from "../../../util/clone-node-with-meta";
-import {getOriginalSourceFile} from "../../../util/get-original-source-file";
+import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options.js";
+import {addBindingToLexicalEnvironment} from "../../../util/add-binding-to-lexical-environment.js";
+import {isIdentifierFree} from "../../../util/is-identifier-free.js";
+import {generateUniqueBinding} from "../../../util/generate-unique-binding.js";
+import {TS} from "../../../../../../type/ts.js";
+import {preserveMeta} from "../../../util/clone-node-with-meta.js";
+import {getOriginalSourceFile} from "../../../util/get-original-source-file.js";
 
 /**
  * Deconflicts the given BindingElement.

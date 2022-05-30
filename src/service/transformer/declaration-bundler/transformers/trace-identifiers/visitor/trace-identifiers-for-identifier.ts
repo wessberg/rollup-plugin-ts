@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts";
-import {TraceIdentifiersVisitorOptions} from "../trace-identifiers-visitor-options";
+import {TS} from "../../../../../../type/ts.js";
+import {TraceIdentifiersVisitorOptions} from "../trace-identifiers-visitor-options.js";
 
 /**
  * Deconflicts the given Identifier.

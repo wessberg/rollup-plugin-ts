@@ -1,6 +1,6 @@
-import {getAliasedDeclaration, GetAliasedDeclarationOptions} from "./get-aliased-declaration";
-import {getTypeReferenceModuleFromFileName, TypeReference} from "./get-type-reference-module-from-file-name";
-import {TS} from "../../../../type/ts";
+import {getAliasedDeclaration, GetAliasedDeclarationOptions} from "./get-aliased-declaration.js";
+import {getTypeReferenceModuleFromFileName, TypeReference} from "./get-type-reference-module-from-file-name.js";
+import {TS} from "../../../../type/ts.js";
 
 export interface GetTypeReferenceModuleFromNodeOptions extends GetAliasedDeclarationOptions {
 	node: TS.Identifier;

@@ -12,14 +12,12 @@
 		"test": "ava",
 		"prebuild": "pnpm run clean",
 		"build": "pnpm run prebuild && pnpm run rollup",
-		"prewatch": "pnpm run clean",
-		"watch": "pnpm run prewatch && pnpm run rollup -- --watch",
-		"rollup": "ts-node rollup.config.ts",
+		"rollup": "ts-node --esm rollup.config.ts",
 		"preversion": "npm run lint && pnpm run build",
 		"version": "pnpm run preversion && pnpm run generate:all && git add .",
 		"release": "np --no-cleanup --no-yarn --no-tests",
-		"update:check": "pnpx npm-check-updates -x typescript-*,ava,chalk --dep dev,prod",
-		"update:commit": "pnpx npm-check-updates -u -x typescript-*,ava,chalk --dep dev,prod && pnpm update && pnpm install"
+		"update:check": "pnpx npm-check-updates -x typescript-*,ava --dep dev,prod",
+		"update:commit": "pnpx npm-check-updates -u -x typescript-*,ava --dep dev,prod && pnpm update && pnpm install"
 	},
 	"keywords": [
 		"rollup",
@@ -50,43 +48,44 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@rollup/plugin-alias": "^3.1.9",
-		"@rollup/plugin-commonjs": "^21.0.3",
+		"@rollup/plugin-commonjs": "^22.0.0",
 		"@rollup/plugin-json": "^4.1.0",
 		"@rollup/plugin-multi-entry": "^4.1.0",
 		"@types/babel__core": "^7.1.19",
-		"@types/node": "^17.0.23",
-		"@types/prettier": "^2.6.0",
+		"@types/node": "^17.0.36",
+		"@types/prettier": "^2.6.3",
 		"@types/semver": "^7.3.9",
-		"@typescript-eslint/eslint-plugin": "^5.19.0",
-		"@typescript-eslint/parser": "^5.19.0",
+		"@typescript-eslint/eslint-plugin": "^5.26.0",
+		"@typescript-eslint/parser": "^5.26.0",
 		"@wessberg/ts-config": "^2.0.2",
-		"@babel/core": "7.17.9",
-		"@babel/runtime": "7.17.9",
-		"@babel/preset-env": "7.16.11",
-		"@babel/plugin-transform-runtime": "7.17.0",
-		"@swc/core": "1.2.165",
-		"@swc/helpers": "0.3.8",
+		"@wessberg/prettier-config": "^1.0.0",
+		"@babel/core": "7.18.2",
+		"@babel/runtime": "7.18.3",
+		"@babel/preset-env": "7.18.2",
+		"@babel/plugin-transform-runtime": "7.18.2",
+		"@swc/core": "1.2.194",
+		"@swc/helpers": "0.3.16",
 		"ava": "3.15.0",
-		"babel-preset-minify": "^0.5.1",
-		"eslint": "^8.13.0",
+		"babel-preset-minify": "^0.5.2",
+		"eslint": "^8.16.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-import": "^2.26.0",
-		"eslint-plugin-jsdoc": "^39.2.0",
+		"eslint-plugin-jsdoc": "^39.3.2",
 		"helpertypes": "^0.0.18",
-		"husky": "^7.0.4",
-		"memfs": "^3.4.1",
+		"husky": "^8.0.1",
+		"memfs": "^3.4.4",
 		"np": "7.6.1",
-		"npm-check-updates": "12.5.9",
-		"pnpm": "^6.32.6",
+		"npm-check-updates": "13.0.3",
+		"pnpm": "^7.1.7",
 		"prettier": "^2.6.2",
 		"pretty-quick": "^3.1.3",
 		"rimraf": "^3.0.2",
-		"rollup": "^2.70.1",
-		"sandhog": "^1.0.43",
+		"rollup": "^2.75.3",
+		"sandhog": "^2.0.1",
 		"semver": "7.3.7",
 		"standard-changelog": "^2.0.27",
-		"ts-node": "10.7.0",
-		"typescript": "^4.6.3",
+		"ts-node": "10.8.0",
+		"typescript": "^4.7.2",
 		"typescript-3-4-1": "npm:typescript@3.4.1",
 		"typescript-3-5-1": "npm:typescript@3.5.1",
 		"typescript-3-6-2": "npm:typescript@3.6.2",
@@ -98,19 +97,20 @@
 		"typescript-4-2-4": "npm:typescript@4.2.4",
 		"typescript-4-3-5": "npm:typescript@4.3.5",
 		"typescript-4-4-2": "npm:typescript@4.4.2",
-		"typescript-4-5-4": "npm:typescript@4.5.4"
+		"typescript-4-5-4": "npm:typescript@4.5.4",
+		"typescript-4-6-4": "npm:typescript@4.6.4"
 	},
 	"dependencies": {
-		"@rollup/pluginutils": "^4.2.0",
+		"@rollup/pluginutils": "^4.2.1",
 		"@wessberg/stringutil": "^1.0.19",
-		"browserslist": "^4.20.2",
+		"browserslist": "^4.20.3",
 		"browserslist-generator": "^1.0.66",
-		"chalk": "4.1.2",
-		"compatfactory": "^0.0.13",
-		"crosspath": "1.0.0",
-		"magic-string": "^0.26.1",
-		"ts-clone-node": "^0.3.32",
-		"tslib": "^2.3.1"
+		"chalk": "5.0.1",
+		"compatfactory": "^1.0.1",
+		"crosspath": "2.0.0",
+		"magic-string": "^0.26.2",
+		"ts-clone-node": "^1.0.0",
+		"tslib": "^2.4.0"
 	},
 	"peerDependencies": {
 		"@babel/core": ">=6.x || >=7.x",
@@ -142,12 +142,14 @@
 			"optional": true
 		}
 	},
-	"main": "./dist/cjs/index.js",
-	"module": "./dist/esm/index.js",
-	"browser": "./dist/esm/index.js",
+	"exports": {
+		"import": "./dist/esm/index.js",
+		"require": "./dist/cjs/index.cjs"
+	},
+	"type": "module",
 	"types": "./dist/esm/index.d.ts",
-	"typings": "./dist/esm/index.d.ts",
-	"es2015": "./dist/esm/index.js",
+	"main": "./dist/cjs/index.cjs",
+	"module": "./dist/esm/index.js",
 	"funding": {
 		"type": "github",
 		"url": "https://github.com/wessberg/rollup-plugin-ts?sponsor=1"
@@ -160,26 +162,29 @@
 		"url": "https://github.com/wessberg/rollup-plugin-ts/issues"
 	},
 	"engines": {
-		"node": ">=10.0.0",
+		"node": ">=14.9.0",
 		"npm": ">=7.0.0",
 		"yarn": ">=1.13",
 		"pnpm": ">=3.2.0"
 	},
+	"prettier": "@wessberg/prettier-config",
 	"ava": {
 		"files": [
 			"test/**.test.ts"
 		],
 		"verbose": true,
 		"timeout": "400s",
-		"extensions": [
-			"ts"
+		"nonSemVerExperiments": {
+			"configurableModuleFormat": true
+		},
+		"extensions": {
+			"ts": "module"
+		},
+		"nodeArguments": [
+			"--loader=ts-node/esm"
 		],
 		"environmentVariables": {
-			"NODE_OPTIONS": "--max_old_space_size=6144",
 			"FORCE_COLOR": "3"
-		},
-		"require": [
-			"ts-node/register/transpile-only"
-		]
+		}
 	}
 }

@@ -1,5 +1,5 @@
-import {TS} from "../../../../type/ts";
-import {getParentNode} from "./get-parent-node";
+import {TS} from "../../../../type/ts.js";
+import {getParentNode} from "./get-parent-node.js";
 
 /**
  * Returns true if the given Node contains the given Child Node

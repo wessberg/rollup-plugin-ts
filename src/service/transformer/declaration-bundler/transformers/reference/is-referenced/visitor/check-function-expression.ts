@@ -1,5 +1,5 @@
-import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {TS} from "../../../../../../../type/ts";
+import {ReferenceVisitorOptions} from "../reference-visitor-options.js";
+import {TS} from "../../../../../../../type/ts.js";
 
 export function checkFunctionExpression({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<TS.FunctionExpression>): string[] {
 	const referencedIdentifiers: string[] = [];

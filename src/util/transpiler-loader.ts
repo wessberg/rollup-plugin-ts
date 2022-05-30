@@ -1,6 +1,6 @@
-import {Babel} from "../type/babel";
-import {Swc} from "../type/swc";
-import {listFormat} from "./list-format";
+import {Babel} from "../type/babel.js";
+import {Swc} from "../type/swc.js";
+import {listFormat} from "./list-format.js";
 
 /**
  * The babel module is optionally imported on-demand as needed

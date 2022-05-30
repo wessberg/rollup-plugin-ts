@@ -1,7 +1,7 @@
-import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options";
-import {TS} from "../../../../../../type/ts";
-import {preserveMeta} from "../../../util/clone-node-with-meta";
-import {nodeArraysAreEqual} from "../../../util/node-arrays-are-equal";
+import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options.js";
+import {TS} from "../../../../../../type/ts.js";
+import {preserveMeta} from "../../../util/clone-node-with-meta.js";
+import {nodeArraysAreEqual} from "../../../util/node-arrays-are-equal.js";
 
 /**
  * Deconflicts the given ImportTypeNode.

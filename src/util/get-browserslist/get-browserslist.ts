@@ -1,9 +1,9 @@
-import {GetBrowserslistOptions} from "./get-browserslist-options";
+import {GetBrowserslistOptions} from "./get-browserslist-options.js";
 import {normalizeBrowserslist} from "browserslist-generator";
-import {ensureAbsolute} from "../path/path-util";
-import {findConfig, readConfig} from "browserslist";
-import {BrowserslistPathConfig, BrowserslistQueryConfig} from "../../plugin/typescript-plugin-options";
-import {ensureArray} from "../ensure-array/ensure-array";
+import {ensureAbsolute} from "../path/path-util.js";
+import browserslistModule from "browserslist";
+import {BrowserslistPathConfig, BrowserslistQueryConfig} from "../../plugin/typescript-plugin-options.js";
+import {ensureArray} from "../ensure-array/ensure-array.js";
 import path from "crosspath";
 
 /**
@@ -57,7 +57,7 @@ export function getBrowserslist({browserslist, cwd, fileSystem}: GetBrowserslist
 				throw new ReferenceError(errorMessage);
 			} else {
 				// Read the config
-				const match = readConfig(browserslistPath);
+				const match = browserslistModule.readConfig(browserslistPath);
 				if (match == null) {
 					throw new ReferenceError(errorMessage);
 				} else {
@@ -74,7 +74,7 @@ export function getBrowserslist({browserslist, cwd, fileSystem}: GetBrowserslist
 
 	// Otherwise, try to locate a Browserslist
 	else {
-		const config = findConfig(cwd);
+		const config = browserslistModule.findConfig(cwd);
 		return config == null ? undefined : config.defaults;
 	}
 }

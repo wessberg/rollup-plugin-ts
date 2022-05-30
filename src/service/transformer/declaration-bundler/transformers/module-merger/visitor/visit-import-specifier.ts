@@ -1,12 +1,12 @@
-import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options";
-import {TS} from "../../../../../../type/ts";
-import {createAliasedBinding} from "../../../util/create-aliased-binding";
-import {getImportedSymbolFromImportSpecifier} from "../../../util/create-export-specifier-from-name-and-modifiers";
-import {locateExportedSymbolForSourceFile} from "../../../util/locate-exported-symbol";
-import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
-import {getAliasedDeclaration} from "../../../util/get-aliased-declaration";
-import {preserveParents} from "../../../util/clone-node-with-meta";
-import { ensureNonreservedWord } from "../../../util/generate-unique-binding";
+import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
+import {TS} from "../../../../../../type/ts.js";
+import {createAliasedBinding} from "../../../util/create-aliased-binding.js";
+import {getImportedSymbolFromImportSpecifier} from "../../../util/create-export-specifier-from-name-and-modifiers.js";
+import {locateExportedSymbolForSourceFile} from "../../../util/locate-exported-symbol.js";
+import {generateModuleSpecifier} from "../../../util/generate-module-specifier.js";
+import {getAliasedDeclaration} from "../../../util/get-aliased-declaration.js";
+import {preserveParents} from "../../../util/clone-node-with-meta.js";
+import {ensureNonreservedWord} from "../../../util/generate-unique-binding.js";
 
 export function visitImportSpecifier(options: ModuleMergerVisitorOptions<TS.ImportSpecifier>): VisitResult<TS.ImportSpecifier> {
 	const {node, payload, factory} = options;

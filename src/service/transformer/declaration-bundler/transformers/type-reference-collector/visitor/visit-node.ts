@@ -1,6 +1,6 @@
-import {TS} from "../../../../../../type/ts";
-import {TypeReferenceCollectorVisitorOptions} from "../type-reference-collector-visitor-options";
-import {visitIdentifier} from "./visit-identifier";
+import {TS} from "../../../../../../type/ts.js";
+import {TypeReferenceCollectorVisitorOptions} from "../type-reference-collector-visitor-options.js";
+import {visitIdentifier} from "./visit-identifier.js";
 
 export function visitNode({node, ...options}: TypeReferenceCollectorVisitorOptions<TS.Node>): void {
 	if (options.typescript.isIdentifier(node)) {

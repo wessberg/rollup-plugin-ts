@@ -1,19 +1,20 @@
-import {TS} from "../../../../../type/ts";
-import {StatementMergerVisitorOptions} from "./statement-merger-visitor-options";
-import {visitNode} from "./visitor/visit-node";
-import {getMergedImportDeclarationsForModules} from "../../util/get-merged-import-declarations-for-modules";
-import {getMergedExportDeclarationsForModules} from "../../util/get-merged-export-declarations-for-modules";
-import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
-import {hasExportModifier} from "../../util/modifier-util";
-import {logMetrics} from "../../../../../util/logging/log-metrics";
-import {logTransformer} from "../../../../../util/logging/log-transformer";
-import {preserveMeta} from "../../util/clone-node-with-meta";
-import {DeclarationTransformer} from "../../declaration-bundler-options";
-import {StatementMergerOptions} from "./statement-merger-options";
+import {TS} from "../../../../../type/ts.js";
+import {StatementMergerVisitorOptions} from "./statement-merger-visitor-options.js";
+import {visitNode} from "./visitor/visit-node.js";
+import {getMergedImportDeclarationsForModules} from "../../util/get-merged-import-declarations-for-modules.js";
+import {getMergedExportDeclarationsForModules} from "../../util/get-merged-export-declarations-for-modules.js";
+import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug.js";
+import {hasExportModifier} from "../../util/modifier-util.js";
+import {logMetrics} from "../../../../../util/logging/log-metrics.js";
+import {logTransformer} from "../../../../../util/logging/log-transformer.js";
+import {preserveMeta} from "../../util/clone-node-with-meta.js";
+import {DeclarationTransformer} from "../../declaration-bundler-options.js";
+import {StatementMergerOptions} from "./statement-merger-options.js";
+import {nodeHasSupportedExtension} from "../../util/node-has-supported-extension.js";
 
 export function statementMerger({markAsModuleIfNeeded}: StatementMergerOptions): DeclarationTransformer {
 	return options => {
-		const {factory, typescript, context, sourceFile, pluginOptions, printer} = options;
+		const {factory, typescript, context, sourceFile, pluginOptions, printer, extensions} = options;
 
 		const fullBenchmark = shouldDebugMetrics(pluginOptions.debug, sourceFile) ? logMetrics(`Statement merging`, sourceFile.fileName) : undefined;
 
@@ -72,7 +73,11 @@ export function statementMerger({markAsModuleIfNeeded}: StatementMergerOptions):
 		const otherStatements = result.statements.filter(
 			statement => !typescript.isImportDeclaration(statement) && !typescript.isExportDeclaration(statement) && !typescript.isExportAssignment(statement)
 		);
-		const importExportCount = importDeclarations.length + exportDeclarations.length + statementsWithExportModifier.length;
+
+		const importDeclarationsWithSupportedExtensions = importDeclarations.filter(importDeclaration => nodeHasSupportedExtension(importDeclaration, typescript, extensions));
+		const exportDeclarationsWithSupportedExtensions = exportDeclarations.filter(exportDeclaration => nodeHasSupportedExtension(exportDeclaration, typescript, extensions));
+		const importExportWithSupportedExtensionsCount =
+			importDeclarationsWithSupportedExtensions.length + exportDeclarationsWithSupportedExtensions.length + statementsWithExportModifier.length;
 
 		result = preserveMeta(
 			factory.updateSourceFile(
@@ -81,7 +86,7 @@ export function statementMerger({markAsModuleIfNeeded}: StatementMergerOptions):
 					...importDeclarations,
 					...otherStatements,
 					...exportDeclarations,
-					...(importExportCount === 0 && markAsModuleIfNeeded
+					...(importExportWithSupportedExtensionsCount === 0 && markAsModuleIfNeeded
 						? // Create an 'export {}' declaration to mark the declaration file as module-based if it has no imports or exports
 						  [factory.createExportDeclaration(undefined, undefined, false, factory.createNamedExports([]))]
 						: [])

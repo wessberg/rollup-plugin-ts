@@ -1,16 +1,17 @@
-import {Plugin, rollup, RollupBuild, RollupCache, RollupOptions, RollupOutput} from "rollup";
+import {OutputOptions, Plugin, rollup, RollupBuild, RollupCache, RollupOptions, RollupOutput} from "rollup";
 import commonjs from "@rollup/plugin-commonjs";
-import typescriptRollupPlugin from "../../src/plugin/typescript-plugin";
-import {HookRecord, InputCompilerOptions, TypescriptPluginBabelOptions, TypescriptPluginOptions, TypescriptPluginSwcOptions} from "../../src/plugin/typescript-plugin-options";
-import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, TSBUILDINFO_EXTENSION} from "../../src/constant/constant";
-import {TS} from "../../src/type/ts";
-import {logVirtualFiles} from "../../src/util/logging/log-virtual-files";
-import {shouldDebugVirtualFiles} from "../../src/util/is-debug/should-debug";
+import typescriptRollupPlugin from "../../src/plugin/typescript-plugin.js";
+import {HookRecord, InputCompilerOptions, TypescriptPluginBabelOptions, TypescriptPluginOptions, TypescriptPluginSwcOptions} from "../../src/plugin/typescript-plugin-options.js";
+import {D_CTS_EXTENSION, D_CTS_MAP_EXTENSION, D_MTS_EXTENSION, D_MTS_MAP_EXTENSION, D_TS_EXTENSION, D_TS_MAP_EXTENSION, TSBUILDINFO_EXTENSION} from "../../src/constant/constant.js";
+import {TS} from "../../src/type/ts.js";
+import {logVirtualFiles} from "../../src/util/logging/log-virtual-files.js";
+import {shouldDebugVirtualFiles} from "../../src/util/is-debug/should-debug.js";
 import path from "crosspath";
-import {createTestSetup} from "./test-setup";
-import {TestFile} from "./test-file";
+import {createTestSetup} from "./test-setup.js";
+import {TestFile} from "./test-file.js";
 import {MaybeArray, PartialExcept} from "helpertypes";
-import {FileResult} from "./test-result";
+import {FileResult} from "./test-result.js";
+import {setExtension} from "../../src/util/path/path-util.js";
 
 export interface GenerateRollupBundleResult {
 	bundle: RollupOutput;
@@ -24,7 +25,7 @@ export interface GenerateRollupBundleOptions {
 	dist: string;
 	loadBabelHelpers: boolean;
 	loadSwcHelpers: boolean;
-	rollupOptions: Partial<RollupOptions>;
+	rollupOptions: Omit<Partial<RollupOptions>, "output"> & {output?: OutputOptions};
 	format: "esm" | "cjs";
 	tsconfig: Partial<InputCompilerOptions> | string;
 	typescript: typeof TS;
@@ -92,10 +93,11 @@ export async function generateRollupBundle(
 		const normalizedParent = parent == null ? undefined : path.normalize(parent);
 		const absolute = path.isAbsolute(normalizedFileName) ? normalizedFileName : path.join(normalizedParent == null ? "" : path.dirname(normalizedParent), normalizedFileName);
 		for (const currentAbsolute of [absolute, path.join(absolute, "/index")]) {
-			for (const ext of ["", ".ts", ".js", ".mjs"]) {
-				const withExtension = `${currentAbsolute}${ext}`;
-				const matchedFile = userFiles.find(file => path.normalize(file.fileName) === path.normalize(withExtension));
-				if (matchedFile != null) return path.native.normalize(withExtension);
+			for (const ext of ["", ".ts", ".mts", ".cts", ".js", ".mjs", ".cjs"]) {
+				for (const withExtension of [`${currentAbsolute}${ext}`, setExtension(currentAbsolute, ext)]) {
+					const matchedFile = userFiles.find(file => path.normalize(file.fileName) === path.normalize(withExtension));
+					if (matchedFile != null) return path.native.normalize(withExtension);
+				}
 			}
 		}
 		return null;
@@ -189,9 +191,10 @@ export async function generateRollupBundle(
 	}
 
 	const bundle = await result.generate({
-		dir: context.dist,
+		...(rollupOptions.output?.file == null ? {dir: context.dist} : {}),
 		format,
 		sourcemap: true,
+		...rollupOptions.output,
 		...(entryFileNames == null ? {} : {entryFileNames}),
 		...(chunkFileNames == null ? {} : {chunkFileNames})
 	});
@@ -203,12 +206,12 @@ export async function generateRollupBundle(
 				fileName: file.fileName
 			});
 		} else {
-			if (file.fileName.endsWith(D_TS_MAP_EXTENSION)) {
+			if (file.fileName.endsWith(D_TS_MAP_EXTENSION) || file.fileName.endsWith(D_MTS_MAP_EXTENSION) || file.fileName.endsWith(D_CTS_MAP_EXTENSION)) {
 				declarationMaps.push({
 					code: file.source.toString(),
 					fileName: file.fileName
 				});
-			} else if (file.fileName.endsWith(D_TS_EXTENSION)) {
+			} else if (file.fileName.endsWith(D_TS_EXTENSION) || file.fileName.endsWith(D_MTS_EXTENSION) || file.fileName.endsWith(D_CTS_EXTENSION)) {
 				declarations.push({
 					code: file.source.toString(),
 					fileName: file.fileName

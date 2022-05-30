@@ -1,16 +1,16 @@
-import {TS} from "../../../../../../type/ts";
-import {TrackExportsTransformerVisitorOptions} from "../track-exports-transformer-visitor-options";
-import {visitClassDeclaration} from "./visit-class-declaration";
-import {visitClassExpression} from "./visit-class-expression";
-import {visitFunctionDeclaration} from "./visit-function-declaration";
-import {visitFunctionExpression} from "./visit-function-expression";
-import {visitEnumDeclaration} from "./visit-enum-declaration";
-import {visitVariableStatement} from "./visit-variable-statement";
-import {visitInterfaceDeclaration} from "./visit-interface-declaration";
-import {visitModuleDeclaration} from "./visit-module-declaration";
-import {visitTypeAliasDeclaration} from "./visit-type-alias-declaration";
-import {visitExportDeclaration} from "./visit-export-declaration";
-import {visitExportAssignment} from "./visit-export-assignment";
+import {TS} from "../../../../../../type/ts.js";
+import {TrackExportsTransformerVisitorOptions} from "../track-exports-transformer-visitor-options.js";
+import {visitClassDeclaration} from "./visit-class-declaration.js";
+import {visitClassExpression} from "./visit-class-expression.js";
+import {visitFunctionDeclaration} from "./visit-function-declaration.js";
+import {visitFunctionExpression} from "./visit-function-expression.js";
+import {visitEnumDeclaration} from "./visit-enum-declaration.js";
+import {visitVariableStatement} from "./visit-variable-statement.js";
+import {visitInterfaceDeclaration} from "./visit-interface-declaration.js";
+import {visitModuleDeclaration} from "./visit-module-declaration.js";
+import {visitTypeAliasDeclaration} from "./visit-type-alias-declaration.js";
+import {visitExportDeclaration} from "./visit-export-declaration.js";
+import {visitExportAssignment} from "./visit-export-assignment.js";
 
 export function visitNode({node, ...options}: TrackExportsTransformerVisitorOptions<TS.Node>): void {
 	if (options.typescript.isClassDeclaration(node)) {

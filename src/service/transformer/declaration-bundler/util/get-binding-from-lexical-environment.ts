@@ -1,4 +1,4 @@
-import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options";
+import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options.js";
 
 export function getBindingFromLexicalEnvironment(lexicalEnvironment: LexicalEnvironment, key: string): string | undefined {
 	if (lexicalEnvironment.bindings.has(key)) {

@@ -1,8 +1,8 @@
-import {TS} from "../../../../../../type/ts";
-import {StatementMergerVisitorOptions} from "../statement-merger-visitor-options";
-import {visitImportDeclaration} from "./visit-import-declaration";
-import {visitExportDeclaration} from "./visit-export-declaration";
-import {visitExportAssignment} from "./visit-export-assignment";
+import {TS} from "../../../../../../type/ts.js";
+import {StatementMergerVisitorOptions} from "../statement-merger-visitor-options.js";
+import {visitImportDeclaration} from "./visit-import-declaration.js";
+import {visitExportDeclaration} from "./visit-export-declaration.js";
+import {visitExportAssignment} from "./visit-export-assignment.js";
 
 export function visitNode({node, ...options}: StatementMergerVisitorOptions<TS.Node>): TS.Node | TS.Node[] | undefined {
 	if (options.typescript.isImportDeclaration(node)) {

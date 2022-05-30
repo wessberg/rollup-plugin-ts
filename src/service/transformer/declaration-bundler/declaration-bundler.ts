@@ -1,15 +1,15 @@
-import {DeclarationBundlerOptions} from "./declaration-bundler-options";
-import {TS} from "../../../type/ts";
-import {sourceFileBundler} from "./transformers/source-file-bundler/source-file-bundler";
-import {moduleMerger} from "./transformers/module-merger/module-merger";
-import {deconflicter} from "./transformers/deconflicter/deconflicter";
-import {ensureDeclareModifierTransformer} from "./transformers/ensure-declare-modifier-transformer/ensure-declare-modifier-transformer";
-import {moduleBlockExtractor} from "./transformers/module-block-extractor/module-block-extractor";
-import {treeShaker} from "./transformers/tree-shaker/tree-shaker";
-import {statementMerger} from "./transformers/statement-merger/statement-merger";
-import {toExportDeclarationTransformer} from "./transformers/to-export-declaration-transformer/to-export-declaration-transformer";
-import {ensureNoExportModifierTransformer} from "./transformers/ensure-no-export-modifier-transformer/ensure-no-export-modifier-transformer";
-import {typeReferenceCollector} from "./transformers/type-reference-collector/type-reference-collector";
+import {DeclarationBundlerOptions} from "./declaration-bundler-options.js";
+import {TS} from "../../../type/ts.js";
+import {sourceFileBundler} from "./transformers/source-file-bundler/source-file-bundler.js";
+import {moduleMerger} from "./transformers/module-merger/module-merger.js";
+import {deconflicter} from "./transformers/deconflicter/deconflicter.js";
+import {ensureDeclareModifierTransformer} from "./transformers/ensure-declare-modifier-transformer/ensure-declare-modifier-transformer.js";
+import {moduleBlockExtractor} from "./transformers/module-block-extractor/module-block-extractor.js";
+import {treeShaker} from "./transformers/tree-shaker/tree-shaker.js";
+import {statementMerger} from "./transformers/statement-merger/statement-merger.js";
+import {toExportDeclarationTransformer} from "./transformers/to-export-declaration-transformer/to-export-declaration-transformer.js";
+import {ensureNoExportModifierTransformer} from "./transformers/ensure-no-export-modifier-transformer/ensure-no-export-modifier-transformer.js";
+import {typeReferenceCollector} from "./transformers/type-reference-collector/type-reference-collector.js";
 
 /**
  * Bundles declarations

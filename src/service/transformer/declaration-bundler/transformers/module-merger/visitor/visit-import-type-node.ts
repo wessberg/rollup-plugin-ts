@@ -1,14 +1,14 @@
-import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options";
-import {TS} from "../../../../../../type/ts";
-import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
-import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifier-transformer/ensure-no-declare-modifier-transformer";
-import {ensureHasDeclareModifier} from "../../../util/modifier-util";
-import {generateIdentifierName} from "../../../util/generate-identifier-name";
-import {generateModuleSpecifier} from "../../../util/generate-module-specifier";
-import {preserveMeta, preserveParents, preserveSymbols} from "../../../util/clone-node-with-meta";
-import {statementMerger} from "../../statement-merger/statement-merger";
-import {getParentNode, setParentNode} from "../../../util/get-parent-node";
-import {inlineNamespaceModuleBlockTransformer} from "../../inline-namespace-module-block-transformer/inline-namespace-module-block-transformer";
+import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
+import {TS} from "../../../../../../type/ts.js";
+import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment.js";
+import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifier-transformer/ensure-no-declare-modifier-transformer.js";
+import {ensureHasDeclareModifier} from "../../../util/modifier-util.js";
+import {generateIdentifierName} from "../../../util/generate-identifier-name.js";
+import {generateModuleSpecifier} from "../../../util/generate-module-specifier.js";
+import {preserveMeta, preserveParents, preserveSymbols} from "../../../util/clone-node-with-meta.js";
+import {statementMerger} from "../../statement-merger/statement-merger.js";
+import {getParentNode, setParentNode} from "../../../util/get-parent-node.js";
+import {inlineNamespaceModuleBlockTransformer} from "../../inline-namespace-module-block-transformer/inline-namespace-module-block-transformer.js";
 
 export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.ImportTypeNode>): VisitResult<TS.ImportTypeNode> {
 	const {node, factory, typescript} = options;

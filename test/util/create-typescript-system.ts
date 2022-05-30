@@ -1,10 +1,10 @@
 import * as fsModule from "fs";
 import * as osModule from "os";
-import {TS} from "../../src/type/ts";
+import {TS} from "../../src/type/ts.js";
 import path from "crosspath";
-import {FileSystem} from "../../src/util/file-system/file-system";
-import {OS} from "../../src/util/os/os";
-import { PartialExcept } from "helpertypes";
+import {FileSystem} from "../../src/util/file-system/file-system.js";
+import {OS} from "../../src/util/os/os.js";
+import {PartialExcept} from "helpertypes";
 
 /**
  * TypeScript has a lot of internal helpers that aren't exposed.
@@ -65,8 +65,9 @@ export function createTypeScriptSystem({
 	fs = fsModule,
 	os = osModule,
 	cwd = process.cwd(),
-	executingFileName = __filename
+	executingFileName = import.meta.url
 }: PartialExcept<CreateTypeScriptSystemOptions, "typescript">): TS.System {
+	executingFileName = path.urlToFilename(executingFileName);
 	const typescript = _typescript as TSExtended;
 	const wildcardCharCodes = [42, 63];
 	const platform = os.platform();

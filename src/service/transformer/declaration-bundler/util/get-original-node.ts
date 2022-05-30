@@ -1,5 +1,5 @@
-import {SafeNode} from "../../../../type/safe-node";
-import {TS} from "../../../../type/ts";
+import {SafeNode} from "../../../../type/safe-node.js";
+import {TS} from "../../../../type/ts.js";
 
 export function getOriginalNode<T extends SafeNode>(node: T, typescript: typeof TS): T {
 	if (node._original != null) {

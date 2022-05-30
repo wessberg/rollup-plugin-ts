@@ -1,8 +1,8 @@
-import {TS} from "../../../../../../type/ts";
-import {ToExportDeclarationTransformerVisitorOptions} from "../to-export-declaration-transformer-visitor-options";
-import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers";
-import {hasExportModifier} from "../../../util/modifier-util";
-import {preserveParents, preserveSymbols} from "../../../util/clone-node-with-meta";
+import {TS} from "../../../../../../type/ts.js";
+import {ToExportDeclarationTransformerVisitorOptions} from "../to-export-declaration-transformer-visitor-options.js";
+import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers.js";
+import {hasExportModifier} from "../../../util/modifier-util.js";
+import {preserveParents, preserveSymbols} from "../../../util/clone-node-with-meta.js";
 
 export function visitEnumDeclaration(options: ToExportDeclarationTransformerVisitorOptions<TS.EnumDeclaration>): TS.EnumDeclaration {
 	const {node, factory, typescript, appendNodes} = options;

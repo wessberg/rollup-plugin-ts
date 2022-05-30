@@ -1,5 +1,5 @@
-import {JS_EXTENSION, JSON_EXTENSION, JSX_EXTENSION, TS_EXTENSION, TSX_EXTENSION} from "../../constant/constant";
-import {TS} from "../../type/ts";
+import {JS_EXTENSION, JSON_EXTENSION, JSX_EXTENSION, TS_EXTENSION, TSX_EXTENSION} from "../../constant/constant.js";
+import {TS} from "../../type/ts.js";
 
 /**
  * Gets a ScriptKind from the given path

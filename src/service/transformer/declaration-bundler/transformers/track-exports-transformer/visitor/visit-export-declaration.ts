@@ -1,6 +1,6 @@
-import {TS} from "../../../../../../type/ts";
-import {TrackExportsTransformerVisitorOptions} from "../track-exports-transformer-visitor-options";
-import {getExportedSymbolFromExportSpecifier} from "../../../util/create-export-specifier-from-name-and-modifiers";
+import {TS} from "../../../../../../type/ts.js";
+import {TrackExportsTransformerVisitorOptions} from "../track-exports-transformer-visitor-options.js";
+import {getExportedSymbolFromExportSpecifier} from "../../../util/create-export-specifier-from-name-and-modifiers.js";
 
 export function visitExportDeclaration({node, typescript, markAsExported}: TrackExportsTransformerVisitorOptions<TS.ExportDeclaration>): void {
 	if (node.moduleSpecifier != null && !typescript.isStringLiteralLike(node.moduleSpecifier)) return;

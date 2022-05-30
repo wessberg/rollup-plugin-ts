@@ -1,8 +1,8 @@
-import {TS} from "../../../../type/ts";
-import {SourceFileBundlerVisitorOptions} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
-import {getSymbolAtLocation, GetSymbolAtLocationOptions} from "./get-symbol-at-location";
-import {getParentNode} from "./get-parent-node";
-import {isSameChunk} from "./generate-module-specifier";
+import {TS} from "../../../../type/ts.js";
+import {SourceFileBundlerVisitorOptions} from "../transformers/source-file-bundler/source-file-bundler-visitor-options.js";
+import {getSymbolAtLocation, GetSymbolAtLocationOptions} from "./get-symbol-at-location.js";
+import {getParentNode} from "./get-parent-node.js";
+import {isSameChunk} from "./generate-module-specifier.js";
 
 export interface GetAliasedDeclarationOptions extends SourceFileBundlerVisitorOptions {
 	node: TS.Expression | TS.Symbol | TS.Declaration | TS.QualifiedName | TS.TypeNode | undefined;

@@ -1,6 +1,6 @@
-import {TS} from "../../../../../type/ts";
-import {NodePlacementQueue} from "../../util/get-node-placement-queue";
-import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
+import {TS} from "../../../../../type/ts.js";
+import {NodePlacementQueue} from "../../util/get-node-placement-queue.js";
+import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
 
 export interface ToExportDeclarationTransformerVisitorOptions<T extends TS.Node> extends SourceFileBundlerVisitorOptions, NodePlacementQueue {
 	typescript: typeof TS;

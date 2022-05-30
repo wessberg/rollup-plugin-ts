@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts";
-import {isStatement} from "../../../util/is-statement";
+import {TS} from "../../../../../../type/ts.js";
+import {isStatement} from "../../../util/is-statement.js";
 
 export function isRootLevelNode(node: TS.VisitResult<TS.Node>, typescript: typeof TS): node is TS.Statement {
 	return (

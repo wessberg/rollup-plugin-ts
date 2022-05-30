@@ -1,7 +1,7 @@
-import {ModuleResolutionHostOptions} from "../module-resolution-host/module-resolution-host-options";
-import {CustomTransformersFunction} from "../../util/merge-transformers/custom-transformer-options";
-import {TS} from "../../type/ts";
-import {ResolveCache} from "../cache/resolve-cache/resolve-cache";
+import {ModuleResolutionHostOptions} from "../module-resolution-host/module-resolution-host-options.js";
+import {CustomTransformersFunction} from "../../util/merge-transformers/custom-transformer-options.js";
+import {TS} from "../../type/ts.js";
+import {ResolveCache} from "../cache/resolve-cache/resolve-cache.js";
 
 export type CustomTransformersInput = CustomTransformersFunction | TS.CustomTransformers | undefined;
 

@@ -1,11 +1,11 @@
-import {ensureAbsolute} from "../path/path-util";
-import {D_TS_EXTENSION, DEFAULT_TSCONFIG_FILE_NAME} from "../../constant/constant";
-import {ParsedCommandLineResult} from "./parsed-command-line-result";
-import {InputCompilerOptions, TsConfigResolver, TsConfigResolverWithFileName, TypescriptPluginOptions} from "../../plugin/typescript-plugin-options";
-import {TS} from "../../type/ts";
-import {finalizeParsedCommandLine} from "../finalize-parsed-command-line/finalize-parsed-command-line";
-import {shouldDebugTsconfig} from "../is-debug/should-debug";
-import {logTsconfig} from "../logging/log-tsconfig";
+import {ensureAbsolute} from "../path/path-util.js";
+import {D_TS_EXTENSION, DEFAULT_TSCONFIG_FILE_NAME} from "../../constant/constant.js";
+import {ParsedCommandLineResult} from "./parsed-command-line-result.js";
+import {InputCompilerOptions, TsConfigResolver, TsConfigResolverWithFileName, TypescriptPluginOptions} from "../../plugin/typescript-plugin-options.js";
+import {TS} from "../../type/ts.js";
+import {finalizeParsedCommandLine} from "../finalize-parsed-command-line/finalize-parsed-command-line.js";
+import {shouldDebugTsconfig} from "../is-debug/should-debug.js";
+import {logTsconfig} from "../logging/log-tsconfig.js";
 import path from "crosspath";
 
 export interface GetParsedCommandLineOptions {

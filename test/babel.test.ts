@@ -1,12 +1,12 @@
 import test, {ExecutionContext} from "ava";
-import {withTypeScript} from "./util/ts-macro";
+import {withTypeScript} from "./util/ts-macro.js";
 import {ConfigItem} from "@babel/core";
-import {generateRollupBundle} from "./setup/setup-rollup";
-import {BABEL_CONFIG_JS_FILENAME, BABEL_CONFIG_JSON_FILENAME, BABELRC_FILENAME} from "../src/constant/constant";
-import {areTempFilesEqual, createTemporaryFile} from "./util/create-temporary-file";
+import {generateRollupBundle} from "./setup/setup-rollup.js";
+import {BABEL_CONFIG_JS_FILENAME, BABEL_CONFIG_JSON_FILENAME, BABELRC_FILENAME} from "../src/constant/constant.js";
+import {areTempFilesEqual, createTemporaryFile} from "./util/create-temporary-file.js";
 import {getAppropriateEcmaVersionForBrowserslist} from "browserslist-generator";
-import {formatCode} from "./util/format-code";
-import {createExternalTestFiles} from "./setup/test-file";
+import {formatCode} from "./util/format-code.js";
+import {createExternalTestFiles} from "./setup/test-file.js";
 
 const getErrorText = (ex: unknown): string => {
 	if (ex == null || !(ex instanceof Error)) {
@@ -404,8 +404,12 @@ test.serial("Will apply minification-related plugins only in the renderChunk pha
 			postPlugins: [
 				{
 					name: "plugin",
-					transform(code) {
+					transform(code, file) {
+						// It may be invoked with a CommonJS virtual entry file
+						if (file.includes("?")) return;
+
 						isMinifiedInTransformPhase = !/\r?\n/.test(code);
+
 						return null;
 					},
 

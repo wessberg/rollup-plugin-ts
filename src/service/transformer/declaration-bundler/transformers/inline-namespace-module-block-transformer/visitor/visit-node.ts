@@ -1,8 +1,8 @@
-import {TS} from "../../../../../../type/ts";
-import {InlineNamespaceModuleBlockVisitorOptions} from "../inline-namespace-module-block-visitor-options";
-import {visitImportDeclaration} from "./visit-import-declaration";
-import {visitExportDeclaration} from "./visit-export-declaration";
-import {visitModuleDeclaration} from "./visit-module-declaration";
+import {TS} from "../../../../../../type/ts.js";
+import {InlineNamespaceModuleBlockVisitorOptions} from "../inline-namespace-module-block-visitor-options.js";
+import {visitImportDeclaration} from "./visit-import-declaration.js";
+import {visitExportDeclaration} from "./visit-export-declaration.js";
+import {visitModuleDeclaration} from "./visit-module-declaration.js";
 
 export function visitNode({node, ...options}: InlineNamespaceModuleBlockVisitorOptions<TS.Node>): TS.Node | undefined {
 	if (options.typescript.isImportDeclaration(node)) {

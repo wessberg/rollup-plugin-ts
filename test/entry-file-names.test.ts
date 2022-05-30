@@ -1,6 +1,6 @@
 import test from "ava";
-import {withTypeScript} from "./util/ts-macro";
-import {generateRollupBundle} from "./setup/setup-rollup";
+import {withTypeScript} from "./util/ts-macro.js";
+import {generateRollupBundle} from "./setup/setup-rollup.js";
 import path from "crosspath";
 
 test.serial("Supports rewritten paths with entryFileNames and chunkFileNames. #1", withTypeScript, async (t, {typescript}) => {
@@ -47,7 +47,7 @@ test.serial("Supports rewritten paths with entryFileNames and chunkFileNames. #1
 		}
 	);
 	const {declarations} = bundle;
-	const rootDir = path.join(__dirname, "../");
+	const rootDir = path.join(path.dirname(path.urlToFilename(import.meta.url)), "../");
 	const fileNames = declarations.map(d => path.normalize(d.fileName)).map(fileName => fileName.replace(rootDir, ""));
 	t.deepEqual(fileNames, ["a/index.d.ts", "b/index.d.ts", "shared/d.d.ts", "shared/c.d.ts"]);
 });

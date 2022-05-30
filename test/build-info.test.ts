@@ -1,6 +1,6 @@
 import test from "ava";
-import {withTypeScript} from "./util/ts-macro";
-import {generateRollupBundle} from "./setup/setup-rollup";
+import {withTypeScript} from "./util/ts-macro.js";
+import {generateRollupBundle} from "./setup/setup-rollup.js";
 
 test.serial("Can generate .tsbuildinfo for a compilation unit. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(

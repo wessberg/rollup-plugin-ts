@@ -1,10 +1,10 @@
 import test from "ava";
-import {withTypeScript} from "./util/ts-macro";
-import {generateRollupBundle} from "./setup/setup-rollup";
+import {withTypeScript} from "./util/ts-macro.js";
+import {generateRollupBundle} from "./setup/setup-rollup.js";
 import multiEntry from "@rollup/plugin-multi-entry";
-import {formatCode} from "./util/format-code";
-import {createTemporaryFile} from "./util/create-temporary-file";
-import {generateRandomHash} from "../src/util/hash/generate-random-hash";
+import {formatCode} from "./util/format-code.js";
+import {createTemporaryFile} from "./util/create-temporary-file.js";
+import {generateRandomHash} from "../src/util/hash/generate-random-hash.js";
 
 test.serial("Can generate declarations for a virtual entry file using @rollup/plugin-multi-entry #1", withTypeScript, async (t, {typescript}) => {
 	const unlinkerA = createTemporaryFile(

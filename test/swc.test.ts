@@ -1,7 +1,8 @@
 import test from "ava";
-import {withTypeScript} from "./util/ts-macro";
-import {generateRollupBundle} from "./setup/setup-rollup";
-import {formatCode} from "./util/format-code";
+import {withTypeScript} from "./util/ts-macro.js";
+import {generateRollupBundle} from "./setup/setup-rollup.js";
+import {formatCode} from "./util/format-code.js";
+import path from "crosspath";
 
 test.serial("Can use swc for transpilation. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
@@ -19,7 +20,7 @@ test.serial("Can use swc for transpilation. #1", withTypeScript, async (t, {type
 			transpiler: "swc",
 			loadSwcHelpers: true,
 			rollupOptions: {
-				external: ["@swc/helpers"]
+				external: p => !path.normalize(p).endsWith(`index.ts`)
 			},
 			exclude: [],
 			tsconfig: {
@@ -35,9 +36,9 @@ test.serial("Can use swc for transpilation. #1", withTypeScript, async (t, {type
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		import * as swcHelpers from '@swc/helpers';
+		import _type_of from "@swc/helpers/lib/_type_of.js";
 
-		swcHelpers.typeOf("");
+		_type_of("");
 		`)
 	);
 });
@@ -70,7 +71,7 @@ test.serial("Can use swc for transpilation. #2", withTypeScript, async (t, {type
 			typescript,
 			transpiler: "swc",
 			rollupOptions: {
-				external: ["@swc/helpers"]
+				external: p => !path.normalize(p).endsWith(`index.ts`)
 			},
 			exclude: [],
 			tsconfig: {
@@ -86,13 +87,16 @@ test.serial("Can use swc for transpilation. #2", withTypeScript, async (t, {type
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		import * as swcHelpers from '@swc/helpers';
+		import _class_call_check from '@swc/helpers/lib/_class_call_check.js';
+		import _create_class from '@swc/helpers/lib/_create_class.js';
+		import _inherits from '@swc/helpers/lib/_inherits.js';
+		import _create_super from '@swc/helpers/lib/_create_super.js';
 
 		var Foo = /*#__PURE__*/ function() {
 			function Foo() {
-				swcHelpers.classCallCheck(this, Foo);
+				_class_call_check(this, Foo);
 			}
-			swcHelpers.createClass(Foo, [
+			_create_class(Foo, [
 				{
 					key: "method",
 					value: function method() {
@@ -103,10 +107,10 @@ test.serial("Can use swc for transpilation. #2", withTypeScript, async (t, {type
 			return Foo;
 		}();
 		var Bar = /*#__PURE__*/ function(Foo) {
-			swcHelpers.inherits(Bar, Foo);
-			var _super = swcHelpers.createSuper(Bar);
+			_inherits(Bar, Foo);
+			var _super = _create_super(Bar);
 			function Bar() {
-				swcHelpers.classCallCheck(this, Bar);
+				_class_call_check(this, Bar);
 				var _this;
 				_this = _super.call(this);
 				_this.method();

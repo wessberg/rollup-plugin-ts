@@ -1,5 +1,5 @@
-export * from "./util/merge-transformers/custom-transformer-options";
-export * from "./type/declaration-stats";
+export * from "./util/merge-transformers/custom-transformer-options.js";
+export * from "./type/declaration-stats.js";
 
 export {
 	TypescriptPluginOptions,
@@ -8,6 +8,6 @@ export {
 	BrowserslistQueryConfig,
 	TypescriptPluginBabelOptions,
 	TypescriptPluginTypescriptOptions
-} from "./plugin/typescript-plugin-options";
+} from "./plugin/typescript-plugin-options.js";
 
-export {default} from "./plugin/typescript-plugin";
+export {default} from "./plugin/typescript-plugin.js";

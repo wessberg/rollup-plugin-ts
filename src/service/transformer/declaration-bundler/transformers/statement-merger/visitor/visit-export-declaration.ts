@@ -1,6 +1,6 @@
-import {TS} from "../../../../../../type/ts";
-import {StatementMergerVisitorOptions} from "../statement-merger-visitor-options";
-import {preserveMeta} from "../../../util/clone-node-with-meta";
+import {TS} from "../../../../../../type/ts.js";
+import {StatementMergerVisitorOptions} from "../statement-merger-visitor-options.js";
+import {preserveMeta} from "../../../util/clone-node-with-meta.js";
 
 export function visitExportDeclaration(options: StatementMergerVisitorOptions<TS.ExportDeclaration>): TS.ExportDeclaration[] | TS.ExportDeclaration | undefined {
 	const {node, factory, typescript} = options;

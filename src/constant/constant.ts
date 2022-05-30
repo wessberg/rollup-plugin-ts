@@ -1,32 +1,76 @@
+import { ElementOf } from "helpertypes";
+
 export const SOURCE_MAP_EXTENSION = ".map";
 export const TS_EXTENSION = ".ts";
 export const TSX_EXTENSION = ".tsx";
+export const MTS_EXTENSION = ".mts";
+export const MTSX_EXTENSION = ".mtsx";
+export const CTS_EXTENSION = ".cts";
+export const CTSX_EXTENSION = ".ctsx";
 export const JS_EXTENSION = ".js";
-export const JS_MAP_EXTENSION = `${JS_EXTENSION}${SOURCE_MAP_EXTENSION}`;
+export const JS_MAP_EXTENSION = `.js.map`;
 export const JSX_EXTENSION = ".jsx";
 export const JSON_EXTENSION = ".json";
+
 export const MJS_EXTENSION = ".mjs";
+export const MJS_MAP_EXTENSION = ".mjs.map";
 export const MJSX_EXTENSION = ".mjsx";
-export const D_TS_EXTENSION = `.d${TS_EXTENSION}`;
-export const D_TS_MAP_EXTENSION = `.d${TS_EXTENSION}${SOURCE_MAP_EXTENSION}`;
+export const MJSX_MAP_EXTENSION = ".mjsx.map";
+
+export const CJS_EXTENSION = ".cjs";
+export const CJS_MAP_EXTENSION = ".cjs.map";
+export const CJSX_EXTENSION = ".cjsx";
+export const CJSX_MAP_EXTENSION = ".cjsx.map";
+
+export const D_TS_EXTENSION = `.d.ts`;
+export const D_TS_MAP_EXTENSION = `.d.ts.map`;
+
+export const D_CTS_EXTENSION = `.d.cts`;
+export const D_CTS_MAP_EXTENSION = `.d.cts.map`;
+
+export const D_MTS_EXTENSION = `.d.mts`;
+export const D_MTS_MAP_EXTENSION = `.d.mts.map`;
+
 export const TSBUILDINFO_EXTENSION = `.tsbuildinfo`;
 
 export const ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY = "\0rollup-plugin-multi-entry:entry-point";
 export const ROLLUP_PLUGIN_VIRTUAL_PREFIX = `\0virtual:`;
 
-export const KNOWN_EXTENSIONS = new Set([
+export const AMBIENT_EXTENSIONS = new Set([
 	D_TS_EXTENSION,
 	D_TS_MAP_EXTENSION,
+	D_MTS_EXTENSION,
+	D_MTS_MAP_EXTENSION,
+	D_CTS_EXTENSION,
+	D_CTS_MAP_EXTENSION
+] as const);
+
+export type AmbientExtension = ElementOf<typeof AMBIENT_EXTENSIONS>;
+
+export const KNOWN_EXTENSIONS = new Set([
+	...AMBIENT_EXTENSIONS,
 	JS_MAP_EXTENSION,
 	TS_EXTENSION,
+	MTS_EXTENSION,
+	MTSX_EXTENSION,
+	CTS_EXTENSION,
+	CTSX_EXTENSION,
 	TSX_EXTENSION,
 	JS_EXTENSION,
 	JSX_EXTENSION,
 	JSON_EXTENSION,
 	MJS_EXTENSION,
+	MJS_MAP_EXTENSION,
 	MJSX_EXTENSION,
+	MJSX_MAP_EXTENSION,
+	CJS_EXTENSION,
+	CJS_MAP_EXTENSION,
+	CJSX_EXTENSION,
+	CJSX_MAP_EXTENSION,
 	TSBUILDINFO_EXTENSION
 ] as const);
+
+export type KnownExtension = ElementOf<typeof KNOWN_EXTENSIONS>;
 
 export const DEFAULT_TSCONFIG_FILE_NAME = "tsconfig.json";
 export const NODE_MODULES = "node_modules";

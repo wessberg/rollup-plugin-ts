@@ -1,13 +1,13 @@
-import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options";
-import {TS} from "../../../../../../type/ts";
-import {visitExportDeclaration} from "./visit-export-declaration";
-import {visitImportTypeNode} from "./visit-import-type-node";
-import {visitImportDeclaration} from "./visit-import-declaration";
-import {visitImportSpecifier} from "./visit-import-specifier";
-import {visitExportSpecifier} from "./visit-export-specifier";
-import {visitImportClause} from "./visit-import-clause";
-import {visitNamespaceImport} from "./visit-namespace-import";
-import {visitSourceFile} from "./visit-source-file";
+import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
+import {TS} from "../../../../../../type/ts.js";
+import {visitExportDeclaration} from "./visit-export-declaration.js";
+import {visitImportTypeNode} from "./visit-import-type-node.js";
+import {visitImportDeclaration} from "./visit-import-declaration.js";
+import {visitImportSpecifier} from "./visit-import-specifier.js";
+import {visitExportSpecifier} from "./visit-export-specifier.js";
+import {visitImportClause} from "./visit-import-clause.js";
+import {visitNamespaceImport} from "./visit-namespace-import.js";
+import {visitSourceFile} from "./visit-source-file.js";
 
 export function visitNode<T extends TS.Node>({node, ...options}: ModuleMergerVisitorOptions<T>): VisitResult<T> {
 	if (options.typescript.isSourceFile(node)) {

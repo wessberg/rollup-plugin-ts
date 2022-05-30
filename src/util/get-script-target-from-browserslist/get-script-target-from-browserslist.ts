@@ -1,5 +1,5 @@
 import {getAppropriateEcmaVersionForBrowserslist} from "browserslist-generator";
-import {TS} from "../../type/ts";
+import {TS} from "../../type/ts.js";
 
 /**
  * Gets the ScriptTarget to use from the given Browserslist
@@ -85,7 +85,7 @@ export function getEcmaVersionForScriptTarget(
 			return "es2020";
 		case typescript.ScriptTarget.ES2021:
 			return "es2021";
-			case typescript.ScriptTarget.ES2022:
+		case typescript.ScriptTarget.ES2022:
 			return "es2022";
 		case typescript.ScriptTarget.ESNext:
 		case typescript.ScriptTarget.Latest:

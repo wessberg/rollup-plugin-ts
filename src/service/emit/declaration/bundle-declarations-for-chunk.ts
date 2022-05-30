@@ -1,7 +1,7 @@
 import {SourceDescription, SourceMap} from "rollup";
-import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, SOURCE_MAP_COMMENT, SOURCE_MAP_COMMENT_REGEXP} from "../../../constant/constant";
-import {declarationBundler} from "../../transformer/declaration-bundler/declaration-bundler";
-import {DeclarationBundlerOptions} from "../../transformer/declaration-bundler/declaration-bundler-options";
+import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, SOURCE_MAP_COMMENT, SOURCE_MAP_COMMENT_REGEXP} from "../../../constant/constant.js";
+import {declarationBundler} from "../../transformer/declaration-bundler/declaration-bundler.js";
+import {DeclarationBundlerOptions} from "../../transformer/declaration-bundler/declaration-bundler-options.js";
 
 export interface BundleDeclarationsForChunkOptions extends DeclarationBundlerOptions {}
 

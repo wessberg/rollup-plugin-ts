@@ -1,11 +1,11 @@
-import {TS} from "../../../../../../type/ts";
-import {InlineNamespaceModuleBlockVisitorOptions} from "../inline-namespace-module-block-visitor-options";
-import {preserveParents} from "../../../util/clone-node-with-meta";
-import {generateIdentifierName} from "../../../util/generate-identifier-name";
-import {addBindingToLexicalEnvironment} from "../../../util/add-binding-to-lexical-environment";
-import {generateUniqueBinding} from "../../../util/generate-unique-binding";
-import {isIdentifierFree} from "../../../util/is-identifier-free";
-import {getOriginalSourceFile} from "../../../util/get-original-source-file";
+import {TS} from "../../../../../../type/ts.js";
+import {InlineNamespaceModuleBlockVisitorOptions} from "../inline-namespace-module-block-visitor-options.js";
+import {preserveParents} from "../../../util/clone-node-with-meta.js";
+import {generateIdentifierName} from "../../../util/generate-identifier-name.js";
+import {addBindingToLexicalEnvironment} from "../../../util/add-binding-to-lexical-environment.js";
+import {generateUniqueBinding} from "../../../util/generate-unique-binding.js";
+import {isIdentifierFree} from "../../../util/is-identifier-free.js";
+import {getOriginalSourceFile} from "../../../util/get-original-source-file.js";
 
 export function visitExportDeclaration(options: InlineNamespaceModuleBlockVisitorOptions<TS.ExportDeclaration>): TS.ExportDeclaration | undefined {
 	const {node, typescript, factory, host, lexicalEnvironment, sourceFile, intentToAddImportDeclaration} = options;

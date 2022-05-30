@@ -1,7 +1,7 @@
-import {TS} from "../../../../../../type/ts";
-import {EnsureDeclareModifierTransformerVisitorOptions} from "../ensure-declare-modifier-transformer-visitor-options";
-import {preserveMeta} from "../../../util/clone-node-with-meta";
-import {ensureHasDeclareModifier, hasDeclareModifier} from "../../../util/modifier-util";
+import {TS} from "../../../../../../type/ts.js";
+import {EnsureDeclareModifierTransformerVisitorOptions} from "../ensure-declare-modifier-transformer-visitor-options.js";
+import {preserveMeta} from "../../../util/clone-node-with-meta.js";
+import {ensureHasDeclareModifier, hasDeclareModifier} from "../../../util/modifier-util.js";
 
 export function visitVariableStatement(options: EnsureDeclareModifierTransformerVisitorOptions<TS.VariableStatement>): TS.VariableStatement {
 	const {node, factory, typescript} = options;

@@ -1,4 +1,4 @@
-import {TS} from "../../../../type/ts";
+import {TS} from "../../../../type/ts.js";
 
 export function getSymbolFlagsForNode(node: TS.Node, typescript: typeof TS): TS.SymbolFlags {
 	if (typescript.isClassLike(node)) {

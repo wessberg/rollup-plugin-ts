@@ -1,5 +1,5 @@
-import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
-import {TS} from "../../../../../../type/ts";
+import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
+import {TS} from "../../../../../../type/ts.js";
 
 export function visitNamespaceImport({node, continuation, factory}: TreeShakerVisitorOptions<TS.NamespaceImport>): TS.NamespaceImport | undefined {
 	const nameContinuationResult = continuation(node.name);

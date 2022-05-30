@@ -1,7 +1,7 @@
-import {ensureHasLeadingDotAndPosix} from "../../../../util/path/path-util";
-import {TS} from "../../../../type/ts";
-import {preserveParents} from "./clone-node-with-meta";
-import {TransformerBaseOptions} from "../transformers/transformer-base-options";
+import {ensureHasLeadingDotAndPosix} from "../../../../util/path/path-util.js";
+import {TS} from "../../../../type/ts.js";
+import {preserveParents} from "./clone-node-with-meta.js";
+import {TransformerBaseOptions} from "../transformers/transformer-base-options.js";
 
 export type MergedExportDeclarationsMap = Map<string | undefined, TS.ExportDeclaration[]>;
 export type ExportedAliasedBindingsForModuleMap = Map<string | undefined, Set<string>>;
@@ -15,7 +15,6 @@ export interface GetMergedExportDeclarationsForModulesOptions extends Transforme
 	inputBindings?: ExportedAliasedBindingsForModuleMap;
 	isTypeOnly: boolean;
 }
-
 
 /**
  * Merges the exports based on the given Statements
@@ -111,7 +110,7 @@ export function getMergedExportDeclarationsForModules(options: GetMergedExportDe
 				namedNamespaceExports.add(exportDeclaration.exportClause.name.text);
 			}
 		}
-		// If it has no exportClause, it's a reexport (such as export * from "./<specifier>").
+		// If it has no exportClause, it's a reexport (such as export * from "./<specifier>.js").
 		else {
 			// Don't include the same clause twice
 			if (reExportedSpecifiers.has(specifierText)) continue;

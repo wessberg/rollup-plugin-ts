@@ -1,5 +1,5 @@
 import {InputOptions} from "rollup";
-import {TypescriptPluginOptions} from "../../plugin/typescript-plugin-options";
+import {TypescriptPluginOptions} from "../../plugin/typescript-plugin-options.js";
 
 export interface GetForcedCompilerOptionsOptions {
 	pluginOptions: TypescriptPluginOptions;

@@ -1,5 +1,5 @@
 import {ModuleFormat} from "rollup";
-import {TS} from "../../type/ts";
+import {TS} from "../../type/ts.js";
 
 /**
  * Gets a proper ModuleKind for Typescript based on the format given from the Rollup options

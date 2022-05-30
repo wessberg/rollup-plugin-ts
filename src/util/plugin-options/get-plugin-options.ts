@@ -1,6 +1,6 @@
-import * as TSModule from "typescript";
-import {TypescriptPluginOptions} from "../../plugin/typescript-plugin-options";
-import {ensureAbsolute} from "../path/path-util";
+import TSModule from "typescript";
+import {TypescriptPluginOptions} from "../../plugin/typescript-plugin-options.js";
+import {ensureAbsolute} from "../path/path-util.js";
 import path from "crosspath";
 
 /**

@@ -1,4 +1,4 @@
-import {TS} from "../../../../type/ts";
+import {TS} from "../../../../type/ts.js";
 
 export function nodeArraysAreEqual(a: TS.NodeArray<TS.Node> | TS.Node[] | undefined, b: TS.NodeArray<TS.Node> | TS.Node[] | undefined): boolean {
 	if (a == null && b == null) return true;

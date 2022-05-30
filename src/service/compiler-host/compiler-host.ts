@@ -1,19 +1,21 @@
-import {TS} from "../../type/ts";
-import {CompilerHostOptions, CustomTransformersInput} from "./compiler-host-options";
-import {ModuleResolutionHost} from "../module-resolution-host/module-resolution-host";
-import {getNewLineCharacter} from "../../util/get-new-line-character/get-new-line-character";
-import {resolveId} from "../../util/resolve-id/resolve-id";
-import {getScriptKindFromPath} from "../../util/get-script-kind-from-path/get-script-kind-from-path";
-import {VirtualFile, VirtualFileInput} from "../module-resolution-host/virtual-file";
-import {mergeTransformers} from "../../util/merge-transformers/merge-transformers";
-import {ensureModuleTransformer} from "../transformer/ensure-module/ensure-module-transformer";
-import {SourceFileToDependenciesMap} from "../transformer/declaration-bundler/declaration-bundler-options";
-import {ExtendedResolvedModule} from "../cache/resolve-cache/extended-resolved-module";
-import {getModuleDependencies, ModuleDependency} from "../../util/get-module-dependencies/get-module-dependencies";
-import {pickResolvedModule} from "../../util/pick-resolved-module";
+import {TS} from "../../type/ts.js";
+import {CompilerHostOptions, CustomTransformersInput} from "./compiler-host-options.js";
+import {ModuleResolutionHost} from "../module-resolution-host/module-resolution-host.js";
+import {getNewLineCharacter} from "../../util/get-new-line-character/get-new-line-character.js";
+import {resolveId} from "../../util/resolve-id/resolve-id.js";
+import {getScriptKindFromPath} from "../../util/get-script-kind-from-path/get-script-kind-from-path.js";
+import {VirtualFile, VirtualFileInput} from "../module-resolution-host/virtual-file.js";
+import {mergeTransformers} from "../../util/merge-transformers/merge-transformers.js";
+import {ensureModuleTransformer} from "../transformer/ensure-module/ensure-module-transformer.js";
+import {SourceFileToDependenciesMap} from "../transformer/declaration-bundler/declaration-bundler-options.js";
+import {ExtendedResolvedModule} from "../cache/resolve-cache/extended-resolved-module.js";
+import {getModuleDependencies, ModuleDependency} from "../../util/get-module-dependencies/get-module-dependencies.js";
+import {pickResolvedModule} from "../../util/pick-resolved-module.js";
 import path from "crosspath";
-import {ensureAbsolute, getExtension, isExternal, isTypeScriptLib} from "../../util/path/path-util";
+import {ensureAbsolute, getExtension, isExternal, isTypeScriptLib} from "../../util/path/path-util.js";
 import {ensureNodeFactory} from "compatfactory";
+import {isRecord} from "../../util/object/object-util.js";
+import { KnownExtension } from "../../constant/constant.js";
 
 export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHost {
 	private previousProgram: TS.EmitAndSemanticDiagnosticsBuilderProgram | undefined;
@@ -46,7 +48,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 	}
 
 	isSupportedFileName(fileName: string, ignoreFilter = false): boolean {
-		return (ignoreFilter || this.options.filter(fileName)) && this.getSupportedExtensions().has(getExtension(fileName));
+		return (ignoreFilter || this.options.filter(fileName)) && this.getSupportedExtensions().has(getExtension(fileName) as KnownExtension);
 	}
 
 	getDiagnostics(fileName?: string): readonly TS.Diagnostic[] {
@@ -254,7 +256,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 			const sourceFile = this.constructSourceFile(fileInput.fileName, fileInput.text);
 			const typescript = this.getTypescript();
 			const factory = ensureNodeFactory(typescript);
-			const transformedSourceFile = ensureModuleTransformer({typescript, factory, sourceFile});
+			const transformedSourceFile = ensureModuleTransformer({typescript, factory, sourceFile, extensions: this.getSupportedExtensions()});
 			if (transformedSourceFile !== sourceFile) {
 				(fileInput as VirtualFile).transformedText = this.printer.printFile(transformedSourceFile);
 			}
@@ -366,35 +368,52 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		);
 	}
 
-	getSourceFile(fileName: string, languageVersion: TS.ScriptTarget = this.getScriptTarget()): TS.SourceFile | undefined {
-		const absoluteFileName = path.includeDriveLetter(isTypeScriptLib(fileName) ? path.join(this.getDefaultLibLocation(), fileName) : ensureAbsolute(this.getCwd(), fileName));
+	getSourceFile(
+		fileName: string,
+		languageVersionOrOptions: TS.ScriptTarget | TS.CreateSourceFileOptions = this.getScriptTarget(),
+		onError?: (message: string) => void,
+		shouldCreateNewSourceFile?: boolean
+	): TS.SourceFile | undefined {
+		try {
+			const languageVersion = isRecord(languageVersionOrOptions) ? languageVersionOrOptions.languageVersion : languageVersionOrOptions;
+			const absoluteFileName = path.includeDriveLetter(isTypeScriptLib(fileName) ? path.join(this.getDefaultLibLocation(), fileName) : ensureAbsolute(this.getCwd(), fileName));
 
-		if (this.sourceFiles.has(absoluteFileName)) {
-			return this.sourceFiles.get(absoluteFileName);
+			if (this.sourceFiles.has(absoluteFileName) && !Boolean(shouldCreateNewSourceFile)) {
+				return this.sourceFiles.get(absoluteFileName);
+			}
+
+			if (!this.isSupportedFileName(absoluteFileName, true)) return undefined;
+
+			let file = this.get(absoluteFileName);
+
+			if (file == null) {
+				const text = this.readFile(absoluteFileName);
+				if (text == null) return undefined;
+
+				file = this.add({fileName: absoluteFileName, text, fromRollup: false}, false);
+			}
+
+			const sourceFile = this.constructSourceFile(absoluteFileName, file.transformedText, languageVersion);
+			this.sourceFiles.set(absoluteFileName, sourceFile);
+
+			const oldVersion = this.fileToVersionMap.get(absoluteFileName) ?? 0;
+			const newVersion = oldVersion + 1;
+			this.fileToVersionMap.set(absoluteFileName, newVersion);
+
+			// SourceFiles in builder programs needs a version
+			(sourceFile as unknown as {version: number}).version = newVersion;
+
+			return sourceFile;
+		} catch (ex) {
+			if (ex instanceof Error) {
+				onError?.(ex.message);
+			} else {
+				onError?.(`An unknown error occured while getting a SourceFile for filename: ${fileName}`);
+			}
+
+			// Re-throw the exception
+			throw ex;
 		}
-
-		if (!this.isSupportedFileName(absoluteFileName, true)) return undefined;
-
-		let file = this.get(absoluteFileName);
-
-		if (file == null) {
-			const text = this.readFile(absoluteFileName);
-			if (text == null) return undefined;
-
-			file = this.add({fileName: absoluteFileName, text, fromRollup: false}, false);
-		}
-
-		const sourceFile = this.constructSourceFile(absoluteFileName, file.transformedText, languageVersion);
-		this.sourceFiles.set(absoluteFileName, sourceFile);
-
-		const oldVersion = this.fileToVersionMap.get(absoluteFileName) ?? 0;
-		const newVersion = oldVersion + 1;
-		this.fileToVersionMap.set(absoluteFileName, newVersion);
-
-		// SourceFiles in builder programs needs a version
-		(sourceFile as unknown as {version: number}).version = newVersion;
-
-		return sourceFile;
 	}
 
 	getTypeRoots() {
@@ -509,14 +528,17 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		return resolvedModules;
 	}
 
-	resolveTypeReferenceDirectives(typeReferenceDirectiveNames: string[], containingFile: string): (TS.ResolvedTypeReferenceDirective | undefined)[] {
+	resolveTypeReferenceDirectives(
+		typeReferenceDirectiveNames: string[] | readonly TS.FileReference[],
+		containingFile: string
+	): (TS.ResolvedTypeReferenceDirective | undefined)[] {
 		const resolvedTypeReferenceDirectives: (TS.ResolvedTypeReferenceDirective | undefined)[] = [];
 		for (const typeReferenceDirectiveName of typeReferenceDirectiveNames) {
 			// try to use standard resolution
 			const result = resolveId({
 				moduleResolutionHost: this,
 				parent: containingFile,
-				id: typeReferenceDirectiveName,
+				id: isRecord(typeReferenceDirectiveName) ? typeReferenceDirectiveName.fileName : typeReferenceDirectiveName,
 				resolveCache: this.options.resolveCache
 			});
 			if (result != null && result.resolvedAmbientFileName != null) {

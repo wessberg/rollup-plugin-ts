@@ -1,6 +1,6 @@
-import {TS} from "../../../../../type/ts";
-import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
-import {TypeReference} from "../../util/get-type-reference-module-from-file-name";
+import {TS} from "../../../../../type/ts.js";
+import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
+import {TypeReference} from "../../util/get-type-reference-module-from-file-name.js";
 
 export interface TypeReferenceCollectorVisitorOptions<T extends TS.Node> extends SourceFileBundlerVisitorOptions {
 	typescript: typeof TS;

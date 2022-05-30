@@ -1,13 +1,13 @@
-import {TS} from "../../../../../type/ts";
-import {DeclarationBundlerOptions} from "../../declaration-bundler-options";
-import {LexicalEnvironment} from "../deconflicter/deconflicter-options";
-import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options";
-import {TransformerBaseOptions} from "../transformer-base-options";
+import {TS} from "../../../../../type/ts.js";
+import {DeclarationBundlerOptions} from "../../declaration-bundler-options.js";
+import {LexicalEnvironment} from "../deconflicter/deconflicter-options.js";
+import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options.js";
+import {TransformerBaseOptions} from "../transformer-base-options.js";
 
 export type SourceFileResolver = (fileName: string, from: string) => TS.SourceFile | undefined;
 
 export interface SourceFileBundlerVisitorOptions extends DeclarationBundlerOptions, TransformerBaseOptions {
-	allowExports?: boolean|"skip-optional";
+	allowExports?: boolean | "skip-optional";
 	resolveSourceFile: SourceFileResolver;
 	context: TS.TransformationContext;
 	entrySourceFilesForChunk: TS.SourceFile[];

@@ -1,9 +1,9 @@
-import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options";
+import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options.js";
 
 export const DECONFLICT_SUFFIX = "$";
 const RESERVED_WORDS = new Set(["default"]);
 
-export function ensureNonreservedWord (word: string): string {
+export function ensureNonreservedWord(word: string): string {
 	if (RESERVED_WORDS.has(word)) {
 		return `__${word}`;
 	}

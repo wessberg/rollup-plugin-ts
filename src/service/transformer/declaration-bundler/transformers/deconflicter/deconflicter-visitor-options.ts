@@ -1,6 +1,6 @@
-import {TS} from "../../../../../type/ts";
-import {ContinuationOptions, DeconflicterOptions} from "./deconflicter-options";
-import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
+import {TS} from "../../../../../type/ts.js";
+import {ContinuationOptions, DeconflicterOptions} from "./deconflicter-options.js";
+import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
 
 export interface DeconflicterVisitorOptions<T extends TS.Node> extends SourceFileBundlerVisitorOptions, DeconflicterOptions {
 	typescript: typeof TS;

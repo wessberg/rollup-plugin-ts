@@ -1,7 +1,7 @@
-import {TS} from "../../../../../../type/ts";
-import {EnsureDeclareModifierTransformerVisitorOptions} from "../ensure-declare-modifier-transformer-visitor-options";
-import {ensureHasDeclareModifier, hasDeclareModifier} from "../../../util/modifier-util";
-import {preserveMeta} from "../../../util/clone-node-with-meta";
+import {TS} from "../../../../../../type/ts.js";
+import {EnsureDeclareModifierTransformerVisitorOptions} from "../ensure-declare-modifier-transformer-visitor-options.js";
+import {ensureHasDeclareModifier, hasDeclareModifier} from "../../../util/modifier-util.js";
+import {preserveMeta} from "../../../util/clone-node-with-meta.js";
 
 export function visitClassExpression(options: EnsureDeclareModifierTransformerVisitorOptions<TS.ClassExpression>): TS.ClassExpression {
 	const {node, typescript, factory} = options;

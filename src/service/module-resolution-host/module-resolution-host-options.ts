@@ -1,6 +1,6 @@
-import {TS} from "../../type/ts";
-import {SupportedExtensions} from "../../util/get-supported-extensions/get-supported-extensions";
-import {ParsedCommandLineResult} from "../../util/get-parsed-command-line/parsed-command-line-result";
+import {TS} from "../../type/ts.js";
+import {SupportedExtensions} from "../../util/get-supported-extensions/get-supported-extensions.js";
+import {ParsedCommandLineResult} from "../../util/get-parsed-command-line/parsed-command-line-result.js";
 import {ExternalOption} from "rollup";
 
 export interface ModuleResolutionHostOptions {

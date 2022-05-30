@@ -1,7 +1,8 @@
 import test from "ava";
-import {withTypeScript} from "./util/ts-macro";
-import {formatCode} from "./util/format-code";
-import {generateRollupBundle} from "./setup/setup-rollup";
+import {withTypeScript} from "./util/ts-macro.js";
+import {formatCode} from "./util/format-code.js";
+import {generateRollupBundle} from "./setup/setup-rollup.js";
+import path from "crosspath";
 
 test.serial("Won't inline modules marked as external. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(
@@ -25,7 +26,7 @@ test.serial("Won't inline modules marked as external. #1", withTypeScript, async
 			typescript,
 			debug: false,
 			rollupOptions: {
-				external: () => true
+				external: p => !path.normalize(p).endsWith(`source/index.ts`)
 			}
 		}
 	);
@@ -63,10 +64,11 @@ test.serial("Won't inline modules marked as external. #2", withTypeScript, async
 			typescript,
 			debug: false,
 			rollupOptions: {
-				external: () => true
+				external: p => !path.normalize(p).endsWith(`index.ts`)
 			},
 			tsconfig: {
 				paths: {
+					// eslint-disable-next-line @typescript-eslint/naming-convention
 					"@/*": ["*"]
 				}
 			}

@@ -1,7 +1,7 @@
-import {TS} from "../../src/type/ts";
-import {InputCompilerOptions, TypescriptPluginOptions} from "../../src/plugin/typescript-plugin-options";
+import {TS} from "../../src/type/ts.js";
+import {InputCompilerOptions, TypescriptPluginOptions} from "../../src/plugin/typescript-plugin-options.js";
 import path from "crosspath";
-import { PartialExcept } from "helpertypes";
+import {PartialExcept} from "helpertypes";
 
 export interface TestContext {
 	cwd: string;

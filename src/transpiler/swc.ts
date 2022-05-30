@@ -1,10 +1,10 @@
 import {Options} from "@swc/core";
 import path from "crosspath";
-import {FORCED_SWC_JSC_OPTIONS, FORCED_SWC_MODULE_OPTIONS} from "../constant/constant";
-import {SwcConfigHook, TranspilationPhase, TypescriptPluginSwcOptions} from "../plugin/typescript-plugin-options";
-import {SwcConfig} from "../type/swc";
-import {TS} from "../type/ts";
-import {getEcmaVersionForScriptTarget} from "../util/get-script-target-from-browserslist/get-script-target-from-browserslist";
+import {FORCED_SWC_JSC_OPTIONS, FORCED_SWC_MODULE_OPTIONS} from "../constant/constant.js";
+import {SwcConfigHook, TranspilationPhase, TypescriptPluginSwcOptions} from "../plugin/typescript-plugin-options.js";
+import {SwcConfig} from "../type/swc.js";
+import {TS} from "../type/ts.js";
+import {getEcmaVersionForScriptTarget} from "../util/get-script-target-from-browserslist/get-script-target-from-browserslist.js";
 
 export interface GetSwcConfigOptions {
 	cwd: string;

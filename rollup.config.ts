@@ -1,6 +1,6 @@
-import ts from "./src/index";
+import ts from "./src/index.js";
 import {rollup} from "rollup";
-import pkg from "./package.json";
+import pkg from "./package.json" assert {type: "json"};
 import {builtinModules} from "module";
 
 (async () => {

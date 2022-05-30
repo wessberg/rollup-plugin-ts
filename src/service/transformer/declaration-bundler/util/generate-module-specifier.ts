@@ -1,10 +1,10 @@
-import {ensureHasLeadingDotAndPosix, stripKnownExtension} from "../../../../util/path/path-util";
-import {getChunkFilename} from "./get-chunk-filename";
-import {NormalizedChunk} from "../../../../util/chunk/normalize-chunk";
-import {SourceFileResolver} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
-import {CompilerHost} from "../../../compiler-host/compiler-host";
-import {pickResolvedModule} from "../../../../util/pick-resolved-module";
-import {similarity} from "../../../../util/similarity-util";
+import {ensureHasLeadingDotAndPosix, stripKnownExtension} from "../../../../util/path/path-util.js";
+import {getChunkFilename} from "./get-chunk-filename.js";
+import {NormalizedChunk} from "../../../../util/chunk/normalize-chunk.js";
+import {SourceFileResolver} from "../transformers/source-file-bundler/source-file-bundler-visitor-options.js";
+import {CompilerHost} from "../../../compiler-host/compiler-host.js";
+import {pickResolvedModule} from "../../../../util/pick-resolved-module.js";
+import {similarity} from "../../../../util/similarity-util.js";
 import path from "crosspath";
 
 export interface GenerateModuleSpecifierOptions {

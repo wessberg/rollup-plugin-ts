@@ -1,6 +1,6 @@
-import {TS} from "../../type/ts";
+import {TS} from "../../type/ts.js";
 import chalk from "chalk";
-import {getFormattedDateTimePrefix} from "./get-formatted-date-time-prefix";
+import {getFormattedDateTimePrefix} from "./get-formatted-date-time-prefix.js";
 
 export interface LogTransformationResult {
 	finish(sourceFile: TS.SourceFile): void;

@@ -1,10 +1,10 @@
-import {TS} from "../../../../../type/ts";
-import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
-import {visitNode} from "./visitor/visit-node";
-import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
-import {logMetrics} from "../../../../../util/logging/log-metrics";
-import {logTransformer} from "../../../../../util/logging/log-transformer";
-import {preserveMeta} from "../../util/clone-node-with-meta";
+import {TS} from "../../../../../type/ts.js";
+import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
+import {visitNode} from "./visitor/visit-node.js";
+import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug.js";
+import {logMetrics} from "../../../../../util/logging/log-metrics.js";
+import {logTransformer} from "../../../../../util/logging/log-transformer.js";
+import {preserveMeta} from "../../util/clone-node-with-meta.js";
 
 export function ensureNoExportModifierTransformer(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
 	const {typescript, context, sourceFile, pluginOptions, printer} = options;

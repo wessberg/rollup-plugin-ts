@@ -1,5 +1,5 @@
-import {TS} from "../../../../../type/ts";
-import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
+import {TS} from "../../../../../type/ts.js";
+import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
 
 export interface EnsureNoDeclareModifierTransformerVisitorOptions<T extends TS.Node> extends SourceFileBundlerVisitorOptions {
 	typescript: typeof TS;

@@ -1,9 +1,9 @@
-import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options";
-import {TS} from "../../../../../../type/ts";
-import {getBindingFromLexicalEnvironment} from "../../../util/get-binding-from-lexical-environment";
-import {preserveMeta} from "../../../util/clone-node-with-meta";
-import {getBestDeclaration} from "../../../util/get-aliased-declaration";
-import {getIdForNode} from "../../../util/get-id-for-node";
+import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options.js";
+import {TS} from "../../../../../../type/ts.js";
+import {getBindingFromLexicalEnvironment} from "../../../util/get-binding-from-lexical-environment.js";
+import {preserveMeta} from "../../../util/clone-node-with-meta.js";
+import {getBestDeclaration} from "../../../util/get-aliased-declaration.js";
+import {getIdForNode} from "../../../util/get-id-for-node.js";
 
 /**
  * Deconflicts the given Identifier.

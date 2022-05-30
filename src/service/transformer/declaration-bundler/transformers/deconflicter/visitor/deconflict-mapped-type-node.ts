@@ -1,8 +1,8 @@
-import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options";
-import {TS} from "../../../../../../type/ts";
-import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
-import {ContinuationOptions} from "../deconflicter-options";
-import {preserveMeta} from "../../../util/clone-node-with-meta";
+import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options.js";
+import {TS} from "../../../../../../type/ts.js";
+import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment.js";
+import {ContinuationOptions} from "../deconflicter-options.js";
+import {preserveMeta} from "../../../util/clone-node-with-meta.js";
 
 /**
  * Deconflicts the given MappedTypeNode.

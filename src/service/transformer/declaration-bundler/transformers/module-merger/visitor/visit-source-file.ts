@@ -1,5 +1,5 @@
-import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options";
-import {TS} from "../../../../../../type/ts";
+import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
+import {TS} from "../../../../../../type/ts.js";
 
 export function visitSourceFile(options: ModuleMergerVisitorOptions<TS.SourceFile>): VisitResult<TS.SourceFile> {
 	for (const otherEntrySourceFileForChunk of options.otherEntrySourceFilesForChunk) {

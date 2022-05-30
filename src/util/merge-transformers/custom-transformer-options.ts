@@ -1,5 +1,5 @@
-import {ExtendedDiagnostic} from "../../diagnostic/extended-diagnostic";
-import {TS} from "../../type/ts";
+import {ExtendedDiagnostic} from "../../diagnostic/extended-diagnostic.js";
+import {TS} from "../../type/ts.js";
 
 export interface CustomTransformerOptions {
 	program: TS.Program | undefined;

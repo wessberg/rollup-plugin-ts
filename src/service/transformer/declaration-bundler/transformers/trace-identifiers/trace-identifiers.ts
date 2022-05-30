@@ -1,5 +1,5 @@
-import {TS} from "../../../../../type/ts";
-import {traceIdentifiersForNode} from "./visitor/trace-identifiers-for-node";
+import {TS} from "../../../../../type/ts.js";
+import {traceIdentifiersForNode} from "./visitor/trace-identifiers-for-node.js";
 
 export interface GetIdentifiersWithCacheOptions {
 	typescript: typeof TS;

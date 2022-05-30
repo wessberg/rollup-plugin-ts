@@ -1,5 +1,5 @@
-import {TS} from "../../../../type/ts";
-import {isRootLevelNode} from "../transformers/module-merger/util/is-root-level-node";
+import {TS} from "../../../../type/ts.js";
+import {isRootLevelNode} from "../transformers/module-merger/util/is-root-level-node.js";
 
 export interface NodePlacementQueue {
 	prependNodes(...nodes: TS.Node[]): void;

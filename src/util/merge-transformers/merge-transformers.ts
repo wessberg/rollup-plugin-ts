@@ -1,6 +1,6 @@
-import {CustomTransformersFunction} from "./custom-transformer-options";
-import {TS} from "../../type/ts";
-import {isDefined} from "../is-defined/is-defined";
+import {CustomTransformersFunction} from "./custom-transformer-options.js";
+import {TS} from "../../type/ts.js";
+import {isDefined} from "../is-defined/is-defined.js";
 
 /**
  * Merges all of the given transformers

@@ -1,5 +1,5 @@
-import {ResolveModuleOptions} from "./resolve-module-options";
-import {ExtendedResolvedModule} from "../../service/cache/resolve-cache/extended-resolved-module";
+import {ResolveModuleOptions} from "./resolve-module-options.js";
+import {ExtendedResolvedModule} from "../../service/cache/resolve-cache/extended-resolved-module.js";
 
 /**
  * Resolves an id from the given parent

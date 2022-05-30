@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts";
-import {TrackDependenciesTransformerVisitorOptions} from "../track-dependencies-transformer-visitor-options";
+import {TS} from "../../../../../../type/ts.js";
+import {TrackDependenciesTransformerVisitorOptions} from "../track-dependencies-transformer-visitor-options.js";
 
 export function visitImportTypeNode({node, typescript, host, sourceFile, addDependency, continuation}: TrackDependenciesTransformerVisitorOptions<TS.ImportTypeNode>): void {
 	if (!typescript.isLiteralTypeNode(node.argument) || !typescript.isStringLiteralLike(node.argument.literal)) return;

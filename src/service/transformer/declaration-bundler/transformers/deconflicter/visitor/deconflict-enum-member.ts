@@ -1,6 +1,6 @@
-import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options";
-import {TS} from "../../../../../../type/ts";
-import {preserveMeta} from "../../../util/clone-node-with-meta";
+import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options.js";
+import {TS} from "../../../../../../type/ts.js";
+import {preserveMeta} from "../../../util/clone-node-with-meta.js";
 
 /**
  * Deconflicts the given EnumMember.

@@ -1,5 +1,5 @@
-import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options";
-import {TS} from "../../../../../../type/ts";
+import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
+import {TS} from "../../../../../../type/ts.js";
 
 export function visitArrayBindingPattern({node, continuation, factory}: TreeShakerVisitorOptions<TS.ArrayBindingPattern>): TS.ArrayBindingPattern | undefined {
 	const filteredArrayBindingElements: TS.ArrayBindingElement[] = [];

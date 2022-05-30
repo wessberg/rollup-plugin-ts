@@ -1,8 +1,8 @@
 import test from "ava";
-import {withTypeScript} from "./util/ts-macro";
-import {formatCode} from "./util/format-code";
-import {generateRollupBundle} from "./setup/setup-rollup";
-import {createExternalTestFiles} from "./setup/test-file";
+import {withTypeScript} from "./util/ts-macro.js";
+import {formatCode} from "./util/format-code.js";
+import {generateRollupBundle} from "./setup/setup-rollup.js";
+import {createExternalTestFiles} from "./setup/test-file.js";
 
 test.serial("Declaration maps correctly maps input sources. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(

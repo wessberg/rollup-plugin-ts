@@ -1,8 +1,8 @@
-import {TS} from "../../../../../../type/ts";
-import {TrackExportsTransformerVisitorOptions} from "../track-exports-transformer-visitor-options";
-import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers";
-import {hasExportModifier} from "../../../util/modifier-util";
-import {traceIdentifiers} from "../../trace-identifiers/trace-identifiers";
+import {TS} from "../../../../../../type/ts.js";
+import {TrackExportsTransformerVisitorOptions} from "../track-exports-transformer-visitor-options.js";
+import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers.js";
+import {hasExportModifier} from "../../../util/modifier-util.js";
+import {traceIdentifiers} from "../../trace-identifiers/trace-identifiers.js";
 
 export function visitVariableStatement({node, typescript, sourceFile, markAsExported, ...options}: TrackExportsTransformerVisitorOptions<TS.VariableStatement>): void {
 	// If the node has no export modifier, leave it as it is

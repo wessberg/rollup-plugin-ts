@@ -1,6 +1,6 @@
-import {TS} from "../../../../../type/ts";
-import {CompilerHost} from "../../../../compiler-host/compiler-host";
-import {ModuleDependency} from "../../../../../util/get-module-dependencies/get-module-dependencies";
+import {TS} from "../../../../../type/ts.js";
+import {CompilerHost} from "../../../../compiler-host/compiler-host.js";
+import {ModuleDependency} from "../../../../../util/get-module-dependencies/get-module-dependencies.js";
 
 export interface TrackDependenciesOptions {
 	host: CompilerHost;

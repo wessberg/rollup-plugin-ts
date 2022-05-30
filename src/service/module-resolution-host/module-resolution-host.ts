@@ -1,9 +1,9 @@
-import {TS} from "../../type/ts";
-import {ModuleResolutionHostOptions} from "./module-resolution-host-options";
-import {ensureAbsolute} from "../../util/path/path-util";
-import {SupportedExtensions} from "../../util/get-supported-extensions/get-supported-extensions";
-import {VirtualFile, VirtualFileInput} from "./virtual-file";
-import {D_TS_EXTENSION, D_TS_MAP_EXTENSION} from "../../constant/constant";
+import {TS} from "../../type/ts.js";
+import {ModuleResolutionHostOptions} from "./module-resolution-host-options.js";
+import {ensureAbsolute} from "../../util/path/path-util.js";
+import {SupportedExtensions} from "../../util/get-supported-extensions/get-supported-extensions.js";
+import {VirtualFile, VirtualFileInput} from "./virtual-file.js";
+import {AmbientExtension, AMBIENT_EXTENSIONS} from "../../constant/constant.js";
 import path from "crosspath";
 
 export class ModuleResolutionHost implements TS.ModuleResolutionHost {
@@ -87,7 +87,7 @@ export class ModuleResolutionHost implements TS.ModuleResolutionHost {
 
 	getSupportedNonAmbientExtensions(): SupportedExtensions {
 		if (this.currentNonAmbientSupportedExtensions == null) {
-			this.currentNonAmbientSupportedExtensions = new Set([...this.options.extensions].filter(extension => extension !== D_TS_EXTENSION && extension !== D_TS_MAP_EXTENSION));
+			this.currentNonAmbientSupportedExtensions = new Set([...this.options.extensions].filter(extension => !AMBIENT_EXTENSIONS.has(extension as AmbientExtension)));
 		}
 		return this.currentNonAmbientSupportedExtensions;
 	}

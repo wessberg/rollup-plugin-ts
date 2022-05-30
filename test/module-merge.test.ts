@@ -1,7 +1,7 @@
 import test from "ava";
-import {withTypeScriptVersions} from "./util/ts-macro";
-import {formatCode} from "./util/format-code";
-import {generateRollupBundle} from "./setup/setup-rollup";
+import {withTypeScriptVersions} from "./util/ts-macro.js";
+import {formatCode} from "./util/format-code.js";
+import {generateRollupBundle} from "./setup/setup-rollup.js";
 
 test.serial("Merges identical namespaces correctly. #1", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(

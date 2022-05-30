@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts";
-import {NoExportDeclarationTransformerVisitorOptions} from "../no-export-declaration-transformer-visitor-options";
+import {TS} from "../../../../../../type/ts.js";
+import {NoExportDeclarationTransformerVisitorOptions} from "../no-export-declaration-transformer-visitor-options.js";
 
 export function visitExportDeclaration(options: NoExportDeclarationTransformerVisitorOptions<TS.ExportDeclaration>): TS.ExportDeclaration | undefined {
 	const {node, typescript, preserveExportsWithModuleSpecifiers, preserveAliasedExports} = options;

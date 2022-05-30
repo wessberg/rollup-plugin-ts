@@ -1,19 +1,19 @@
-import {visitNode} from "./visitor/visit-node";
-import {TS} from "../../../../../type/ts";
-import {ChildVisitResult, IncludeSourceFileOptions, ModuleMergerVisitorOptions, PayloadMap, VisitResult} from "./module-merger-visitor-options";
-import {DeclarationTransformer} from "../../declaration-bundler-options";
-import {applyTransformers} from "../../util/apply-transformers";
-import {getNodePlacementQueue} from "../../util/get-node-placement-queue";
-import {findMatchingImportedSymbol} from "../../util/find-matching-imported-symbol";
-import {cloneNodeWithMeta, preserveMeta} from "../../util/clone-node-with-meta";
-import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options";
-import {getChunkFilename} from "../../util/get-chunk-filename";
-import {ensureNoExportModifierTransformer} from "../ensure-no-export-modifier-transformer/ensure-no-export-modifier-transformer";
-import {noExportDeclarationTransformer} from "../no-export-declaration-transformer/no-export-declaration-transformer";
-import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug";
-import {logMetrics} from "../../../../../util/logging/log-metrics";
-import {logTransformer} from "../../../../../util/logging/log-transformer";
-import {getBindingFromLexicalEnvironment} from "../../util/get-binding-from-lexical-environment";
+import {visitNode} from "./visitor/visit-node.js";
+import {TS} from "../../../../../type/ts.js";
+import {ChildVisitResult, IncludeSourceFileOptions, ModuleMergerVisitorOptions, PayloadMap, VisitResult} from "./module-merger-visitor-options.js";
+import {DeclarationTransformer} from "../../declaration-bundler-options.js";
+import {applyTransformers} from "../../util/apply-transformers.js";
+import {getNodePlacementQueue} from "../../util/get-node-placement-queue.js";
+import {findMatchingImportedSymbol} from "../../util/find-matching-imported-symbol.js";
+import {cloneNodeWithMeta, preserveMeta} from "../../util/clone-node-with-meta.js";
+import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options.js";
+import {getChunkFilename} from "../../util/get-chunk-filename.js";
+import {ensureNoExportModifierTransformer} from "../ensure-no-export-modifier-transformer/ensure-no-export-modifier-transformer.js";
+import {noExportDeclarationTransformer} from "../no-export-declaration-transformer/no-export-declaration-transformer.js";
+import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug.js";
+import {logMetrics} from "../../../../../util/logging/log-metrics.js";
+import {logTransformer} from "../../../../../util/logging/log-transformer.js";
+import {getBindingFromLexicalEnvironment} from "../../util/get-binding-from-lexical-environment.js";
 
 export function moduleMerger(...transformers: DeclarationTransformer[]): DeclarationTransformer {
 	return options => {

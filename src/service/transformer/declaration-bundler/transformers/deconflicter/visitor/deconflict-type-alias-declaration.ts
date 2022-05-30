@@ -1,15 +1,15 @@
-import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options";
-import {TS} from "../../../../../../type/ts";
-import {addBindingToLexicalEnvironment} from "../../../util/add-binding-to-lexical-environment";
-import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment";
-import {nodeArraysAreEqual} from "../../../util/node-arrays-are-equal";
-import {isIdentifierFree} from "../../../util/is-identifier-free";
-import {generateUniqueBinding} from "../../../util/generate-unique-binding";
-import {ContinuationOptions} from "../deconflicter-options";
-import {getIdForNode} from "../../../util/get-id-for-node";
-import {preserveMeta} from "../../../util/clone-node-with-meta";
-import {getOriginalSourceFile} from "../../../util/get-original-source-file";
-import { isNodeInternalAlias } from "../../../util/node-util";
+import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options.js";
+import {TS} from "../../../../../../type/ts.js";
+import {addBindingToLexicalEnvironment} from "../../../util/add-binding-to-lexical-environment.js";
+import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment.js";
+import {nodeArraysAreEqual} from "../../../util/node-arrays-are-equal.js";
+import {isIdentifierFree} from "../../../util/is-identifier-free.js";
+import {generateUniqueBinding} from "../../../util/generate-unique-binding.js";
+import {ContinuationOptions} from "../deconflicter-options.js";
+import {getIdForNode} from "../../../util/get-id-for-node.js";
+import {preserveMeta} from "../../../util/clone-node-with-meta.js";
+import {getOriginalSourceFile} from "../../../util/get-original-source-file.js";
+import {isNodeInternalAlias} from "../../../util/node-util.js";
 
 /**
  * Deconflicts the given TypeAliasDeclaration.

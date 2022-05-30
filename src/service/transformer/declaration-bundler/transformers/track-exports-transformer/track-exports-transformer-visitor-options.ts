@@ -1,4 +1,4 @@
-import {TS} from "../../../../../type/ts";
+import {TS} from "../../../../../type/ts.js";
 
 export interface ExportedSymbolBase {}
 

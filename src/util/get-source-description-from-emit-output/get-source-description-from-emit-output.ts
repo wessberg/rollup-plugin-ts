@@ -1,8 +1,8 @@
 import {SourceDescription} from "rollup";
-import {SOURCE_MAP_COMMENT} from "../../constant/constant";
-import {isCodeOutputFile} from "../is-code-output-file/is-code-output-file";
-import {isMapOutputFile} from "../is-map-output-file/is-map-output-file";
-import {TS} from "../../type/ts";
+import {SOURCE_MAP_COMMENT} from "../../constant/constant.js";
+import {isCodeOutputFile} from "../is-code-output-file/is-code-output-file.js";
+import {isMapOutputFile} from "../is-map-output-file/is-map-output-file.js";
+import {TS} from "../../type/ts.js";
 
 /**
  * Gets a SourceDescription from the given EmitOutput

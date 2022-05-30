@@ -1,6 +1,6 @@
-import {NamedExportedSymbol, NamespaceExportedSymbol, SourceFileToExportedSymbolSet} from "../transformers/track-exports-transformer/track-exports-transformer-visitor-options";
-import {CompilerHost} from "../../../compiler-host/compiler-host";
-import {SourceFileResolver} from "../transformers/source-file-bundler/source-file-bundler-visitor-options";
+import {NamedExportedSymbol, NamespaceExportedSymbol, SourceFileToExportedSymbolSet} from "../transformers/track-exports-transformer/track-exports-transformer-visitor-options.js";
+import {CompilerHost} from "../../../compiler-host/compiler-host.js";
+import {SourceFileResolver} from "../transformers/source-file-bundler/source-file-bundler-visitor-options.js";
 
 export interface LocateExportedSymbolContext {
 	host: CompilerHost;

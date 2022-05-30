@@ -1,6 +1,6 @@
-import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "../cache/reference-cache";
-import {TS} from "../../../../../../type/ts";
-import {GetIdentifiersWithCacheOptions} from "../../trace-identifiers/trace-identifiers";
+import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "../cache/reference-cache.js";
+import {TS} from "../../../../../../type/ts.js";
+import {GetIdentifiersWithCacheOptions} from "../../trace-identifiers/trace-identifiers.js";
 
 export interface IsReferencedOptions<T extends TS.Node> extends GetIdentifiersWithCacheOptions {
 	referenceCache: ReferenceCache;

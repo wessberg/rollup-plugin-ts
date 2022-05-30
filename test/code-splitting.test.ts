@@ -1,8 +1,8 @@
 import test from "ava";
-import {withTypeScript} from "./util/ts-macro";
-import {formatCode} from "./util/format-code";
-import {generateRollupBundle} from "./setup/setup-rollup";
-import {stripKnownExtension} from "../src/util/path/path-util";
+import {withTypeScript} from "./util/ts-macro.js";
+import {formatCode} from "./util/format-code.js";
+import {generateRollupBundle} from "./setup/setup-rollup.js";
+import {stripKnownExtension} from "../src/util/path/path-util.js";
 
 test.serial("Declaration bundling supports code splitting. #1", withTypeScript, async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(

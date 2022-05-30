@@ -1,4 +1,4 @@
-import {ExtendedResolvedModule} from "../service/cache/resolve-cache/extended-resolved-module";
+import {ExtendedResolvedModule} from "../service/cache/resolve-cache/extended-resolved-module.js";
 
 export function pickResolvedModule(resolvedModule: ExtendedResolvedModule, preferAmbient: true): string;
 export function pickResolvedModule(resolvedModule: ExtendedResolvedModule, preferAmbient: false): string | undefined;

@@ -1,29 +1,24 @@
-import {TS} from "../../../../../type/ts";
-import {DeclarationTransformer} from "../../declaration-bundler-options";
-import {LexicalEnvironment} from "../deconflicter/deconflicter-options";
-import {NodePlacementQueue} from "../../util/get-node-placement-queue";
-import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options";
-import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options";
+import {TS} from "../../../../../type/ts.js";
+import {DeclarationTransformer} from "../../declaration-bundler-options.js";
+import {LexicalEnvironment} from "../deconflicter/deconflicter-options.js";
+import {NodePlacementQueue} from "../../util/get-node-placement-queue.js";
+import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options.js";
+import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
 
 export type PayloadMap = {
-	[Key in TS.SyntaxKind]: Key extends
-		| TS.SyntaxKind.ImportType
-		| TS.SyntaxKind.ImportDeclaration
-		| TS.SyntaxKind.ImportClause
-		| TS.SyntaxKind.NamedImports
+	[Key in TS.SyntaxKind]: Key extends TS.SyntaxKind.ImportType | TS.SyntaxKind.ImportDeclaration | TS.SyntaxKind.ImportClause | TS.SyntaxKind.NamedImports
 		? {
 				moduleSpecifier: string | undefined;
 				matchingSourceFile: TS.SourceFile | undefined;
 		  }
-		: Key extends
-		| TS.SyntaxKind.NamedExports
-		|  TS.SyntaxKind.ExportDeclaration
+		: Key extends TS.SyntaxKind.NamedExports | TS.SyntaxKind.ExportDeclaration
 		? {
-			isTypeOnly: boolean;
-			moduleSpecifier: string | undefined;
-			updatedModuleSpecifier?: string | undefined;
-			matchingSourceFile: TS.SourceFile | undefined;
-		} : undefined;
+				isTypeOnly: boolean;
+				moduleSpecifier: string | undefined;
+				updatedModuleSpecifier?: string | undefined;
+				matchingSourceFile: TS.SourceFile | undefined;
+		  }
+		: undefined;
 };
 
 export type VisitResult<T extends TS.Node> = T extends TS.ImportTypeNode

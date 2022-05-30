@@ -1,6 +1,6 @@
 import test from "ava";
-import {withTypeScript} from "./util/ts-macro";
-import {generateRollupBundle} from "./setup/setup-rollup";
+import {withTypeScript} from "./util/ts-macro.js";
+import {generateRollupBundle} from "./setup/setup-rollup.js";
 
 test.serial("Will report diagnostics from the ParsedCommandLine. #1", withTypeScript, async (t, {typescript}) => {
 	let hasReportedDiagnostic = false;

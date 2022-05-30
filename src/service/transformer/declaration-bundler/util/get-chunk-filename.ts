@@ -1,4 +1,4 @@
-import {NormalizedChunk, PreNormalizedChunk} from "../../../../util/chunk/normalize-chunk";
+import {NormalizedChunk, PreNormalizedChunk} from "../../../../util/chunk/normalize-chunk.js";
 
 /**
  * Gets the chunk filename that matches the given filename. It may be the same.

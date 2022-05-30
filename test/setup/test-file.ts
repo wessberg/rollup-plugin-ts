@@ -1,11 +1,11 @@
 import path from "crosspath";
 import fs from "fs";
-import {TestContext} from "./test-context";
+import {TestContext} from "./test-context.js";
 import {MaybeArray} from "helpertypes";
-import {ensureArray} from "../../src/util/ensure-array/ensure-array";
-import {generateRandomPath} from "../../src/util/hash/generate-random-hash";
-import {CachedFs} from "../../src/service/cache/cached-fs";
-import {stripNodePrefixFromModuleSpecifier} from "../../src/util/path/path-util";
+import {ensureArray} from "../../src/util/ensure-array/ensure-array.js";
+import {generateRandomPath} from "../../src/util/hash/generate-random-hash.js";
+import {CachedFs} from "../../src/service/cache/cached-fs.js";
+import {resolveModule, stripNodePrefixFromModuleSpecifier} from "../../src/util/path/path-util.js";
 
 export interface TestFileRecord {
 	fileName: string;
@@ -23,8 +23,8 @@ export interface TestFileStructure {
 }
 
 const fsWorker = new CachedFs({fs});
-const tslibDir = path.dirname(require.resolve("tslib"));
-const nodeTypesDir = path.dirname(require.resolve("@types/node/package.json"));
+const tslibDir = path.dirname(resolveModule("tslib"));
+const nodeTypesDir = path.dirname(resolveModule("@types/node/package.json"));
 
 export interface CreateExternalTestFilesOptions {
 	fileName: string;
@@ -91,7 +91,7 @@ export function createTestFileStructure(input: MaybeArray<TestFile>, context: Te
 
 	for (const tsModuleName of tsModuleNames) {
 		try {
-			tsLibsDir = path.join(path.dirname(require.resolve(`${tsModuleName}/package.json`)), "lib");
+			tsLibsDir = path.join(path.dirname(resolveModule(`${tsModuleName}/package.json`)), "lib");
 			break;
 		} catch (ex) {
 			// Noop
@@ -103,7 +103,7 @@ export function createTestFileStructure(input: MaybeArray<TestFile>, context: Te
 
 	if (context.loadSwcHelpers) {
 		try {
-			swcHelperDir = path.dirname(require.resolve("@swc/helpers/package.json"));
+			swcHelperDir = path.dirname(resolveModule("@swc/helpers/package.json"));
 		} catch (ex) {
 			throw new ReferenceError(`No @swc/helpers directory could be resolved inside node_modules`);
 		}
@@ -111,7 +111,7 @@ export function createTestFileStructure(input: MaybeArray<TestFile>, context: Te
 
 	if (context.loadBabelHelpers) {
 		try {
-			babelRuntimeDir = path.dirname(require.resolve("@babel/runtime/package.json"));
+			babelRuntimeDir = path.dirname(resolveModule("@babel/runtime/package.json"));
 		} catch (ex) {
 			throw new ReferenceError(`No @babel/runtime directory could be resolved inside node_modules`);
 		}

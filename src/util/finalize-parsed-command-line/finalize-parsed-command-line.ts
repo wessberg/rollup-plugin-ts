@@ -1,7 +1,7 @@
-import {TS} from "../../type/ts";
-import {ensureAbsolute, setExtension} from "../path/path-util";
-import {TSBUILDINFO_EXTENSION} from "../../constant/constant";
-import {ParsedCommandLineResult} from "../get-parsed-command-line/parsed-command-line-result";
+import {TS} from "../../type/ts.js";
+import {ensureAbsolute, setExtension} from "../path/path-util.js";
+import {TSBUILDINFO_EXTENSION} from "../../constant/constant.js";
+import {ParsedCommandLineResult} from "../get-parsed-command-line/parsed-command-line-result.js";
 import path from "crosspath";
 
 export interface FinalizeParsedCommandLineOptions {

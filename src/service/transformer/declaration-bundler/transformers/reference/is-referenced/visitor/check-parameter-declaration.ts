@@ -1,5 +1,5 @@
-import {ReferenceVisitorOptions} from "../reference-visitor-options";
-import {TS} from "../../../../../../../type/ts";
+import {ReferenceVisitorOptions} from "../reference-visitor-options.js";
+import {TS} from "../../../../../../../type/ts.js";
 
 export function checkParameterDeclaration({node, continuation, typescript}: ReferenceVisitorOptions<TS.ParameterDeclaration>): string[] {
 	const referencedIdentifiers: string[] = [];

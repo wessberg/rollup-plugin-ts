@@ -1,4 +1,4 @@
-import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options";
+import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options.js";
 
 export function isIdentifierFree(lexicalEnvironment: LexicalEnvironment, identifier: string, originalSourceFileName: string, isInternalAlias = false): boolean {
 	// So long as the current lexical environment doesn't already define the provided identifier,

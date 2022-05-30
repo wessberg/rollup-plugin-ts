@@ -1,11 +1,11 @@
 import {OutputOptions, PluginContext} from "rollup";
-import {CompilerHost} from "../../compiler-host/compiler-host";
-import {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options";
+import {CompilerHost} from "../../compiler-host/compiler-host.js";
+import {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options.js";
 import path from "crosspath";
-import {getOutDir} from "../../../util/get-out-dir/get-out-dir";
-import {isBuildInfoOutputFile} from "../../../util/is-build-info-output-file/is-build-info-output-file";
-import {shouldDebugEmit} from "../../../util/is-debug/should-debug";
-import {logEmit} from "../../../util/logging/log-emit";
+import {getOutDir} from "../../../util/get-out-dir/get-out-dir.js";
+import {isBuildInfoOutputFile} from "../../../util/is-build-info-output-file/is-build-info-output-file.js";
+import {shouldDebugEmit} from "../../../util/is-debug/should-debug.js";
+import {logEmit} from "../../../util/logging/log-emit.js";
 
 export interface EmitBuildInfoOptions {
 	pluginContext: PluginContext;

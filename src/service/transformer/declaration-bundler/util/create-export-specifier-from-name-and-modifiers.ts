@@ -1,7 +1,7 @@
-import {TS} from "../../../../type/ts";
-import {hasDefaultExportModifier} from "./modifier-util";
-import {ExportedSymbol} from "../transformers/track-exports-transformer/track-exports-transformer-visitor-options";
-import {ImportedSymbol} from "../transformers/track-imports-transformer/track-imports-transformer-visitor-options";
+import {TS} from "../../../../type/ts.js";
+import {hasDefaultExportModifier} from "./modifier-util.js";
+import {ExportedSymbol} from "../transformers/track-exports-transformer/track-exports-transformer-visitor-options.js";
+import {ImportedSymbol} from "../transformers/track-imports-transformer/track-imports-transformer-visitor-options.js";
 
 export interface CreateExportSpecifierFromNameAndModifiersOptions {
 	isTypeOnly?: boolean;
@@ -43,7 +43,7 @@ export function getImportedSymbolFromNamespaceImport(namespaceImport: TS.Namespa
 	};
 }
 
-export function getExportedSymbolFromExportSpecifier(specifier: TS.ExportSpecifier, parentIsTypeOnly?: boolean|undefined, moduleSpecifier?: string | undefined): ExportedSymbol {
+export function getExportedSymbolFromExportSpecifier(specifier: TS.ExportSpecifier, parentIsTypeOnly?: boolean | undefined, moduleSpecifier?: string | undefined): ExportedSymbol {
 	return {
 		moduleSpecifier,
 		isTypeOnly: specifier.isTypeOnly || Boolean(parentIsTypeOnly),

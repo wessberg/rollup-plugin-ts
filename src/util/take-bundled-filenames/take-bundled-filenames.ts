@@ -1,5 +1,5 @@
 import {OutputBundle} from "rollup";
-import {isOutputChunk} from "../is-output-chunk/is-output-chunk";
+import {isOutputChunk} from "../is-output-chunk/is-output-chunk.js";
 import path from "crosspath";
 
 /**

@@ -1,21 +1,21 @@
 import {ExternalOption, OutputBundle, OutputOptions, PluginContext} from "rollup";
-import {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options";
-import {isOutputChunk} from "../../../util/is-output-chunk/is-output-chunk";
-import {getDeclarationOutDir} from "../../../util/get-declaration-out-dir/get-declaration-out-dir";
-import {getOutDir} from "../../../util/get-out-dir/get-out-dir";
-import {setExtension} from "../../../util/path/path-util";
+import {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options.js";
+import {isOutputChunk} from "../../../util/is-output-chunk/is-output-chunk.js";
+import {getDeclarationOutDir, getDeclarationOutExtension} from "../../../util/get-declaration-out-dir/get-declaration-out-dir.js";
+import {getOutDir} from "../../../util/get-out-dir/get-out-dir.js";
+import {setExtension} from "../../../util/path/path-util.js";
 import path from "crosspath";
-import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, JS_EXTENSION} from "../../../constant/constant";
-import {bundleDeclarationsForChunk} from "./bundle-declarations-for-chunk";
-import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "../../transformer/declaration-bundler/transformers/reference/cache/reference-cache";
-import {normalizeChunk, preNormalizeChunk} from "../../../util/chunk/normalize-chunk";
-import {shouldDebugEmit, shouldDebugMetrics} from "../../../util/is-debug/should-debug";
-import {logMetrics} from "../../../util/logging/log-metrics";
-import {CompilerHost} from "../../compiler-host/compiler-host";
-import {mergeChunksWithAmbientDependencies} from "../../../util/chunk/merge-chunks-with-ambient-dependencies";
-import {preparePaths} from "../../transformer/declaration-bundler/util/prepare-paths/prepare-paths";
-import {logEmit} from "../../../util/logging/log-emit";
-import {TS} from "../../../type/ts";
+import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, JS_EXTENSION} from "../../../constant/constant.js";
+import {bundleDeclarationsForChunk} from "./bundle-declarations-for-chunk.js";
+import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "../../transformer/declaration-bundler/transformers/reference/cache/reference-cache.js";
+import {normalizeChunk, preNormalizeChunk} from "../../../util/chunk/normalize-chunk.js";
+import {shouldDebugEmit, shouldDebugMetrics} from "../../../util/is-debug/should-debug.js";
+import {logMetrics} from "../../../util/logging/log-metrics.js";
+import {CompilerHost} from "../../compiler-host/compiler-host.js";
+import {mergeChunksWithAmbientDependencies} from "../../../util/chunk/merge-chunks-with-ambient-dependencies.js";
+import {preparePaths} from "../../transformer/declaration-bundler/util/prepare-paths/prepare-paths.js";
+import {logEmit} from "../../../util/logging/log-emit.js";
+import {TS} from "../../../type/ts.js";
 import {createFilter} from "@rollup/pluginutils";
 
 export interface EmitDeclarationsOptions {
@@ -58,7 +58,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 	const referenceCache: ReferenceCache = new Map();
 
 	let virtualOutFile = preparePaths({
-		fileName: setExtension("index.js", D_TS_EXTENSION),
+		fileName: `index${getDeclarationOutExtension(options.outputOptions)}`,
 		relativeOutDir: relativeDeclarationOutDir,
 		absoluteOutDir: absoluteDeclarationOutDir
 	});
@@ -124,13 +124,13 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 
 	for (const chunk of normalizedChunks) {
 		let declarationPaths = preparePaths({
-			fileName: setExtension(chunk.paths.fileName, D_TS_EXTENSION),
+			fileName: setExtension(chunk.paths.fileName, getDeclarationOutExtension(options.outputOptions, chunk)),
 			relativeOutDir: relativeDeclarationOutDir,
 			absoluteOutDir: absoluteDeclarationOutDir
 		});
 
 		let declarationMapPaths = preparePaths({
-			fileName: setExtension(chunk.paths.fileName, D_TS_MAP_EXTENSION),
+			fileName: setExtension(chunk.paths.fileName, getDeclarationOutExtension(options.outputOptions, chunk, true)),
 			relativeOutDir: relativeDeclarationOutDir,
 			absoluteOutDir: absoluteDeclarationOutDir
 		});
