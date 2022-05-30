@@ -1,3 +1,17 @@
+# [3.0.0](https://github.com/wessberg/rollup-plugin-ts/compare/v2.0.7...v3.0.0) (2022-05-30)
+
+
+### Bug Fixes
+
+* use correct import binding ([e693665](https://github.com/wessberg/rollup-plugin-ts/commit/e69366553f192fc5d5104b9643d6d6fcb5d6bdcd))
+
+
+### Features
+
+* add TypeScript v4.7 support ([aae4588](https://github.com/wessberg/rollup-plugin-ts/commit/aae4588ecb6b2dabe025c353830b23a4e6ee9c2a))
+
+
+
 ## [2.0.7](https://github.com/wessberg/rollup-plugin-ts/compare/v2.0.6...v2.0.7) (2022-04-15)
 
 

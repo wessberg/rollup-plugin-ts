@@ -96,13 +96,16 @@ At the same time, `rollup-plugin-ts` has a very robust test suite that runs test
     - [`@babel/runtime` and external helpers](#babelruntime-and-external-helpers)
     - [`@babel/runtime` and polyfills](#babelruntime-and-polyfills)
   - [Combining Typescript with swc](#combining-typescript-with-swc)
+  - [Mixing transpilers](#mixing-transpilers)
   - [Using `Custom Transformers`](#using-custom-transformers)
 - [Declaration files](#declaration-files)
 - [Examples](#examples)
   - [Pure Typescript example](#pure-typescript-example)
   - [Typescript with Browserslist example](#typescript-with-browserslist-example)
   - [Typescript, Babel, and Browserslist example](#typescript-babel-and-browserslist-example)
+  - [Typescript, Babel, and Browserslist example with mixed transpilers](#typescript-babel-and-browserslist-example-with-mixed-transpilers)
   - [Typescript, swc, and Browserslist example](#typescript-swc-and-browserslist-example)
+  - [Typescript, swc, and Browserslist example with mixed transpilers](#typescript-swc-and-browserslist-example-with-mixed-transpilers)
   - [Pure Typescript with Custom Transformers](#pure-typescript-with-custom-transformers)
   - [Advanced example of using Typescript, Babel, and Browserslists together](#advanced-example-of-using-typescript-babel-and-browserslists-together)
   - [Passing a specific TypeScript version](#passing-a-specific-typescript-version)
@@ -405,7 +408,7 @@ By default, some combination of options will be applied depending on the config 
 
 ### Mixing transpilers
 
-By default, the transpiler you select, such as `typescript`, `babel`, or `swc`, is used for the entire syntax transformation. However, you may want to mix these. There can be quite good reasons why you may want that, [as described here](#okay-then-why-wouldnt-you-use-just-babel). 
+By default, the transpiler you select, such as `typescript`, `babel`, or `swc`, is used for the entire syntax transformation. However, you may want to mix these. There can be quite good reasons why you may want that, [as described here](#okay-then-why-wouldnt-you-use-just-babel).
 In short, you may find value in using the TypeScript compiler for stripping away the TypeScript specific syntax, and then delegate the remaining syntax transformations to swc or babel.
 
 To accomplish this, the `transpiler` option also allows for an options record:
