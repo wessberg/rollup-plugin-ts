@@ -3,6 +3,14 @@ import {rollup} from "rollup";
 import pkg from "./package.json" assert {type: "json"};
 import {builtinModules} from "module";
 
+const SHARED_OUTPUT_OPTIONS = {
+	sourcemap: true,
+	hoistTransitiveImports: false,
+	generatedCode: "es2015",
+	compact: false,
+	minifyInternalExports: false
+} as const;
+
 (async () => {
 	const bundle = await rollup({
 		input: "src/index.ts",
@@ -18,15 +26,15 @@ import {builtinModules} from "module";
 		(
 			[
 				{
-					file: pkg.main,
+					file: pkg.exports.require,
 					format: "cjs",
-					sourcemap: true,
-					exports: "default"
+					exports: "default",
+					...SHARED_OUTPUT_OPTIONS
 				},
 				{
-					file: pkg.module,
+					file: pkg.exports.import,
 					format: "esm",
-					sourcemap: true
+					...SHARED_OUTPUT_OPTIONS
 				}
 			] as const
 		).map(bundle.write)

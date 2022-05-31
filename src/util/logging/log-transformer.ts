@@ -1,5 +1,5 @@
 import {TS} from "../../type/ts.js";
-import chalk from "chalk";
+import color from "ansi-colors";
 import {getFormattedDateTimePrefix} from "./get-formatted-date-time-prefix.js";
 
 export interface LogTransformationResult {
@@ -7,8 +7,8 @@ export interface LogTransformationResult {
 }
 
 function logTransformationStep(leadingText: string, name: string, sourceFile: TS.SourceFile, printer: TS.Printer): void {
-	console.log(`${getFormattedDateTimePrefix()}${chalk.magenta(`transformer: ${leadingText} ${name}`)} ${chalk.gray(`(${sourceFile.fileName})`)}`);
-	console.log(chalk.white(printer.printFile(sourceFile)));
+	console.log(`${getFormattedDateTimePrefix()}${color.magenta(`transformer: ${leadingText} ${name}`)} ${color.gray(`(${sourceFile.fileName})`)}`);
+	console.log(color.white(printer.printFile(sourceFile)));
 }
 
 export function logTransformer(name: string, sourceFile: TS.SourceFile, printer: TS.Printer): LogTransformationResult {

@@ -1,4 +1,4 @@
-import chalk from "chalk";
+import color from "ansi-colors";
 
 export function getFormattedDateTimePrefix(): string {
 	const currentDate = new Date();
@@ -6,5 +6,5 @@ export function getFormattedDateTimePrefix(): string {
 		.getSeconds()
 		.toString()
 		.padStart(2, "0")})`;
-	return `${chalk.gray(currentDateTime)}   `;
+	return `${color.gray(currentDateTime)}   `;
 }
