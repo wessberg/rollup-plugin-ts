@@ -1,3 +1,12 @@
+## [3.0.1](https://github.com/wessberg/rollup-plugin-ts/compare/v3.0.0...v3.0.1) (2022-05-31)
+
+
+### Bug Fixes
+
+* use ansi-colors instead of Chalk for better CJS fallback support ([eac318e](https://github.com/wessberg/rollup-plugin-ts/commit/eac318e6253089d1e6c94e6593dc1685cd68c9e9))
+
+
+
 # [3.0.0](https://github.com/wessberg/rollup-plugin-ts/compare/v2.0.7...v3.0.0) (2022-05-30)
 
 
