@@ -1,3 +1,18 @@
+## [3.0.2](https://github.com/wessberg/rollup-plugin-ts/compare/v3.0.1...v3.0.2) (2022-06-07)
+
+
+### Bug Fixes
+
+* don't call addWatchFile outside of allowed Rollup phase ([8b3e7e8](https://github.com/wessberg/rollup-plugin-ts/commit/8b3e7e8fa0a4f0cd5ecd5edf0da4d76749f55193))
+
+
+### Features
+
+* add support for ESM-based Babel configs. Closes [#167](https://github.com/wessberg/rollup-plugin-ts/issues/167) ([15e8edd](https://github.com/wessberg/rollup-plugin-ts/commit/15e8edd828972cad274caab88ac91081414e82c5))
+* add support for multiple swc configs. Closes [#177](https://github.com/wessberg/rollup-plugin-ts/issues/177). Don't enforce importHelpers: true to avoid a potential tslib error when babel or swc is used for all types of syntax ([5ba4c9c](https://github.com/wessberg/rollup-plugin-ts/commit/5ba4c9c75c0b1f5fdd34d06a0729a3af0182344a))
+
+
+
 ## [3.0.1](https://github.com/wessberg/rollup-plugin-ts/compare/v3.0.0...v3.0.1) (2022-05-31)
 
 
