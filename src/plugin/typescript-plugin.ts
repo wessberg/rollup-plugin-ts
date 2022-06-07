@@ -114,18 +114,20 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 	 */
 	let MULTI_ENTRY_MODULE: string | undefined;
 
-	const addFile = (fileName: string, text: string, dependencyCb: (dependency: string) => void): void => {
+	const addFile = (fileName: string, text: string, dependencyCb?: (dependency: string) => void): void => {
 		// Add the file to the CompilerHost
 		host.add({fileName, text, fromRollup: true});
 
-		// Add all dependencies of the file to the File Watcher if missing
-		const dependencies = host.getDependenciesForFile(fileName, true);
+		if (dependencyCb != null) {
+			// Add all dependencies of the file to the File Watcher if missing
+			const dependencies = host.getDependenciesForFile(fileName, true);
 
-		if (dependencies != null) {
-			for (const dependency of dependencies) {
-				const pickedDependency = pickResolvedModule(dependency, false);
-				if (pickedDependency == null) continue;
-				dependencyCb(pickedDependency);
+			if (dependencies != null) {
+				for (const dependency of dependencies) {
+					const pickedDependency = pickResolvedModule(dependency, false);
+					if (pickedDependency == null) continue;
+					dependencyCb(pickedDependency);
+				}
 			}
 		}
 	};
@@ -535,7 +537,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 					if (host.has(normalizedFile) || !isFileRelevant(module.originalCode, normalizedFile).isSupportedByCompilerHost) continue;
 
 					// Add to the CompilerHost
-					addFile(normalizedFile, module.originalCode, dependency => this.addWatchFile(dependency));
+					addFile(normalizedFile, module.originalCode);
 				}
 			}
 
