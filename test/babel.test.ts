@@ -2,7 +2,7 @@ import test, {ExecutionContext} from "ava";
 import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro.js";
 import {ConfigItem} from "@babel/core";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
-import {BABEL_CONFIG_JS_FILENAME, BABEL_CONFIG_JSON_FILENAME, BABELRC_FILENAME} from "../src/constant/constant.js";
+import {BABEL_CONFIG_JS_FILENAME, BABEL_CONFIG_JSON_FILENAME, BABELRC_FILENAME, BABEL_CONFIG_MJS_FILENAME} from "../src/constant/constant.js";
 import {areTempFilesEqual, createTemporaryFile} from "./util/create-temporary-file.js";
 import {getAppropriateEcmaVersionForBrowserslist} from "browserslist-generator";
 import {formatCode} from "./util/format-code.js";
@@ -267,6 +267,44 @@ test.serial("Can resolve the nearest file-relative babel config. #1", withTypeSc
 	} finally {
 		unlinker.cleanup();
 		t.true(configFileName != null && areTempFilesEqual(configFileName, unlinker.path));
+	}
+});
+
+test.serial("Can handle ESM-based babel configs. #1", withTypeScript, async (t, {typescript}) => {
+	const unlinker = createTemporaryFile(BABEL_CONFIG_MJS_FILENAME, `export default {}`);
+	let configFileName: string | undefined;
+	let forcePass = false;
+
+	try {
+		await generateRollupBundle(
+			[
+				{
+					entry: true,
+					fileName: "index.ts",
+					text: `\
+					`
+				}
+			],
+			{
+				debug: false,
+				typescript,
+				cwd: unlinker.dir,
+				transpiler: "babel",
+				hook: {
+					babelConfig: (config, fileName) => {
+						configFileName = fileName;
+						return config;
+					}
+				}
+			}
+		);
+	} catch (ex) {
+		if (handlePotentiallyAllowedFailingBabelError(t, ex)) {
+			forcePass = true;
+		}
+	} finally {
+		unlinker.cleanup();
+		t.true(forcePass || (configFileName != null && areTempFilesEqual(configFileName, unlinker.path)));
 	}
 });
 

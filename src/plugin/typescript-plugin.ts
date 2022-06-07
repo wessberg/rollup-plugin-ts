@@ -144,7 +144,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		// Conditionally initialize babel at this point.
 		// Only require @babel/preset-typescript if relevant for the initial emit that may include TypeScript specific syntax
 		const babel = await loadBabel(initial);
-		const babelConfigResult = babelConfigFileFactory!(fileName, initial);
+		const babelConfigResult = await babelConfigFileFactory!(fileName, initial);
 
 		const transpilationResult = await babel.transformAsync(input.code, {
 			...babelConfigResult.config,
@@ -339,7 +339,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			let updatedSourceDescription: SourceDescription | undefined;
 
 			if (transpilerOptions.otherSyntax === "babel") {
-				const {config} = babelConfigChunkFactory!(chunk.fileName);
+				const {config} = await babelConfigChunkFactory!(chunk.fileName);
 				const babel = await loadBabel();
 
 				// When targeting CommonJS and using babel as a transpiler, we may need to rewrite forced ESM paths for preserved external helpers to paths that are compatible with CommonJS.

@@ -83,6 +83,7 @@ export const BABEL_RUNTIME_PREFIX_2 = "babel-runtime/";
 export const SWC_HELPERS_PREFIX = "@swc/helpers";
 
 export const BABEL_CONFIG_JS_FILENAME = "babel.config.js";
+export const BABEL_CONFIG_MJS_FILENAME = "babel.config.mjs";
 export const BABEL_CONFIG_JSON_FILENAME = "babel.config.json";
 export const BABELRC_FILENAME = ".babelrc";
 

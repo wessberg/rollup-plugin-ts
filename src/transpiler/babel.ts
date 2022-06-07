@@ -160,16 +160,16 @@ export interface GetBabelConfigResult {
 	config: FullConfig | undefined;
 }
 
-export type BabelConfigFactory = (filename: string, inTypescriptStep?: boolean) => GetBabelConfigResult;
+export type BabelConfigFactory = (filename: string, inTypescriptStep?: boolean) => Promise<GetBabelConfigResult>;
 
 /**
  * Gets a Babel Config based on the given options
  */
 export function getBabelConfig({babel, babelConfig, cwd, forcedOptions = {}, defaultOptions = {}, browserslist, phase, hook}: GetBabelConfigOptions): BabelConfigFactory {
-	return (filename: string, inTypescriptStep = false) => {
+	return async (filename: string, inTypescriptStep = false) => {
 
 		// Load a partial Babel config based on the input options
-		const partialConfig = babel.loadPartialConfig(
+		const partialConfig = await babel.loadPartialConfigAsync(
 			// If babel options are provided directly
 			isBabelConfig(babelConfig) && Object.keys(babelConfig).length > 0
 				? // If the given babelConfig is an object of input options, use that as the basis for the full config
