@@ -175,7 +175,7 @@
 	"prettier": "@wessberg/prettier-config",
 	"ava": {
 		"files": [
-			"test/**.test.ts"
+			"test/**.ts"
 		],
 		"verbose": true,
 		"timeout": "400s",

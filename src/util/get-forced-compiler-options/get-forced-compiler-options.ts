@@ -2,7 +2,7 @@ import {GetForcedCompilerOptionsOptions} from "./get-forced-compiler-options-opt
 import {getScriptTargetFromBrowserslist} from "../get-script-target-from-browserslist/get-script-target-from-browserslist.js";
 import {getOutDir} from "../get-out-dir/get-out-dir.js";
 import {TS} from "../../type/ts.js";
-import { getTranspilerOptions } from "../plugin-options/get-plugin-options.js";
+import { getTranspilerOptions, isUsingTranspiler } from "../plugin-options/get-plugin-options.js";
 
 /**
  * Gets the ModuleKind to force
@@ -33,12 +33,28 @@ function getForcedScriptTargetOption({pluginOptions, browserslist}: GetForcedCom
 }
 
 /**
+ * Decide whether or not to force import helpers
+ */
+ function getForcedImportHelpersOption({pluginOptions}: GetForcedCompilerOptionsOptions): {importHelpers?: boolean} {
+	// If TypeScript is being used, which uses tslib, helpers should *always* be imported.
+	// We don't want them to be duplicated multiple times within generated chunks.
+	// When other transpilers are being used in some shape of form, they'll have similar enforced options
+	if (isUsingTranspiler("typescript", getTranspilerOptions(pluginOptions.transpiler))) {
+		return {importHelpers: true};
+	}
+
+	// Otherwise, don't force the 'target' option
+	return {};
+}
+
+/**
  * Retrieves the CompilerOptions that will be forced
  */
 export function getForcedCompilerOptions(options: GetForcedCompilerOptionsOptions): Partial<TS.CompilerOptions> {
 	return {
 		...getForcedModuleKindOption(options),
 		...getForcedScriptTargetOption(options),
+		...getForcedImportHelpersOption(options),
 		outDir: getOutDir(options.pluginOptions.cwd),
 		// Rollup, not Typescript, is the decider of where to put files
 		outFile: undefined,
@@ -48,8 +64,6 @@ export function getForcedCompilerOptions(options: GetForcedCompilerOptionsOption
 		inlineSourceMap: false,
 		// Since we never use inline source maps, inline sources aren't supported
 		inlineSources: false,
-		// Helpers should *always* be imported. We don't want them to be duplicated multiple times within generated chunks
-		importHelpers: true,
 		// Node resolution is required when 'importHelpers' are true
 		moduleResolution: options.pluginOptions.typescript.ModuleResolutionKind.NodeJs,
 		// Typescript should always be able to emit - otherwise we cannot transform source files

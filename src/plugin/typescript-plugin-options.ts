@@ -3,6 +3,7 @@ import {TS} from "../type/ts.js";
 import {DeclarationStats} from "../type/declaration-stats.js";
 import {BabelConfig} from "../type/babel.js";
 import {SwcConfig} from "../type/swc.js";
+import { MaybeArray } from "helpertypes";
 
 export type Transpiler = "typescript" | "babel" | "swc";
 
@@ -83,7 +84,7 @@ export interface TypescriptPluginOptions {
 	transpiler: Transpiler|TranspilerOptions;
 	tsconfig?: string | Partial<TS.CompilerOptions> | Partial<InputCompilerOptions> | TS.ParsedCommandLine | TsConfigResolver | TsConfigResolverWithFileName;
 	babelConfig?: string | Partial<BabelConfig>;
-	swcConfig?: string | Partial<SwcConfig>;
+	swcConfig?: string | MaybeArray<Partial<SwcConfig>>;
 	browserslist?: false | string[] | string | BrowserslistConfig;
 	cwd: string;
 	transformers?: (TS.CustomTransformers | CustomTransformersFunction)[] | TS.CustomTransformers | CustomTransformersFunction;

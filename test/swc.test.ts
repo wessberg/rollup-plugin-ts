@@ -458,3 +458,78 @@ test.serial("Supports swc minification. #1", withTypeScript, async (t, {typescri
 		`)
 	);
 });
+
+test.serial("Supports multiple swc configurations. #1", withTypeScript, async (t, {typescript}) => {
+	const bundle = await generateRollupBundle(
+		[
+			{
+				entry: true,
+				fileName: "foo.ts",
+				text: `\
+				export const foo: number = 2;
+					`
+			},
+			{
+				entry: true,
+				fileName: "bar.js",
+				text: `\
+
+				export const bar = 2;
+					`
+			}
+		],
+		{
+			typescript,
+			transpiler: "swc",
+			swcConfig: [
+				{
+					test: ".ts$",
+					jsc: {
+						parser: {
+							syntax: "typescript"
+						}
+					},
+					env: {
+						targets: {
+							chrome: "100"
+						}
+					}
+				},
+				{
+					test: ".js$",
+					jsc: {
+						parser: {
+							syntax: "ecmascript"
+						}
+					},
+					env: {
+						targets: {
+							ie: "11"
+						}
+					}
+				}
+			]
+		}
+	);
+	const {
+		js: [fileA, fileB]
+	} = bundle;
+
+	t.deepEqual(
+		formatCode(fileA.code),
+		formatCode(`\
+		const foo = 2;
+
+		export { foo };
+		`)
+	);
+
+	t.deepEqual(
+		formatCode(fileB.code),
+		formatCode(`\
+		var bar = 2;
+
+		export { bar };
+		`)
+	);
+});
