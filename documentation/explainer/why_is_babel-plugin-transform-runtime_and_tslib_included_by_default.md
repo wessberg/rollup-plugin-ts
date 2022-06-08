@@ -1,6 +1,6 @@
 #### Why are helpers imported by default, and why are things like @babel/plugin-transform-runtime, tslib, and @swc/helpers peer dependencies?
 
-Babel and Typescript both come with a set of helper functions.
+Babel, swc, and Typescript both come with a set of helper functions.
 For example, the following code:
 
 ```typescript
@@ -17,7 +17,7 @@ function _typeof(obj) {
 typeof foo === "undefined" ? "undefined" : _typeof(foo);
 ```
 
-And something similar to it with TypeScript. Let's focus on Babel for now, but the same can be said for using TypeScript as the transpiler:
+And something similar to it with TypeScript and swc. Let's focus on Babel for now, but the same can be said for using TypeScript or swc as the transpiler:
 
 With `rollup-plugin-ts`, most Babel plugins are run per file, rather than per-chunk. This is because for each file, the output provided to Rollup must be compatible with [Acorn](https://github.com/acornjs/acorn), which Rollup is based on, and you may be transforming experimental syntax that Acorn doesn't yet support.
 In effect, this means that if you pass 3 files containing `typeof` through Rollup, you get 3 duplications of the helper inside the output bundle. For example
