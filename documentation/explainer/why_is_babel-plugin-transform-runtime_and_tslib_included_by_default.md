@@ -1,4 +1,4 @@
-#### Why are helpers imported by default, and why are things like @babel/plugin-transform-runtime, tslib, and @swc/helpers peer dependencies?
+#### Why are helpers always imported, and why are things like @babel/plugin-transform-runtime, tslib, and @swc/helpers peer dependencies?
 
 Babel, swc, and Typescript both come with a set of helper functions.
 For example, the following code:
