@@ -1,6 +1,6 @@
-#### Why is @babel/plugin-transform-runtime and tslib included by default?
+#### Why are helpers imported by default, and why are things like @babel/plugin-transform-runtime, tslib, and @swc/helpers peer dependencies?
 
-Babel and Typescript both comes with a set of helper functions.
+Babel and Typescript both come with a set of helper functions.
 For example, the following code:
 
 ```typescript
