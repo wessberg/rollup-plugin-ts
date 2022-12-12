@@ -64,6 +64,14 @@ specifiers:
   typescript-4-4-2: npm:typescript@4.4.2
   typescript-4-5-4: npm:typescript@4.5.4
   typescript-4-6-4: npm:typescript@4.6.4
+  typescript-4-7-2: npm:typescript@4.7.2
+  typescript-4-7-3: npm:typescript@4.7.3
+  typescript-4-7-4: npm:typescript@4.7.4
+  typescript-4-8-2: npm:typescript@4.8.2
+  typescript-4-8-3: npm:typescript@4.8.3
+  typescript-4-8-4: npm:typescript@4.8.4
+  typescript-4-9-3: npm:typescript@4.9.3
+  typescript-4-9-4: npm:typescript@4.9.4
 
 dependencies:
   '@rollup/pluginutils': 4.2.1
@@ -131,6 +139,14 @@ devDependencies:
   typescript-4-4-2: /typescript/4.4.2
   typescript-4-5-4: /typescript/4.5.4
   typescript-4-6-4: /typescript/4.6.4
+  typescript-4-7-2: /typescript/4.7.2
+  typescript-4-7-3: /typescript/4.7.3
+  typescript-4-7-4: /typescript/4.7.4
+  typescript-4-8-2: /typescript/4.8.2
+  typescript-4-8-3: /typescript/4.8.3
+  typescript-4-8-4: /typescript/4.8.4
+  typescript-4-9-3: /typescript/4.9.3
+  typescript-4-9-4: /typescript/4.9.4
 
 packages:
 
@@ -7678,10 +7694,52 @@ packages:
     hasBin: true
     dev: true
 
+  /typescript/4.7.2:
+    resolution: {integrity: sha512-Mamb1iX2FDUpcTRzltPxgWMKy3fhg0TN378ylbktPGPK/99KbDtMQ4W1hwgsbPAsG3a0xKa1vmw4VKZQbkvz5A==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: true
+
   /typescript/4.7.3:
     resolution: {integrity: sha512-WOkT3XYvrpXx4vMMqlD+8R8R37fZkjyLGlxavMc4iB8lrl8L0DeTcHbYgw/v0N/z9wAFsgBhcsF0ruoySS22mA==}
     engines: {node: '>=4.2.0'}
     hasBin: true
+
+  /typescript/4.7.4:
+    resolution: {integrity: sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: true
+
+  /typescript/4.8.2:
+    resolution: {integrity: sha512-C0I1UsrrDHo2fYI5oaCGbSejwX4ch+9Y5jTQELvovfmFkK3HHSZJB8MSJcWLmCUBzQBchCrZ9rMRV6GuNrvGtw==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: true
+
+  /typescript/4.8.3:
+    resolution: {integrity: sha512-goMHfm00nWPa8UvR/CPSvykqf6dVV8x/dp0c5mFTMTIu0u0FlGWRioyy7Nn0PGAdHxpJZnuO/ut+PpQ8UiHAig==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: true
+
+  /typescript/4.8.4:
+    resolution: {integrity: sha512-QCh+85mCy+h0IGff8r5XWzOVSbBO+KfeYrMQh7NJ58QujwcE22u+NUSmUxqF+un70P9GXKxa2HCNiTTMJknyjQ==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: true
+
+  /typescript/4.9.3:
+    resolution: {integrity: sha512-CIfGzTelbKNEnLpLdGFgdyKhG23CKdKgQPOBc+OUNrkJ2vr+KSzsSV5kq5iWhEQbok+quxgGzrAtGWCyU7tHnA==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: true
+
+  /typescript/4.9.4:
+    resolution: {integrity: sha512-Uz+dTXYzxXXbsFpM86Wh3dKCxrQqUcVMxwU54orwlJjOpO3ao8L7j5lH+dWfTwgCwIuM9GQ2kvVotzYJMXTBZg==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: true
 
   /ua-parser-js/1.0.2:
     resolution: {integrity: sha512-00y/AXhx0/SsnI51fTc0rLRmafiGOM4/O+ny10Ps7f+j/b8p/ZY11ytMgznXkOVo4GQ+KwQG5UQLkLGirsACRg==}
