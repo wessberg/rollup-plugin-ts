@@ -1,4 +1,4 @@
-import {ExistingRawSourceMap, InputOptions, OutputBundle, OutputOptions, Plugin, PluginContext, RenderedChunk, RollupCache, SourceDescription} from "rollup";
+import {ExistingRawSourceMap, InputOptions, InputPluginOption, OutputBundle, OutputOptions, Plugin, PluginContext, RenderedChunk, RollupCache, SourceDescription} from "rollup";
 import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line.js";
 import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options.js";
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output.js";
@@ -30,6 +30,8 @@ import {loadBabel, loadSwc} from "../util/transpiler-loader.js";
 import {BabelConfigFactory, getBabelConfig, getDefaultBabelOptions, getForcedBabelOptions, replaceBabelHelpers} from "../transpiler/babel.js";
 import {getSwcConfigFactory, SwcConfigFactory} from "../transpiler/swc.js";
 import {inputOptionsAreEqual} from "../util/rollup/rollup-util.js";
+import { isPromise } from "../util/object/object-util.js";
+import { isDefined } from "../util/is-defined/is-defined.js";
 
 /**
  * The name of the Rollup plugin
@@ -220,6 +222,20 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		};
 	};
 
+	async function flattenPlugins (plugins: InputPluginOption|undefined): Promise<Plugin[]> {
+		const flattened: Plugin[] = [];
+		const awaitedPlugins = ensureArray(isPromise(plugins) ? await plugins : plugins).filter(isDefined);
+		for (const awaitedPlugin of awaitedPlugins) {
+			if (awaitedPlugin == null || awaitedPlugin === false) continue;
+			if (Array.isArray(awaitedPlugin) || isPromise(awaitedPlugin)) {
+				flattened.push(...(await flattenPlugins(awaitedPlugin)));
+			} else {
+				flattened.push(awaitedPlugin);
+			}
+		}
+		return flattened;
+	}
+
 	return {
 		name: PLUGIN_NAME,
 
@@ -236,7 +252,8 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 			// Re-assign the full input options
 			rollupInputOptions = options;
 
-			const multiEntryPlugin = options.plugins?.find(plugin => plugin != null && typeof plugin !== "boolean" && plugin.name === "multi-entry");
+			const plugins = await flattenPlugins(options.plugins);
+			const multiEntryPlugin = plugins?.find(plugin => plugin != null && typeof plugin !== "boolean" && plugin.name === "multi-entry");
 
 			// If the multi-entry plugin is being used, we can extract the name of the entry module
 			// based on it

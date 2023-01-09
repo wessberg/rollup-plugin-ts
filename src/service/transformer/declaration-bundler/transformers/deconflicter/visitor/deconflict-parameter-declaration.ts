@@ -1,6 +1,7 @@
 import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options.js";
 import {TS} from "../../../../../../type/ts.js";
 import {preserveMeta} from "../../../util/clone-node-with-meta.js";
+import { getModifierLikes } from "../../../util/node-util.js";
 
 /**
  * Deconflicts the given ParameterDeclaration.
@@ -18,8 +19,10 @@ export function deconflictParameterDeclaration(options: DeconflicterVisitorOptio
 		return node;
 	}
 
+	const modifierLikes = getModifierLikes(node);
+
 	return preserveMeta(
-		factory.updateParameterDeclaration(node, node.decorators, node.modifiers, node.dotDotDotToken, nameContResult, node.questionToken, typeContResult, initializerContResult),
+		factory.updateParameterDeclaration(node, modifierLikes, node.dotDotDotToken, nameContResult, node.questionToken, typeContResult, initializerContResult),
 		node,
 		options
 	);

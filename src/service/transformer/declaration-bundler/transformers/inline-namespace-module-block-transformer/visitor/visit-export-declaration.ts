@@ -44,7 +44,7 @@ export function visitExportDeclaration(options: InlineNamespaceModuleBlockVisito
 		);
 
 		intentToAddImportDeclaration(
-			factory.createImportDeclaration(undefined, undefined, factory.createImportClause(false, undefined, namedImports), factory.createStringLiteral(node.moduleSpecifier.text))
+			factory.createImportDeclaration(undefined, factory.createImportClause(false, undefined, namedImports), factory.createStringLiteral(node.moduleSpecifier.text))
 		);
 
 		const namedExports = factory.createNamedExports(
@@ -53,7 +53,7 @@ export function visitExportDeclaration(options: InlineNamespaceModuleBlockVisito
 			)
 		);
 
-		return preserveParents(factory.updateExportDeclaration(node, node.decorators, node.modifiers, node.isTypeOnly, namedExports, undefined, node.assertClause), options);
+		return preserveParents(factory.updateExportDeclaration(node, node.modifiers, node.isTypeOnly, namedExports, undefined, node.assertClause), options);
 	}
 
 	return node;

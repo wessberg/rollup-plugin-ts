@@ -34,7 +34,7 @@ export function deconflictModuleDeclaration(options: DeconflicterVisitorOptions<
 		if (isIdentical) {
 			return node;
 		} else {
-			return preserveMeta(factory.updateModuleDeclaration(node, node.decorators, node.modifiers, factory.createIdentifier(binding), bodyContResult), node, options);
+			return preserveMeta(factory.updateModuleDeclaration(node, node.modifiers, factory.createIdentifier(binding), bodyContResult), node, options);
 		}
 	}
 
@@ -64,5 +64,5 @@ export function deconflictModuleDeclaration(options: DeconflicterVisitorOptions<
 		return node;
 	}
 
-	return preserveMeta(factory.updateModuleDeclaration(node, node.decorators, node.modifiers, nameContResult, bodyContResult), node, options);
+	return preserveMeta(factory.updateModuleDeclaration(node, node.modifiers, nameContResult, bodyContResult), node, options);
 }

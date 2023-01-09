@@ -11,7 +11,7 @@ test.serial("Supports Custom Transformers, including on bundled declarations. #1
 
 		function visitNode(node: TS.Node): TS.VisitResult<TS.Node> {
 			if (ts.isClassDeclaration(node)) {
-				return factory.updateClassDeclaration(node, node.decorators, node.modifiers, factory.createIdentifier("Bar"), node.typeParameters, node.heritageClauses, node.members);
+				return factory.updateClassDeclaration(node, node.modifiers, factory.createIdentifier("Bar"), node.typeParameters, node.heritageClauses, node.members);
 			} else if (ts.isExportSpecifier(node)) {
 				return factory.updateExportSpecifier(node, false, node.propertyName, factory.createIdentifier("Bar"));
 			} else {

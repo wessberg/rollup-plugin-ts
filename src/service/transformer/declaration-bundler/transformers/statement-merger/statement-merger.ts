@@ -88,7 +88,7 @@ export function statementMerger({markAsModuleIfNeeded}: StatementMergerOptions):
 					...exportDeclarations,
 					...(importExportWithSupportedExtensionsCount === 0 && markAsModuleIfNeeded
 						? // Create an 'export {}' declaration to mark the declaration file as module-based if it has no imports or exports
-						  [factory.createExportDeclaration(undefined, undefined, false, factory.createNamedExports([]))]
+						  [factory.createExportDeclaration(undefined, false, factory.createNamedExports([]))]
 						: [])
 				],
 				result.isDeclarationFile,

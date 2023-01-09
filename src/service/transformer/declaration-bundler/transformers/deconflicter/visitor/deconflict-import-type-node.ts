@@ -11,12 +11,12 @@ export function deconflictImportTypeNode(options: DeconflicterVisitorOptions<TS.
 
 	const argumentContResult = continuation(node.argument, {lexicalEnvironment});
 	const typeArgumentsContResult = node.typeArguments == null ? undefined : node.typeArguments.map(typeArgument => continuation(typeArgument, {lexicalEnvironment}));
+	const assertionContResult = node.assertions == null ? undefined : continuation(node.assertions, {lexicalEnvironment});
 
 	const isIdentical = argumentContResult === node.argument && nodeArraysAreEqual(typeArgumentsContResult, node.typeArguments);
 
 	if (isIdentical) {
 		return node;
 	}
-
-	return preserveMeta(factory.updateImportTypeNode(node, argumentContResult, node.qualifier, typeArgumentsContResult, node.isTypeOf), node, options);
+	return preserveMeta(factory.updateImportTypeNode(node, argumentContResult, assertionContResult, node.qualifier, typeArgumentsContResult, node.isTypeOf), node, options);
 }

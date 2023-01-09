@@ -31,7 +31,7 @@ function generateExportDeclarations(options: GenerateExportDeclarationsOptions, 
 			// in favor of all other named export bindings that will included anyway
 			if (matchingSourceFile == null && generatedModuleSpecifier != null) {
 				exportDeclarations.push(
-					preserveParents(factory.createExportDeclaration(undefined, undefined, false, undefined, factory.createStringLiteral(generatedModuleSpecifier)), {typescript})
+					preserveParents(factory.createExportDeclaration(undefined, false, undefined, factory.createStringLiteral(generatedModuleSpecifier)), {typescript})
 				);
 			}
 
@@ -58,7 +58,6 @@ function generateExportDeclarations(options: GenerateExportDeclarationsOptions, 
 			exportDeclarations.push(
 				preserveParents(
 					factory.createExportDeclaration(
-						undefined,
 						undefined,
 						symbol.isTypeOnly,
 						factory.createNamedExports([exportSpecifier]),
@@ -107,7 +106,6 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 		return preserveMeta(
 			factory.updateExportDeclaration(
 				contResult,
-				contResult.decorators,
 				contResult.modifiers,
 				contResult.isTypeOnly,
 				contResult.exportClause,
@@ -166,7 +164,6 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 				...moduleDeclarations.map(moduleDeclaration => preserveParents(moduleDeclaration, options)),
 				preserveParents(
 					factory.createModuleDeclaration(
-						undefined,
 						ensureHasDeclareModifier(undefined, factory, typescript),
 						factory.createIdentifier(contResult.exportClause.name.text),
 						moduleBlock,
@@ -176,7 +173,6 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 				),
 				preserveParents(
 					factory.createExportDeclaration(
-						undefined,
 						undefined,
 						false,
 						factory.createNamedExports([factory.createExportSpecifier(false, undefined, factory.createIdentifier(contResult.exportClause.name.text))]),
@@ -190,7 +186,6 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 			options.prependNodes(
 				preserveParents(
 					factory.createExportDeclaration(
-						undefined,
 						undefined,
 						false,
 						factory.createNamedExports([
@@ -208,7 +203,7 @@ export function visitExportDeclaration(options: ModuleMergerVisitorOptions<TS.Ex
 
 	// Otherwise, preserve the continuation result, but without the ModuleSpecifier
 	return preserveMeta(
-		factory.updateExportDeclaration(contResult, contResult.decorators, contResult.modifiers, contResult.isTypeOnly, contResult.exportClause, undefined, contResult.assertClause),
+		factory.updateExportDeclaration(contResult, contResult.modifiers, contResult.isTypeOnly, contResult.exportClause, undefined, contResult.assertClause),
 		contResult,
 		options
 	);

@@ -9,6 +9,7 @@ import {ContinuationOptions} from "../deconflicter-options.js";
 import {getIdForNode} from "../../../util/get-id-for-node.js";
 import {preserveMeta} from "../../../util/clone-node-with-meta.js";
 import {getOriginalSourceFile} from "../../../util/get-original-source-file.js";
+import { getModifierLikes } from "../../../util/node-util.js";
 
 /**
  * Deconflicts the given ClassExpression.
@@ -55,8 +56,10 @@ export function deconflictClassExpression(options: DeconflicterVisitorOptions<TS
 		return node;
 	}
 
+	const modifierLikes = getModifierLikes(node);
+
 	return preserveMeta(
-		factory.updateClassExpression(node, node.decorators, node.modifiers, nameContResult, typeParametersContResult, heritageClausesContResult, membersContResult),
+		factory.updateClassExpression(node, modifierLikes, nameContResult, typeParametersContResult, heritageClausesContResult, membersContResult),
 		node,
 		options
 	);

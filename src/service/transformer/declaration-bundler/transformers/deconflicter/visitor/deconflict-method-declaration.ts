@@ -4,6 +4,7 @@ import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment.j
 import {nodeArraysAreEqual} from "../../../util/node-arrays-are-equal.js";
 import {ContinuationOptions} from "../deconflicter-options.js";
 import {preserveMeta} from "../../../util/clone-node-with-meta.js";
+import { getModifierLikes } from "../../../util/node-util.js";
 
 /**
  * Deconflicts the given MethodDeclaration.
@@ -31,11 +32,12 @@ export function deconflictMethodDeclaration(options: DeconflicterVisitorOptions<
 		return node;
 	}
 
+	const modifierLikes = getModifierLikes(node);
+
 	return preserveMeta(
 		factory.updateMethodDeclaration(
 			node,
-			node.decorators,
-			node.modifiers,
+			modifierLikes,
 			node.asteriskToken,
 			nameContResult,
 			node.questionToken,

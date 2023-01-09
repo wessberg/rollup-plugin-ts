@@ -39,15 +39,7 @@ function createCommonChunk(
 			isImplicitEntry: false,
 			isDynamicEntry: false,
 			facadeModuleId: module,
-			modules: {
-				[module]: {
-					originalLength: 0,
-					removedExports: [],
-					renderedExports: [],
-					renderedLength: 0,
-					code: null
-				}
-			},
+			moduleIds: [module],
 			exports: []
 		});
 	}

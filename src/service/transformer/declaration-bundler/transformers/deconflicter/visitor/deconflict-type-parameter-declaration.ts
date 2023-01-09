@@ -41,5 +41,5 @@ export function deconflictTypeParameterDeclaration(options: DeconflicterVisitorO
 		return node;
 	}
 
-	return preserveMeta(factory.updateTypeParameterDeclaration(node, nameContResult, constraintContResult, defaultContResult), node, options);
+	return preserveMeta(factory.updateTypeParameterDeclaration(node, node.modifiers, nameContResult, constraintContResult, defaultContResult), node, options);
 }

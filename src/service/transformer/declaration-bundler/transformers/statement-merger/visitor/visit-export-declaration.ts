@@ -31,7 +31,7 @@ export function visitExportDeclaration(options: StatementMergerVisitorOptions<TS
 	}
 
 	return [
-		preserveMeta(factory.updateExportDeclaration(node, node.decorators, node.modifiers, node.isTypeOnly, exportClause, node.moduleSpecifier, node.assertClause), node, options),
+		preserveMeta(factory.updateExportDeclaration(node, node.modifiers, node.isTypeOnly, exportClause, node.moduleSpecifier, node.assertClause), node, options),
 		...other
 	];
 }

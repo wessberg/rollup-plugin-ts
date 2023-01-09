@@ -49,7 +49,6 @@ export function visitImportSpecifier(options: ModuleMergerVisitorOptions<TS.Impo
 				preserveParents(
 					factory.createImportDeclaration(
 						undefined,
-						undefined,
 						factory.createImportClause(
 							false,
 							undefined,

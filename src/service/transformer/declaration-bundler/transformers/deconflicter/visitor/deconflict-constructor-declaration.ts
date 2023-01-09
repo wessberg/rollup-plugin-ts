@@ -23,5 +23,5 @@ export function deconflictConstructorDeclaration(options: DeconflicterVisitorOpt
 		return node;
 	}
 
-	return preserveMeta(factory.updateConstructorDeclaration(node, node.decorators, node.modifiers, parametersContResult, bodyContResult), node, options);
+	return preserveMeta(factory.updateConstructorDeclaration(node, node.modifiers, parametersContResult, bodyContResult), node, options);
 }

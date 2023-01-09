@@ -1,4 +1,4 @@
-import {OutputOptions, Plugin, rollup, RollupBuild, RollupCache, RollupOptions, RollupOutput} from "rollup";
+import {InputPluginOption, OutputOptions, Plugin, rollup, RollupBuild, RollupCache, RollupOptions, RollupOutput} from "rollup";
 // import commonjs from "@rollup/plugin-commonjs";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin.js";
 import {HookRecord, InputCompilerOptions, TypescriptPluginOptions} from "../../src/plugin/typescript-plugin-options.js";
@@ -15,11 +15,15 @@ import {TS} from "../../src/type/ts.js";
 import {logVirtualFiles} from "../../src/util/logging/log-virtual-files.js";
 import {shouldDebugVirtualFiles} from "../../src/util/is-debug/should-debug.js";
 import path from "crosspath";
+import {builtinModules} from "module";
 import {createTestSetup} from "./test-setup.js";
 import {TestFile} from "./test-file.js";
 import {MaybeArray, PartialExcept} from "helpertypes";
 import {FileResult} from "./test-result.js";
 import {removeSearchPathFromFilename, setExtension} from "../../src/util/path/path-util.js";
+import { ensureArray } from "../../src/util/ensure-array/ensure-array.js";
+import { isPromise } from "../../src/util/object/object-util.js";
+import { isDefined } from "../../src/util/is-defined/is-defined.js";
 
 export interface GenerateRollupBundleResult {
 	bundle: RollupOutput;
@@ -80,6 +84,20 @@ export async function generateRollupBundle(
 		fileSystem
 	} = createTestSetup(inputFiles, options);
 
+	async function flattenPlugins (plugins: InputPluginOption|undefined): Promise<Plugin[]> {
+		const flattened: Plugin[] = [];
+		const awaitedPlugins = ensureArray(isPromise(plugins) ? await plugins : plugins).filter(isDefined);
+		for (const awaitedPlugin of awaitedPlugins) {
+			if (awaitedPlugin == null || awaitedPlugin === false) continue;
+			if (Array.isArray(awaitedPlugin) || isPromise(awaitedPlugin)) {
+				flattened.push(...(await flattenPlugins(awaitedPlugin)));
+			} else {
+				flattened.push(awaitedPlugin);
+			}
+		}
+		return flattened;
+	}
+
 	const hasMultiEntryPlugin = [...prePlugins, ...postPlugins].some(({name}) => name === "multi-entry");
 
 	if (entries.length === 0 && !hasMultiEntryPlugin) {
@@ -100,6 +118,7 @@ export async function generateRollupBundle(
 		const normalizedFileName = path.normalize(fileName);
 		const normalizedParent = parent == null ? undefined : path.normalize(parent);
 		const absolute = path.isAbsolute(normalizedFileName) ? normalizedFileName : path.join(normalizedParent == null ? "" : path.dirname(normalizedParent), normalizedFileName);
+
 		for (const currentAbsolute of [absolute, path.join(absolute, "/index")]) {
 			for (const ext of ["", ".ts", ".mts", ".cts", ".js", ".mjs", ".cjs"]) {
 				for (const withExtension of [`${currentAbsolute}${ext}`, setExtension(currentAbsolute, ext)]) {
@@ -160,10 +179,13 @@ export async function generateRollupBundle(
 	let cache: RollupCache | undefined;
 	let result: RollupBuild | undefined;
 
+	const plugins = await flattenPlugins(rollupOptions.plugins);
+
 	while (true) {
 		result = await rollup({
 			input,
 			cache,
+			external: builtinModules,
 			...rollupOptions,
 			onwarn: (warning, defaultHandler) => {
 				// Eat all irrelevant Rollup warnings (such as 'Generated an empty chunk: "index") while running tests
@@ -187,7 +209,7 @@ export async function generateRollupBundle(
 					babelConfig,
 					swcConfig
 				}),
-				...(rollupOptions.plugins == null ? [] : rollupOptions.plugins),
+				...(plugins ?? []),
 				...postPlugins
 			]
 		});
@@ -205,7 +227,7 @@ export async function generateRollupBundle(
 	const bundle = await result.generate({
 		...(rollupOptions.output?.file == null ? {dir: context.dist} : {}),
 		format,
-		sourcemap: true,
+		sourcemap: false,
 		...rollupOptions.output,
 		...(entryFileNames == null ? {} : {entryFileNames}),
 		...(chunkFileNames == null ? {} : {chunkFileNames})

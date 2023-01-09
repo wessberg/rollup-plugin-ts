@@ -4,5 +4,9 @@
 		"shared-node-browser": true,
 		"node": true
 	},
-	"extends": "./node_modules/@wessberg/ts-config/.eslintrc.json"
+	"extends": "./node_modules/@wessberg/ts-config/.eslintrc.json",
+	"plugins": ["deprecation"],
+	"rules": {
+		"deprecation/deprecation": ["error"]
+	}
 }

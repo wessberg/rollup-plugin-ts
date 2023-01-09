@@ -41,5 +41,5 @@ export function deconflictEnumDeclaration(options: DeconflicterVisitorOptions<TS
 		return node;
 	}
 
-	return preserveMeta(factory.updateEnumDeclaration(node, node.decorators, node.modifiers, nameContResult, membersContResult), node, options);
+	return preserveMeta(factory.updateEnumDeclaration(node, node.modifiers, nameContResult, membersContResult), node, options);
 }

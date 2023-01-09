@@ -39,6 +39,7 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 					factory.updateImportTypeNode(
 						contResult,
 						factory.createLiteralTypeNode(factory.createStringLiteral(generatedModuleSpecifier)),
+						contResult.assertions,
 						contResult.qualifier,
 						contResult.typeArguments,
 						contResult.isTypeOf
@@ -83,7 +84,6 @@ export function visitImportTypeNode(options: ModuleMergerVisitorOptions<TS.Impor
 			...moduleDeclarations.map(moduleDeclaration => preserveParents(moduleDeclaration, options)),
 			preserveParents(
 				factory.createModuleDeclaration(
-					undefined,
 					ensureHasDeclareModifier(undefined, factory, typescript),
 					factory.createIdentifier(namespaceName),
 					moduleBlock,

@@ -31,11 +31,9 @@ export function createAliasedBinding({
 		case typescript.SyntaxKind.ClassExpression: {
 			const moduleDeclaration = factory.createModuleDeclaration(
 				undefined,
-				undefined,
 				factory.createIdentifier(moduleBinding),
 				factory.createModuleBlock([
 					factory.createExportDeclaration(
-						undefined,
 						undefined,
 						false,
 						factory.createNamedExports([factory.createExportSpecifier(false, undefined, factory.createIdentifier(propertyName))])
@@ -44,7 +42,6 @@ export function createAliasedBinding({
 			);
 
 			const importEqualsDeclaration = factory.createImportEqualsDeclaration(
-				undefined,
 				undefined,
 				false,
 				factory.createIdentifier(name),
@@ -86,7 +83,6 @@ export function createAliasedBinding({
 							)
 					  )
 					: factory.createTypeAliasDeclaration(
-							undefined,
 							undefined,
 							factory.createIdentifier(name),
 							undefined,

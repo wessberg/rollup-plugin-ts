@@ -10,7 +10,6 @@ export function visitInterfaceDeclaration(options: EnsureNoDeclareModifierTransf
 	return preserveMeta(
 		factory.updateInterfaceDeclaration(
 			node,
-			node.decorators,
 			removeDeclareModifier(node.modifiers, typescript),
 			node.name,
 			node.typeParameters,

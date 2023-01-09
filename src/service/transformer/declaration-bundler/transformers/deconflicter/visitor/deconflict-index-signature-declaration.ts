@@ -28,5 +28,5 @@ export function deconflictIndexSignatureDeclaration(options: DeconflicterVisitor
 		return node;
 	}
 
-	return preserveMeta(factory.updateIndexSignature(node, node.decorators, node.modifiers, parametersContResult, typeContResult!), node, options);
+	return preserveMeta(factory.updateIndexSignature(node, node.modifiers, parametersContResult, typeContResult!), node, options);
 }

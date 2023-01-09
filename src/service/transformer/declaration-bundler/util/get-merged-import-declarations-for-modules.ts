@@ -89,7 +89,6 @@ export function getMergedImportDeclarationsForModules(options: TransformerBaseOp
 				preserveParents(
 					factory.createImportDeclaration(
 						undefined,
-						undefined,
 						factory.createImportClause(false, factory.createIdentifier(name), undefined),
 						factory.createStringLiteral(ensureHasLeadingDotAndPosix(module))
 					),
@@ -111,7 +110,6 @@ export function getMergedImportDeclarationsForModules(options: TransformerBaseOp
 			importDeclarationsForModule.push(
 				preserveParents(
 					factory.createImportDeclaration(
-						undefined,
 						undefined,
 						factory.createImportClause(false, undefined, factory.createNamespaceImport(factory.createIdentifier(name))),
 						factory.createStringLiteral(ensureHasLeadingDotAndPosix(module))
@@ -137,7 +135,6 @@ export function getMergedImportDeclarationsForModules(options: TransformerBaseOp
 			importDeclarationsForModule.push(
 				preserveParents(
 					factory.createImportDeclaration(
-						undefined,
 						undefined,
 						factory.createImportClause(
 							false,

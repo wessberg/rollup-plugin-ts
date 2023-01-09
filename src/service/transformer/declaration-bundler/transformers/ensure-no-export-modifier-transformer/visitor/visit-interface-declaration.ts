@@ -8,7 +8,7 @@ export function visitInterfaceDeclaration(options: EnsureNoExportModifierTransfo
 	if (!hasExportModifier(node, typescript)) return node;
 
 	return preserveMeta(
-		factory.updateInterfaceDeclaration(node, node.decorators, removeExportModifier(node.modifiers, typescript), node.name, node.typeParameters, node.heritageClauses, node.members),
+		factory.updateInterfaceDeclaration(node, removeExportModifier(node.modifiers, typescript), node.name, node.typeParameters, node.heritageClauses, node.members),
 		node,
 		options
 	);

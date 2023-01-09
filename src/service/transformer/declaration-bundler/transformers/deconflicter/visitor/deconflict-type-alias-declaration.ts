@@ -48,5 +48,5 @@ export function deconflictTypeAliasDeclaration(options: DeconflicterVisitorOptio
 		return node;
 	}
 
-	return preserveMeta(factory.updateTypeAliasDeclaration(node, node.decorators, node.modifiers, nameContResult, typeParametersContResult, typeContResult), node, options);
+	return preserveMeta(factory.updateTypeAliasDeclaration(node, node.modifiers, nameContResult, typeParametersContResult, typeContResult), node, options);
 }

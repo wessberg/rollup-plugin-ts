@@ -507,13 +507,13 @@ test.serial("Will use the proper @babel/runtime/helpers/esm helpers when format 
 		_asyncToGenerator(
 		/*#__PURE__*/ _regeneratorRuntime.mark(function _callee() {
 			return _regeneratorRuntime.wrap(function _callee$(_context) {
-				while (1) {
+				while (1)
 					switch (_context.prev = _context.next) {
 						case 0:
 						case "end":
 							return _context.stop();
 					}
-				}
+				
 			}, _callee);
 		}))();
 			`)
@@ -590,26 +590,21 @@ test.serial("Will use the proper @babel/runtime/helpers helpers when format is C
 		formatCode(`\
 		'use strict';
 
-		var _asyncToGenerator = require('@babel/runtime/helpers/asyncToGenerator');
-		var _regeneratorRuntime = require('@babel/runtime/regenerator');
-		
-		function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
-		
-		var _asyncToGenerator__default = /*#__PURE__*/_interopDefaultLegacy(_asyncToGenerator);
-		var _regeneratorRuntime__default = /*#__PURE__*/_interopDefaultLegacy(_regeneratorRuntime);
-		
-		_asyncToGenerator__default['default']( /*#__PURE__*/_regeneratorRuntime__default['default'].mark(function _callee() {
-			return _regeneratorRuntime__default['default'].wrap(function _callee$(_context) {
-				while (1) {
-					switch (_context.prev = _context.next) {
-						case 0:
-						case "end":
-							return _context.stop();
-					}
+		var _asyncToGenerator = require("@babel/runtime/helpers/asyncToGenerator");
+		var _regeneratorRuntime = require("@babel/runtime/regenerator");
+
+		_asyncToGenerator(
+		/*#__PURE__*/ _regeneratorRuntime.mark(function _callee() {
+			return _regeneratorRuntime.wrap(function _callee$(_context) {
+			while (1)
+				switch ((_context.prev = _context.next)) {
+				case 0:
+				case "end":
+					return _context.stop();
 				}
 			}, _callee);
-		}))();
-			`)
+		})
+		)();`)
 	);
 });
 
@@ -770,9 +765,7 @@ test.serial(
 		t.deepEqual(
 			formatCode(file.code),
 			formatCode(`\
-		console.log(0
-		/* Fish */
-		);`)
+		console.log(0 /* Fish */);`)
 		);
 	}
 );
@@ -819,10 +812,7 @@ test.serial(
 		t.deepEqual(
 			formatCode(file.code),
 			formatCode(`\
-		console.log(
-			0
-			/* Animals.Fish */
-		);`)
+		console.log(0 /* Animals.Fish */);`)
 		);
 	}
 );

@@ -53,7 +53,7 @@ export function deconflictInterfaceDeclaration(options: DeconflicterVisitorOptio
 	}
 
 	return preserveMeta(
-		factory.updateInterfaceDeclaration(node, node.decorators, node.modifiers, nameContResult, typeParametersContResult, heritageClausesContResult, membersContResult),
+		factory.updateInterfaceDeclaration(node, node.modifiers, nameContResult, typeParametersContResult, heritageClausesContResult, membersContResult),
 		node,
 		options
 	);

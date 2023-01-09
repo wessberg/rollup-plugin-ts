@@ -7,5 +7,7 @@ export function visitModuleDeclaration(options: EnsureDeclareModifierTransformer
 	const {node, factory, typescript} = options;
 	if (hasDeclareModifier(node, typescript)) return node;
 
-	return preserveMeta(factory.updateModuleDeclaration(node, node.decorators, ensureHasDeclareModifier(node.modifiers, factory, typescript), node.name, node.body), node, options);
+	
+
+	return preserveMeta(factory.updateModuleDeclaration(node, ensureHasDeclareModifier(node.modifiers, factory, typescript), node.name, node.body), node, options);
 }

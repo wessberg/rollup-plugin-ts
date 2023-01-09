@@ -16,5 +16,5 @@ export function visitModuleDeclaration(options: TreeShakerVisitorOptions<TS.Modu
 	}
 	return node.name === nameContinuationResult
 		? node
-		: preserveMeta(factory.updateModuleDeclaration(node, node.decorators, node.modifiers, nameContinuationResult, node.body), node, options);
+		: preserveMeta(factory.updateModuleDeclaration(node, node.modifiers, nameContinuationResult, node.body), node, options);
 }

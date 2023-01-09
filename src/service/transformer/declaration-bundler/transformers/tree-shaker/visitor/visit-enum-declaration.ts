@@ -6,5 +6,5 @@ export function visitEnumDeclaration({node, continuation, factory}: TreeShakerVi
 	if (nameContinuationResult == null) {
 		return undefined;
 	}
-	return node.name === nameContinuationResult ? node : factory.updateEnumDeclaration(node, node.decorators, node.modifiers, nameContinuationResult, node.members);
+	return node.name === nameContinuationResult ? node : factory.updateEnumDeclaration(node, node.modifiers, nameContinuationResult, node.members);
 }

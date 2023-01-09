@@ -1,10 +1,11 @@
 import {TS} from "../../../../../../type/ts.js";
+import { isArray } from "../../../../../../util/object/object-util.js";
 import {isStatement} from "../../../util/is-statement.js";
 
 export function isRootLevelNode(node: TS.VisitResult<TS.Node>, typescript: typeof TS): node is TS.Statement {
 	return (
 		node != null &&
-		!Array.isArray(node) &&
+		!isArray(node) &&
 		(typescript.isClassDeclaration(node) ||
 			typescript.isClassExpression(node) ||
 			typescript.isEnumDeclaration(node) ||

@@ -4,6 +4,7 @@ import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment.j
 import {nodeArraysAreEqual} from "../../../util/node-arrays-are-equal.js";
 import {ContinuationOptions} from "../deconflicter-options.js";
 import {preserveMeta} from "../../../util/clone-node-with-meta.js";
+import { getModifierLikes } from "../../../util/node-util.js";
 
 /**
  * Deconflicts the given GetAccessorDeclaration.
@@ -25,8 +26,10 @@ export function deconflictGetAccessorDeclaration(options: DeconflicterVisitorOpt
 		return node;
 	}
 
+	const modifierLikes = getModifierLikes(node);
+
 	return preserveMeta(
-		factory.updateGetAccessorDeclaration(node, node.decorators, node.modifiers, nameContResult, parametersContResult, typeContResult, bodyContResult),
+		factory.updateGetAccessorDeclaration(node, modifierLikes, nameContResult, parametersContResult, typeContResult, bodyContResult),
 		node,
 		options
 	);

@@ -8,7 +8,7 @@ export function visitTypeAliasDeclaration(options: EnsureDeclareModifierTransfor
 	if (!hasDeclareModifier(node, typescript)) return node;
 
 	return preserveMeta(
-		factory.updateTypeAliasDeclaration(node, node.decorators, removeDeclareModifier(node.modifiers, typescript), node.name, node.typeParameters, node.type),
+		factory.updateTypeAliasDeclaration(node, removeDeclareModifier(node.modifiers, typescript), node.name, node.typeParameters, node.type),
 		node,
 		options
 	);

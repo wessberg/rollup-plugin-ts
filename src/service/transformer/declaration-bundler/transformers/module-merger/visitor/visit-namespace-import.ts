@@ -51,7 +51,6 @@ export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.Name
 				...moduleDeclarations.map(moduleDeclaration => preserveParents(moduleDeclaration, options)),
 				preserveParents(
 					factory.createModuleDeclaration(
-						undefined,
 						ensureHasDeclareModifier(undefined, factory, typescript),
 						factory.createIdentifier(contResult.name.text),
 						moduleBlock,
@@ -65,7 +64,6 @@ export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.Name
 			options.prependNodes(
 				preserveParents(
 					factory.createImportEqualsDeclaration(
-						undefined,
 						undefined,
 						false,
 						factory.createIdentifier(contResult.name.text),

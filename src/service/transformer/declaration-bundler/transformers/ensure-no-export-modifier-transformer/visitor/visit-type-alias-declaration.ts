@@ -7,7 +7,7 @@ export function visitTypeAliasDeclaration(options: EnsureNoExportModifierTransfo
 	const {node, factory, typescript} = options;
 	if (!hasExportModifier(node, typescript)) return node;
 	return preserveMeta(
-		factory.updateTypeAliasDeclaration(node, node.decorators, removeExportModifier(node.modifiers, typescript), node.name, node.typeParameters, node.type),
+		factory.updateTypeAliasDeclaration(node, removeExportModifier(node.modifiers, typescript), node.name, node.typeParameters, node.type),
 		node,
 		options
 	);

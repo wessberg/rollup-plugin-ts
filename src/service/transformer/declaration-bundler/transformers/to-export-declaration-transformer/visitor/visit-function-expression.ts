@@ -15,7 +15,7 @@ export function visitFunctionExpression(options: ToExportDeclarationTransformerV
 	const {exportSpecifier} = createExportSpecifierFromNameAndModifiers({...options, name: nameText, modifiers: node.modifiers});
 
 	// Append an ExportDeclaration
-	appendNodes(preserveParents(factory.createExportDeclaration(undefined, undefined, false, factory.createNamedExports([exportSpecifier])), {typescript}));
+	appendNodes(preserveParents(factory.createExportDeclaration(undefined, false, factory.createNamedExports([exportSpecifier])), {typescript}));
 
 	// Update the name if it changed
 	if (node.name != null && nameText === node.name.text) {

@@ -18,7 +18,7 @@ export function ensureModuleTransformer({typescript, factory, sourceFile, extens
 	if (importDeclarationCount < 1 && exportDeclarationCount < 1 && exportAssignmentCount < 1) {
 		return factory.updateSourceFile(
 			sourceFile,
-			[...sourceFile.statements, factory.createExportDeclaration(undefined, undefined, false, factory.createNamedExports([]))],
+			[...sourceFile.statements, factory.createExportDeclaration(undefined, false, factory.createNamedExports([]))],
 			sourceFile.isDeclarationFile,
 			sourceFile.referencedFiles,
 			sourceFile.typeReferenceDirectives,

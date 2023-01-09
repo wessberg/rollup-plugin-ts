@@ -1,3 +1,4 @@
+/* eslint-disable deprecation/deprecation */
 import {ReferenceVisitorOptions} from "../reference-visitor-options.js";
 import {TS} from "../../../../../../../type/ts.js";
 import {isSymbolIdentifier} from "../../../../util/is-symbol-identifier.js";

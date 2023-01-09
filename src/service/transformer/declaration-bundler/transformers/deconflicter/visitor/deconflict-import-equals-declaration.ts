@@ -46,5 +46,5 @@ export function deconflictImportEqualsDeclaration(options: DeconflicterVisitorOp
 		return node;
 	}
 
-	return preserveMeta(factory.updateImportEqualsDeclaration(node, node.decorators, node.modifiers, node.isTypeOnly, nameContResult, node.moduleReference), node, options);
+	return preserveMeta(factory.updateImportEqualsDeclaration(node, node.modifiers, node.isTypeOnly, nameContResult, node.moduleReference), node, options);
 }

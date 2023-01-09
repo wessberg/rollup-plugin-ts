@@ -56,7 +56,6 @@ export function visitImportClause(options: ModuleMergerVisitorOptions<TS.ImportC
 				preserveParents(
 					factory.createImportDeclaration(
 						undefined,
-						undefined,
 						factory.createImportClause(false, factory.createIdentifier(contResult.name.text), undefined),
 						factory.createStringLiteral(generatedModuleSpecifier)
 					),

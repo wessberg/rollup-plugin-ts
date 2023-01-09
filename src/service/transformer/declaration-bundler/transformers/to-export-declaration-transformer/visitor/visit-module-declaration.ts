@@ -12,7 +12,7 @@ export function visitModuleDeclaration(options: ToExportDeclarationTransformerVi
 	const {exportSpecifier} = createExportSpecifierFromNameAndModifiers({...options, name: node.name.text, modifiers: node.modifiers});
 
 	// Append an ExportDeclaration
-	appendNodes(preserveParents(factory.createExportDeclaration(undefined, undefined, false, factory.createNamedExports([exportSpecifier])), {typescript}));
+	appendNodes(preserveParents(factory.createExportDeclaration(undefined, false, factory.createNamedExports([exportSpecifier])), {typescript}));
 
 	const propertyName = exportSpecifier.propertyName ?? exportSpecifier.name;
 	preserveSymbols(propertyName, node, options);

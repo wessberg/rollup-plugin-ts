@@ -36,7 +36,7 @@ test.serial("Can use swc for transpilation. #1", withTypeScript, async (t, {type
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		import _type_of from "@swc/helpers/lib/_type_of.js";
+		import _type_of from "@swc/helpers/src/_type_of.mjs";
 
 		_type_of("");
 		`)
@@ -87,9 +87,9 @@ test.serial("Can use swc for transpilation. #2", withTypeScript, async (t, {type
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		import _class_call_check from '@swc/helpers/lib/_class_call_check.js';
-		import _inherits from '@swc/helpers/lib/_inherits.js';
-		import _create_super from '@swc/helpers/lib/_create_super.js';
+		import _class_call_check from '@swc/helpers/src/_class_call_check.mjs';
+		import _inherits from '@swc/helpers/src/_inherits.mjs';
+		import _create_super from '@swc/helpers/src/_create_super.mjs';
 
 		var Foo = /*#__PURE__*/ function() {
 			function Foo() {

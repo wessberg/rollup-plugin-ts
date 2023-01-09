@@ -8,5 +8,5 @@ export function visitTypeAliasDeclaration({node, continuation, factory}: TreeSha
 	}
 	return node.name === nameContinuationResult
 		? node
-		: factory.updateTypeAliasDeclaration(node, node.decorators, node.modifiers, nameContinuationResult, node.typeParameters, node.type);
+		: factory.updateTypeAliasDeclaration(node, node.modifiers, nameContinuationResult, node.typeParameters, node.type);
 }

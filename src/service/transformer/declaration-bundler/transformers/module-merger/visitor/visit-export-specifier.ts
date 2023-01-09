@@ -49,7 +49,6 @@ export function visitExportSpecifier(options: ModuleMergerVisitorOptions<TS.Expo
 				preserveParents(
 					factory.createExportDeclaration(
 						undefined,
-						undefined,
 						payload.isTypeOnly,
 						factory.createNamedExports([
 							factory.createExportSpecifier(

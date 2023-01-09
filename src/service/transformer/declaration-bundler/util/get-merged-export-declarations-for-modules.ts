@@ -158,7 +158,6 @@ export function getMergedExportDeclarationsForModules(options: GetMergedExportDe
 			preserveParents(
 				factory.createExportDeclaration(
 					undefined,
-					undefined,
 					isTypeOnly,
 					factory.createNamedExports(exportSpecifiers),
 					specifier == null ? undefined : factory.createStringLiteral(ensureHasLeadingDotAndPosix(specifier))
@@ -180,7 +179,6 @@ export function getMergedExportDeclarationsForModules(options: GetMergedExportDe
 			exportDeclarationsForModule.push(
 				preserveParents(
 					factory.createExportDeclaration(
-						undefined,
 						undefined,
 						isTypeOnly,
 						factory.createNamespaceExport(factory.createIdentifier(name)),
