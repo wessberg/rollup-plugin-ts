@@ -27,7 +27,7 @@ specifiers:
   babel-preset-minify: ^0.5.2
   browserslist: ^4.21.4
   browserslist-generator: ^1.0.66
-  compatfactory: ^2.0.8
+  compatfactory: ^2.0.9
   crosspath: ^2.0.0
   eslint: ^8.31.0
   eslint-config-prettier: ^8.6.0
@@ -48,7 +48,7 @@ specifiers:
   sandhog: ^2.0.2
   semver: 7.3.8
   standard-changelog: ^2.0.27
-  ts-clone-node: ^2.0.3
+  ts-clone-node: ^2.0.4
   ts-node: 10.9.1
   tslib: ^2.4.1
   typescript: ^4.9.4
@@ -74,10 +74,10 @@ dependencies:
   ansi-colors: 4.1.3
   browserslist: 4.21.4
   browserslist-generator: 1.0.66
-  compatfactory: 2.0.8_typescript@4.9.4
+  compatfactory: 2.0.9_typescript@4.9.4
   crosspath: 2.0.0
   magic-string: 0.27.0
-  ts-clone-node: 2.0.3_typescript@4.9.4
+  ts-clone-node: 2.0.4_typescript@4.9.4
   tslib: 2.4.1
 
 devDependencies:
@@ -3195,8 +3195,8 @@ packages:
       dot-prop: 5.3.0
     dev: true
 
-  /compatfactory/2.0.8_typescript@4.9.4:
-    resolution: {integrity: sha512-lUzm+3JJhCAjm9CHYsmHCI2zrDpqL+Qk3ezjeIPTrKGmy6wSKUvhzG2gQztPEGkWVIOTs/cIpsGCgTNbKTp0CQ==}
+  /compatfactory/2.0.9_typescript@4.9.4:
+    resolution: {integrity: sha512-fvO+AWcmbO7P1S+A3mwm3IGr74eHMeq5ZLhNhyNQc9mVDNHT4oe0Gg0ksdIFFNXLK7k7Z/TYcLAUSQdRgh1bsA==}
     engines: {node: '>=14.9.0'}
     peerDependencies:
       typescript: '>=3.x || >= 4.x'
@@ -7845,13 +7845,13 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /ts-clone-node/2.0.3_typescript@4.9.4:
-    resolution: {integrity: sha512-lUx7MrbzdWg5nNcjss9RNSDjJ5EPgPmxhVdux/kfqCSXgTure3rsHlKWnYOsksbZ+1oONPz8Luehhxah2s7dpw==}
+  /ts-clone-node/2.0.4_typescript@4.9.4:
+    resolution: {integrity: sha512-eG6FAgmQsenhIJOIFhUcO6yyYejBKZIKcI3y21jiQmIOrth5pD6GElyPAyeihbPSyBs3u/9PVNXy+5I7jGy8jA==}
     engines: {node: '>=14.9.0'}
     peerDependencies:
       typescript: ^3.x || ^4.x
     dependencies:
-      compatfactory: 2.0.8_typescript@4.9.4
+      compatfactory: 2.0.9_typescript@4.9.4
       typescript: 4.9.4
     dev: false
 
