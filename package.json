@@ -171,7 +171,7 @@
 		"url": "https://github.com/wessberg/rollup-plugin-ts/issues"
 	},
 	"engines": {
-		"node": ">=14.9.0",
+		"node": ">=16.14.0",
 		"npm": ">=7.0.0",
 		"yarn": ">=1.13",
 		"pnpm": ">=3.2.0"
