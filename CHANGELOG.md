@@ -1,3 +1,12 @@
+# [3.2.0](https://github.com/wessberg/rollup-plugin-ts/compare/v3.1.1...v3.2.0) (2023-01-23)
+
+
+### Features
+
+* add .js extensions to code splitted declaration chunks to support Node16 and NodeNext ModuleResolution ([0b727a0](https://github.com/wessberg/rollup-plugin-ts/commit/0b727a0cb5234730784ef18940af44a0597e9c29))
+
+
+
 ## [3.1.1](https://github.com/wessberg/rollup-plugin-ts/compare/v3.1.0...v3.1.1) (2023-01-09)
 
 
