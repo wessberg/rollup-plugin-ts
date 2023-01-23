@@ -1,8 +1,8 @@
-import {TS} from "../../../../../type/ts.js";
-import {DeclarationBundlerOptions} from "../../declaration-bundler-options.js";
-import {LexicalEnvironment} from "../deconflicter/deconflicter-options.js";
-import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options.js";
-import {TransformerBaseOptions} from "../transformer-base-options.js";
+import type {TS} from "../../../../../type/ts.js";
+import type {DeclarationBundlerOptions} from "../../declaration-bundler-options.js";
+import type {LexicalEnvironment} from "../deconflicter/deconflicter-options.js";
+import type {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options.js";
+import type {TransformerBaseOptions} from "../transformer-base-options.js";
 
 export type SourceFileResolver = (fileName: string, from: string) => TS.SourceFile | undefined;
 

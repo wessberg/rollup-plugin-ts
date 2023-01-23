@@ -1,12 +1,12 @@
 import {visitNode} from "./visitor/visit-node.js";
-import {TS} from "../../../../../type/ts.js";
-import {ChildVisitResult, IncludeSourceFileOptions, ModuleMergerVisitorOptions, PayloadMap, VisitResult} from "./module-merger-visitor-options.js";
-import {DeclarationTransformer} from "../../declaration-bundler-options.js";
+import type {TS} from "../../../../../type/ts.js";
+import type {ChildVisitResult, IncludeSourceFileOptions, ModuleMergerVisitorOptions, PayloadMap, VisitResult} from "./module-merger-visitor-options.js";
+import type {DeclarationTransformer} from "../../declaration-bundler-options.js";
 import {applyTransformers} from "../../util/apply-transformers.js";
 import {getNodePlacementQueue} from "../../util/get-node-placement-queue.js";
 import {findMatchingImportedSymbol} from "../../util/find-matching-imported-symbol.js";
 import {cloneNodeWithMeta, preserveMeta} from "../../util/clone-node-with-meta.js";
-import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options.js";
+import type {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options.js";
 import {getChunkFilename} from "../../util/get-chunk-filename.js";
 import {ensureNoExportModifierTransformer} from "../ensure-no-export-modifier-transformer/ensure-no-export-modifier-transformer.js";
 import {noExportDeclarationTransformer} from "../no-export-declaration-transformer/no-export-declaration-transformer.js";

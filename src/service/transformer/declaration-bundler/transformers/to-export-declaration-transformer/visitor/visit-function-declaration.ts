@@ -1,10 +1,10 @@
-import {TS} from "../../../../../../type/ts.js";
-import {ToExportDeclarationTransformerVisitorOptions} from "../to-export-declaration-transformer-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
+import type {ToExportDeclarationTransformerVisitorOptions} from "../to-export-declaration-transformer-visitor-options.js";
 import {generateIdentifierName} from "../../../util/generate-identifier-name.js";
 import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers.js";
 import {preserveMeta, preserveParents, preserveSymbols} from "../../../util/clone-node-with-meta.js";
 import {hasExportModifier} from "../../../util/modifier-util.js";
-import { getModifierLikes } from "../../../util/node-util.js";
+import {getModifierLikes} from "../../../util/node-util.js";
 
 export function visitFunctionDeclaration(options: ToExportDeclarationTransformerVisitorOptions<TS.FunctionDeclaration>): TS.FunctionDeclaration {
 	const {node, factory, typescript, sourceFile, appendNodes} = options;
@@ -24,16 +24,7 @@ export function visitFunctionDeclaration(options: ToExportDeclarationTransformer
 	} else {
 		const modifierLikes = getModifierLikes(node);
 		returnNode = preserveMeta(
-			factory.updateFunctionDeclaration(
-				node,
-				modifierLikes,
-				node.asteriskToken,
-				factory.createIdentifier(nameText),
-				node.typeParameters,
-				node.parameters,
-				node.type,
-				node.body
-			),
+			factory.updateFunctionDeclaration(node, modifierLikes, node.asteriskToken, factory.createIdentifier(nameText), node.typeParameters, node.parameters, node.type, node.body),
 			node,
 			options
 		);

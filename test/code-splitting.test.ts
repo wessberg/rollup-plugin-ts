@@ -53,7 +53,7 @@ test.serial("Declaration bundling supports code splitting. #1", withTypeScript, 
 	t.deepEqual(
 		formatCode(aFile!.code),
 		formatCode(`\
-			import { Shared } from "./${stripKnownExtension(sharedFile!.fileName)}";
+			import { Shared } from "./${stripKnownExtension(sharedFile!.fileName)}.js";
 			declare class A extends Shared {
 					a: string;
 			}
@@ -64,7 +64,7 @@ test.serial("Declaration bundling supports code splitting. #1", withTypeScript, 
 	t.deepEqual(
 		formatCode(bFile!.code),
 		formatCode(`\
-			import { Shared } from "./${stripKnownExtension(sharedFile!.fileName)}";
+			import { Shared } from "./${stripKnownExtension(sharedFile!.fileName)}.js";
 			declare class B extends Shared {
 					b: string;
 			}
@@ -135,7 +135,7 @@ test.serial("Declaration bundling supports code splitting. #2", withTypeScript, 
 	t.deepEqual(
 		formatCode(aFile!.code),
 		formatCode(`\
-			export { Logger } from "./${stripKnownExtension(loggerFile!.fileName)}";
+			export { Logger } from "./${stripKnownExtension(loggerFile!.fileName)}.js";
 		`)
 	);
 
@@ -203,19 +203,19 @@ test.serial("Declaration bundling supports code splitting. #3", withTypeScript, 
 	t.deepEqual(
 		formatCode(aFile!.code),
 		formatCode(`\
-			import Shared from "./${stripKnownExtension(sharedFile!.fileName)}";
+			import Shared from "./${stripKnownExtension(sharedFile!.fileName)}.js";
 			declare class Foo extends Shared {
 			}
 			export { Foo };
-			export * from "./${stripKnownExtension(sharedFile!.fileName)}";
-			export { default as Shared } from "./${stripKnownExtension(sharedFile!.fileName)}";
+			export * from "./${stripKnownExtension(sharedFile!.fileName)}.js";
+			export { default as Shared } from "./${stripKnownExtension(sharedFile!.fileName)}.js";
 		`)
 	);
 
 	t.deepEqual(
 		formatCode(bFile!.code),
 		formatCode(`\
-			import Shared from "./${stripKnownExtension(sharedFile!.fileName)}";
+			import Shared from "./${stripKnownExtension(sharedFile!.fileName)}.js";
 			declare class Bar extends Shared {
 			}
 			export { Bar };
@@ -274,7 +274,7 @@ test.serial("Declaration bundling supports code splitting. #4", withTypeScript, 
 	t.deepEqual(
 		formatCode(apiFile!.code),
 		formatCode(`\
-			export { Foo } from "./${stripKnownExtension(fooFile!.fileName)}";
+			export { Foo } from "./${stripKnownExtension(fooFile!.fileName)}.js";
 		`)
 	);
 

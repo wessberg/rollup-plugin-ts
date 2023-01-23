@@ -1,5 +1,5 @@
-import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
 
 export function visitBindingElement({node, continuation, factory}: TreeShakerVisitorOptions<TS.BindingElement>): TS.BindingElement | undefined {
 	const nameContinuationResult = continuation(node.name);

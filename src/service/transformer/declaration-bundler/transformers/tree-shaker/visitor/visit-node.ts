@@ -1,4 +1,4 @@
-import {TS} from "../../../../../../type/ts.js";
+import type {TS} from "../../../../../../type/ts.js";
 import {hasExportModifier} from "../../../util/modifier-util.js";
 import {visitClassDeclaration} from "./visit-class-declaration.js";
 import {visitClassExpression} from "./visit-class-expression.js";
@@ -23,7 +23,7 @@ import {visitArrayBindingPattern} from "./visit-array-binding-pattern.js";
 import {visitObjectBindingPattern} from "./visit-object-binding-pattern.js";
 import {visitBindingElement} from "./visit-binding-element.js";
 import {visitIdentifier} from "./visit-identifier.js";
-import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
+import type {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
 
 export function visitNode(options: TreeShakerVisitorOptions<TS.Node>): TS.Node | undefined {
 	const {node, typescript} = options;

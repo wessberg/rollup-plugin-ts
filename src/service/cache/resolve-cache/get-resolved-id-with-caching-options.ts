@@ -1,4 +1,4 @@
-import {ModuleResolutionHost} from "../../module-resolution-host/module-resolution-host.js";
+import type {ModuleResolutionHost} from "../../module-resolution-host/module-resolution-host.js";
 
 export interface GetResolvedIdWithCachingOptions {
 	id: string;

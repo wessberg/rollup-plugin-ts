@@ -1,11 +1,9 @@
 {
-	"include": ["src/**/*.*", "test/**/*.*"],
+	"include": ["src/**/*.*", "test/**/*.*", "rollup.config.ts"],
 	"extends": "@wessberg/ts-config",
 	"compilerOptions": {
-		"module": "esnext",
 		"target": "es2019",
-		"skipLibCheck": true,
-		"resolveJsonModule": true,
-		"allowJs": true
+		"downlevelIteration": false,
+		"moduleResolution": "node"
 	}
 }

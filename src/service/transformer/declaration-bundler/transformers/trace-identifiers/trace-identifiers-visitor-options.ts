@@ -1,4 +1,4 @@
-import {TS} from "../../../../../type/ts.js";
+import type {TS} from "../../../../../type/ts.js";
 
 export interface TraceIdentifiersVisitorOptions<T extends TS.Node = TS.Node> {
 	typescript: typeof TS;

@@ -1,5 +1,5 @@
 import TSModule from "typescript";
-import {Transpiler, TranspilerOptions, TypescriptPluginOptions} from "../../plugin/typescript-plugin-options.js";
+import type {Transpiler, TranspilerOptions, TypescriptPluginOptions} from "../../plugin/typescript-plugin-options.js";
 import {ensureAbsolute} from "../path/path-util.js";
 import path from "crosspath";
 
@@ -43,7 +43,7 @@ export function getPluginOptions(options: Partial<TypescriptPluginOptions>): Typ
 	};
 }
 
-export function getTranspilerOptions (transpiler: TypescriptPluginOptions["transpiler"]): TranspilerOptions {
+export function getTranspilerOptions(transpiler: TypescriptPluginOptions["transpiler"]): TranspilerOptions {
 	if (typeof transpiler === "string") {
 		return {
 			typescriptSyntax: transpiler,
@@ -53,6 +53,6 @@ export function getTranspilerOptions (transpiler: TypescriptPluginOptions["trans
 	return transpiler;
 }
 
-export function isUsingTranspiler (transpiler: Transpiler, options: TranspilerOptions): boolean {
+export function isUsingTranspiler(transpiler: Transpiler, options: TranspilerOptions): boolean {
 	return options.typescriptSyntax === transpiler || options.otherSyntax === transpiler;
 }

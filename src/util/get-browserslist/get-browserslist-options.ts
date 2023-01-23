@@ -1,5 +1,5 @@
-import {TypescriptPluginOptions} from "../../plugin/typescript-plugin-options.js";
-import {TS} from "../../type/ts.js";
+import type {TypescriptPluginOptions} from "../../plugin/typescript-plugin-options.js";
+import type {TS} from "../../type/ts.js";
 
 export interface GetBrowserslistOptions {
 	cwd: string;

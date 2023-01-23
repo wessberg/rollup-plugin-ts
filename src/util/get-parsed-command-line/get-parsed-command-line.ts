@@ -1,8 +1,8 @@
 import {ensureAbsolute} from "../path/path-util.js";
 import {D_TS_EXTENSION, DEFAULT_TSCONFIG_FILE_NAME} from "../../constant/constant.js";
-import {ParsedCommandLineResult} from "./parsed-command-line-result.js";
-import {InputCompilerOptions, TsConfigResolver, TsConfigResolverWithFileName, TypescriptPluginOptions} from "../../plugin/typescript-plugin-options.js";
-import {TS} from "../../type/ts.js";
+import type {ParsedCommandLineResult} from "./parsed-command-line-result.js";
+import type {InputCompilerOptions, TsConfigResolver, TsConfigResolverWithFileName, TypescriptPluginOptions} from "../../plugin/typescript-plugin-options.js";
+import type {TS} from "../../type/ts.js";
 import {finalizeParsedCommandLine} from "../finalize-parsed-command-line/finalize-parsed-command-line.js";
 import {shouldDebugTsconfig} from "../is-debug/should-debug.js";
 import {logTsconfig} from "../logging/log-tsconfig.js";

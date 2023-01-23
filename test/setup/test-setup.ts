@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import {createTestContext, TestContext} from "./test-context.js";
-import {createTestFileStructure, TestFile, TestFileStructure} from "./test-file.js";
+import type { TestContext} from "./test-context.js";
+import {createTestContext} from "./test-context.js";
+import type { TestFile, TestFileStructure} from "./test-file.js";
+import {createTestFileStructure} from "./test-file.js";
 import {createVirtualFileSystem} from "./create-virtual-file-system.js";
-import {MaybeArray, PartialExcept} from "helpertypes";
-import {TS} from "../../src/type/ts.js";
+import type {MaybeArray, PartialExcept} from "helpertypes";
+import type {TS} from "../../src/type/ts.js";
 import {createTypeScriptSystem} from "../util/create-typescript-system.js";
 
 export interface TestSetup {

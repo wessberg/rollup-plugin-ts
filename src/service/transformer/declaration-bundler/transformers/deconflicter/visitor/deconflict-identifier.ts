@@ -1,5 +1,5 @@
-import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {DeconflicterVisitorOptions} from "../deconflicter-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
 import {getBindingFromLexicalEnvironment} from "../../../util/get-binding-from-lexical-environment.js";
 import {preserveMeta} from "../../../util/clone-node-with-meta.js";
 import {getBestDeclaration} from "../../../util/get-aliased-declaration.js";

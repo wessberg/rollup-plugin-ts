@@ -1,4 +1,4 @@
-import {TS} from "../../../../type/ts.js";
+import type {TS} from "../../../../type/ts.js";
 import {getParentNode} from "./get-parent-node.js";
 
 /**

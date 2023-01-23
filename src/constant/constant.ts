@@ -1,4 +1,4 @@
-import { ElementOf } from "helpertypes";
+import type {ElementOf} from "helpertypes";
 
 export const SOURCE_MAP_EXTENSION = ".map";
 export const TS_EXTENSION = ".ts";
@@ -36,14 +36,7 @@ export const TSBUILDINFO_EXTENSION = `.tsbuildinfo`;
 export const ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY = "\0rollup-plugin-multi-entry:entry-point";
 export const ROLLUP_PLUGIN_VIRTUAL_PREFIX = `\0virtual:`;
 
-export const AMBIENT_EXTENSIONS = new Set([
-	D_TS_EXTENSION,
-	D_TS_MAP_EXTENSION,
-	D_MTS_EXTENSION,
-	D_MTS_MAP_EXTENSION,
-	D_CTS_EXTENSION,
-	D_CTS_MAP_EXTENSION
-] as const);
+export const AMBIENT_EXTENSIONS = new Set([D_TS_EXTENSION, D_TS_MAP_EXTENSION, D_MTS_EXTENSION, D_MTS_MAP_EXTENSION, D_CTS_EXTENSION, D_CTS_MAP_EXTENSION] as const);
 
 export type AmbientExtension = ElementOf<typeof AMBIENT_EXTENSIONS>;
 

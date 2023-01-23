@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts.js";
-import {StatementMergerVisitorOptions} from "../statement-merger-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
+import type {StatementMergerVisitorOptions} from "../statement-merger-visitor-options.js";
 import {preserveMeta} from "../../../util/clone-node-with-meta.js";
 
 export function visitExportDeclaration(options: StatementMergerVisitorOptions<TS.ExportDeclaration>): TS.ExportDeclaration[] | TS.ExportDeclaration | undefined {
@@ -30,8 +30,5 @@ export function visitExportDeclaration(options: StatementMergerVisitorOptions<TS
 				: factory.createNamespaceExport(factory.createIdentifier(first.exportClause.name.text));
 	}
 
-	return [
-		preserveMeta(factory.updateExportDeclaration(node, node.modifiers, node.isTypeOnly, exportClause, node.moduleSpecifier, node.assertClause), node, options),
-		...other
-	];
+	return [preserveMeta(factory.updateExportDeclaration(node, node.modifiers, node.isTypeOnly, exportClause, node.moduleSpecifier, node.assertClause), node, options), ...other];
 }

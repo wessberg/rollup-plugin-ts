@@ -10,7 +10,7 @@ import {traceIdentifiersForIdentifier} from "./trace-identifiers-for-identifier.
 import {traceIdentifiersForInterfaceDeclaration} from "./trace-identifiers-for-interface-declaration.js";
 import {traceIdentifiersForTypeAliasDeclaration} from "./trace-identifiers-for-type-alias-declaration.js";
 import {traceIdentifiersForVariableDeclaration} from "./trace-identifiers-for-variable-declaration.js";
-import {TraceIdentifiersVisitorOptions} from "../trace-identifiers-visitor-options.js";
+import type {TraceIdentifiersVisitorOptions} from "../trace-identifiers-visitor-options.js";
 import {traceIdentifiersForExportAssignment} from "./trace-identifiers-for-export-assignment.js";
 import {traceIdentifiersForCallExpression} from "./trace-identifiers-for-call-expression.js";
 import {traceIdentifiersForNewExpression} from "./trace-identifiers-for-new-expression.js";

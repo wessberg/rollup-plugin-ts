@@ -1,5 +1,5 @@
-import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {DeconflicterVisitorOptions} from "../deconflicter-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
 import {addBindingToLexicalEnvironment} from "../../../util/add-binding-to-lexical-environment.js";
 import {isIdentifierFree} from "../../../util/is-identifier-free.js";
 import {generateUniqueBinding} from "../../../util/generate-unique-binding.js";

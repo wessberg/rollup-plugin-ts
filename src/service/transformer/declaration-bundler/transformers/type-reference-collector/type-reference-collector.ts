@@ -1,8 +1,8 @@
-import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
-import {TS} from "../../../../../type/ts.js";
-import {TypeReferenceCollectorVisitorOptions} from "./type-reference-collector-visitor-options.js";
+import type {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
+import type {TS} from "../../../../../type/ts.js";
+import type {TypeReferenceCollectorVisitorOptions} from "./type-reference-collector-visitor-options.js";
 import {visitNode} from "./visitor/visit-node.js";
-import {TypeReference} from "../../util/get-type-reference-module-from-file-name.js";
+import type {TypeReference} from "../../util/get-type-reference-module-from-file-name.js";
 
 export function typeReferenceCollector(options: SourceFileBundlerVisitorOptions): TS.SourceFile {
 	const {typescript} = options;

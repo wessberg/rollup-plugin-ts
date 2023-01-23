@@ -1,8 +1,8 @@
-import {GetBrowserslistOptions} from "./get-browserslist-options.js";
+import type {GetBrowserslistOptions} from "./get-browserslist-options.js";
 import {normalizeBrowserslist} from "browserslist-generator";
 import {ensureAbsolute} from "../path/path-util.js";
 import browserslistModule from "browserslist";
-import {BrowserslistPathConfig, BrowserslistQueryConfig} from "../../plugin/typescript-plugin-options.js";
+import type {BrowserslistPathConfig, BrowserslistQueryConfig} from "../../plugin/typescript-plugin-options.js";
 import {ensureArray} from "../ensure-array/ensure-array.js";
 import path from "crosspath";
 

@@ -1,7 +1,7 @@
 import {trackImportsTransformer} from "../track-imports-transformer/track-imports-transformer.js";
-import {DeclarationChunkStats} from "../../../../../type/declaration-stats.js";
-import {StatsCollectorOptions} from "./stats-collector-options.js";
-import {ExtendedResolvedModule} from "../../../../cache/resolve-cache/extended-resolved-module.js";
+import type {DeclarationChunkStats} from "../../../../../type/declaration-stats.js";
+import type {StatsCollectorOptions} from "./stats-collector-options.js";
+import type {ExtendedResolvedModule} from "../../../../cache/resolve-cache/extended-resolved-module.js";
 
 export function statsCollector(options: StatsCollectorOptions): DeclarationChunkStats {
 	const {typescript, sourceFile, declarationPaths, host, sourceFileToTypeReferencesSet} = options;

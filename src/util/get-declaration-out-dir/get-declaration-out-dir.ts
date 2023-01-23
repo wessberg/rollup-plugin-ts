@@ -1,9 +1,10 @@
-import {OutputOptions} from "rollup";
+import type {OutputOptions} from "rollup";
 import {ensureRelative} from "../path/path-util.js";
 import {getOutDir} from "../get-out-dir/get-out-dir.js";
-import {TS} from "../../type/ts.js";
+import type {TS} from "../../type/ts.js";
+import type {
+	AmbientExtension} from "../../constant/constant.js";
 import {
-	AmbientExtension,
 	CJSX_EXTENSION,
 	CJS_EXTENSION,
 	CTSX_EXTENSION,
@@ -20,8 +21,8 @@ import {
 	MTS_EXTENSION
 } from "../../constant/constant.js";
 import path from "crosspath";
-import {NormalizedChunk} from "../chunk/normalize-chunk.js";
-import {SupportedExtensions} from "../get-supported-extensions/get-supported-extensions.js";
+import type {NormalizedChunk} from "../chunk/normalize-chunk.js";
+import type {SupportedExtensions} from "../get-supported-extensions/get-supported-extensions.js";
 
 /**
  * Gets the destination directory to use for declarations based on the given CompilerOptions and Rollup output options

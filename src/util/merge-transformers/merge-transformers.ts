@@ -1,5 +1,5 @@
-import {CustomTransformersFunction} from "./custom-transformer-options.js";
-import {TS} from "../../type/ts.js";
+import type {CustomTransformersFunction} from "./custom-transformer-options.js";
+import type {TS} from "../../type/ts.js";
 import {isDefined} from "../is-defined/is-defined.js";
 
 /**

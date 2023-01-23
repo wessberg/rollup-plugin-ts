@@ -1,7 +1,8 @@
-import {InputPluginOption, OutputOptions, Plugin, rollup, RollupBuild, RollupCache, RollupOptions, RollupOutput} from "rollup";
+import type {InputPluginOption, OutputOptions, Plugin, RollupBuild, RollupCache, RollupOptions, RollupOutput} from "rollup";
+import { rollup} from "rollup";
 // import commonjs from "@rollup/plugin-commonjs";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin.js";
-import {HookRecord, InputCompilerOptions, TypescriptPluginOptions} from "../../src/plugin/typescript-plugin-options.js";
+import type {HookRecord, InputCompilerOptions, TypescriptPluginOptions} from "../../src/plugin/typescript-plugin-options.js";
 import {
 	D_CTS_EXTENSION,
 	D_CTS_MAP_EXTENSION,
@@ -11,19 +12,19 @@ import {
 	D_TS_MAP_EXTENSION,
 	TSBUILDINFO_EXTENSION
 } from "../../src/constant/constant.js";
-import {TS} from "../../src/type/ts.js";
+import type {TS} from "../../src/type/ts.js";
 import {logVirtualFiles} from "../../src/util/logging/log-virtual-files.js";
 import {shouldDebugVirtualFiles} from "../../src/util/is-debug/should-debug.js";
 import path from "crosspath";
 import {builtinModules} from "module";
 import {createTestSetup} from "./test-setup.js";
-import {TestFile} from "./test-file.js";
-import {MaybeArray, PartialExcept} from "helpertypes";
-import {FileResult} from "./test-result.js";
+import type {TestFile} from "./test-file.js";
+import type {MaybeArray, PartialExcept} from "helpertypes";
+import type {FileResult} from "./test-result.js";
 import {removeSearchPathFromFilename, setExtension} from "../../src/util/path/path-util.js";
-import { ensureArray } from "../../src/util/ensure-array/ensure-array.js";
-import { isPromise } from "../../src/util/object/object-util.js";
-import { isDefined } from "../../src/util/is-defined/is-defined.js";
+import {ensureArray} from "../../src/util/ensure-array/ensure-array.js";
+import {isPromise} from "../../src/util/object/object-util.js";
+import {isDefined} from "../../src/util/is-defined/is-defined.js";
 
 export interface GenerateRollupBundleResult {
 	bundle: RollupOutput;
@@ -84,7 +85,7 @@ export async function generateRollupBundle(
 		fileSystem
 	} = createTestSetup(inputFiles, options);
 
-	async function flattenPlugins (plugins: InputPluginOption|undefined): Promise<Plugin[]> {
+	async function flattenPlugins(plugins: InputPluginOption | undefined): Promise<Plugin[]> {
 		const flattened: Plugin[] = [];
 		const awaitedPlugins = ensureArray(isPromise(plugins) ? await plugins : plugins).filter(isDefined);
 		for (const awaitedPlugin of awaitedPlugins) {

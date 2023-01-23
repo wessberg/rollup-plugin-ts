@@ -1,7 +1,7 @@
-import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {DeconflicterVisitorOptions} from "../deconflicter-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
 import {preserveMeta} from "../../../util/clone-node-with-meta.js";
-import { getModifierLikes } from "../../../util/node-util.js";
+import {getModifierLikes} from "../../../util/node-util.js";
 
 /**
  * Deconflicts the given PropertyDeclaration.

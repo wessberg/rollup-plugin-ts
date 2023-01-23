@@ -1,6 +1,6 @@
-import {OutputOptions, PluginContext} from "rollup";
-import {CompilerHost} from "../../compiler-host/compiler-host.js";
-import {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options.js";
+import type {OutputOptions, PluginContext} from "rollup";
+import type {CompilerHost} from "../../compiler-host/compiler-host.js";
+import type {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options.js";
 import path from "crosspath";
 import {getOutDir} from "../../../util/get-out-dir/get-out-dir.js";
 import {isBuildInfoOutputFile} from "../../../util/is-build-info-output-file/is-build-info-output-file.js";

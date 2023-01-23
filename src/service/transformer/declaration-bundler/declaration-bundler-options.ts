@@ -1,15 +1,15 @@
-import {TS} from "../../../type/ts.js";
-import {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options.js";
-import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "./transformers/reference/cache/reference-cache.js";
-import {SourceFileBundlerVisitorOptions} from "./transformers/source-file-bundler/source-file-bundler-visitor-options.js";
-import {NormalizedChunk} from "../../../util/chunk/normalize-chunk.js";
-import {CompilerHost} from "../../compiler-host/compiler-host.js";
-import {PathsResult} from "./util/prepare-paths/prepare-paths.js";
-import {SourceFileToExportedSymbolSet} from "./transformers/track-exports-transformer/track-exports-transformer-visitor-options.js";
-import {SourceFileToImportedSymbolSet} from "./transformers/track-imports-transformer/track-imports-transformer-visitor-options.js";
-import {TypeReference} from "./util/get-type-reference-module-from-file-name.js";
-import {DeclarationStats} from "../../../type/declaration-stats.js";
-import {ModuleDependency} from "../../../util/get-module-dependencies/get-module-dependencies.js";
+import type {TS} from "../../../type/ts.js";
+import type {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options.js";
+import type {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "./transformers/reference/cache/reference-cache.js";
+import type {SourceFileBundlerVisitorOptions} from "./transformers/source-file-bundler/source-file-bundler-visitor-options.js";
+import type {NormalizedChunk} from "../../../util/chunk/normalize-chunk.js";
+import type {CompilerHost} from "../../compiler-host/compiler-host.js";
+import type {PathsResult} from "./util/prepare-paths/prepare-paths.js";
+import type {SourceFileToExportedSymbolSet} from "./transformers/track-exports-transformer/track-exports-transformer-visitor-options.js";
+import type {SourceFileToImportedSymbolSet} from "./transformers/track-imports-transformer/track-imports-transformer-visitor-options.js";
+import type {TypeReference} from "./util/get-type-reference-module-from-file-name.js";
+import type {DeclarationStats} from "../../../type/declaration-stats.js";
+import type {ModuleDependency} from "../../../util/get-module-dependencies/get-module-dependencies.js";
 
 export type SourceFileToDependenciesMap = Map<string, Set<ModuleDependency>>;
 export type ModuleSpecifierToSourceFileMap = Map<string, TS.SourceFile>;

@@ -1,5 +1,5 @@
-import {ReferenceVisitorOptions} from "../reference-visitor-options.js";
-import {TS} from "../../../../../../../type/ts.js";
+import type {ReferenceVisitorOptions} from "../reference-visitor-options.js";
+import type {TS} from "../../../../../../../type/ts.js";
 
 export function checkTypeAliasDeclaration({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<TS.TypeAliasDeclaration>): string[] {
 	const referencedIdentifiers: string[] = [];

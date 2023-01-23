@@ -1,8 +1,8 @@
 import {ensureHasLeadingDotAndPosix, stripKnownExtension} from "../../../../util/path/path-util.js";
 import {getChunkFilename} from "./get-chunk-filename.js";
-import {NormalizedChunk} from "../../../../util/chunk/normalize-chunk.js";
-import {SourceFileResolver} from "../transformers/source-file-bundler/source-file-bundler-visitor-options.js";
-import {CompilerHost} from "../../../compiler-host/compiler-host.js";
+import type {NormalizedChunk} from "../../../../util/chunk/normalize-chunk.js";
+import type {SourceFileResolver} from "../transformers/source-file-bundler/source-file-bundler-visitor-options.js";
+import type {CompilerHost} from "../../../compiler-host/compiler-host.js";
 import {pickResolvedModule} from "../../../../util/pick-resolved-module.js";
 import {similarity} from "../../../../util/similarity-util.js";
 import path from "crosspath";
@@ -60,5 +60,5 @@ export function generateModuleSpecifier(options: GenerateModuleSpecifierOptions)
 	}
 
 	const relativePath = path.relative(path.dirname(chunk.paths.absolute), chunkForModuleSpecifier);
-	return ensureHasLeadingDotAndPosix(stripKnownExtension(relativePath), false);
+	return `${ensureHasLeadingDotAndPosix(stripKnownExtension(relativePath), false)}.js`;
 }

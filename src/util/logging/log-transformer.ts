@@ -1,4 +1,4 @@
-import {TS} from "../../type/ts.js";
+import type {TS} from "../../type/ts.js";
 import color from "ansi-colors";
 import {getFormattedDateTimePrefix} from "./get-formatted-date-time-prefix.js";
 

@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts.js";
-import {TrackExportsTransformerVisitorOptions} from "../track-exports-transformer-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
+import type {TrackExportsTransformerVisitorOptions} from "../track-exports-transformer-visitor-options.js";
 import {getExportedSymbolFromExportSpecifier} from "../../../util/create-export-specifier-from-name-and-modifiers.js";
 
 export function visitExportDeclaration({node, typescript, markAsExported}: TrackExportsTransformerVisitorOptions<TS.ExportDeclaration>): void {

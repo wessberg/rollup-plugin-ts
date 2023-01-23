@@ -1,5 +1,5 @@
-import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
 import {preserveMeta} from "../../../util/clone-node-with-meta.js";
 
 export function visitInterfaceDeclaration(options: TreeShakerVisitorOptions<TS.InterfaceDeclaration>): TS.InterfaceDeclaration | undefined {
@@ -10,9 +10,5 @@ export function visitInterfaceDeclaration(options: TreeShakerVisitorOptions<TS.I
 	}
 	return node.name === nameContinuationResult
 		? node
-		: preserveMeta(
-				factory.updateInterfaceDeclaration(node, node.modifiers, nameContinuationResult, node.typeParameters, node.heritageClauses, node.members),
-				node,
-				options
-		  );
+		: preserveMeta(factory.updateInterfaceDeclaration(node, node.modifiers, nameContinuationResult, node.typeParameters, node.heritageClauses, node.members), node, options);
 }

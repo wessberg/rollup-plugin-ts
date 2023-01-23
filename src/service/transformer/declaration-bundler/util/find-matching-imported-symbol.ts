@@ -1,4 +1,4 @@
-import {ImportedSymbol} from "../transformers/track-imports-transformer/track-imports-transformer-visitor-options.js";
+import type {ImportedSymbol} from "../transformers/track-imports-transformer/track-imports-transformer-visitor-options.js";
 
 export interface FindMatchingImportedSymbolOptions {
 	loose: boolean;

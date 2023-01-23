@@ -2,7 +2,7 @@ import test from "ava";
 import {withTypeScript} from "./util/ts-macro.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
-import {TS} from "../src/type/ts.js";
+import type {TS} from "../src/type/ts.js";
 import {ensureNodeFactory} from "compatfactory";
 
 test.serial("Supports Custom Transformers, including on bundled declarations. #1", withTypeScript, async (t, {typescript}) => {

@@ -1,4 +1,4 @@
-import {InputOptions} from "rollup";
+import type {InputOptions} from "rollup";
 
 interface EqualResult {
 	equal: true;

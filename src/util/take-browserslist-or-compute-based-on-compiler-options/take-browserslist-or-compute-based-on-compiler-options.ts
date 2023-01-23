@@ -1,6 +1,6 @@
 import {browsersWithSupportForEcmaVersion} from "browserslist-generator";
 import {getEcmaVersionForScriptTarget} from "../get-script-target-from-browserslist/get-script-target-from-browserslist.js";
-import {TS} from "../../type/ts.js";
+import type {TS} from "../../type/ts.js";
 
 /**
  * If a browserslist is given, that one will be used. Otherwise, if the given CompilerOptions has a 'target' property, a Browserslist

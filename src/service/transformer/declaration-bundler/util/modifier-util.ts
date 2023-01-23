@@ -1,5 +1,5 @@
-import {TS} from "../../../../type/ts.js";
-import { canHaveModifiers, getModifiers } from "./node-util.js";
+import type {TS} from "../../../../type/ts.js";
+import {canHaveModifiers, getModifiers} from "./node-util.js";
 
 export type Modifiers = TS.ModifiersArray | TS.Modifier[] | readonly TS.Modifier[] | readonly TS.ModifierLike[];
 

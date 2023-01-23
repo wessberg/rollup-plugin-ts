@@ -1,7 +1,7 @@
 import path from "crosspath";
-import {TestFileRecord} from "./test-file.js";
+import type {TestFileRecord} from "./test-file.js";
 import {createFsFromVolume, Volume} from "memfs";
-import {FileSystem} from "../../src/util/file-system/file-system.js";
+import type {FileSystem} from "../../src/util/file-system/file-system.js";
 
 export function createVirtualFileSystem(files: TestFileRecord[]): FileSystem {
 	const vol = new Volume();

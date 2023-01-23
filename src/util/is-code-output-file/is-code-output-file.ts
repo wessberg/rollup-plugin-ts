@@ -1,6 +1,6 @@
 import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, SOURCE_MAP_EXTENSION} from "../../constant/constant.js";
 import {getExtension} from "../path/path-util.js";
-import {TS} from "../../type/ts.js";
+import type {TS} from "../../type/ts.js";
 
 /**
  * Returns true if the given OutputFile represents code

@@ -1,8 +1,8 @@
-import {GetResolvedIdWithCachingOptions} from "./get-resolved-id-with-caching-options.js";
-import {ExtendedResolvedModule} from "./extended-resolved-module.js";
+import type {GetResolvedIdWithCachingOptions} from "./get-resolved-id-with-caching-options.js";
+import type {ExtendedResolvedModule} from "./extended-resolved-module.js";
 import {ensureAbsolute, isTslib, setExtension} from "../../../util/path/path-util.js";
 import {D_TS_EXTENSION, JS_EXTENSION} from "../../../constant/constant.js";
-import {TS} from "../../../type/ts.js";
+import type {TS} from "../../../type/ts.js";
 import path from "crosspath";
 
 export interface ResolveCacheOptions {

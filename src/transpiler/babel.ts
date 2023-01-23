@@ -1,4 +1,4 @@
-import {ConfigItem, PluginObj, TransformOptions} from "@babel/core";
+import type {ConfigItem, PluginObj, TransformOptions} from "@babel/core";
 import {
 	BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES,
 	BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES,
@@ -14,8 +14,8 @@ import {
 	BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_3,
 	BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_4
 } from "../constant/constant.js";
-import {BabelConfigHook, TranspilationPhase, TranspilerOptions, TypescriptPluginOptions} from "../plugin/typescript-plugin-options.js";
-import {Babel, BabelConfig} from "../type/babel.js";
+import type {BabelConfigHook, TranspilationPhase, TranspilerOptions, TypescriptPluginOptions} from "../plugin/typescript-plugin-options.js";
+import type {Babel, BabelConfig} from "../type/babel.js";
 import {isDefined} from "../util/is-defined/is-defined.js";
 import {
 	isBabelPluginTransformRuntime,
@@ -26,7 +26,7 @@ import {
 	resolveModule,
 	somePathsAreRelated
 } from "../util/path/path-util.js";
-import {SourceMap} from "rollup";
+import type {SourceMap} from "rollup";
 import MagicString from "magic-string";
 import {matchAll} from "@wessberg/stringutil";
 
@@ -167,7 +167,6 @@ export type BabelConfigFactory = (filename: string, inTypescriptStep?: boolean) 
  */
 export function getBabelConfig({babel, babelConfig, cwd, forcedOptions = {}, defaultOptions = {}, browserslist, phase, hook}: GetBabelConfigOptions): BabelConfigFactory {
 	return async (filename: string, inTypescriptStep = false) => {
-
 		// Load a partial Babel config based on the input options
 		const partialConfig = await babel.loadPartialConfigAsync(
 			// If babel options are provided directly
@@ -401,6 +400,7 @@ export function replaceBabelHelpers(code: string, filename: string, target: "cjs
 			  ];
 
 	if (matches.length < 1) return undefined;
+
 	const magicString = new MagicString(code, {filename, indentExclusionRanges: []});
 	for (const match of matches) {
 		const start = match.index + match[1].length;

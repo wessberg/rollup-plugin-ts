@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts.js";
-import {StatementMergerVisitorOptions} from "../statement-merger-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
+import type {StatementMergerVisitorOptions} from "../statement-merger-visitor-options.js";
 import {visitImportDeclaration} from "./visit-import-declaration.js";
 import {visitExportDeclaration} from "./visit-export-declaration.js";
 import {visitExportAssignment} from "./visit-export-assignment.js";

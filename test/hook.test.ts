@@ -2,7 +2,7 @@ import test from "ava";
 import {withTypeScript} from "./util/ts-macro.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
-import {DeclarationStats} from "../src/type/declaration-stats.js";
+import type {DeclarationStats} from "../src/type/declaration-stats.js";
 import {createBuiltInModuleTestFiles, createExternalTestFiles} from "./setup/test-file.js";
 
 test.serial("Declarations respect rewritten output paths. #1", withTypeScript, async (t, {typescript}) => {

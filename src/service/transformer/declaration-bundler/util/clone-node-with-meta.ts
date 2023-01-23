@@ -1,8 +1,8 @@
-import {SourceFileBundlerVisitorOptions} from "../transformers/source-file-bundler/source-file-bundler-visitor-options.js";
-import {TS} from "../../../../type/ts.js";
+import type {SourceFileBundlerVisitorOptions} from "../transformers/source-file-bundler/source-file-bundler-visitor-options.js";
+import type {TS} from "../../../../type/ts.js";
 import {cloneNode, preserveNode, setParentNodes} from "ts-clone-node";
 import {getSymbolAtLocation} from "./get-symbol-at-location.js";
-import {SafeNode} from "../../../../type/safe-node.js";
+import type {SafeNode} from "../../../../type/safe-node.js";
 
 export interface PreserveMetaOptions extends SourceFileBundlerVisitorOptions {}
 

@@ -1,8 +1,8 @@
-import {GetForcedCompilerOptionsOptions} from "./get-forced-compiler-options-options.js";
+import type {GetForcedCompilerOptionsOptions} from "./get-forced-compiler-options-options.js";
 import {getScriptTargetFromBrowserslist} from "../get-script-target-from-browserslist/get-script-target-from-browserslist.js";
 import {getOutDir} from "../get-out-dir/get-out-dir.js";
-import {TS} from "../../type/ts.js";
-import { getTranspilerOptions, isUsingTranspiler } from "../plugin-options/get-plugin-options.js";
+import type {TS} from "../../type/ts.js";
+import {getTranspilerOptions, isUsingTranspiler} from "../plugin-options/get-plugin-options.js";
 
 /**
  * Gets the ModuleKind to force
@@ -35,7 +35,7 @@ function getForcedScriptTargetOption({pluginOptions, browserslist}: GetForcedCom
 /**
  * Decide whether or not to force import helpers
  */
- function getForcedImportHelpersOption({pluginOptions}: GetForcedCompilerOptionsOptions): {importHelpers?: boolean} {
+function getForcedImportHelpersOption({pluginOptions}: GetForcedCompilerOptionsOptions): {importHelpers?: boolean} {
 	// If TypeScript is being used, which uses tslib, helpers should *always* be imported.
 	// We don't want them to be duplicated multiple times within generated chunks.
 	// When other transpilers are being used in some shape of form, they'll have similar enforced options

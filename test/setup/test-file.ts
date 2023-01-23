@@ -1,7 +1,7 @@
 import path from "crosspath";
 import fs from "fs";
-import {TestContext} from "./test-context.js";
-import {MaybeArray} from "helpertypes";
+import type {TestContext} from "./test-context.js";
+import type {MaybeArray} from "helpertypes";
 import {ensureArray} from "../../src/util/ensure-array/ensure-array.js";
 import {generateRandomPath} from "../../src/util/hash/generate-random-hash.js";
 import {CachedFs} from "../../src/service/cache/cached-fs.js";

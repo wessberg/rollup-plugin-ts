@@ -1,5 +1,5 @@
-import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
 import {visitExportDeclaration} from "./visit-export-declaration.js";
 import {visitImportTypeNode} from "./visit-import-type-node.js";
 import {visitImportDeclaration} from "./visit-import-declaration.js";

@@ -1,6 +1,6 @@
-import {TS} from "../../../../type/ts.js";
-import {SourceFileBundlerVisitorOptions} from "../transformers/source-file-bundler/source-file-bundler-visitor-options.js";
-import {DeclarationTransformer} from "../declaration-bundler-options.js";
+import type {TS} from "../../../../type/ts.js";
+import type {SourceFileBundlerVisitorOptions} from "../transformers/source-file-bundler/source-file-bundler-visitor-options.js";
+import type {DeclarationTransformer} from "../declaration-bundler-options.js";
 
 export interface ApplyTransformersOptions {
 	transformers: DeclarationTransformer[];

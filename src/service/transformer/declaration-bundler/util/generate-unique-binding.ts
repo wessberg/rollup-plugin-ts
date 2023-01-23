@@ -1,4 +1,4 @@
-import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options.js";
+import type {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options.js";
 
 export const DECONFLICT_SUFFIX = "$";
 const RESERVED_WORDS = new Set(["default"]);

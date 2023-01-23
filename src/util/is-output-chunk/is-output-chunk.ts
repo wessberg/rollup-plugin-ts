@@ -1,4 +1,4 @@
-import {OutputChunk, OutputAsset} from "rollup";
+import type {OutputChunk, OutputAsset} from "rollup";
 
 /**
  * Returns true if the given asset is an OutputChunk
@@ -10,6 +10,6 @@ export function isOutputChunk(thing: OutputChunk | OutputAsset): thing is Output
 /**
  * Returns true if the given asset is an OutputChunk
  */
- export function isOutputAssetOrOutputChunk(thing: OutputChunk | OutputAsset): thing is OutputChunk|OutputAsset {
+export function isOutputAssetOrOutputChunk(thing: OutputChunk | OutputAsset): thing is OutputChunk | OutputAsset {
 	return thing.type === "chunk" || thing.type === "asset";
 }

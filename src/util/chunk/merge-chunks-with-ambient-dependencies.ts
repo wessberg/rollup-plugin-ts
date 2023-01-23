@@ -1,10 +1,10 @@
-import {ExternalOption, ModuleFormat, PreRenderedChunk} from "rollup";
-import {PreNormalizedChunk} from "./normalize-chunk.js";
+import type {ExternalOption, ModuleFormat, PreRenderedChunk} from "rollup";
+import type {PreNormalizedChunk} from "./normalize-chunk.js";
 import {getChunkForModule} from "../../service/transformer/declaration-bundler/util/get-chunk-filename.js";
 import {isExternal, stripKnownExtension} from "../path/path-util.js";
 import {generateRandomHash} from "../hash/generate-random-hash.js";
-import {SourceFileToDependenciesMap} from "../../service/transformer/declaration-bundler/declaration-bundler-options.js";
-import {CompilerHost} from "../../service/compiler-host/compiler-host.js";
+import type {SourceFileToDependenciesMap} from "../../service/transformer/declaration-bundler/declaration-bundler-options.js";
+import type {CompilerHost} from "../../service/compiler-host/compiler-host.js";
 import {pickResolvedModule} from "../pick-resolved-module.js";
 import path from "crosspath";
 

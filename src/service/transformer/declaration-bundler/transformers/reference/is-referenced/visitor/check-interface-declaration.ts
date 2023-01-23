@@ -1,5 +1,5 @@
-import {ReferenceVisitorOptions} from "../reference-visitor-options.js";
-import {TS} from "../../../../../../../type/ts.js";
+import type {ReferenceVisitorOptions} from "../reference-visitor-options.js";
+import type {TS} from "../../../../../../../type/ts.js";
 
 export function checkInterfaceDeclaration({node, continuation, markIdentifiersAsReferenced}: ReferenceVisitorOptions<TS.InterfaceDeclaration>): string[] {
 	const referencedIdentifiers: string[] = [];

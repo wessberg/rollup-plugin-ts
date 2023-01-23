@@ -1,5 +1,5 @@
-import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
 import {preserveMeta} from "../../../util/clone-node-with-meta.js";
 
 export function visitImportEqualsDeclaration(options: TreeShakerVisitorOptions<TS.ImportEqualsDeclaration>): TS.ImportEqualsDeclaration | undefined {

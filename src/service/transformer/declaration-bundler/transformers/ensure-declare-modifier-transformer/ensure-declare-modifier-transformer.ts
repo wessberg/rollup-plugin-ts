@@ -1,5 +1,5 @@
-import {TS} from "../../../../../type/ts.js";
-import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
+import type {TS} from "../../../../../type/ts.js";
+import type {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
 import {visitNode} from "./visitor/visit-node.js";
 import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug.js";
 import {logTransformer} from "../../../../../util/logging/log-transformer.js";

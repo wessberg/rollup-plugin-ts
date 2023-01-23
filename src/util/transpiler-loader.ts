@@ -1,5 +1,5 @@
-import {Babel} from "../type/babel.js";
-import {Swc} from "../type/swc.js";
+import type {Babel} from "../type/babel.js";
+import type {Swc} from "../type/swc.js";
 import {listFormat} from "./list-format.js";
 
 /**

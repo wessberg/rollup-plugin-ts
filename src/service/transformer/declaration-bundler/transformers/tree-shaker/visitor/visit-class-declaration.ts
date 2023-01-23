@@ -1,6 +1,6 @@
-import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
-import { getModifierLikes } from "../../../util/node-util.js";
+import type {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
+import {getModifierLikes} from "../../../util/node-util.js";
 
 export function visitClassDeclaration({node, continuation, factory}: TreeShakerVisitorOptions<TS.ClassDeclaration>): TS.ClassDeclaration | undefined {
 	const nameContinuationResult = node.name == null ? undefined : continuation(node.name);

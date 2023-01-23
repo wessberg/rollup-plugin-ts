@@ -15,7 +15,7 @@ import {
 	SWC_HELPERS_PREFIX,
 	TSLIB_NAME
 } from "../../constant/constant.js";
-import {ExternalOption} from "rollup";
+import type {ExternalOption} from "rollup";
 import {ensureArray} from "../ensure-array/ensure-array.js";
 import {createRequire} from "module";
 
@@ -26,7 +26,7 @@ export function isTypeScriptLib(p: string): boolean {
 	return p.startsWith(`lib.`) && p.endsWith(D_TS_EXTENSION);
 }
 
-export function removeSearchPathFromFilename (p: string): string {
+export function removeSearchPathFromFilename(p: string): string {
 	if (p.includes(`?`)) {
 		return p.slice(0, p.indexOf(`?`));
 	}
@@ -102,7 +102,7 @@ export function isBabelPresetEnv(p: string): boolean {
 /**
  * Returns true if the given path represents @babel/preset-typescript
  */
- export function isBabelPresetTypescript(p: string): boolean {
+export function isBabelPresetTypescript(p: string): boolean {
 	return path.normalize(p).includes("@babel/preset-typescript");
 }
 
@@ -190,7 +190,7 @@ export function ensureHasLeadingDotAndPosix(p: string, externalGuard = true): st
 /**
  * Ensure that the given path has a leading "."
  */
- export function ensureHasNoLeadingDotAndPosix(p: string,): string {
+export function ensureHasNoLeadingDotAndPosix(p: string): string {
 	const posixPath = path.normalize(p);
 	if (posixPath.startsWith("./")) return posixPath.slice(2);
 	return posixPath;

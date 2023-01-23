@@ -1,4 +1,4 @@
-import {TS} from "../../../../type/ts.js";
+import type {TS} from "../../../../type/ts.js";
 import {isRootLevelNode} from "../transformers/module-merger/util/is-root-level-node.js";
 
 export interface NodePlacementQueue {

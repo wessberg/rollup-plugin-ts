@@ -1,6 +1,6 @@
 import color from "ansi-colors";
 import {getFormattedDateTimePrefix} from "./get-formatted-date-time-prefix.js";
-import {TS} from "../../type/ts.js";
+import type {TS} from "../../type/ts.js";
 import {inspect} from "../inspect/inspect.js";
 
 export function logTsconfig(config: TS.ParsedCommandLine): void {

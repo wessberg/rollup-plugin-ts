@@ -1,5 +1,5 @@
 import {getAppropriateEcmaVersionForBrowserslist} from "browserslist-generator";
-import {TS} from "../../type/ts.js";
+import type {TS} from "../../type/ts.js";
 
 /**
  * Gets the ScriptTarget to use from the given Browserslist

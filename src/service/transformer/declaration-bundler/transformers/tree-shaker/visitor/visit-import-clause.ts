@@ -1,5 +1,5 @@
-import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
 
 export function visitImportClause({node, continuation, factory}: TreeShakerVisitorOptions<TS.ImportClause>): TS.ImportClause | undefined {
 	const namedBindingsContinuationResult = node.namedBindings == null ? undefined : continuation(node.namedBindings);

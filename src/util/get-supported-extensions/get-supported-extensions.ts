@@ -1,3 +1,6 @@
+import type {
+	KnownExtension,
+	AmbientExtension} from "../../constant/constant.js";
 import {
 	D_TS_EXTENSION,
 	JS_EXTENSION,
@@ -11,14 +14,12 @@ import {
 	MJSX_EXTENSION,
 	CJS_EXTENSION,
 	CJSX_EXTENSION,
-	KnownExtension,
-	AmbientExtension,
 	MTS_EXTENSION,
 	CTS_EXTENSION,
 	MTSX_EXTENSION,
 	CTSX_EXTENSION
 } from "../../constant/constant.js";
-import {TS} from "../../type/ts.js";
+import type {TS} from "../../type/ts.js";
 
 export type SupportedExtensions = Set<KnownExtension>;
 export type SupportedAmbientExtensions = Set<AmbientExtension>;
@@ -40,9 +41,15 @@ export function getSupportedExtensions(allowJs: boolean, allowJson: boolean, typ
 			D_TS_EXTENSION,
 			D_CTS_EXTENSION,
 			D_MTS_EXTENSION,
-			...(allowJs ? [JS_EXTENSION, JSX_EXTENSION, MJS_EXTENSION, MJSX_EXTENSION, CJS_EXTENSION, CJSX_EXTENSION] as const : []),
-			...(allowJson ? [JSON_EXTENSION] as const : [])
+			...(allowJs ? ([JS_EXTENSION, JSX_EXTENSION, MJS_EXTENSION, MJSX_EXTENSION, CJS_EXTENSION, CJSX_EXTENSION] as const) : []),
+			...(allowJson ? ([JSON_EXTENSION] as const) : [])
 		] as const);
 	}
-	return new Set([TS_EXTENSION, TSX_EXTENSION, D_TS_EXTENSION, ...(allowJs ? [JS_EXTENSION, JSX_EXTENSION] as const : []), ...(allowJson ? [JSON_EXTENSION] as const : [])] as const);
+	return new Set([
+		TS_EXTENSION,
+		TSX_EXTENSION,
+		D_TS_EXTENSION,
+		...(allowJs ? ([JS_EXTENSION, JSX_EXTENSION] as const) : []),
+		...(allowJson ? ([JSON_EXTENSION] as const) : [])
+	] as const);
 }

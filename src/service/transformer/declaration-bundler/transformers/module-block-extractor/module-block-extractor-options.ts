@@ -1,6 +1,6 @@
-import {TS} from "../../../../../type/ts.js";
-import {TypescriptPluginOptions} from "../../../../../plugin/typescript-plugin-options.js";
-import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
+import type {TS} from "../../../../../type/ts.js";
+import type {TypescriptPluginOptions} from "../../../../../plugin/typescript-plugin-options.js";
+import type {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
 
 export interface ModuleBlockExtractorOptions extends SourceFileBundlerVisitorOptions {
 	typescript: typeof TS;

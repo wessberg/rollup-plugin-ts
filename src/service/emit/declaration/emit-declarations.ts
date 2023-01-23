@@ -1,5 +1,5 @@
-import {ExternalOption, OutputBundle, OutputOptions, PluginContext} from "rollup";
-import {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options.js";
+import type {ExternalOption, OutputBundle, OutputOptions, PluginContext} from "rollup";
+import type {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options.js";
 import {isOutputChunk} from "../../../util/is-output-chunk/is-output-chunk.js";
 import {getDeclarationOutDir, getDeclarationOutExtension} from "../../../util/get-declaration-out-dir/get-declaration-out-dir.js";
 import {getOutDir} from "../../../util/get-out-dir/get-out-dir.js";
@@ -7,15 +7,15 @@ import {setExtension} from "../../../util/path/path-util.js";
 import path from "crosspath";
 import {D_TS_EXTENSION, D_TS_MAP_EXTENSION, JS_EXTENSION} from "../../../constant/constant.js";
 import {bundleDeclarationsForChunk} from "./bundle-declarations-for-chunk.js";
-import {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "../../transformer/declaration-bundler/transformers/reference/cache/reference-cache.js";
+import type {ReferenceCache, SourceFileToNodeToReferencedIdentifiersCache} from "../../transformer/declaration-bundler/transformers/reference/cache/reference-cache.js";
 import {normalizeChunk, preNormalizeChunk} from "../../../util/chunk/normalize-chunk.js";
 import {shouldDebugEmit, shouldDebugMetrics} from "../../../util/is-debug/should-debug.js";
 import {logMetrics} from "../../../util/logging/log-metrics.js";
-import {CompilerHost} from "../../compiler-host/compiler-host.js";
+import type {CompilerHost} from "../../compiler-host/compiler-host.js";
 import {mergeChunksWithAmbientDependencies} from "../../../util/chunk/merge-chunks-with-ambient-dependencies.js";
 import {preparePaths} from "../../transformer/declaration-bundler/util/prepare-paths/prepare-paths.js";
 import {logEmit} from "../../../util/logging/log-emit.js";
-import {TS} from "../../../type/ts.js";
+import type {TS} from "../../../type/ts.js";
 import {createFilter} from "@rollup/pluginutils";
 
 export interface EmitDeclarationsOptions {
@@ -58,7 +58,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 	const referenceCache: ReferenceCache = new Map();
 
 	let virtualOutFile = preparePaths({
-		fileName: `index${getDeclarationOutExtension(options.outputOptions, options.host.getSupportedExtensions())}`,
+		fileName: `index${getDeclarationOutExtension(options.outputOptions, options.host.getAllKnownTypescriptExtensions())}`,
 		relativeOutDir: relativeDeclarationOutDir,
 		absoluteOutDir: absoluteDeclarationOutDir
 	});
@@ -124,13 +124,13 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 
 	for (const chunk of normalizedChunks) {
 		let declarationPaths = preparePaths({
-			fileName: setExtension(chunk.paths.fileName, getDeclarationOutExtension(options.outputOptions, options.host.getSupportedExtensions(), chunk)),
+			fileName: setExtension(chunk.paths.fileName, getDeclarationOutExtension(options.outputOptions, options.host.getAllKnownTypescriptExtensions(), chunk)),
 			relativeOutDir: relativeDeclarationOutDir,
 			absoluteOutDir: absoluteDeclarationOutDir
 		});
 
 		let declarationMapPaths = preparePaths({
-			fileName: setExtension(chunk.paths.fileName, getDeclarationOutExtension(options.outputOptions, options.host.getSupportedExtensions(), chunk, true)),
+			fileName: setExtension(chunk.paths.fileName, getDeclarationOutExtension(options.outputOptions, options.host.getAllKnownTypescriptExtensions(), chunk, true)),
 			relativeOutDir: relativeDeclarationOutDir,
 			absoluteOutDir: absoluteDeclarationOutDir
 		});

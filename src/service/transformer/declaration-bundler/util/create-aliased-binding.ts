@@ -1,10 +1,10 @@
-import {TS} from "../../../../type/ts.js";
+import type {TS} from "../../../../type/ts.js";
 import {ensureHasDeclareModifier} from "./modifier-util.js";
 import {getAliasedDeclarationFromSymbol, isSymbol} from "./get-aliased-declaration.js";
-import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options.js";
+import type {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options.js";
 import {generateUniqueBinding} from "./generate-unique-binding.js";
 import {preserveParents} from "./clone-node-with-meta.js";
-import {TransformerBaseOptions} from "../transformers/transformer-base-options.js";
+import type {TransformerBaseOptions} from "../transformers/transformer-base-options.js";
 import {markAsInternalAlias} from "./node-util.js";
 
 export interface CreateAliasedBindingOptions extends TransformerBaseOptions {
@@ -33,11 +33,7 @@ export function createAliasedBinding({
 				undefined,
 				factory.createIdentifier(moduleBinding),
 				factory.createModuleBlock([
-					factory.createExportDeclaration(
-						undefined,
-						false,
-						factory.createNamedExports([factory.createExportSpecifier(false, undefined, factory.createIdentifier(propertyName))])
-					)
+					factory.createExportDeclaration(undefined, false, factory.createNamedExports([factory.createExportSpecifier(false, undefined, factory.createIdentifier(propertyName))]))
 				])
 			);
 

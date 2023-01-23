@@ -53,7 +53,7 @@ test.serial("Merges identical statements correctly. #1", withTypeScript, async (
 	t.deepEqual(
 		formatCode(indexFile!.code),
 		formatCode(`\
-			export * from "./a";
+			export * from "./a.js";
 		`)
 	);
 });
@@ -107,7 +107,7 @@ test.serial("Merges identical statements correctly. #2", withTypeScript, async (
 	t.deepEqual(
 		formatCode(indexFile!.code),
 		formatCode(`\
-			export { foo as bar } from "./a";
+			export { foo as bar } from "./a.js";
 		`)
 	);
 });
@@ -258,8 +258,8 @@ test.serial("Merges identical statements correctly. #5", withTypeScriptVersions(
 	t.deepEqual(
 		formatCode(indexFile!.code),
 		formatCode(`\
-		export type { foo as bar } from "./a";
-		export { foo as baz } from "./a"
+		export type { foo as bar } from "./a.js";
+		export { foo as baz } from "./a.js"
 		`)
 	);
 });
@@ -313,8 +313,8 @@ test.serial("Merges identical statements correctly. #6", withTypeScriptVersions(
 	t.deepEqual(
 		formatCode(indexFile!.code),
 		formatCode(`\
-		export type { foo as bar } from "./a";
-		export { bar as baz, foo as foobarbaz } from "./a";
+		export type { foo as bar } from "./a.js";
+		export { bar as baz, foo as foobarbaz } from "./a.js";
 		`)
 	);
 });
@@ -367,7 +367,7 @@ test.serial("Merges identical statements correctly. #7", withTypeScriptVersions(
 	t.deepEqual(
 		formatCode(indexFile!.code),
 		formatCode(`\
-		export { foo } from "./a";
+		export { foo } from "./a.js";
 		`)
 	);
 });

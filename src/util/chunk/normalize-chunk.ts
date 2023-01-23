@@ -1,10 +1,11 @@
-import {OutputChunk, OutputOptions} from "rollup";
+import type {OutputChunk, OutputOptions} from "rollup";
 import {getOutDir} from "../get-out-dir/get-out-dir.js";
-import {PathsResult, preparePaths} from "../../service/transformer/declaration-bundler/util/prepare-paths/prepare-paths.js";
-import {CompilerHost} from "../../service/compiler-host/compiler-host.js";
+import type {PathsResult} from "../../service/transformer/declaration-bundler/util/prepare-paths/prepare-paths.js";
+import { preparePaths} from "../../service/transformer/declaration-bundler/util/prepare-paths/prepare-paths.js";
+import type {CompilerHost} from "../../service/compiler-host/compiler-host.js";
 import {ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY} from "../../constant/constant.js";
 import path from "crosspath";
-import { removeSearchPathFromFilename } from "../path/path-util.js";
+import {removeSearchPathFromFilename} from "../path/path-util.js";
 
 export interface PreNormalizedChunk {
 	fileName: string;

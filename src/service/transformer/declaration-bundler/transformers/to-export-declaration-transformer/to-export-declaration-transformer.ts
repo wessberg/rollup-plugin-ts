@@ -1,8 +1,8 @@
-import {TS} from "../../../../../type/ts.js";
-import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
+import type {TS} from "../../../../../type/ts.js";
+import type {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
 import {visitNode} from "./visitor/visit-node.js";
 import {getNodePlacementQueue} from "../../util/get-node-placement-queue.js";
-import {ToExportDeclarationTransformerVisitorOptions} from "./to-export-declaration-transformer-visitor-options.js";
+import type {ToExportDeclarationTransformerVisitorOptions} from "./to-export-declaration-transformer-visitor-options.js";
 import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug.js";
 import {logMetrics} from "../../../../../util/logging/log-metrics.js";
 import {logTransformer} from "../../../../../util/logging/log-transformer.js";

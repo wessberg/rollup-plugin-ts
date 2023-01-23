@@ -1,7 +1,7 @@
-import {TS} from "../../../../type/ts.js";
+import type {TS} from "../../../../type/ts.js";
 import {hasDefaultExportModifier} from "./modifier-util.js";
-import {ExportedSymbol} from "../transformers/track-exports-transformer/track-exports-transformer-visitor-options.js";
-import {ImportedSymbol} from "../transformers/track-imports-transformer/track-imports-transformer-visitor-options.js";
+import type {ExportedSymbol} from "../transformers/track-exports-transformer/track-exports-transformer-visitor-options.js";
+import type {ImportedSymbol} from "../transformers/track-imports-transformer/track-imports-transformer-visitor-options.js";
 
 export interface CreateExportSpecifierFromNameAndModifiersOptions {
 	isTypeOnly?: boolean;

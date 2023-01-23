@@ -1,10 +1,10 @@
-import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {DeconflicterVisitorOptions} from "../deconflicter-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
 import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment.js";
 import {nodeArraysAreEqual} from "../../../util/node-arrays-are-equal.js";
-import {ContinuationOptions} from "../deconflicter-options.js";
+import type {ContinuationOptions} from "../deconflicter-options.js";
 import {preserveMeta} from "../../../util/clone-node-with-meta.js";
-import { getModifierLikes } from "../../../util/node-util.js";
+import {getModifierLikes} from "../../../util/node-util.js";
 
 /**
  * Deconflicts the given SetAccessorDeclaration.

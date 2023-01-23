@@ -1,4 +1,4 @@
-import {TS} from "../../../../../type/ts.js";
+import type {TS} from "../../../../../type/ts.js";
 import {traceIdentifiersForNode} from "./visitor/trace-identifiers-for-node.js";
 
 export interface GetIdentifiersWithCacheOptions {

@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts.js";
-import {TrackExportsTransformerVisitorOptions} from "../track-exports-transformer-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
+import type {TrackExportsTransformerVisitorOptions} from "../track-exports-transformer-visitor-options.js";
 import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers.js";
 import {hasExportModifier} from "../../../util/modifier-util.js";
 

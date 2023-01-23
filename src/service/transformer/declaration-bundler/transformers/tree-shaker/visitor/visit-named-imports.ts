@@ -1,5 +1,5 @@
-import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
 
 export function visitNamedImports({node, continuation, factory}: TreeShakerVisitorOptions<TS.NamedImports>): TS.NamedImports | undefined {
 	const filteredSpecifiers: TS.ImportSpecifier[] = [];

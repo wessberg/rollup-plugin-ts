@@ -1,6 +1,6 @@
-import {TS} from "../../../type/ts.js";
-import {TransformerBaseOptions} from "../declaration-bundler/transformers/transformer-base-options.js";
-import { nodeHasSupportedExtension } from "../declaration-bundler/util/node-has-supported-extension.js";
+import type {TS} from "../../../type/ts.js";
+import type {TransformerBaseOptions} from "../declaration-bundler/transformers/transformer-base-options.js";
+import {nodeHasSupportedExtension} from "../declaration-bundler/util/node-has-supported-extension.js";
 
 export function ensureModuleTransformer({typescript, factory, sourceFile, extensions}: TransformerBaseOptions): TS.SourceFile {
 	// Only consider import declarations from modules with supported filenames

@@ -1,5 +1,5 @@
-import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
 import {getImportedSymbolFromImportClauseName} from "../../../util/create-export-specifier-from-name-and-modifiers.js";
 import {preserveMeta, preserveParents} from "../../../util/clone-node-with-meta.js";
 import {createAliasedBinding} from "../../../util/create-aliased-binding.js";

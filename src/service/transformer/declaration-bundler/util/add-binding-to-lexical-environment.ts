@@ -1,4 +1,4 @@
-import {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options.js";
+import type {LexicalEnvironment} from "../transformers/deconflicter/deconflicter-options.js";
 
 export function addBindingToLexicalEnvironment(lexicalEnvironment: LexicalEnvironment, originalSourceFileName: string, value: string, oldValue: string = value): void {
 	lexicalEnvironment.bindings.set(oldValue, {originalSourceFileName, value});

@@ -1,5 +1,5 @@
-import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
 import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment.js";
 import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifier-transformer/ensure-no-declare-modifier-transformer.js";
 import {ensureHasDeclareModifier} from "../../../util/modifier-util.js";

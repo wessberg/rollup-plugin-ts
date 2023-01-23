@@ -1,8 +1,8 @@
-import {RollupError, RollupWarning, PluginContext} from "rollup";
-import {ExtendedDiagnostic} from "../../../diagnostic/extended-diagnostic.js";
-import {TS} from "../../../type/ts.js";
-import {CompilerHost} from "../../compiler-host/compiler-host.js";
-import {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options.js";
+import type {RollupError, RollupWarning, PluginContext} from "rollup";
+import type {ExtendedDiagnostic} from "../../../diagnostic/extended-diagnostic.js";
+import type {TS} from "../../../type/ts.js";
+import type {CompilerHost} from "../../compiler-host/compiler-host.js";
+import type {TypescriptPluginOptions} from "../../../plugin/typescript-plugin-options.js";
 
 export interface EmitDiagnosticsOptions {
 	host: CompilerHost;

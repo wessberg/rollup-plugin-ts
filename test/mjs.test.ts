@@ -113,36 +113,40 @@ test.serial("Will generate a .d.mts declaration file when the output file is .mj
 	t.deepEqual(file.fileName, `index.d.mts`);
 });
 
-test.serial("Will generate a .d.ts declaration file when the output file is .mjs, but the TypeScript version doesn't support the .d.mts format based. #1", withTypeScriptVersions("<4.7"), async (t, {typescript}) => {
-	const bundle = await generateRollupBundle(
-		[
-			{
-				entry: true,
-				fileName: "source/index.ts",
-				text: `\
+test.serial(
+	"Will generate a .d.ts declaration file when the output file is .mjs, but the TypeScript version doesn't support the .d.mts format based. #1",
+	withTypeScriptVersions("<4.7"),
+	async (t, {typescript}) => {
+		const bundle = await generateRollupBundle(
+			[
+				{
+					entry: true,
+					fileName: "source/index.ts",
+					text: `\
 					export type Foo = string;
 					`
-			}
-		],
-		{
-			typescript,
-			debug: false,
-			tsconfig: {
-				declaration: true
-			},
-			rollupOptions: {
-				output: {
-					file: "index.mjs"
+				}
+			],
+			{
+				typescript,
+				debug: false,
+				tsconfig: {
+					declaration: true
+				},
+				rollupOptions: {
+					output: {
+						file: "index.mjs"
+					}
 				}
 			}
-		}
-	);
-	const {
-		declarations: [file]
-	} = bundle;
+		);
+		const {
+			declarations: [file]
+		} = bundle;
 
-	t.deepEqual(file.fileName, `index.d.ts`);
-});
+		t.deepEqual(file.fileName, `index.d.ts`);
+	}
+);
 
 test.serial("Can successfully author in .mts files. #1", withTypeScriptVersions(">=4.7"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(

@@ -1,5 +1,5 @@
-import {IsReferencedOptions} from "./is-referenced-options.js";
-import {ReferenceVisitorOptions} from "./reference-visitor-options.js";
+import type {IsReferencedOptions} from "./is-referenced-options.js";
+import type {ReferenceVisitorOptions} from "./reference-visitor-options.js";
 import {checkClassDeclaration} from "./visitor/check-class-declaration.js";
 import {checkIdentifier} from "./visitor/check-identifier.js";
 import {checkClassExpression} from "./visitor/check-class-expression.js";
@@ -10,7 +10,7 @@ import {checkFunctionDeclaration} from "./visitor/check-function-declaration.js"
 import {checkFunctionExpression} from "./visitor/check-function-expression.js";
 import {checkVariableDeclaration} from "./visitor/check-variable-declaration.js";
 import {checkExportSpecifier} from "./visitor/check-export-specifier.js";
-import {NodeToReferencedIdentifiersCache} from "../cache/reference-cache.js";
+import type {NodeToReferencedIdentifiersCache} from "../cache/reference-cache.js";
 import {checkArrayBindingPattern} from "./visitor/check-array-binding-pattern.js";
 import {checkObjectBindingPattern} from "./visitor/check-object-binding-pattern.js";
 import {checkBindingElement} from "./visitor/check-binding-element.js";
@@ -29,7 +29,7 @@ import {checkModuleDeclaration} from "./visitor/check-module-declaration.js";
 import {checkIndexedAccessTypeNode} from "./visitor/check-indexed-access-type-node.js";
 import {checkPropertyAccessExpression} from "./visitor/check-property-access-expression.js";
 import {checkQualifiedName} from "./visitor/check-qualified-name.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {TS} from "../../../../../../type/ts.js";
 import {nodeContainsChild} from "../../../util/node-contains-child.js";
 import {hasExportModifier} from "../../../util/modifier-util.js";
 import {traceIdentifiers} from "../../trace-identifiers/trace-identifiers.js";

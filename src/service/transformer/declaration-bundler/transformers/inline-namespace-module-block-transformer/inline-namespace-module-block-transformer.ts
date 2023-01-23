@@ -1,11 +1,11 @@
-import {TS} from "../../../../../type/ts.js";
+import type {TS} from "../../../../../type/ts.js";
 import {visitNode} from "./visitor/visit-node.js";
 import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug.js";
 import {logMetrics} from "../../../../../util/logging/log-metrics.js";
 import {logTransformer} from "../../../../../util/logging/log-transformer.js";
 import {preserveMeta} from "../../util/clone-node-with-meta.js";
-import {DeclarationTransformer} from "../../declaration-bundler-options.js";
-import {InlineNamespaceModuleBlockOptions} from "./inline-namespace-module-block-options.js";
+import type {DeclarationTransformer} from "../../declaration-bundler-options.js";
+import type {InlineNamespaceModuleBlockOptions} from "./inline-namespace-module-block-options.js";
 
 export function inlineNamespaceModuleBlockTransformer({intentToAddImportDeclaration, intentToAddModuleDeclaration}: InlineNamespaceModuleBlockOptions): DeclarationTransformer {
 	return options => {

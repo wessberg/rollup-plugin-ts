@@ -1,4 +1,4 @@
-import {CompilerHost} from "../../../compiler-host/compiler-host.js";
+import type {CompilerHost} from "../../../compiler-host/compiler-host.js";
 
 export interface TypeModuleReferenceIsAllowedOptions {
 	host: CompilerHost;

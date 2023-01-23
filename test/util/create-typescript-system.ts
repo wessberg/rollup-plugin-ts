@@ -1,10 +1,10 @@
 import * as fsModule from "fs";
 import * as osModule from "os";
-import {TS} from "../../src/type/ts.js";
+import type {TS} from "../../src/type/ts.js";
 import path from "crosspath";
-import {FileSystem} from "../../src/util/file-system/file-system.js";
-import {OS} from "../../src/util/os/os.js";
-import {PartialExcept} from "helpertypes";
+import type {FileSystem} from "../../src/util/file-system/file-system.js";
+import type {OS} from "../../src/util/os/os.js";
+import type {PartialExcept} from "helpertypes";
 
 /**
  * TypeScript has a lot of internal helpers that aren't exposed.

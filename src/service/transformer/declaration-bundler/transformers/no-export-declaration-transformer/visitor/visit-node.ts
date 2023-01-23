@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts.js";
-import {NoExportDeclarationTransformerVisitorOptions} from "../no-export-declaration-transformer-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
+import type {NoExportDeclarationTransformerVisitorOptions} from "../no-export-declaration-transformer-visitor-options.js";
 import {visitExportDeclaration} from "./visit-export-declaration.js";
 import {visitExportAssignment} from "./visit-export-assignment.js";
 

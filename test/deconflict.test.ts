@@ -1125,7 +1125,7 @@ test.serial("Deconflicts symbols. #20", withTypeScript, async (t, {typescript}) 
 		formatCode(`\
 		type Foo = 2;
 		type Bar = Foo;
-		declare const Foo$0: import("./index").Foo;
+		declare const Foo$0: import("./index.js").Foo;
 		export { Bar, Foo$0 as Foo };
 		`)
 	);

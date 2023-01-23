@@ -1,5 +1,5 @@
-import {ReferenceVisitorOptions} from "../reference-visitor-options.js";
-import {TS} from "../../../../../../../type/ts.js";
+import type {ReferenceVisitorOptions} from "../reference-visitor-options.js";
+import type {TS} from "../../../../../../../type/ts.js";
 
 export function checkExportSpecifier({node, continuation}: ReferenceVisitorOptions<TS.ExportSpecifier>): string[] {
 	const referencedIdentifiers: string[] = [];

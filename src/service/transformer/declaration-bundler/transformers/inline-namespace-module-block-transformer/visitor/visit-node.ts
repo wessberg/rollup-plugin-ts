@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts.js";
-import {InlineNamespaceModuleBlockVisitorOptions} from "../inline-namespace-module-block-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
+import type {InlineNamespaceModuleBlockVisitorOptions} from "../inline-namespace-module-block-visitor-options.js";
 import {visitImportDeclaration} from "./visit-import-declaration.js";
 import {visitExportDeclaration} from "./visit-export-declaration.js";
 import {visitModuleDeclaration} from "./visit-module-declaration.js";

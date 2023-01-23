@@ -1,7 +1,7 @@
-import {TS} from "../../../../../type/ts.js";
+import type {TS} from "../../../../../type/ts.js";
 import {visitNode} from "./visitor/visit-node.js";
-import {TrackDependenciesOptions, TrackDependenciesTransformerVisitorOptions} from "./track-dependencies-transformer-visitor-options.js";
-import {ModuleDependency} from "../../../../../util/get-module-dependencies/get-module-dependencies.js";
+import type {TrackDependenciesOptions, TrackDependenciesTransformerVisitorOptions} from "./track-dependencies-transformer-visitor-options.js";
+import type {ModuleDependency} from "../../../../../util/get-module-dependencies/get-module-dependencies.js";
 
 export function trackDependenciesTransformer(options: TrackDependenciesOptions): Set<ModuleDependency> {
 	const typescript = options.host.getTypescript();

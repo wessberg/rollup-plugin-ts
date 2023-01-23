@@ -1,13 +1,13 @@
-import {TS} from "../../../../../type/ts.js";
+import type {TS} from "../../../../../type/ts.js";
 import {visitNode} from "./visitor/visit-node.js";
 import {getNodePlacementQueue} from "../../util/get-node-placement-queue.js";
-import {NoExportDeclarationTransformerVisitorOptions} from "./no-export-declaration-transformer-visitor-options.js";
+import type {NoExportDeclarationTransformerVisitorOptions} from "./no-export-declaration-transformer-visitor-options.js";
 import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug.js";
 import {logMetrics} from "../../../../../util/logging/log-metrics.js";
 import {logTransformer} from "../../../../../util/logging/log-transformer.js";
 import {preserveMeta} from "../../util/clone-node-with-meta.js";
-import {DeclarationTransformer} from "../../declaration-bundler-options.js";
-import {NoExportDeclarationTransformerOptions} from "./no-export-declaration-transformer-options.js";
+import type {DeclarationTransformer} from "../../declaration-bundler-options.js";
+import type {NoExportDeclarationTransformerOptions} from "./no-export-declaration-transformer-options.js";
 
 export function noExportDeclarationTransformer({
 	preserveAliasedExports = false,

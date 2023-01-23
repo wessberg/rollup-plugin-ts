@@ -1,6 +1,7 @@
-import test, {ExecutionContext} from "ava";
+import type {ExecutionContext} from "ava";
+import test from "ava";
 import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro.js";
-import {ConfigItem} from "@babel/core";
+import type {ConfigItem} from "@babel/core";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 import {BABEL_CONFIG_JS_FILENAME, BABEL_CONFIG_JSON_FILENAME, BABELRC_FILENAME, BABEL_CONFIG_MJS_FILENAME} from "../src/constant/constant.js";
 import {areTempFilesEqual, createTemporaryFile} from "./util/create-temporary-file.js";

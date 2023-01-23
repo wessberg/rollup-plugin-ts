@@ -1,5 +1,5 @@
-import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier.js";
 import {preserveMeta, preserveParents, preserveSymbols} from "../../../util/clone-node-with-meta.js";
 import {ensureHasDeclareModifier} from "../../../util/modifier-util.js";
@@ -30,9 +30,7 @@ function generateExportDeclarations(options: GenerateExportDeclarationsOptions, 
 			// If the generated moduleSpecifier is null, that's because it is a self-reference, in which case the 'export *' declaration must be skipped
 			// in favor of all other named export bindings that will included anyway
 			if (matchingSourceFile == null && generatedModuleSpecifier != null) {
-				exportDeclarations.push(
-					preserveParents(factory.createExportDeclaration(undefined, false, undefined, factory.createStringLiteral(generatedModuleSpecifier)), {typescript})
-				);
+				exportDeclarations.push(preserveParents(factory.createExportDeclaration(undefined, false, undefined, factory.createStringLiteral(generatedModuleSpecifier)), {typescript}));
 			}
 
 			// Otherwise, recursively add all exports for the reexported module

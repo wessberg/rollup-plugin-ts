@@ -1,5 +1,5 @@
-import {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {TreeShakerVisitorOptions} from "../tree-shaker-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
 import {isNodeInternalAlias} from "../../../util/node-util.js";
 import {preserveMeta} from "../../../util/clone-node-with-meta.js";
 
@@ -14,7 +14,5 @@ export function visitModuleDeclaration(options: TreeShakerVisitorOptions<TS.Modu
 	if (nameContinuationResult == null) {
 		return undefined;
 	}
-	return node.name === nameContinuationResult
-		? node
-		: preserveMeta(factory.updateModuleDeclaration(node, node.modifiers, nameContinuationResult, node.body), node, options);
+	return node.name === nameContinuationResult ? node : preserveMeta(factory.updateModuleDeclaration(node, node.modifiers, nameContinuationResult, node.body), node, options);
 }

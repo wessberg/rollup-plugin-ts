@@ -1,5 +1,5 @@
-import {ReferenceVisitorOptions} from "../reference-visitor-options.js";
-import {TS} from "../../../../../../../type/ts.js";
+import type {ReferenceVisitorOptions} from "../reference-visitor-options.js";
+import type {TS} from "../../../../../../../type/ts.js";
 
 export function checkVariableDeclarationList({node, continuation}: ReferenceVisitorOptions<TS.VariableDeclarationList>): string[] {
 	const referencedIdentifiers: string[] = [];

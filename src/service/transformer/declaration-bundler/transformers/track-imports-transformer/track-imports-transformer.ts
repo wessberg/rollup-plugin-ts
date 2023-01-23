@@ -1,6 +1,6 @@
-import {TS} from "../../../../../type/ts.js";
+import type {TS} from "../../../../../type/ts.js";
 import {visitNode} from "./visitor/visit-node.js";
-import {ImportedSymbol, ImportedSymbolSet, TrackImportsOptions, TrackImportsTransformerVisitorOptions} from "./track-imports-transformer-visitor-options.js";
+import type {ImportedSymbol, ImportedSymbolSet, TrackImportsOptions, TrackImportsTransformerVisitorOptions} from "./track-imports-transformer-visitor-options.js";
 
 export function trackImportsTransformer(options: TrackImportsOptions): ImportedSymbolSet {
 	const {typescript} = options;

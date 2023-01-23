@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts.js";
-import {ToExportDeclarationTransformerVisitorOptions} from "../to-export-declaration-transformer-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
+import type {ToExportDeclarationTransformerVisitorOptions} from "../to-export-declaration-transformer-visitor-options.js";
 import {generateIdentifierName} from "../../../util/generate-identifier-name.js";
 import {createExportSpecifierFromNameAndModifiers} from "../../../util/create-export-specifier-from-name-and-modifiers.js";
 import {preserveMeta, preserveParents, preserveSymbols} from "../../../util/clone-node-with-meta.js";

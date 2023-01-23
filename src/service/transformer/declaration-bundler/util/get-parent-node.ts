@@ -1,4 +1,4 @@
-import {SafeNode} from "../../../../type/safe-node.js";
+import type {SafeNode} from "../../../../type/safe-node.js";
 
 export function getParentNode<T extends SafeNode>(node: T): T["parent"] {
 	if (node._parent != null) {

@@ -1,7 +1,7 @@
 import {ensureHasLeadingDotAndPosix} from "../../../../util/path/path-util.js";
-import {TS} from "../../../../type/ts.js";
+import type {TS} from "../../../../type/ts.js";
 import {preserveParents} from "./clone-node-with-meta.js";
-import {TransformerBaseOptions} from "../transformers/transformer-base-options.js";
+import type {TransformerBaseOptions} from "../transformers/transformer-base-options.js";
 
 export type MergedImportDeclarationsMap = Map<string, TS.ImportDeclaration[]>;
 

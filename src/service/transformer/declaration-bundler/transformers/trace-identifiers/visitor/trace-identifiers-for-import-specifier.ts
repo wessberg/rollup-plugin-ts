@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts.js";
-import {TraceIdentifiersVisitorOptions} from "../trace-identifiers-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
+import type {TraceIdentifiersVisitorOptions} from "../trace-identifiers-visitor-options.js";
 
 /**
  * Traces identifiers for the given ImportSpecifier.

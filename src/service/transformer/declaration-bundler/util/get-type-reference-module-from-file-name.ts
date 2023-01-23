@@ -1,5 +1,5 @@
 import {typeModuleReferenceIsAllowed} from "./type-module-reference-is-allowed.js";
-import {CompilerHost} from "../../../compiler-host/compiler-host.js";
+import type {CompilerHost} from "../../../compiler-host/compiler-host.js";
 import path from "crosspath";
 
 export interface GetTypeReferenceModuleFromFileNameOptions {

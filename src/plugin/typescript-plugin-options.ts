@@ -1,9 +1,9 @@
-import {CustomTransformersFunction} from "../util/merge-transformers/custom-transformer-options.js";
-import {TS} from "../type/ts.js";
-import {DeclarationStats} from "../type/declaration-stats.js";
-import {BabelConfig} from "../type/babel.js";
-import {SwcConfig} from "../type/swc.js";
-import { MaybeArray } from "helpertypes";
+import type {CustomTransformersFunction} from "../util/merge-transformers/custom-transformer-options.js";
+import type {TS} from "../type/ts.js";
+import type {DeclarationStats} from "../type/declaration-stats.js";
+import type {BabelConfig} from "../type/babel.js";
+import type {SwcConfig} from "../type/swc.js";
+import type {MaybeArray} from "helpertypes";
 
 export type Transpiler = "typescript" | "babel" | "swc";
 
@@ -81,7 +81,7 @@ export interface InputCompilerOptions extends Omit<TS.CompilerOptions, "module" 
 }
 
 export interface TypescriptPluginOptions {
-	transpiler: Transpiler|TranspilerOptions;
+	transpiler: Transpiler | TranspilerOptions;
 	tsconfig?: string | Partial<TS.CompilerOptions> | Partial<InputCompilerOptions> | TS.ParsedCommandLine | TsConfigResolver | TsConfigResolverWithFileName;
 	babelConfig?: string | Partial<BabelConfig>;
 	swcConfig?: string | MaybeArray<Partial<SwcConfig>>;

@@ -1,5 +1,5 @@
-import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
 import {generateModuleSpecifier} from "../../../util/generate-module-specifier.js";
 import {preserveMeta} from "../../../util/clone-node-with-meta.js";
 
@@ -36,13 +36,7 @@ export function visitImportDeclaration(options: ModuleMergerVisitorOptions<TS.Im
 
 	// Otherwise, update the ModuleSpecifier
 	return preserveMeta(
-		factory.updateImportDeclaration(
-			contResult,
-			contResult.modifiers,
-			contResult.importClause,
-			factory.createStringLiteral(updatedModuleSpecifier),
-			contResult.assertClause
-		),
+		factory.updateImportDeclaration(contResult, contResult.modifiers, contResult.importClause, factory.createStringLiteral(updatedModuleSpecifier), contResult.assertClause),
 		contResult,
 		options
 	);

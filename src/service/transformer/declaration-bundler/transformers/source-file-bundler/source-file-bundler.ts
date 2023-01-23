@@ -1,15 +1,15 @@
-import {DeclarationBundlerOptions, DeclarationTransformer} from "../../declaration-bundler-options.js";
-import {TS} from "../../../../../type/ts.js";
+import type {DeclarationBundlerOptions, DeclarationTransformer} from "../../declaration-bundler-options.js";
+import type {TS} from "../../../../../type/ts.js";
 import {applyTransformers} from "../../util/apply-transformers.js";
 import {getChunkFilename} from "../../util/get-chunk-filename.js";
-import {SourceFileBundlerVisitorOptions} from "./source-file-bundler-visitor-options.js";
+import type {SourceFileBundlerVisitorOptions} from "./source-file-bundler-visitor-options.js";
 import {formatLibReferenceDirective} from "../../util/format-lib-reference-directive.js";
 import {formatTypeReferenceDirective} from "../../util/format-type-reference-directive.js";
 import {pickResolvedModule} from "../../../../../util/pick-resolved-module.js";
 import {trackImportsTransformer} from "../track-imports-transformer/track-imports-transformer.js";
 import {trackExportsTransformer} from "../track-exports-transformer/track-exports-transformer.js";
 import {statsCollector} from "../stats-collector/stats-collector.js";
-import {TypeReference} from "../../util/get-type-reference-module-from-file-name.js";
+import type {TypeReference} from "../../util/get-type-reference-module-from-file-name.js";
 import {ensureNodeFactory} from "compatfactory";
 
 function needsInitialize(options: DeclarationBundlerOptions): boolean {
@@ -80,7 +80,7 @@ export function sourceFileBundler(options: DeclarationBundlerOptions, ...transfo
 				...options,
 				context,
 				factory,
-				extensions: host.getSupportedExtensions(),
+				extensions: host.getAllKnownTypescriptExtensions(),
 				entrySourceFilesForChunk: entrySourceFiles,
 				otherEntrySourceFilesForChunk,
 				sourceFile: firstEntrySourceFile,

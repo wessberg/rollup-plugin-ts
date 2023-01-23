@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts.js";
-import {EnsureDeclareModifierTransformerVisitorOptions} from "../ensure-declare-modifier-transformer-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
+import type {EnsureDeclareModifierTransformerVisitorOptions} from "../ensure-declare-modifier-transformer-visitor-options.js";
 import {ensureHasDeclareModifier, hasDeclareModifier} from "../../../util/modifier-util.js";
 import {preserveMeta} from "../../../util/clone-node-with-meta.js";
 

@@ -1,4 +1,4 @@
-import {TS} from "../../type/ts.js";
+import type {TS} from "../../type/ts.js";
 
 /**
  * Gets the NewLineCharacter to use for a NewLineKind

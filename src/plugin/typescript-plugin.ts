@@ -1,12 +1,13 @@
-import {ExistingRawSourceMap, InputOptions, InputPluginOption, OutputBundle, OutputOptions, Plugin, PluginContext, RenderedChunk, RollupCache, SourceDescription} from "rollup";
+import type {ExistingRawSourceMap, InputOptions, InputPluginOption, OutputBundle, OutputOptions, Plugin, PluginContext, RenderedChunk, RollupCache, SourceDescription} from "rollup";
 import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line.js";
 import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options.js";
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output.js";
 import {emitDiagnostics} from "../service/emit/diagnostics/emit-diagnostics.js";
-import {getSupportedExtensions, SupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions.js";
+import type { SupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions.js";
+import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions.js";
 import {ensureRelative, getExtension, isBabelHelper, isMultiEntryModule, isRegeneratorRuntime, isSwcHelper} from "../util/path/path-util.js";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames.js";
-import {TypescriptPluginOptions} from "./typescript-plugin-options.js";
+import type {TypescriptPluginOptions} from "./typescript-plugin-options.js";
 import {getPluginOptions, getTranspilerOptions, isUsingTranspiler} from "../util/plugin-options/get-plugin-options.js";
 import {getBrowserslist} from "../util/get-browserslist/get-browserslist.js";
 import {ResolveCache} from "../service/cache/resolve-cache/resolve-cache.js";
@@ -15,7 +16,7 @@ import {REGENERATOR_SOURCE} from "../lib/regenerator/regenerator.js";
 import {createFilter} from "@rollup/pluginutils";
 import {mergeTransformers} from "../util/merge-transformers/merge-transformers.js";
 import {ensureArray} from "../util/ensure-array/ensure-array.js";
-import {ParsedCommandLineResult} from "../util/get-parsed-command-line/parsed-command-line-result.js";
+import type {ParsedCommandLineResult} from "../util/get-parsed-command-line/parsed-command-line-result.js";
 import {takeBrowserslistOrComputeBasedOnCompilerOptions} from "../util/take-browserslist-or-compute-based-on-compiler-options/take-browserslist-or-compute-based-on-compiler-options.js";
 import {matchAll} from "@wessberg/stringutil";
 import {emitDeclarations} from "../service/emit/declaration/emit-declarations.js";
@@ -27,11 +28,13 @@ import {logEmit} from "../util/logging/log-emit.js";
 import {isJsonLike} from "../util/is-json-like/is-json-like.js";
 import path from "crosspath";
 import {loadBabel, loadSwc} from "../util/transpiler-loader.js";
-import {BabelConfigFactory, getBabelConfig, getDefaultBabelOptions, getForcedBabelOptions, replaceBabelHelpers} from "../transpiler/babel.js";
-import {getSwcConfigFactory, SwcConfigFactory} from "../transpiler/swc.js";
+import type {BabelConfigFactory} from "../transpiler/babel.js";
+import { getBabelConfig, getDefaultBabelOptions, getForcedBabelOptions, replaceBabelHelpers} from "../transpiler/babel.js";
+import type { SwcConfigFactory} from "../transpiler/swc.js";
+import {getSwcConfigFactory} from "../transpiler/swc.js";
 import {inputOptionsAreEqual} from "../util/rollup/rollup-util.js";
-import { isPromise } from "../util/object/object-util.js";
-import { isDefined } from "../util/is-defined/is-defined.js";
+import {isPromise} from "../util/object/object-util.js";
+import {isDefined} from "../util/is-defined/is-defined.js";
 
 /**
  * The name of the Rollup plugin
@@ -222,7 +225,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 		};
 	};
 
-	async function flattenPlugins (plugins: InputPluginOption|undefined): Promise<Plugin[]> {
+	async function flattenPlugins(plugins: InputPluginOption | undefined): Promise<Plugin[]> {
 		const flattened: Plugin[] = [];
 		const awaitedPlugins = ensureArray(isPromise(plugins) ? await plugins : plugins).filter(isDefined);
 		for (const awaitedPlugin of awaitedPlugins) {

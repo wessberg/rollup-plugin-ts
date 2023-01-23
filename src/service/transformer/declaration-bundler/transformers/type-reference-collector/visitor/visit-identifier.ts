@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts.js";
-import {TypeReferenceCollectorVisitorOptions} from "../type-reference-collector-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
+import type {TypeReferenceCollectorVisitorOptions} from "../type-reference-collector-visitor-options.js";
 import {getTypeReferenceModuleFromNode} from "../../../util/get-type-reference-module-from-node.js";
 
 export function visitIdentifier(options: TypeReferenceCollectorVisitorOptions<TS.Identifier>): void {

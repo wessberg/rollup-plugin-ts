@@ -1,6 +1,6 @@
 /* eslint-disable deprecation/deprecation */
-import {ReferenceVisitorOptions} from "../reference-visitor-options.js";
-import {TS} from "../../../../../../../type/ts.js";
+import type {ReferenceVisitorOptions} from "../reference-visitor-options.js";
+import type {TS} from "../../../../../../../type/ts.js";
 import {isSymbolIdentifier} from "../../../../util/is-symbol-identifier.js";
 
 export function checkPropertySignature({node, continuation, typescript}: ReferenceVisitorOptions<TS.PropertySignature>): string[] {

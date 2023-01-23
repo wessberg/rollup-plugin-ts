@@ -1,5 +1,5 @@
-import {DeclarationBundlerOptions} from "./declaration-bundler-options.js";
-import {TS} from "../../../type/ts.js";
+import type {DeclarationBundlerOptions} from "./declaration-bundler-options.js";
+import type {TS} from "../../../type/ts.js";
 import {sourceFileBundler} from "./transformers/source-file-bundler/source-file-bundler.js";
 import {moduleMerger} from "./transformers/module-merger/module-merger.js";
 import {deconflicter} from "./transformers/deconflicter/deconflicter.js";

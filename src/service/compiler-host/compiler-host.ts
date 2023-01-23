@@ -1,21 +1,22 @@
-import {TS} from "../../type/ts.js";
-import {CompilerHostOptions, CustomTransformersInput} from "./compiler-host-options.js";
+import type {TS} from "../../type/ts.js";
+import type {CompilerHostOptions, CustomTransformersInput} from "./compiler-host-options.js";
 import {ModuleResolutionHost} from "../module-resolution-host/module-resolution-host.js";
 import {getNewLineCharacter} from "../../util/get-new-line-character/get-new-line-character.js";
 import {resolveId} from "../../util/resolve-id/resolve-id.js";
 import {getScriptKindFromPath} from "../../util/get-script-kind-from-path/get-script-kind-from-path.js";
-import {VirtualFile, VirtualFileInput} from "../module-resolution-host/virtual-file.js";
+import type {VirtualFile, VirtualFileInput} from "../module-resolution-host/virtual-file.js";
 import {mergeTransformers} from "../../util/merge-transformers/merge-transformers.js";
 import {ensureModuleTransformer} from "../transformer/ensure-module/ensure-module-transformer.js";
-import {SourceFileToDependenciesMap} from "../transformer/declaration-bundler/declaration-bundler-options.js";
-import {ExtendedResolvedModule} from "../cache/resolve-cache/extended-resolved-module.js";
-import {getModuleDependencies, ModuleDependency} from "../../util/get-module-dependencies/get-module-dependencies.js";
+import type {SourceFileToDependenciesMap} from "../transformer/declaration-bundler/declaration-bundler-options.js";
+import type {ExtendedResolvedModule} from "../cache/resolve-cache/extended-resolved-module.js";
+import type { ModuleDependency} from "../../util/get-module-dependencies/get-module-dependencies.js";
+import {getModuleDependencies} from "../../util/get-module-dependencies/get-module-dependencies.js";
 import {pickResolvedModule} from "../../util/pick-resolved-module.js";
 import path from "crosspath";
 import {ensureAbsolute, getExtension, isExternal, isTypeScriptLib} from "../../util/path/path-util.js";
 import {ensureNodeFactory} from "compatfactory";
 import {isRecord} from "../../util/object/object-util.js";
-import { KnownExtension } from "../../constant/constant.js";
+import type {KnownExtension} from "../../constant/constant.js";
 
 export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHost {
 	private previousProgram: TS.EmitAndSemanticDiagnosticsBuilderProgram | undefined;
@@ -256,7 +257,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 			const sourceFile = this.constructSourceFile(fileInput.fileName, fileInput.text);
 			const typescript = this.getTypescript();
 			const factory = ensureNodeFactory(typescript);
-			const transformedSourceFile = ensureModuleTransformer({typescript, factory, sourceFile, extensions: this.getSupportedExtensions()});
+			const transformedSourceFile = ensureModuleTransformer({typescript, factory, sourceFile, extensions: this.getAllKnownTypescriptExtensions()});
 			if (transformedSourceFile !== sourceFile) {
 				(fileInput as VirtualFile).transformedText = this.printer.printFile(transformedSourceFile);
 			}
@@ -528,10 +529,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		return resolvedModules;
 	}
 
-	resolveTypeReferenceDirectives(
-		typeReferenceDirectiveNames: string[] | readonly TS.FileReference[],
-		containingFile: string
-	): (TS.ResolvedTypeReferenceDirective | undefined)[] {
+	resolveTypeReferenceDirectives(typeReferenceDirectiveNames: string[] | readonly TS.FileReference[], containingFile: string): (TS.ResolvedTypeReferenceDirective | undefined)[] {
 		const resolvedTypeReferenceDirectives: (TS.ResolvedTypeReferenceDirective | undefined)[] = [];
 		for (const typeReferenceDirectiveName of typeReferenceDirectiveNames) {
 			// try to use standard resolution

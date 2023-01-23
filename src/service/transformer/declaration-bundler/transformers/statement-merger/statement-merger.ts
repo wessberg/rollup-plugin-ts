@@ -1,5 +1,5 @@
-import {TS} from "../../../../../type/ts.js";
-import {StatementMergerVisitorOptions} from "./statement-merger-visitor-options.js";
+import type {TS} from "../../../../../type/ts.js";
+import type {StatementMergerVisitorOptions} from "./statement-merger-visitor-options.js";
 import {visitNode} from "./visitor/visit-node.js";
 import {getMergedImportDeclarationsForModules} from "../../util/get-merged-import-declarations-for-modules.js";
 import {getMergedExportDeclarationsForModules} from "../../util/get-merged-export-declarations-for-modules.js";
@@ -8,8 +8,8 @@ import {hasExportModifier} from "../../util/modifier-util.js";
 import {logMetrics} from "../../../../../util/logging/log-metrics.js";
 import {logTransformer} from "../../../../../util/logging/log-transformer.js";
 import {preserveMeta} from "../../util/clone-node-with-meta.js";
-import {DeclarationTransformer} from "../../declaration-bundler-options.js";
-import {StatementMergerOptions} from "./statement-merger-options.js";
+import type {DeclarationTransformer} from "../../declaration-bundler-options.js";
+import type {StatementMergerOptions} from "./statement-merger-options.js";
 import {nodeHasSupportedExtension} from "../../util/node-has-supported-extension.js";
 
 export function statementMerger({markAsModuleIfNeeded}: StatementMergerOptions): DeclarationTransformer {

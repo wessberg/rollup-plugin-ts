@@ -1,9 +1,9 @@
-import {DeconflicterVisitorOptions} from "../deconflicter-visitor-options.js";
+import type {DeconflicterVisitorOptions} from "../deconflicter-visitor-options.js";
 import {nodeArraysAreEqual} from "../../../util/node-arrays-are-equal.js";
 import {addBindingToLexicalEnvironment} from "../../../util/add-binding-to-lexical-environment.js";
 import {isIdentifierFree} from "../../../util/is-identifier-free.js";
 import {generateUniqueBinding} from "../../../util/generate-unique-binding.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {TS} from "../../../../../../type/ts.js";
 import {getIdForNode} from "../../../util/get-id-for-node.js";
 import {preserveMeta} from "../../../util/clone-node-with-meta.js";
 import {getOriginalSourceFile} from "../../../util/get-original-source-file.js";

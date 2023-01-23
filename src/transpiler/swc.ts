@@ -1,10 +1,10 @@
-import {Options} from "@swc/core";
+import type {Options} from "@swc/core";
 import path from "crosspath";
-import {MaybeArray} from "helpertypes";
+import type {MaybeArray} from "helpertypes";
 import {FORCED_SWC_JSC_OPTIONS, FORCED_SWC_MODULE_OPTIONS} from "../constant/constant.js";
-import {SwcConfigHook, TranspilationPhase, TypescriptPluginOptions} from "../plugin/typescript-plugin-options.js";
-import {SwcConfig} from "../type/swc.js";
-import {TS} from "../type/ts.js";
+import type {SwcConfigHook, TranspilationPhase, TypescriptPluginOptions} from "../plugin/typescript-plugin-options.js";
+import type {SwcConfig} from "../type/swc.js";
+import type {TS} from "../type/ts.js";
 import {ensureArray} from "../util/ensure-array/ensure-array.js";
 import {getEcmaVersionForScriptTarget} from "../util/get-script-target-from-browserslist/get-script-target-from-browserslist.js";
 import {removeSearchPathFromFilename} from "../util/path/path-util.js";

@@ -113,36 +113,40 @@ test.serial("Will generate a .d.cts declaration file when the output file is .cj
 	t.deepEqual(file.fileName, `index.d.cts`);
 });
 
-test.serial("Will generate a .d.ts declaration file when the output file is .cjs, but the TypeScript version doesn't support the .d.cts format based. #1", withTypeScriptVersions("<4.7"), async (t, {typescript}) => {
-	const bundle = await generateRollupBundle(
-		[
-			{
-				entry: true,
-				fileName: "source/index.ts",
-				text: `\
+test.serial(
+	"Will generate a .d.ts declaration file when the output file is .cjs, but the TypeScript version doesn't support the .d.cts format based. #1",
+	withTypeScriptVersions("<4.7"),
+	async (t, {typescript}) => {
+		const bundle = await generateRollupBundle(
+			[
+				{
+					entry: true,
+					fileName: "source/index.ts",
+					text: `\
 					export type Foo = string;
 					`
-			}
-		],
-		{
-			typescript,
-			debug: false,
-			tsconfig: {
-				declaration: true
-			},
-			rollupOptions: {
-				output: {
-					file: "index.cjs"
+				}
+			],
+			{
+				typescript,
+				debug: false,
+				tsconfig: {
+					declaration: true
+				},
+				rollupOptions: {
+					output: {
+						file: "index.cjs"
+					}
 				}
 			}
-		}
-	);
-	const {
-		declarations: [file]
-	} = bundle;
+		);
+		const {
+			declarations: [file]
+		} = bundle;
 
-	t.deepEqual(file.fileName, `index.d.ts`);
-});
+		t.deepEqual(file.fileName, `index.d.ts`);
+	}
+);
 
 test.serial("Can successfully author in .cts files. #1", withTypeScriptVersions(">=4.7"), async (t, {typescript}) => {
 	const bundle = await generateRollupBundle(

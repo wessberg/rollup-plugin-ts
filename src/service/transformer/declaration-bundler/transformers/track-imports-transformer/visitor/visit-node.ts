@@ -1,5 +1,5 @@
-import {TS} from "../../../../../../type/ts.js";
-import {TrackImportsTransformerVisitorOptions} from "../track-imports-transformer-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
+import type {TrackImportsTransformerVisitorOptions} from "../track-imports-transformer-visitor-options.js";
 import {visitImportDeclaration} from "./visit-import-declaration.js";
 import {visitImportTypeNode} from "./visit-import-type-node.js";
 import {visitModuleDeclaration} from "./visit-module-declaration.js";

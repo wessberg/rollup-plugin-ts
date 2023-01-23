@@ -1,5 +1,5 @@
-import {DeconflicterVisitorOptions} from "./deconflicter-visitor-options.js";
-import {TS} from "../../../../../type/ts.js";
+import type {DeconflicterVisitorOptions} from "./deconflicter-visitor-options.js";
+import type {TS} from "../../../../../type/ts.js";
 import {deconflictBindingElement} from "./visitor/deconflict-binding-element.js";
 import {deconflictClassDeclaration} from "./visitor/deconflict-class-declaration.js";
 import {deconflictClassExpression} from "./visitor/deconflict-class-expression.js";
@@ -27,8 +27,8 @@ import {deconflictSetAccessorDeclaration} from "./visitor/deconflict-set-accesso
 import {deconflictTypeAliasDeclaration} from "./visitor/deconflict-type-alias-declaration.js";
 import {deconflictTypeParameterDeclaration} from "./visitor/deconflict-type-parameter-declaration.js";
 import {deconflictVariableDeclaration} from "./visitor/deconflict-variable-declaration.js";
-import {ContinuationOptions} from "./deconflicter-options.js";
-import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
+import type {ContinuationOptions} from "./deconflicter-options.js";
+import type {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
 import {shouldDebugMetrics, shouldDebugSourceFile} from "../../../../../util/is-debug/should-debug.js";
 import {logMetrics} from "../../../../../util/logging/log-metrics.js";
 import {logTransformer} from "../../../../../util/logging/log-transformer.js";

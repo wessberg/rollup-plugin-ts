@@ -1,9 +1,9 @@
-import {TS} from "../../../../../type/ts.js";
-import {DeclarationTransformer} from "../../declaration-bundler-options.js";
-import {LexicalEnvironment} from "../deconflicter/deconflicter-options.js";
-import {NodePlacementQueue} from "../../util/get-node-placement-queue.js";
-import {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options.js";
-import {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
+import type {TS} from "../../../../../type/ts.js";
+import type {DeclarationTransformer} from "../../declaration-bundler-options.js";
+import type {LexicalEnvironment} from "../deconflicter/deconflicter-options.js";
+import type {NodePlacementQueue} from "../../util/get-node-placement-queue.js";
+import type {ImportedSymbol} from "../track-imports-transformer/track-imports-transformer-visitor-options.js";
+import type {SourceFileBundlerVisitorOptions} from "../source-file-bundler/source-file-bundler-visitor-options.js";
 
 export type PayloadMap = {
 	[Key in TS.SyntaxKind]: Key extends TS.SyntaxKind.ImportType | TS.SyntaxKind.ImportDeclaration | TS.SyntaxKind.ImportClause | TS.SyntaxKind.NamedImports

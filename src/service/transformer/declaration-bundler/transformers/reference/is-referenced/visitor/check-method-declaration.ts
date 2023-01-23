@@ -1,5 +1,5 @@
-import {ReferenceVisitorOptions} from "../reference-visitor-options.js";
-import {TS} from "../../../../../../../type/ts.js";
+import type {ReferenceVisitorOptions} from "../reference-visitor-options.js";
+import type {TS} from "../../../../../../../type/ts.js";
 
 export function checkMethodDeclaration({node, continuation, typescript}: ReferenceVisitorOptions<TS.MethodDeclaration>): string[] {
 	const referencedIdentifiers: string[] = [];

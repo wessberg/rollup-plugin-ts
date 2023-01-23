@@ -1,6 +1,6 @@
-import {TS} from "../../../../type/ts.js";
+import type {TS} from "../../../../type/ts.js";
 import {getSymbolFlagsForNode} from "./get-symbol-flags-for-node.js";
-import {SafeNode} from "../../../../type/safe-node.js";
+import type {SafeNode} from "../../../../type/safe-node.js";
 import {getOriginalNode} from "./get-original-node.js";
 
 export interface GetSymbolAtLocationOptions {

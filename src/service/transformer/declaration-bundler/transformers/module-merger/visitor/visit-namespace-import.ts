@@ -1,5 +1,5 @@
-import {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {ModuleMergerVisitorOptions, VisitResult} from "../module-merger-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
 import {getImportedSymbolFromNamespaceImport} from "../../../util/create-export-specifier-from-name-and-modifiers.js";
 import {ensureHasDeclareModifier} from "../../../util/modifier-util.js";
 import {cloneLexicalEnvironment} from "../../../util/clone-lexical-environment.js";
@@ -7,7 +7,7 @@ import {ensureNoDeclareModifierTransformer} from "../../ensure-no-declare-modifi
 import {statementMerger} from "../../statement-merger/statement-merger.js";
 import {preserveParents} from "../../../util/clone-node-with-meta.js";
 import {inlineNamespaceModuleBlockTransformer} from "../../inline-namespace-module-block-transformer/inline-namespace-module-block-transformer.js";
-import {NamespaceImportedSymbol} from "../../track-imports-transformer/track-imports-transformer-visitor-options.js";
+import type {NamespaceImportedSymbol} from "../../track-imports-transformer/track-imports-transformer-visitor-options.js";
 
 export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.NamespaceImport>): VisitResult<TS.NamespaceImport> {
 	const {node, factory, typescript, payload} = options;
@@ -63,12 +63,7 @@ export function visitNamespaceImport(options: ModuleMergerVisitorOptions<TS.Name
 		} else {
 			options.prependNodes(
 				preserveParents(
-					factory.createImportEqualsDeclaration(
-						undefined,
-						false,
-						factory.createIdentifier(contResult.name.text),
-						factory.createIdentifier(existingInlinedModuleDeclarationName)
-					),
+					factory.createImportEqualsDeclaration(undefined, false, factory.createIdentifier(contResult.name.text), factory.createIdentifier(existingInlinedModuleDeclarationName)),
 					{typescript}
 				)
 			);

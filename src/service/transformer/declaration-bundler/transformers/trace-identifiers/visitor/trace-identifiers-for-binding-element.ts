@@ -1,5 +1,5 @@
-import {TraceIdentifiersVisitorOptions} from "../trace-identifiers-visitor-options.js";
-import {TS} from "../../../../../../type/ts.js";
+import type {TraceIdentifiersVisitorOptions} from "../trace-identifiers-visitor-options.js";
+import type {TS} from "../../../../../../type/ts.js";
 
 /**
  * Deconflicts the given BindingElement.

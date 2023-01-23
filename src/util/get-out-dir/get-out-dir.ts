@@ -1,4 +1,4 @@
-import {OutputOptions} from "rollup";
+import type {OutputOptions} from "rollup";
 import {ensureRelative} from "../path/path-util.js";
 import path from "crosspath";
 import {generateRandomHash} from "../hash/generate-random-hash.js";

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import test from "ava";
 import {withTypeScript} from "./util/ts-macro.js";
 import {formatCode} from "./util/format-code.js";
