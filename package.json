@@ -122,11 +122,11 @@
 		"tslib": "^2.6.1"
 	},
 	"peerDependencies": {
-		"@babel/core": ">=6.x || >=7.x",
-		"@babel/runtime": ">=6.x || >=7.x",
-		"@babel/preset-env": ">=6.x || >=7.x",
-		"@babel/preset-typescript": ">=6.x || >=7.x",
-		"@babel/plugin-transform-runtime": ">=6.x || >=7.x",
+		"@babel/core": ">=7.x",
+		"@babel/runtime": ">=7.x",
+		"@babel/preset-env": ">=7.x",
+		"@babel/preset-typescript": ">=7.x",
+		"@babel/plugin-transform-runtime": ">=7.x",
 		"@swc/core": ">=1.x",
 		"@swc/helpers": ">=0.2",
 		"rollup": ">=1.x || >=2.x || >=3.x",
