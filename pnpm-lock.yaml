@@ -21,7 +21,7 @@ specifiers:
   '@typescript-eslint/parser': ^5.48.2
   '@wessberg/prettier-config': ^1.0.0
   '@wessberg/stringutil': ^1.0.19
-  '@wessberg/ts-config': ^3.1.0
+  '@wessberg/ts-config': ^3.1.2
   ansi-colors: ^4.1.3
   ava: 3.15.0
   babel-preset-minify: ^0.5.2
@@ -99,7 +99,7 @@ devDependencies:
   '@typescript-eslint/eslint-plugin': 5.48.2_caon6io6stgpr7lz2rtbhekxqy
   '@typescript-eslint/parser': 5.48.2_7uibuqfxkfaozanbtbziikiqje
   '@wessberg/prettier-config': 1.0.0
-  '@wessberg/ts-config': 3.1.0
+  '@wessberg/ts-config': 3.1.2
   ava: 3.15.0
   babel-preset-minify: 0.5.2
   eslint: 8.32.0
@@ -2104,8 +2104,8 @@ packages:
     engines: {node: '>=8.0.0'}
     dev: false
 
-  /@wessberg/ts-config/3.1.0:
-    resolution: {integrity: sha512-/TqKHx3zgdDQKoqAemh4tBYQE873aN37BuaTeE5AFC3ZG/9oSVgkbuu32WErFsSHAnpdblpBuYJwhugUm0r7Xg==}
+  /@wessberg/ts-config/3.1.2:
+    resolution: {integrity: sha512-tQ3e3S5+A7SCaOOEV69OsP2VhZJ1KgOHN32bx1xI2H7LEQeftWe7JXerf3H7fg7rDEmU+A45tC3zTOwjERkxvw==}
     dev: true
 
   /JSONStream/1.3.5:

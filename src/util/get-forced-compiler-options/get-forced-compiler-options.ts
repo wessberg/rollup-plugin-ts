@@ -43,7 +43,7 @@ function getForcedImportHelpersOption({pluginOptions}: GetForcedCompilerOptionsO
 		return {importHelpers: true};
 	}
 
-	// Otherwise, don't force the 'target' option
+	// Otherwise, don't force the 'importHelpers' option
 	return {};
 }
 
