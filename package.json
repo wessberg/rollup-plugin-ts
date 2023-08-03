@@ -186,6 +186,7 @@
 		"files": [
 			"test/**/*.test.ts"
 		],
+		"concurrency": 1,
 		"verbose": true,
 		"timeout": "400s",
 		"extensions": {
