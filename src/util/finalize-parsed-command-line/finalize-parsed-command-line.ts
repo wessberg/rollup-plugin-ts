@@ -16,6 +16,10 @@ export function finalizeParsedCommandLine({
 	typescript,
 	parsedCommandLineResult: {originalCompilerOptions, parsedCommandLine, tsconfigPath}
 }: FinalizeParsedCommandLineOptions): TS.ParsedCommandLine {
+	// Typescript should always be able to emit - otherwise we cannot transform source files.
+	// That is, unless 'allowImportingTsExtensions' is true, in which case noEmit *must* be truthy.
+	parsedCommandLine.options.noEmit = Boolean(parsedCommandLine.options.allowImportingTsExtensions);
+
 	/**
 	 * If 'Classic' Module resolution is requested, replace that one with 'NodeNext' instead.
 	 * If anything else is requested, leave it as it is

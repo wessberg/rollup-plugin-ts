@@ -64,9 +64,6 @@ export function getForcedCompilerOptions(options: GetForcedCompilerOptionsOption
 		inlineSourceMap: false,
 		// Since we never use inline source maps, inline sources aren't supported
 		inlineSources: false,
-
-		// Typescript should always be able to emit - otherwise we cannot transform source files
-		noEmit: false,
 		// Typescript should always be able to emit - otherwise we cannot transform source files
 		noEmitOnError: false,
 		// Typescript should always be able to emit other things than declarations - otherwise we cannot transform source files
