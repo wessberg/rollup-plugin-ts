@@ -1,3 +1,12 @@
+# [3.4.0](https://github.com/wessberg/rollup-plugin-ts/compare/v3.3.1...v3.4.0) (2023-08-03)
+
+
+### Features
+
+* add support for the 'allowImportingTsExtensions' tsconfig option. Fixes [#210](https://github.com/wessberg/rollup-plugin-ts/issues/210) ([c62f708](https://github.com/wessberg/rollup-plugin-ts/commit/c62f7082883e5ed991ce2d17edd7e3388953ae50))
+
+
+
 ## [3.3.1](https://github.com/wessberg/rollup-plugin-ts/compare/v3.3.0...v3.3.1) (2023-08-03)
 
 
