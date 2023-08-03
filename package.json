@@ -184,7 +184,7 @@
 	"prettier": "@wessberg/prettier-config",
 	"ava": {
 		"files": [
-			"test/**/allow-importing-ts-extensions.test.ts"
+			"test/**/*.test.ts"
 		],
 		"concurrency": 1,
 		"verbose": true,
