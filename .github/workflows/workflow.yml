@@ -3,6 +3,33 @@ name: Main Workflow
 on: [push, pull_request]
 
 jobs:
+  run_windows:
+    name: Run (Windows)
+
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+
+      - name: Setup Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: 20
+
+      - name: Setup pnpm
+        run: npm install pnpm -g
+
+      - name: package.json info
+        uses: jaywcjlove/github-action-package@main
+        with:
+          unset: devDependencies.rollup-3_15_0
+
+      - name: Install
+        run: pnpm install
+
+      - name: Test
+        run: pnpm test
   run:
     name: Run
 
@@ -10,7 +37,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [macos-latest, ubuntu-latest]
         node: [16.14.0, 17, 18, 19, 20]
 
     steps:
