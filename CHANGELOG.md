@@ -1,3 +1,12 @@
+## [3.3.1](https://github.com/wessberg/rollup-plugin-ts/compare/v3.3.0...v3.3.1) (2023-08-03)
+
+
+### Bug Fixes
+
+* don't preserve dynamic import() expression in cjs bundle. Fixes [#212](https://github.com/wessberg/rollup-plugin-ts/issues/212) ([08209ae](https://github.com/wessberg/rollup-plugin-ts/commit/08209ae99595c740c6d8c2074b1c0bef2e58dc58))
+
+
+
 # [3.3.0](https://github.com/wessberg/rollup-plugin-ts/compare/v3.2.0...v3.3.0) (2023-08-03)
 
 
