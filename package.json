@@ -84,7 +84,7 @@
 		"rimraf": "^4.1.1",
 		"rollup": "^3.10.1",
 		"sandhog": "^2.0.2",
-		"semver": "7.3.8",
+		"semver": "7.5.2",
 		"standard-changelog": "^2.0.27",
 		"ts-node": "10.9.1",
 		"typescript": "^4.9.4",
