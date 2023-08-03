@@ -1,4 +1,4 @@
-import type {TS} from "../../type/ts";
+import type {TS} from "../../type/ts.js";
 
 /**
  * On TypeScript versions 4.5 and 4.6, nodenext is available as a Compiler Option, but selecting it

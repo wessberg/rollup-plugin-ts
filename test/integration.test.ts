@@ -87,6 +87,8 @@ test.serial("Integrates with @rollup/plugin-alias without problems. #1", "*", as
 			debug: false,
 			tsconfig: "tsconfig.json",
 			prePlugins: [
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
 				alias({
 					entries: [{find: "@src", replacement: "src"}]
 				})

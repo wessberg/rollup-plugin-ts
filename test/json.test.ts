@@ -28,6 +28,8 @@ test.serial("Handles .JSON files that has been pre-transformed by other plugins.
 			typescript,
 			rollup,
 			debug: false,
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
 			prePlugins: [json()],
 			tsconfig: {
 				resolveJsonModule: true

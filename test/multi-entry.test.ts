@@ -49,6 +49,8 @@ test.serial("Can generate declarations for a virtual entry file using @rollup/pl
 				typescript,
 				rollup,
 				debug: false,
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
 				prePlugins: [multiEntry()]
 			}
 		);

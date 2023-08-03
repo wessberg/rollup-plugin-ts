@@ -2,6 +2,7 @@ import TSModule from "typescript";
 import type {Transpiler, TranspilerOptions, TypescriptPluginOptions} from "../../plugin/typescript-plugin-options.js";
 import {ensureAbsolute} from "../path/path-util.js";
 import path from "crosspath";
+import type {TS} from "../../type/ts.js";
 
 /**
  * Gets normalized PluginOptions based on the given ones
@@ -26,7 +27,7 @@ export function getPluginOptions(options: Partial<TypescriptPluginOptions>): Typ
 	} = options;
 
 	return {
-		typescript,
+		typescript: typescript as typeof TS,
 		transpiler,
 		browserslist,
 		cwd: ensureAbsolute(process.cwd(), cwd),
