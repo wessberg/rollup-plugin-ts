@@ -1,3 +1,12 @@
+## [3.4.1](https://github.com/wessberg/rollup-plugin-ts/compare/v3.4.0...v3.4.1) (2023-08-03)
+
+
+### Bug Fixes
+
+* regression on Windows ([351bf26](https://github.com/wessberg/rollup-plugin-ts/commit/351bf26588659cc195dc6837d7475ad40af55fa8))
+
+
+
 # [3.4.0](https://github.com/wessberg/rollup-plugin-ts/compare/v3.3.1...v3.4.0) (2023-08-03)
 
 
