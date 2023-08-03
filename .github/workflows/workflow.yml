@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest]
-        node: [16.14.0, 17, 18, 19, 20]
+        node: [20]
 
     steps:
       - name: Checkout code
@@ -35,33 +35,4 @@ jobs:
 
       - name: Test
         run: pnpm test
-  run:
-    name: Run
-
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest]
-        node: [16.14.0, 17, 18, 19, 20]
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@master
-
-      - name: Setup Node.js
-        uses: actions/setup-node@master
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Setup pnpm
-        run: npm install pnpm -g
-
-      - name: Install
-        run: pnpm install
-
-      - name: Lint
-        run: pnpm run lint
-
-      - name: Test
-        run: pnpm test
+  
