@@ -4,7 +4,7 @@ import {generateRollupBundle} from "./setup/setup-rollup.js";
 
 test.serial(
 	"Supports importing files by referencing their .ts extensions when the 'allowImportingTsExtensions' CompilerOption is set. #1",
-	"*",
+	{ts: ">=5.0"},
 	async (t, {typescript, rollup}) => {
 		const bundle = await generateRollupBundle(
 			[
