@@ -29,8 +29,7 @@ test.serial(
 				typescript,
 				rollup,
 				tsconfig: {
-					allowImportingTsExtensions: true,
-					noEmit: true
+					allowImportingTsExtensions: true
 				}
 			}
 		);

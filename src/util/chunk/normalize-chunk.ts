@@ -33,7 +33,11 @@ export function preNormalizeChunk(chunk: OutputChunk, otherChunks: OutputChunk[]
 
 	// Make sure to remove any base modules that are also entry modules in other chunks
 	for (const baseModule of baseModules) {
-		if (otherChunks.some(otherChunk => otherChunk.isEntry && otherChunk.facadeModuleId === baseModule)) {
+		if (
+			otherChunks.some(
+				otherChunk => otherChunk.isEntry && otherChunk.facadeModuleId != null && normalizeChunkFilename(otherChunk.facadeModuleId) === normalizeChunkFilename(baseModule)
+			)
+		) {
 			baseModules.delete(baseModule);
 		}
 	}
@@ -41,7 +45,7 @@ export function preNormalizeChunk(chunk: OutputChunk, otherChunks: OutputChunk[]
 	// Add the facadeModuleId to the base modules if it is an entry chunk and it wasn't already there.
 	// Since Rollup v3.22.0, the facadeModuleId may no longer be included in the modules of the chunk if it only contains imports/exports, so we'll have to add it manually
 	if (chunk.isEntry && chunk.facadeModuleId != null && !baseModules.has(chunk.facadeModuleId)) {
-		baseModules.add(chunk.facadeModuleId);
+		baseModules.add(normalizeChunkFilename(chunk.facadeModuleId));
 	}
 
 	return {

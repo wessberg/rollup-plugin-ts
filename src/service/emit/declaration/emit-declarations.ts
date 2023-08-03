@@ -93,6 +93,7 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 			declarationDir: options.originalCompilerOptions.declarationDir,
 			outFile: setExtension(virtualOutFile.relative, JS_EXTENSION),
 			module: typescript.ModuleKind.System,
+			noEmit: false,
 			emitDeclarationOnly: true,
 
 			// This can cause TS2612 errors that wouldn't otherwise happen
