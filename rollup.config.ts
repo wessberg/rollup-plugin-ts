@@ -29,6 +29,7 @@ const SHARED_OUTPUT_OPTIONS = {
 					file: pkg.exports.require,
 					format: "cjs",
 					exports: "default",
+					dynamicImportInCjs: false,
 					...SHARED_OUTPUT_OPTIONS
 				},
 				{
