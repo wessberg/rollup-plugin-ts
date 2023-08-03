@@ -1,6 +1,5 @@
 import type {ExecutionContext} from "ava";
-import test from "ava";
-import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import type {ConfigItem} from "@babel/core";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 import {BABEL_CONFIG_JS_FILENAME, BABEL_CONFIG_JSON_FILENAME, BABELRC_FILENAME, BABEL_CONFIG_MJS_FILENAME} from "../src/constant/constant.js";
@@ -28,7 +27,7 @@ const handlePotentiallyAllowedFailingBabelError = (t: ExecutionContext, ex: unkn
 	}
 };
 
-test.serial("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usage' option. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Doesn't break when combining @babel/preset-env with the useBuiltins: 'usage' option. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createExternalTestFiles("core-js", `export {}`, {fileName: `modules/es.array.includes.js`}),
@@ -43,6 +42,7 @@ test.serial("Doesn't break when combining @babel/preset-env with the useBuiltins
 		{
 			debug: false,
 			typescript,
+			rollup,
 			transpiler: "babel",
 			exclude: [],
 			tsconfig: {
@@ -78,7 +78,7 @@ test.serial("Doesn't break when combining @babel/preset-env with the useBuiltins
 	);
 });
 
-test.serial("Can resolve the nearest project-wide babel config. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Can resolve the nearest project-wide babel config. #1", "*", async (t, {typescript, rollup}) => {
 	const unlinker = createTemporaryFile(BABEL_CONFIG_JS_FILENAME, `exports = {}`);
 	let configFileName: string | undefined;
 	let forcePass = false;
@@ -97,6 +97,7 @@ test.serial("Can resolve the nearest project-wide babel config. #1", withTypeScr
 			{
 				debug: false,
 				typescript,
+				rollup,
 				cwd: unlinker.dir,
 				transpiler: "babel",
 				hook: {
@@ -117,7 +118,7 @@ test.serial("Can resolve the nearest project-wide babel config. #1", withTypeScr
 	}
 });
 
-test.serial("Can resolve the nearest project-wide babel config. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Can resolve the nearest project-wide babel config. #2", "*", async (t, {typescript, rollup}) => {
 	const unlinker = createTemporaryFile(BABEL_CONFIG_JSON_FILENAME, `{}`, "json");
 	let configFileName: string | undefined;
 	let forcePass = false;
@@ -136,6 +137,7 @@ test.serial("Can resolve the nearest project-wide babel config. #2", withTypeScr
 			{
 				debug: false,
 				typescript,
+				rollup,
 				cwd: unlinker.dir,
 				transpiler: "babel",
 				hook: {
@@ -156,7 +158,7 @@ test.serial("Can resolve the nearest project-wide babel config. #2", withTypeScr
 	}
 });
 
-test.serial("Can resolve a babel config file by file path. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Can resolve a babel config file by file path. #1", "*", async (t, {typescript, rollup}) => {
 	const unlinker = createTemporaryFile(BABEL_CONFIG_JSON_FILENAME, `{}`, "json");
 	let configFileName: string | undefined;
 	try {
@@ -173,6 +175,7 @@ test.serial("Can resolve a babel config file by file path. #1", withTypeScript, 
 			{
 				debug: false,
 				typescript,
+				rollup,
 				transpiler: "babel",
 				babelConfig: unlinker.path,
 				hook: {
@@ -192,7 +195,7 @@ test.serial("Can resolve a babel config file by file path. #1", withTypeScript, 
 	}
 });
 
-test.serial("Can find a babel config with rootMode: 'upward'. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Can find a babel config with rootMode: 'upward'. #1", "*", async (t, {typescript, rollup}) => {
 	const unlinker = createTemporaryFile(BABEL_CONFIG_JSON_FILENAME, `{}`, "json");
 
 	let configFileName: string | undefined;
@@ -212,6 +215,7 @@ test.serial("Can find a babel config with rootMode: 'upward'. #1", withTypeScrip
 			{
 				debug: false,
 				typescript,
+				rollup,
 				transpiler: "babel",
 				cwd: unlinker.dir,
 				babelConfig: {
@@ -235,7 +239,7 @@ test.serial("Can find a babel config with rootMode: 'upward'. #1", withTypeScrip
 	}
 });
 
-test.serial("Can resolve the nearest file-relative babel config. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Can resolve the nearest file-relative babel config. #1", "*", async (t, {typescript, rollup}) => {
 	const unlinker = createTemporaryFile(BABELRC_FILENAME, `{}`, "json");
 	let configFileName: string | undefined;
 	try {
@@ -252,6 +256,7 @@ test.serial("Can resolve the nearest file-relative babel config. #1", withTypeSc
 			{
 				debug: false,
 				typescript,
+				rollup,
 				cwd: unlinker.dir,
 				transpiler: "babel",
 				hook: {
@@ -271,7 +276,7 @@ test.serial("Can resolve the nearest file-relative babel config. #1", withTypeSc
 	}
 });
 
-test.serial("Can handle ESM-based babel configs. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Can handle ESM-based babel configs. #1", "*", async (t, {typescript, rollup}) => {
 	const unlinker = createTemporaryFile(BABEL_CONFIG_MJS_FILENAME, `export default {}`);
 	let configFileName: string | undefined;
 	let forcePass = false;
@@ -289,6 +294,7 @@ test.serial("Can handle ESM-based babel configs. #1", withTypeScript, async (t, 
 			{
 				debug: false,
 				typescript,
+				rollup,
 				cwd: unlinker.dir,
 				transpiler: "babel",
 				hook: {
@@ -309,7 +315,7 @@ test.serial("Can handle ESM-based babel configs. #1", withTypeScript, async (t, 
 	}
 });
 
-test.serial("Won't apply @babel/preset-env if the browserslist option is 'false'. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Won't apply @babel/preset-env if the browserslist option is 'false'. #1", "*", async (t, {typescript, rollup}) => {
 	let hasPresetEnv: boolean | undefined;
 	await generateRollupBundle(
 		[
@@ -324,6 +330,7 @@ test.serial("Won't apply @babel/preset-env if the browserslist option is 'false'
 		{
 			debug: false,
 			typescript,
+			rollup,
 			transpiler: "babel",
 			browserslist: false,
 			hook: {
@@ -341,7 +348,7 @@ test.serial("Won't apply @babel/preset-env if the browserslist option is 'false'
 	t.true(hasPresetEnv === false);
 });
 
-test.serial("Will apply @babel/preset-env if a Browserslist is provided or discovered. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Will apply @babel/preset-env if a Browserslist is provided or discovered. #1", "*", async (t, {typescript, rollup}) => {
 	let hasPresetEnv: boolean | undefined;
 	await generateRollupBundle(
 		[
@@ -356,6 +363,7 @@ test.serial("Will apply @babel/preset-env if a Browserslist is provided or disco
 		{
 			debug: false,
 			typescript,
+			rollup,
 			transpiler: "babel",
 			browserslist: ["> 3%"],
 			hook: {
@@ -375,8 +383,8 @@ test.serial("Will apply @babel/preset-env if a Browserslist is provided or disco
 
 test.serial(
 	"Will auto-generate a Browserslist based on the 'target' from the tsconfig if none is discovered and babel is used as transpiler. #1",
-	withTypeScript,
-	async (t, {typescript}) => {
+	"*",
+	async (t, {typescript, rollup}) => {
 		let browserslist: string[] | undefined;
 		await generateRollupBundle(
 			[
@@ -391,6 +399,7 @@ test.serial(
 			{
 				debug: false,
 				typescript,
+				rollup,
 				transpiler: "babel",
 				tsconfig: {
 					target: "es2015"
@@ -415,7 +424,7 @@ test.serial(
 	}
 );
 
-test.serial("Will apply minification-related plugins only in the renderChunk phase. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Will apply minification-related plugins only in the renderChunk phase. #1", "*", async (t, {typescript, rollup}) => {
 	let isMinifiedInTransformPhase: boolean | undefined;
 	let isMinifiedInChunkPhase: boolean | undefined;
 	await generateRollupBundle(
@@ -438,6 +447,7 @@ test.serial("Will apply minification-related plugins only in the renderChunk pha
 		{
 			debug: false,
 			typescript,
+			rollup,
 			transpiler: "babel",
 
 			browserslist: false,
@@ -469,7 +479,7 @@ test.serial("Will apply minification-related plugins only in the renderChunk pha
 	t.true(isMinifiedInChunkPhase);
 });
 
-test.serial("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -482,6 +492,7 @@ test.serial("Will use the proper @babel/runtime/helpers/esm helpers when format 
 		],
 		{
 			typescript,
+			rollup,
 			transpiler: "babel",
 			loadBabelHelpers: true,
 			rollupOptions: {
@@ -521,7 +532,7 @@ test.serial("Will use the proper @babel/runtime/helpers/esm helpers when format 
 	);
 });
 
-test.serial("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #3", withTypeScript, async (t, {typescript}) => {
+test.serial("Will use the proper @babel/runtime/helpers/esm helpers when format is ESM. #3", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -535,6 +546,7 @@ test.serial("Will use the proper @babel/runtime/helpers/esm helpers when format 
 		],
 		{
 			typescript,
+			rollup,
 			transpiler: "babel",
 			loadBabelHelpers: true,
 			rollupOptions: {
@@ -555,7 +567,7 @@ test.serial("Will use the proper @babel/runtime/helpers/esm helpers when format 
 	t.true(formatCode(file.code).includes(`@babel/runtime/helpers/esm/typeof`));
 });
 
-test.serial("Will use the proper @babel/runtime/helpers helpers when format is CJS. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Will use the proper @babel/runtime/helpers helpers when format is CJS. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -568,6 +580,7 @@ test.serial("Will use the proper @babel/runtime/helpers helpers when format is C
 		],
 		{
 			typescript,
+			rollup,
 			transpiler: "babel",
 			loadBabelHelpers: true,
 			format: "cjs",
@@ -609,7 +622,7 @@ test.serial("Will use the proper @babel/runtime/helpers helpers when format is C
 	);
 });
 
-test.serial("Will use @babel/preset-typescript if available for the initial emit by default. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Will use @babel/preset-typescript if available for the initial emit by default. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -625,6 +638,7 @@ test.serial("Will use @babel/preset-typescript if available for the initial emit
 		],
 		{
 			typescript,
+			rollup,
 			transpiler: "babel",
 			babelConfig: {
 				presets: [
@@ -650,7 +664,7 @@ test.serial("Will use @babel/preset-typescript if available for the initial emit
 	);
 });
 
-test.serial("Will use @babel/preset-typescript if available for the initial emit by default. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Will use @babel/preset-typescript if available for the initial emit by default. #2", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -663,6 +677,7 @@ test.serial("Will use @babel/preset-typescript if available for the initial emit
 		],
 		{
 			typescript,
+			rollup,
 			transpiler: "babel",
 			babelConfig: {
 				presets: [
@@ -692,8 +707,8 @@ test.serial("Will use @babel/preset-typescript if available for the initial emit
 
 test.serial(
 	"Will use @babel/preset-typescript if available for the initial emit by default, even if it isn't present in the user's babel config. #1",
-	withTypeScript,
-	async (t, {typescript}) => {
+	"*",
+	async (t, {typescript, rollup}) => {
 		const bundle = await generateRollupBundle(
 			[
 				{
@@ -706,6 +721,7 @@ test.serial(
 			],
 			{
 				typescript,
+				rollup,
 				transpiler: "babel"
 			}
 		);
@@ -726,8 +742,8 @@ test.serial(
 
 test.serial(
 	"Will use the Typescript Compiler APIs for the initial emit, even if @babel/preset-typescript is available, if passed as the transpiler option for typescript syntax. #1",
-	withTypeScriptVersions(`<4.7`),
-	async (t, {typescript}) => {
+	{ts: `<4.7`},
+	async (t, {typescript, rollup}) => {
 		const bundle = await generateRollupBundle(
 			[
 				{
@@ -743,6 +759,7 @@ test.serial(
 			],
 			{
 				typescript,
+				rollup,
 				transpiler: {
 					typescriptSyntax: "typescript",
 					otherSyntax: "babel"
@@ -773,8 +790,8 @@ test.serial(
 
 test.serial(
 	"Will use the Typescript Compiler APIs for the initial emit, even if @babel/preset-typescript is available, if passed as the transpiler option for typescript syntax. #2",
-	withTypeScriptVersions(`>=4.7`),
-	async (t, {typescript}) => {
+	{ts: `>=4.7`},
+	async (t, {typescript, rollup}) => {
 		const bundle = await generateRollupBundle(
 			[
 				{
@@ -790,6 +807,7 @@ test.serial(
 			],
 			{
 				typescript,
+				rollup,
 				transpiler: {
 					typescriptSyntax: "typescript",
 					otherSyntax: "babel"

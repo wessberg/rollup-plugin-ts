@@ -1,10 +1,9 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 import {createExternalTestFiles} from "./setup/test-file.js";
 
-test.serial("Handles default export assignments. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default export assignments. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -24,6 +23,7 @@ test.serial("Handles default export assignments. #1", withTypeScript, async (t, 
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -39,7 +39,7 @@ test.serial("Handles default export assignments. #1", withTypeScript, async (t, 
 	);
 });
 
-test.serial("Handles default export assignments. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default export assignments. #2", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -62,6 +62,7 @@ test.serial("Handles default export assignments. #2", withTypeScript, async (t, 
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -80,7 +81,7 @@ test.serial("Handles default export assignments. #2", withTypeScript, async (t, 
 	);
 });
 
-test.serial("Handles default export assignments. #3", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default export assignments. #3", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -103,6 +104,7 @@ test.serial("Handles default export assignments. #3", withTypeScript, async (t, 
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -122,7 +124,7 @@ test.serial("Handles default export assignments. #3", withTypeScript, async (t, 
 	);
 });
 
-test.serial("Handles default export assignments. #4", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default export assignments. #4", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -142,6 +144,7 @@ test.serial("Handles default export assignments. #4", withTypeScript, async (t, 
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -159,7 +162,7 @@ test.serial("Handles default export assignments. #4", withTypeScript, async (t, 
 	);
 });
 
-test.serial("Handles default export assignments. #5", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default export assignments. #5", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -181,6 +184,7 @@ test.serial("Handles default export assignments. #5", withTypeScript, async (t, 
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -201,7 +205,7 @@ test.serial("Handles default export assignments. #5", withTypeScript, async (t, 
 	);
 });
 
-test.serial("Handles default export assignments. #6", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default export assignments. #6", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -223,6 +227,7 @@ test.serial("Handles default export assignments. #6", withTypeScript, async (t, 
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -241,7 +246,7 @@ test.serial("Handles default export assignments. #6", withTypeScript, async (t, 
 	);
 });
 
-test.serial("Handles default export assignments. #7", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default export assignments. #7", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -261,6 +266,7 @@ test.serial("Handles default export assignments. #7", withTypeScript, async (t, 
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -277,7 +283,7 @@ test.serial("Handles default export assignments. #7", withTypeScript, async (t, 
 	);
 });
 
-test.serial("Handles default export assignments. #8", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default export assignments. #8", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -296,6 +302,7 @@ test.serial("Handles default export assignments. #8", withTypeScript, async (t, 
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -315,7 +322,7 @@ test.serial("Handles default export assignments. #8", withTypeScript, async (t, 
 	);
 });
 
-test.serial("Handles default exports inside ExportSpecifiers. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default exports inside ExportSpecifiers. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createExternalTestFiles(
@@ -342,6 +349,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #1", withTypeScrip
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -358,7 +366,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #1", withTypeScrip
 	);
 });
 
-test.serial("Handles default exports inside ExportSpecifiers. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default exports inside ExportSpecifiers. #2", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createExternalTestFiles(
@@ -385,6 +393,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #2", withTypeScrip
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -401,7 +410,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #2", withTypeScrip
 	);
 });
 
-test.serial("Handles default exports inside ExportSpecifiers. #3", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default exports inside ExportSpecifiers. #3", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createExternalTestFiles(
@@ -428,6 +437,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #3", withTypeScrip
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -445,7 +455,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #3", withTypeScrip
 	);
 });
 
-test.serial("Handles default exports inside ExportSpecifiers. #4", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default exports inside ExportSpecifiers. #4", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -470,6 +480,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #4", withTypeScrip
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -489,7 +500,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #4", withTypeScrip
 	);
 });
 
-test.serial("Handles default exports inside ExportSpecifiers. #5", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default exports inside ExportSpecifiers. #5", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -518,6 +529,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #5", withTypeScrip
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -536,7 +548,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #5", withTypeScrip
 	);
 });
 
-test.serial("Handles default exports inside ExportSpecifiers. #6", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default exports inside ExportSpecifiers. #6", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -566,6 +578,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #6", withTypeScrip
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -585,7 +598,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #6", withTypeScrip
 	);
 });
 
-test.serial("Handles default exports inside ExportSpecifiers. #7", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default exports inside ExportSpecifiers. #7", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -615,6 +628,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #7", withTypeScrip
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -632,7 +646,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #7", withTypeScrip
 	);
 });
 
-test.serial("Handles default exports inside ExportSpecifiers. #8", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default exports inside ExportSpecifiers. #8", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -663,6 +677,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #8", withTypeScrip
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -681,7 +696,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #8", withTypeScrip
 	);
 });
 
-test.serial("Handles default exports inside ExportSpecifiers. #9", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default exports inside ExportSpecifiers. #9", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -733,6 +748,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #9", withTypeScrip
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -756,7 +772,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #9", withTypeScrip
 	);
 });
 
-test.serial("Handles default exports inside ExportSpecifiers. #10", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles default exports inside ExportSpecifiers. #10", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -805,6 +821,7 @@ test.serial("Handles default exports inside ExportSpecifiers. #10", withTypeScri
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);

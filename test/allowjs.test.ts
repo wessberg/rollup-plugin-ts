@@ -1,9 +1,8 @@
-import test from "ava";
-import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 
-test.serial("Won't fail for .js extensions when allowJs is false. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Won't fail for .js extensions when allowJs is false. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -24,6 +23,7 @@ test.serial("Won't fail for .js extensions when allowJs is false. #1", withTypeS
 		{
 			debug: false,
 			typescript,
+			rollup,
 			tsconfig: {
 				allowJs: false
 			}
@@ -44,7 +44,7 @@ test.serial("Won't fail for .js extensions when allowJs is false. #1", withTypeS
 	);
 });
 
-test.serial("Can generate declarations for .js sources when 'allowJs' is true. #1", withTypeScriptVersions(">=3.7"), async (t, {typescript}) => {
+test.serial("Can generate declarations for .js sources when 'allowJs' is true. #1", {ts: ">=3.7"}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -65,6 +65,7 @@ test.serial("Can generate declarations for .js sources when 'allowJs' is true. #
 		{
 			debug: false,
 			typescript,
+			rollup,
 			tsconfig: {
 				allowJs: true,
 				declaration: true

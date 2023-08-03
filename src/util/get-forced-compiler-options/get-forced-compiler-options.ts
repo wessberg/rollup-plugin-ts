@@ -64,8 +64,7 @@ export function getForcedCompilerOptions(options: GetForcedCompilerOptionsOption
 		inlineSourceMap: false,
 		// Since we never use inline source maps, inline sources aren't supported
 		inlineSources: false,
-		// Node resolution is required when 'importHelpers' are true
-		moduleResolution: options.pluginOptions.typescript.ModuleResolutionKind.NodeJs,
+
 		// Typescript should always be able to emit - otherwise we cannot transform source files
 		noEmit: false,
 		// Typescript should always be able to emit - otherwise we cannot transform source files

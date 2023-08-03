@@ -1,9 +1,8 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 
-test.serial("Declaration bundling works properly when Rollup is using a cache. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Declaration bundling works properly when Rollup is using a cache. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -14,7 +13,7 @@ test.serial("Declaration bundling works properly when Rollup is using a cache. #
 				`
 			}
 		],
-		{typescript, runCachedBuild: true, debug: false}
+		{typescript, rollup, runCachedBuild: true, debug: false}
 	);
 	const {
 		declarations: [file]

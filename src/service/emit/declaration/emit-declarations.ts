@@ -37,7 +37,14 @@ export function emitDeclarations(options: EmitDeclarationsOptions): void {
 	const cwd = options.host.getCwd();
 	const relativeOutDir = getOutDir(cwd, options.outputOptions);
 
-	const chunks = Object.values(options.bundle).filter(isOutputChunk).map(preNormalizeChunk);
+	const baseOutputChunks = Object.values(options.bundle).filter(isOutputChunk);
+
+	const chunks = baseOutputChunks.map(baseOutputChunk =>
+		preNormalizeChunk(
+			baseOutputChunk,
+			baseOutputChunks.filter(otherBaseOutputChunk => otherBaseOutputChunk !== baseOutputChunk)
+		)
+	);
 
 	// Merge ambient dependencies into the chunks
 	mergeChunksWithAmbientDependencies({

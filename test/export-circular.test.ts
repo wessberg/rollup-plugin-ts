@@ -1,9 +1,8 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 
-test.serial("Handles circular, self-referencing exports. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles circular, self-referencing exports. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -16,6 +15,7 @@ test.serial("Handles circular, self-referencing exports. #1", withTypeScript, as
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -31,7 +31,7 @@ test.serial("Handles circular, self-referencing exports. #1", withTypeScript, as
 	);
 });
 
-test.serial("Handles circular, self-referencing exports. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Handles circular, self-referencing exports. #2", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -52,6 +52,7 @@ test.serial("Handles circular, self-referencing exports. #2", withTypeScript, as
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);

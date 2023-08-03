@@ -10,10 +10,6 @@ export function checkPropertySignature({node, continuation, typescript}: Referen
 		referencedIdentifiers.push(...continuation(node.name));
 	}
 
-	if (node.initializer != null) {
-		referencedIdentifiers.push(...continuation(node.initializer));
-	}
-
 	if (node.type != null) {
 		referencedIdentifiers.push(...continuation(node.type));
 	}

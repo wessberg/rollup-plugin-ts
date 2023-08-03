@@ -1,10 +1,9 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 import {createExternalTestFiles} from "./setup/test-file.js";
 
-test.serial("Declaration maps correctly maps input sources. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Declaration maps correctly maps input sources. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -27,6 +26,7 @@ test.serial("Declaration maps correctly maps input sources. #1", withTypeScript,
 		],
 		{
 			typescript,
+			rollup,
 			dist: "dist",
 			debug: false,
 			tsconfig: {declarationMap: true}
@@ -60,7 +60,7 @@ test.serial("Declaration maps correctly maps input sources. #1", withTypeScript,
 	);
 });
 
-test.serial("Declaration maps correctly maps input sources. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Declaration maps correctly maps input sources. #2", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -81,6 +81,7 @@ test.serial("Declaration maps correctly maps input sources. #2", withTypeScript,
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			tsconfig: {declarationMap: true, declarationDir: "./foobarbaz"}
 		}
@@ -99,7 +100,7 @@ test.serial("Declaration maps correctly maps input sources. #2", withTypeScript,
 	);
 });
 
-test.serial("Declaration maps respect rewritten output paths. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Declaration maps respect rewritten output paths. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -120,6 +121,7 @@ test.serial("Declaration maps respect rewritten output paths. #1", withTypeScrip
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			tsconfig: {
 				declarationMap: true,
@@ -144,7 +146,7 @@ test.serial("Declaration maps respect rewritten output paths. #1", withTypeScrip
 	);
 });
 
-test.serial("Declaration maps respect rewritten output paths. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Declaration maps respect rewritten output paths. #2", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createExternalTestFiles("my-library", `export type Bar = string;`),
@@ -173,6 +175,7 @@ test.serial("Declaration maps respect rewritten output paths. #2", withTypeScrip
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			tsconfig: {
 				declarationMap: true

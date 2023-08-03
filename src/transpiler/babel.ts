@@ -72,7 +72,7 @@ export function getDefaultBabelOptions({browserslist, transpilerOptions}: GetDef
 
 	return {
 		presets: [
-			// Use @babel/preset-typescript when Babel is responsible for transforming TypeScript specific syntax
+			// Use @babel/preset-env when a Browserslist has been given
 			...(!includePresetEnv
 				? []
 				: [
@@ -92,7 +92,7 @@ export function getDefaultBabelOptions({browserslist, transpilerOptions}: GetDef
 							}
 						]
 				  ]),
-			// Use @babel/preset-env when a Browserslist has been given
+			// Use @babel/preset-typescript when Babel is responsible for transforming TypeScript specific syntax
 			...(!includePresetTypescript
 				? []
 				: [
@@ -105,16 +105,6 @@ export function getDefaultBabelOptions({browserslist, transpilerOptions}: GetDef
 				  ])
 		],
 		plugins: [
-			// If preset-env will be included, shipped proposals will be included already. If not, apply them here
-			...(includePresetEnv
-				? []
-				: [
-						resolveModule("@babel/plugin-proposal-object-rest-spread"),
-						resolveModule("@babel/plugin-proposal-async-generator-functions"),
-						resolveModule("@babel/plugin-proposal-optional-catch-binding"),
-						resolveModule("@babel/plugin-proposal-unicode-property-regex"),
-						resolveModule("@babel/plugin-proposal-json-strings")
-				  ]),
 			// Force the use of helpers (e.g. the runtime). But *don't* apply polyfills.
 			[
 				resolveModule("@babel/plugin-transform-runtime"),

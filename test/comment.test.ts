@@ -1,9 +1,8 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 
-test.serial("Preserves JSDoc comments in bundled declarations. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Preserves JSDoc comments in bundled declarations. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -20,6 +19,7 @@ test.serial("Preserves JSDoc comments in bundled declarations. #1", withTypeScri
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -39,7 +39,7 @@ test.serial("Preserves JSDoc comments in bundled declarations. #1", withTypeScri
 	);
 });
 
-test.serial("Preserves JSDoc comments in bundled declarations. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Preserves JSDoc comments in bundled declarations. #2", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -63,6 +63,7 @@ test.serial("Preserves JSDoc comments in bundled declarations. #2", withTypeScri
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -82,7 +83,7 @@ test.serial("Preserves JSDoc comments in bundled declarations. #2", withTypeScri
 	);
 });
 
-test.serial("Preserves JSDoc comments in bundled declarations. #3", withTypeScript, async (t, {typescript}) => {
+test.serial("Preserves JSDoc comments in bundled declarations. #3", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -115,6 +116,7 @@ test.serial("Preserves JSDoc comments in bundled declarations. #3", withTypeScri
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -136,7 +138,7 @@ test.serial("Preserves JSDoc comments in bundled declarations. #3", withTypeScri
 	);
 });
 
-test.serial("Preserves JSDoc comments in bundled declarations. #4", withTypeScript, async (t, {typescript}) => {
+test.serial("Preserves JSDoc comments in bundled declarations. #4", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -166,6 +168,7 @@ test.serial("Preserves JSDoc comments in bundled declarations. #4", withTypeScri
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -184,7 +187,7 @@ test.serial("Preserves JSDoc comments in bundled declarations. #4", withTypeScri
 	);
 });
 
-test.serial("Preserves JSDoc comments in bundled declarations. #5", withTypeScript, async (t, {typescript}) => {
+test.serial("Preserves JSDoc comments in bundled declarations. #5", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -215,6 +218,7 @@ test.serial("Preserves JSDoc comments in bundled declarations. #5", withTypeScri
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -234,7 +238,7 @@ test.serial("Preserves JSDoc comments in bundled declarations. #5", withTypeScri
 	);
 });
 
-test.serial("Won't leave JSDoc annotations for tree-shaken nodes. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Won't leave JSDoc annotations for tree-shaken nodes. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -280,6 +284,7 @@ test.serial("Won't leave JSDoc annotations for tree-shaken nodes. #1", withTypeS
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);

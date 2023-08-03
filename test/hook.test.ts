@@ -1,11 +1,10 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 import type {DeclarationStats} from "../src/type/declaration-stats.js";
 import {createBuiltInModuleTestFiles, createExternalTestFiles} from "./setup/test-file.js";
 
-test.serial("Declarations respect rewritten output paths. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Declarations respect rewritten output paths. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -26,6 +25,7 @@ test.serial("Declarations respect rewritten output paths. #1", withTypeScript, a
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			tsconfig: {
 				declarationMap: true,
@@ -50,7 +50,7 @@ test.serial("Declarations respect rewritten output paths. #1", withTypeScript, a
 	);
 });
 
-test.serial("Diagnostics can be filtered with the 'diagnostics' hook. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Diagnostics can be filtered with the 'diagnostics' hook. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -63,6 +63,7 @@ test.serial("Diagnostics can be filtered with the 'diagnostics' hook. #1", withT
 		],
 		{
 			typescript,
+			rollup,
 			hook: {
 				diagnostics: () => undefined
 			}
@@ -81,7 +82,7 @@ test.serial("Diagnostics can be filtered with the 'diagnostics' hook. #1", withT
 	);
 });
 
-test.serial("External types can be retrieved with the 'declarationStats' hook. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("External types can be retrieved with the 'declarationStats' hook. #1", "*", async (t, {typescript, rollup}) => {
 	let stats: DeclarationStats | undefined;
 
 	await generateRollupBundle(
@@ -100,6 +101,7 @@ test.serial("External types can be retrieved with the 'declarationStats' hook. #
 		],
 		{
 			typescript,
+			rollup,
 			hook: {
 				declarationStats: declarationStats => (stats = declarationStats)
 			}

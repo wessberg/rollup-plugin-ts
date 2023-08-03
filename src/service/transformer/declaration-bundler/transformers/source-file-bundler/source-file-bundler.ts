@@ -1,3 +1,4 @@
+/* eslint-disable deprecation/deprecation */
 import type {DeclarationBundlerOptions, DeclarationTransformer} from "../../declaration-bundler-options.js";
 import type {TS} from "../../../../../type/ts.js";
 import {applyTransformers} from "../../util/apply-transformers.js";

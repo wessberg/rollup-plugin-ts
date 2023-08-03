@@ -1,5 +1,5 @@
 import type {InputPluginOption, OutputOptions, Plugin, RollupBuild, RollupCache, RollupOptions, RollupOutput} from "rollup";
-import { rollup} from "rollup";
+import {rollup} from "rollup";
 // import commonjs from "@rollup/plugin-commonjs";
 import typescriptRollupPlugin from "../../src/plugin/typescript-plugin.js";
 import type {HookRecord, InputCompilerOptions, TypescriptPluginOptions} from "../../src/plugin/typescript-plugin-options.js";
@@ -41,6 +41,7 @@ export interface GenerateRollupBundleOptions {
 	rollupOptions: Omit<Partial<RollupOptions>, "output"> & {output?: OutputOptions};
 	format: "esm" | "cjs";
 	tsconfig: Partial<InputCompilerOptions> | string;
+	rollup: typeof rollup;
 	typescript: typeof TS;
 	transpileOnly: boolean;
 	cwd: TypescriptPluginOptions["cwd"];
@@ -76,8 +77,9 @@ export async function generateRollupBundle(
 		browserslist,
 		babelConfig,
 		swcConfig,
+		rollup: inputRollup,
 		...options
-	}: PartialExcept<GenerateRollupBundleOptions, "typescript">
+	}: PartialExcept<GenerateRollupBundleOptions, "typescript" | "rollup">
 ): Promise<GenerateRollupBundleResult> {
 	let {
 		context,
@@ -181,9 +183,10 @@ export async function generateRollupBundle(
 	let result: RollupBuild | undefined;
 
 	const plugins = await flattenPlugins(rollupOptions.plugins);
+	const selectedRollup = inputRollup ?? rollup;
 
 	while (true) {
-		result = await rollup({
+		result = await selectedRollup({
 			input,
 			cache,
 			external: builtinModules,

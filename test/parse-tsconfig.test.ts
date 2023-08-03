@@ -1,9 +1,8 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 import {formatCode} from "./util/format-code.js";
 
-test.serial("Correctly parse TypeScript config files within sub-directories. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Correctly parse TypeScript config files within sub-directories. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -49,6 +48,7 @@ test.serial("Correctly parse TypeScript config files within sub-directories. #1"
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			tsconfig: "virtual-configs/tsconfig.json"
 		}
@@ -68,7 +68,7 @@ test.serial("Correctly parse TypeScript config files within sub-directories. #1"
 	);
 });
 
-test.serial("Correctly parse TypeScript config files within sub-directories. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Correctly parse TypeScript config files within sub-directories. #2", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -125,6 +125,7 @@ test.serial("Correctly parse TypeScript config files within sub-directories. #2"
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			tsconfig: "virtual-configs/tsconfig.build.json"
 		}

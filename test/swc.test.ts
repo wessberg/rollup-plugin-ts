@@ -1,10 +1,9 @@
-import test from "ava";
-import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 import {formatCode} from "./util/format-code.js";
 import path from "crosspath";
 
-test.serial("Can use swc for transpilation. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Can use swc for transpilation. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -12,11 +11,13 @@ test.serial("Can use swc for transpilation. #1", withTypeScript, async (t, {type
 				fileName: "index.ts",
 				text: `\
 					typeof "";
+					const foo = [...[]];
 					`
 			}
 		],
 		{
 			typescript,
+			rollup,
 			transpiler: "swc",
 			loadSwcHelpers: true,
 			rollupOptions: {
@@ -36,14 +37,16 @@ test.serial("Can use swc for transpilation. #1", withTypeScript, async (t, {type
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		import _type_of from "@swc/helpers/src/_type_of.mjs";
+		import { _ as _$1 } from '@swc/helpers/_/_to_consumable_array';
+		import { _ } from '@swc/helpers/_/_type_of';
 
-		_type_of("");
+		_("");
+		_$1([]);
 		`)
 	);
 });
 
-test.serial("Can use swc for transpilation. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Can use swc for transpilation. #2", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -69,6 +72,7 @@ test.serial("Can use swc for transpilation. #2", withTypeScript, async (t, {type
 		],
 		{
 			typescript,
+			rollup,
 			transpiler: "swc",
 			rollupOptions: {
 				external: p => !path.normalize(p).endsWith(`index.ts`)
@@ -87,25 +91,30 @@ test.serial("Can use swc for transpilation. #2", withTypeScript, async (t, {type
 	t.deepEqual(
 		formatCode(file.code),
 		formatCode(`\
-		import _class_call_check from '@swc/helpers/src/_class_call_check.mjs';
-		import _inherits from '@swc/helpers/src/_inherits.mjs';
-		import _create_super from '@swc/helpers/src/_create_super.mjs';
+		import { _ as _$2 } from '@swc/helpers/_/_class_call_check';
+		import { _ as _$3 } from '@swc/helpers/_/_create_class';
+		import { _ } from '@swc/helpers/_/_inherits';
+		import { _ as _$1 } from '@swc/helpers/_/_create_super';
 
 		var Foo = /*#__PURE__*/ function() {
 			function Foo() {
-				_class_call_check(this, Foo);
+				_$2(this, Foo);
 			}
-			var _proto = Foo.prototype;
-			_proto.method = function method() {
-				console.log("called!");
-			};
+			_$3(Foo, [
+				{
+					key: "method",
+					value: function method() {
+						console.log("called!");
+					}
+				}
+			]);
 			return Foo;
 		}();
 		var Bar = /*#__PURE__*/ function(Foo) {
-			_inherits(Bar, Foo);
-			var _super = _create_super(Bar);
+			_(Bar, Foo);
+			var _super = _$1(Bar);
 			function Bar() {
-				_class_call_check(this, Bar);
+				_$2(this, Bar);
 				var _this;
 				_this = _super.call(this);
 				_this.method();
@@ -119,7 +128,7 @@ test.serial("Can use swc for transpilation. #2", withTypeScript, async (t, {type
 	);
 });
 
-test.serial("Can use swc for transpilation. #3", withTypeScript, async (t, {typescript}) => {
+test.serial("Can use swc for transpilation. #3", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -135,6 +144,7 @@ test.serial("Can use swc for transpilation. #3", withTypeScript, async (t, {type
 		],
 		{
 			typescript,
+			rollup,
 			transpiler: "swc"
 		}
 	);
@@ -154,7 +164,7 @@ test.serial("Can use swc for transpilation. #3", withTypeScript, async (t, {type
 	);
 });
 
-test.serial("Can combine swc with the Typescript Compiler APIs for transpilation. #1", withTypeScriptVersions(`>=4.7`), async (t, {typescript}) => {
+test.serial("Can combine swc with the Typescript Compiler APIs for transpilation. #1", {ts: `>=4.7`}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -171,6 +181,7 @@ test.serial("Can combine swc with the Typescript Compiler APIs for transpilation
 		],
 		{
 			typescript,
+			rollup,
 			transpiler: {
 				typescriptSyntax: "typescript",
 				otherSyntax: "swc"
@@ -192,7 +203,7 @@ test.serial("Can combine swc with the Typescript Compiler APIs for transpilation
 	);
 });
 
-test.serial("Can combine swc with the Typescript Compiler APIs for transpilation. #2", withTypeScriptVersions(`<4.7`), async (t, {typescript}) => {
+test.serial("Can combine swc with the Typescript Compiler APIs for transpilation. #2", {ts: `<4.7`}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -209,6 +220,7 @@ test.serial("Can combine swc with the Typescript Compiler APIs for transpilation
 		],
 		{
 			typescript,
+			rollup,
 			transpiler: {
 				typescriptSyntax: "typescript",
 				otherSyntax: "swc"
@@ -230,7 +242,7 @@ test.serial("Can combine swc with the Typescript Compiler APIs for transpilation
 	);
 });
 
-test.serial("Can combine swc with the Typescript Compiler APIs for transpilation. #3", withTypeScriptVersions(`>=4.7`), async (t, {typescript}) => {
+test.serial("Can combine swc with the Typescript Compiler APIs for transpilation. #3", {ts: `>=4.7`}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -247,6 +259,7 @@ test.serial("Can combine swc with the Typescript Compiler APIs for transpilation
 		],
 		{
 			typescript,
+			rollup,
 			tsconfig: {
 				target: "es5"
 			},
@@ -271,7 +284,7 @@ test.serial("Can combine swc with the Typescript Compiler APIs for transpilation
 	);
 });
 
-test.serial("Can combine swc with the Typescript Compiler APIs for transpilation. #4", withTypeScriptVersions(`<4.7`), async (t, {typescript}) => {
+test.serial("Can combine swc with the Typescript Compiler APIs for transpilation. #4", {ts: `<4.7`}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -288,6 +301,7 @@ test.serial("Can combine swc with the Typescript Compiler APIs for transpilation
 		],
 		{
 			typescript,
+			rollup,
 			tsconfig: {
 				target: "es5"
 			},
@@ -312,7 +326,7 @@ test.serial("Can combine swc with the Typescript Compiler APIs for transpilation
 	);
 });
 
-test.serial("Can combine swc with the Typescript Compiler APIs for transpilation. #5", withTypeScriptVersions(`<4.7`), async (t, {typescript}) => {
+test.serial("Can combine swc with the Typescript Compiler APIs for transpilation. #5", {ts: `<4.7`}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -329,6 +343,7 @@ test.serial("Can combine swc with the Typescript Compiler APIs for transpilation
 		],
 		{
 			typescript,
+			rollup,
 			tsconfig: {
 				target: "esnext"
 			},
@@ -360,7 +375,7 @@ test.serial("Can combine swc with the Typescript Compiler APIs for transpilation
 	);
 });
 
-test.serial("Can combine swc with the Typescript Compiler APIs for transpilation. #6", withTypeScriptVersions(`>=4.7`), async (t, {typescript}) => {
+test.serial("Can combine swc with the Typescript Compiler APIs for transpilation. #6", {ts: `>=4.7`}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -377,6 +392,7 @@ test.serial("Can combine swc with the Typescript Compiler APIs for transpilation
 		],
 		{
 			typescript,
+			rollup,
 			tsconfig: {
 				target: "esnext"
 			},
@@ -408,7 +424,7 @@ test.serial("Can combine swc with the Typescript Compiler APIs for transpilation
 	);
 });
 
-test.serial("Supports swc minification. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Supports swc minification. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -436,6 +452,7 @@ test.serial("Supports swc minification. #1", withTypeScript, async (t, {typescri
 		],
 		{
 			typescript,
+			rollup,
 			transpiler: "swc",
 			exclude: [],
 			swcConfig: {
@@ -459,7 +476,7 @@ test.serial("Supports swc minification. #1", withTypeScript, async (t, {typescri
 	);
 });
 
-test.serial("Supports multiple swc configurations. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Supports multiple swc configurations. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -480,6 +497,7 @@ test.serial("Supports multiple swc configurations. #1", withTypeScript, async (t
 		],
 		{
 			typescript,
+			rollup,
 			transpiler: "swc",
 			swcConfig: [
 				{

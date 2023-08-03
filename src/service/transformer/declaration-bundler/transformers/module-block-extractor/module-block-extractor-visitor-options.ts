@@ -6,6 +6,6 @@ export interface ModuleBlockExtractorVisitorOptions<T extends TS.Node> extends S
 	node: T;
 	context: TS.TransformationContext;
 
-	continuation<U extends TS.Node>(node: U): TS.VisitResult<TS.Node>;
+	continuation<U extends TS.Node>(node: U): TS.VisitResult<TS.Node> | undefined;
 	childContinuation<U extends TS.Node>(node: U): TS.VisitResult<TS.Node>;
 }

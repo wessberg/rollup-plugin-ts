@@ -1,8 +1,7 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 
-test.serial("Will report diagnostics from the ParsedCommandLine. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Will report diagnostics from the ParsedCommandLine. #1", "*", async (t, {typescript, rollup}) => {
 	let hasReportedDiagnostic = false;
 	await generateRollupBundle(
 		[
@@ -15,6 +14,7 @@ test.serial("Will report diagnostics from the ParsedCommandLine. #1", withTypeSc
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			hook: {
 				diagnostics: diagnostics => {

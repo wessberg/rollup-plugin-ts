@@ -1,9 +1,8 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 
-test.serial("Won't produce empty declarations when output directory is not excluded from TypeScript. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Won't produce empty declarations when output directory is not excluded from TypeScript. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -35,6 +34,7 @@ test.serial("Won't produce empty declarations when output directory is not exclu
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -53,7 +53,7 @@ test.serial("Won't produce empty declarations when output directory is not exclu
 	);
 });
 
-test.serial("Won't produce empty declarations when baseUrl is outside of compilation root. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Won't produce empty declarations when baseUrl is outside of compilation root. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -68,6 +68,7 @@ test.serial("Won't produce empty declarations when baseUrl is outside of compila
 							"composite": true,
 							"declaration": true,
 							"declarationMap": true,
+							"moduleResolution": "node",
 							"paths": {
 								"@foo/*": ["./packages/@foo/*/source"]
 							},
@@ -126,6 +127,7 @@ test.serial("Won't produce empty declarations when baseUrl is outside of compila
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			cwd: "subproject/packages/@foo/a",
 			tsconfig: "tsconfig.json"

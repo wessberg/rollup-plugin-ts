@@ -1,9 +1,8 @@
-import test from "ava";
-import {withTypeScriptVersions} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 
-test.serial("Merges identical namespaces correctly. #1", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+test.serial("Merges identical namespaces correctly. #1", {ts: ">=3.8"}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -37,6 +36,7 @@ test.serial("Merges identical namespaces correctly. #1", withTypeScriptVersions(
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -58,7 +58,7 @@ test.serial("Merges identical namespaces correctly. #1", withTypeScriptVersions(
 	);
 });
 
-test.serial("Merges identical namespaces correctly. #2", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+test.serial("Merges identical namespaces correctly. #2", {ts: ">=3.8"}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -108,6 +108,7 @@ test.serial("Merges identical namespaces correctly. #2", withTypeScriptVersions(
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -134,7 +135,7 @@ test.serial("Merges identical namespaces correctly. #2", withTypeScriptVersions(
 	);
 });
 
-test.serial("Merges identical namespaces correctly. #3", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+test.serial("Merges identical namespaces correctly. #3", {ts: ">=3.8"}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -168,6 +169,7 @@ test.serial("Merges identical namespaces correctly. #3", withTypeScriptVersions(
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -190,7 +192,7 @@ test.serial("Merges identical namespaces correctly. #3", withTypeScriptVersions(
 	);
 });
 
-test.serial("Merges identical namespaces correctly. #4", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+test.serial("Merges identical namespaces correctly. #4", {ts: ">=3.8"}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -217,6 +219,7 @@ test.serial("Merges identical namespaces correctly. #4", withTypeScriptVersions(
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);

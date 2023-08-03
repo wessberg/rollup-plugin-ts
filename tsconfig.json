@@ -3,7 +3,6 @@
 	"extends": "@wessberg/ts-config",
 	"compilerOptions": {
 		"target": "es2019",
-		"downlevelIteration": false,
-		"moduleResolution": "node"
+		"downlevelIteration": false
 	}
 }

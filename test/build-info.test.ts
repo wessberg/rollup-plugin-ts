@@ -1,8 +1,7 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 
-test.serial("Can generate .tsbuildinfo for a compilation unit. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Can generate .tsbuildinfo for a compilation unit. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -16,6 +15,7 @@ test.serial("Can generate .tsbuildinfo for a compilation unit. #1", withTypeScri
 		{
 			debug: false,
 			typescript,
+			rollup,
 			tsconfig: {
 				outDir: "dist",
 				composite: true,
@@ -28,7 +28,7 @@ test.serial("Can generate .tsbuildinfo for a compilation unit. #1", withTypeScri
 	t.true(buildInfo != null);
 });
 
-test.serial("Won't break for older TypeScript versions. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Won't break for older TypeScript versions. #1", "*", async (t, {typescript, rollup}) => {
 	await t.notThrowsAsync(
 		generateRollupBundle(
 			[
@@ -43,6 +43,7 @@ test.serial("Won't break for older TypeScript versions. #1", withTypeScript, asy
 			{
 				debug: false,
 				typescript,
+				rollup,
 				tsconfig: {
 					outDir: "dist",
 					composite: true,
@@ -54,7 +55,7 @@ test.serial("Won't break for older TypeScript versions. #1", withTypeScript, asy
 	);
 });
 
-test.serial("Can generate .tsbuildinfo for a compilation unit. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Can generate .tsbuildinfo for a compilation unit. #2", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -92,6 +93,7 @@ test.serial("Can generate .tsbuildinfo for a compilation unit. #2", withTypeScri
 		{
 			debug: false,
 			typescript,
+			rollup,
 			tsconfig: "tsconfig.json"
 		}
 	);

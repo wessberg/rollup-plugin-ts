@@ -2,6 +2,8 @@ import type {TS} from "../../src/type/ts.js";
 import type {InputCompilerOptions, TypescriptPluginOptions} from "../../src/plugin/typescript-plugin-options.js";
 import path from "crosspath";
 import type {PartialExcept} from "helpertypes";
+import semver from "semver";
+import {allowsNodeNextModuleResolution} from "../../src/util/module-resolution/module-resolution-util.js";
 
 export interface TestContext {
 	cwd: string;
@@ -58,7 +60,21 @@ export function createTestContext({
 				: {
 						target: "esnext",
 						declaration: true,
-						moduleResolution: "node",
+						moduleResolution:
+							typescript.ModuleResolutionKind.NodeNext != null && allowsNodeNextModuleResolution(typescript)
+								? "nodenext"
+								: typescript.ModuleResolutionKind.Node16 != null
+								? "node16"
+								: typescript.ModuleResolutionKind.Node10 != null
+								? "node10"
+								: "node",
+
+						...(semver.satisfies(typescript.version, ">= 5.0", {includePrerelease: true})
+							? {
+									// Deprecations will cause crashes on TypeScript v5.0 and forward
+									ignoreDeprecations: "5.0"
+							  }
+							: {}),
 						baseUrl,
 						...tsconfig
 				  }

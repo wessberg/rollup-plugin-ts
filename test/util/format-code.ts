@@ -1,5 +1,5 @@
-import {format} from "prettier";
+import prettier from "@prettier/sync";
 
 export function formatCode(code: string, parser: "typescript" | "json" = "typescript"): string {
-	return format(code, {parser, endOfLine: "lf"});
+	return prettier.format(code, {parser, endOfLine: "lf"});
 }

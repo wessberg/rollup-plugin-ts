@@ -29,7 +29,7 @@ export function moduleBlockExtractor(options: ModuleBlockExtractorOptions): TS.S
 				context
 			),
 
-		continuation: <U extends TS.Node>(node: U): TS.VisitResult<TS.Node> =>
+		continuation: <U extends TS.Node>(node: U): TS.VisitResult<TS.Node>|undefined =>
 			visitNode({
 				...visitorOptions,
 				node

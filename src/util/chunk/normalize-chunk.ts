@@ -1,7 +1,7 @@
 import type {OutputChunk, OutputOptions} from "rollup";
 import {getOutDir} from "../get-out-dir/get-out-dir.js";
 import type {PathsResult} from "../../service/transformer/declaration-bundler/util/prepare-paths/prepare-paths.js";
-import { preparePaths} from "../../service/transformer/declaration-bundler/util/prepare-paths/prepare-paths.js";
+import {preparePaths} from "../../service/transformer/declaration-bundler/util/prepare-paths/prepare-paths.js";
 import type {CompilerHost} from "../../service/compiler-host/compiler-host.js";
 import {ROLLUP_PLUGIN_MULTI_ENTRY_LEGACY} from "../../constant/constant.js";
 import path from "crosspath";
@@ -28,15 +28,30 @@ export interface NormalizeChunkOptions {
 	multiEntryFileNames: Set<string> | undefined;
 }
 
-export function preNormalizeChunk(chunk: OutputChunk): PreNormalizedChunk {
+export function preNormalizeChunk(chunk: OutputChunk, otherChunks: OutputChunk[]): PreNormalizedChunk {
+	const baseModules = new Set(Object.keys(chunk.modules).map(normalizeChunkFilename));
+
+	// Make sure to remove any base modules that are also entry modules in other chunks
+	for (const baseModule of baseModules) {
+		if (otherChunks.some(otherChunk => otherChunk.isEntry && otherChunk.facadeModuleId === baseModule)) {
+			baseModules.delete(baseModule);
+		}
+	}
+
+	// Add the facadeModuleId to the base modules if it is an entry chunk and it wasn't already there.
+	// Since Rollup v3.22.0, the facadeModuleId may no longer be included in the modules of the chunk if it only contains imports/exports, so we'll have to add it manually
+	if (chunk.isEntry && chunk.facadeModuleId != null && !baseModules.has(chunk.facadeModuleId)) {
+		baseModules.add(chunk.facadeModuleId);
+	}
+
 	return {
-		modules: Object.keys(chunk.modules).map(normalizeChunkFilename),
+		modules: [...baseModules],
 		fileName: path.normalize(chunk.fileName),
 		isEntry: chunk.isEntry
 	};
 }
 
-function normalizeChunkFilename(filename: string): string {
+export function normalizeChunkFilename(filename: string): string {
 	return removeSearchPathFromFilename(path.normalize(filename));
 }
 

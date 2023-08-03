@@ -6,7 +6,7 @@ import type {ImportedSymbol} from "../transformers/track-imports-transformer/tra
 export interface CreateExportSpecifierFromNameAndModifiersOptions {
 	isTypeOnly?: boolean;
 	name: string;
-	modifiers: TS.ModifiersArray | readonly TS.Modifier[] | undefined;
+	modifiers: TS.ModifiersArray | readonly TS.Modifier[] | readonly TS.ModifierLike[] | undefined;
 	typescript: typeof TS;
 	factory: TS.NodeFactory;
 }

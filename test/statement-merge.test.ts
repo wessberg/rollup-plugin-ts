@@ -1,10 +1,9 @@
-import test from "ava";
-import {withTypeScript, withTypeScriptVersions} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 import {createExternalTestFiles} from "./setup/test-file.js";
 
-test.serial("Merges identical statements correctly. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Merges identical statements correctly. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -39,6 +38,7 @@ test.serial("Merges identical statements correctly. #1", withTypeScript, async (
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -58,7 +58,7 @@ test.serial("Merges identical statements correctly. #1", withTypeScript, async (
 	);
 });
 
-test.serial("Merges identical statements correctly. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Merges identical statements correctly. #2", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -93,6 +93,7 @@ test.serial("Merges identical statements correctly. #2", withTypeScript, async (
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -112,7 +113,7 @@ test.serial("Merges identical statements correctly. #2", withTypeScript, async (
 	);
 });
 
-test.serial("Merges identical statements correctly. #3", withTypeScript, async (t, {typescript}) => {
+test.serial("Merges identical statements correctly. #3", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createExternalTestFiles(
@@ -145,6 +146,7 @@ test.serial("Merges identical statements correctly. #3", withTypeScript, async (
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -168,7 +170,7 @@ test.serial("Merges identical statements correctly. #3", withTypeScript, async (
 	);
 });
 
-test.serial("Merges identical statements correctly. #4", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+test.serial("Merges identical statements correctly. #4", {ts: ">=3.8"}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -191,7 +193,8 @@ test.serial("Merges identical statements correctly. #4", withTypeScriptVersions(
 			}
 		],
 		{
-			typescript
+			typescript,
+			rollup
 		}
 	);
 
@@ -210,7 +213,7 @@ test.serial("Merges identical statements correctly. #4", withTypeScriptVersions(
 	);
 });
 
-test.serial("Merges identical statements correctly. #5", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+test.serial("Merges identical statements correctly. #5", {ts: ">=3.8"}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -244,7 +247,8 @@ test.serial("Merges identical statements correctly. #5", withTypeScriptVersions(
 			}
 		],
 		{
-			typescript
+			typescript,
+			rollup
 		}
 	);
 
@@ -264,7 +268,7 @@ test.serial("Merges identical statements correctly. #5", withTypeScriptVersions(
 	);
 });
 
-test.serial("Merges identical statements correctly. #6", withTypeScriptVersions(">=4.5"), async (t, {typescript}) => {
+test.serial("Merges identical statements correctly. #6", {ts: ">=4.5"}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -299,7 +303,8 @@ test.serial("Merges identical statements correctly. #6", withTypeScriptVersions(
 			}
 		],
 		{
-			typescript
+			typescript,
+			rollup
 		}
 	);
 
@@ -319,7 +324,7 @@ test.serial("Merges identical statements correctly. #6", withTypeScriptVersions(
 	);
 });
 
-test.serial("Merges identical statements correctly. #7", withTypeScriptVersions(">=3.8"), async (t, {typescript}) => {
+test.serial("Merges identical statements correctly. #7", {ts: ">=3.8"}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -353,7 +358,8 @@ test.serial("Merges identical statements correctly. #7", withTypeScriptVersions(
 			}
 		],
 		{
-			typescript
+			typescript,
+			rollup
 		}
 	);
 

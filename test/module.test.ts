@@ -1,9 +1,8 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 
-test.serial("Files are always treated as modules when generating declarations. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Files are always treated as modules when generating declarations. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -16,6 +15,7 @@ test.serial("Files are always treated as modules when generating declarations. #
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -30,7 +30,7 @@ test.serial("Files are always treated as modules when generating declarations. #
 	);
 });
 
-test.serial("Files are always treated as modules when generating declarations. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Files are always treated as modules when generating declarations. #2", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -43,6 +43,7 @@ test.serial("Files are always treated as modules when generating declarations. #
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);

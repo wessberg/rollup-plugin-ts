@@ -1,10 +1,9 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 import {createBuiltInModuleTestFiles} from "./setup/test-file.js";
 
-test.serial("Is still capable of resolving SourceFiles when needed for when a file path is matched by the 'exclude' glob. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Is still capable of resolving SourceFiles when needed for when a file path is matched by the 'exclude' glob. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createBuiltInModuleTestFiles("buffer"),
@@ -20,6 +19,7 @@ test.serial("Is still capable of resolving SourceFiles when needed for when a fi
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			exclude: ["node_modules/**/*.*"]
 		}

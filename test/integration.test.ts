@@ -1,10 +1,9 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 import alias from "@rollup/plugin-alias";
 import {formatCode} from "./util/format-code.js";
 
-test.serial("Integrates with @rollup/plugin-alias without problems. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Integrates with @rollup/plugin-alias without problems. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -84,6 +83,7 @@ test.serial("Integrates with @rollup/plugin-alias without problems. #1", withTyp
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			tsconfig: "tsconfig.json",
 			prePlugins: [

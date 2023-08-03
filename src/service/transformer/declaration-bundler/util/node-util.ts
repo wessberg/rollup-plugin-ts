@@ -12,10 +12,11 @@ export function isNodeInternalAlias<T extends TS.Node>(node: T, typescript: type
 }
 
 export function getModifierLikes(node: TS.Node): readonly TS.ModifierLike[] | undefined {
+	const modifiers = "modifiers" in node && Array.isArray(node.modifiers) ? node.modifiers : [];
 	if ("decorators" in node && Array.isArray(node.decorators)) {
-		return [...(node.decorators ?? []), ...(node.modifiers ?? [])];
+		return [...node.decorators, ...modifiers];
 	} else {
-		return node.modifiers;
+		return modifiers;
 	}
 }
 

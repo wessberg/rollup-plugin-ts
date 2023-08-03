@@ -1,7 +1,7 @@
 import type {ModuleBlockExtractorVisitorOptions} from "../module-block-extractor-visitor-options.js";
 import type {TS} from "../../../../../../type/ts.js";
 
-export function visitModuleDeclaration({node, typescript}: ModuleBlockExtractorVisitorOptions<TS.ModuleDeclaration>): TS.VisitResult<TS.Node> {
+export function visitModuleDeclaration({node, typescript}: ModuleBlockExtractorVisitorOptions<TS.ModuleDeclaration>): TS.VisitResult<TS.Node> | undefined {
 	if (node.body == null) return undefined;
 	if (typescript.isModuleBlock(node.body) && typescript.isStringLiteralLike(node.name)) {
 		return [...node.body.statements];

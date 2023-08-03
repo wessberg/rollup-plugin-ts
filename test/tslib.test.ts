@@ -1,9 +1,8 @@
-import test from "ava";
-import {withTypeScriptVersions} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 import {formatCode} from "./util/format-code.js";
 
-test.serial("Will treat every file as a module with tslib. #1", withTypeScriptVersions(">=3.6"), async (t, {typescript}) => {
+test.serial("Will treat every file as a module with tslib. #1", {ts: ">=3.6"}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -16,6 +15,7 @@ test.serial("Will treat every file as a module with tslib. #1", withTypeScriptVe
 		],
 		{
 			typescript,
+			rollup,
 			rollupOptions: {
 				external: ["tslib"]
 			},

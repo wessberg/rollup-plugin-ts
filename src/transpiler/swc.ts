@@ -9,6 +9,7 @@ import {ensureArray} from "../util/ensure-array/ensure-array.js";
 import {getEcmaVersionForScriptTarget} from "../util/get-script-target-from-browserslist/get-script-target-from-browserslist.js";
 import {removeSearchPathFromFilename} from "../util/path/path-util.js";
 import {getTranspilerOptions} from "../util/plugin-options/get-plugin-options.js";
+import type {getAppropriateEcmaVersionForBrowserslist} from "browserslist-generator";
 
 export interface GetSwcConfigOptions {
 	cwd: string;
@@ -39,6 +40,20 @@ function readConfig(config: TypescriptPluginOptions["swcConfig"], cwd: string, f
 		return JSON.parse(fileSystem.readFile(absoluteConfig)!);
 	} else {
 		return config;
+	}
+}
+
+/**
+ * SWC currently doesn't support "es2023", so for now it will be mapped to "es2022"
+ */
+function mapEcmaVersionForSwc(
+	version: ReturnType<typeof getAppropriateEcmaVersionForBrowserslist>
+): Exclude<ReturnType<typeof getAppropriateEcmaVersionForBrowserslist>, "es2023"> {
+	switch (version) {
+		case "es2023":
+			return "es2022";
+		default:
+			return version;
 	}
 }
 
@@ -93,7 +108,7 @@ export function getSwcConfigFactory({fileSystem, swcConfig, cwd, browserslist, e
 				},
 				...(browserslist == null && ecmaVersion != null && (inputConfig.env == null || Object.keys(inputConfig.env).length < 1)
 					? {
-							target: getEcmaVersionForScriptTarget(ecmaVersion, typescript)
+							target: mapEcmaVersionForSwc(getEcmaVersionForScriptTarget(ecmaVersion, typescript))
 					  }
 					: {}),
 				...FORCED_SWC_JSC_OPTIONS

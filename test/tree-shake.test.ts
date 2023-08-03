@@ -1,10 +1,9 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 import {createExternalTestFiles} from "./setup/test-file.js";
 
-test.serial("Tree-shakes correctly. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Tree-shakes correctly. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createExternalTestFiles(
@@ -25,6 +24,7 @@ test.serial("Tree-shakes correctly. #1", withTypeScript, async (t, {typescript})
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -41,7 +41,7 @@ test.serial("Tree-shakes correctly. #1", withTypeScript, async (t, {typescript})
 	);
 });
 
-test.serial("Tree-shakes correctly. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Tree-shakes correctly. #2", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -62,6 +62,7 @@ test.serial("Tree-shakes correctly. #2", withTypeScript, async (t, {typescript})
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -77,7 +78,7 @@ test.serial("Tree-shakes correctly. #2", withTypeScript, async (t, {typescript})
 	);
 });
 
-test.serial("Tree-shakes correctly. #3", withTypeScript, async (t, {typescript}) => {
+test.serial("Tree-shakes correctly. #3", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -110,6 +111,7 @@ test.serial("Tree-shakes correctly. #3", withTypeScript, async (t, {typescript})
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -131,7 +133,7 @@ test.serial("Tree-shakes correctly. #3", withTypeScript, async (t, {typescript})
 	);
 });
 
-test.serial("Tree-shakes correctly. #4", withTypeScript, async (t, {typescript}) => {
+test.serial("Tree-shakes correctly. #4", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -150,6 +152,7 @@ test.serial("Tree-shakes correctly. #4", withTypeScript, async (t, {typescript})
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -171,7 +174,7 @@ test.serial("Tree-shakes correctly. #4", withTypeScript, async (t, {typescript})
 	);
 });
 
-test.serial("Tree-shakes correctly. #5", withTypeScript, async (t, {typescript}) => {
+test.serial("Tree-shakes correctly. #5", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -185,6 +188,7 @@ test.serial("Tree-shakes correctly. #5", withTypeScript, async (t, {typescript})
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -201,7 +205,7 @@ test.serial("Tree-shakes correctly. #5", withTypeScript, async (t, {typescript})
 	);
 });
 
-test.serial("Tree-shakes correctly. #6", withTypeScript, async (t, {typescript}) => {
+test.serial("Tree-shakes correctly. #6", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -217,6 +221,7 @@ test.serial("Tree-shakes correctly. #6", withTypeScript, async (t, {typescript})
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			transpileOnly: true
 		}
@@ -237,7 +242,7 @@ test.serial("Tree-shakes correctly. #6", withTypeScript, async (t, {typescript})
 	);
 });
 
-test.serial("Tree-shakes correctly. #7", withTypeScript, async (t, {typescript}) => {
+test.serial("Tree-shakes correctly. #7", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -254,6 +259,7 @@ test.serial("Tree-shakes correctly. #7", withTypeScript, async (t, {typescript})
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -272,7 +278,7 @@ test.serial("Tree-shakes correctly. #7", withTypeScript, async (t, {typescript})
 	);
 });
 
-test.serial("Tree-shakes correctly. #8", withTypeScript, async (t, {typescript}) => {
+test.serial("Tree-shakes correctly. #8", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -290,6 +296,7 @@ test.serial("Tree-shakes correctly. #8", withTypeScript, async (t, {typescript})
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);

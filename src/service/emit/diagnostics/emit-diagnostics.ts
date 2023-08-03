@@ -67,8 +67,7 @@ export function emitDiagnostics({host, context, pluginOptions}: EmitDiagnosticsO
 							  }),
 						...(diagnostic.file == null ? {} : {pos: diagnostic.file.pos}),
 						message
-					} as RollupError,
-					position == null ? undefined : {line: position.line + 1, column: position.character + 1}
+					} as RollupError
 				);
 				break;
 
@@ -88,8 +87,7 @@ export function emitDiagnostics({host, context, pluginOptions}: EmitDiagnosticsO
 						},
 						...(diagnostic.file == null ? {} : {pos: diagnostic.file.pos}),
 						message
-					} as RollupWarning,
-					position == null ? undefined : {line: position.line + 1, column: position.character + 1}
+					} as RollupWarning
 				);
 				break;
 		}

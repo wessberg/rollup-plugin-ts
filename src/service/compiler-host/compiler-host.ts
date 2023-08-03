@@ -9,7 +9,7 @@ import {mergeTransformers} from "../../util/merge-transformers/merge-transformer
 import {ensureModuleTransformer} from "../transformer/ensure-module/ensure-module-transformer.js";
 import type {SourceFileToDependenciesMap} from "../transformer/declaration-bundler/declaration-bundler-options.js";
 import type {ExtendedResolvedModule} from "../cache/resolve-cache/extended-resolved-module.js";
-import type { ModuleDependency} from "../../util/get-module-dependencies/get-module-dependencies.js";
+import type {ModuleDependency} from "../../util/get-module-dependencies/get-module-dependencies.js";
 import {getModuleDependencies} from "../../util/get-module-dependencies/get-module-dependencies.js";
 import {pickResolvedModule} from "../../util/pick-resolved-module.js";
 import path from "crosspath";
@@ -56,7 +56,6 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 		const program = this.getProgram();
 
 		const sourceFile = fileName == null ? undefined : this.getSourceFile(fileName);
-
 		const baseDiagnostics = [
 			...this.getParsedCommandLine().errors,
 			...program.getConfigFileParsingDiagnostics(),
@@ -142,7 +141,7 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 	}
 
 	getScriptTarget(): TS.ScriptTarget {
-		return this.getCompilationSettings().target ?? this.getTypescript().ScriptTarget.ES3;
+		return this.getCompilationSettings().target ?? this.getTypescript().ScriptTarget.ES5;
 	}
 
 	private createProgram(): TS.EmitAndSemanticDiagnosticsBuilderProgram {
@@ -372,19 +371,17 @@ export class CompilerHost extends ModuleResolutionHost implements TS.CompilerHos
 	getSourceFile(
 		fileName: string,
 		languageVersionOrOptions: TS.ScriptTarget | TS.CreateSourceFileOptions = this.getScriptTarget(),
-		onError?: (message: string) => void,
-		shouldCreateNewSourceFile?: boolean
+		onError?: (message: string) => void
 	): TS.SourceFile | undefined {
 		try {
 			const languageVersion = isRecord(languageVersionOrOptions) ? languageVersionOrOptions.languageVersion : languageVersionOrOptions;
 			const absoluteFileName = path.includeDriveLetter(isTypeScriptLib(fileName) ? path.join(this.getDefaultLibLocation(), fileName) : ensureAbsolute(this.getCwd(), fileName));
 
-			if (this.sourceFiles.has(absoluteFileName) && !Boolean(shouldCreateNewSourceFile)) {
+			if (this.sourceFiles.has(absoluteFileName)) {
 				return this.sourceFiles.get(absoluteFileName);
 			}
 
 			if (!this.isSupportedFileName(absoluteFileName, true)) return undefined;
-
 			let file = this.get(absoluteFileName);
 
 			if (file == null) {

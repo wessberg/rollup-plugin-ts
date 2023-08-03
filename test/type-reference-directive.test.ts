@@ -1,10 +1,9 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 import {createBuiltInModuleTestFiles, createExternalTestFiles} from "./setup/test-file.js";
 
-test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createBuiltInModuleTestFiles("fs"),
@@ -22,6 +21,7 @@ test.serial("Detects type reference directives and respects tree-shaking and cod
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -42,7 +42,7 @@ test.serial("Detects type reference directives and respects tree-shaking and cod
 	);
 });
 
-test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #2", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createBuiltInModuleTestFiles("buffer"),
@@ -56,6 +56,7 @@ test.serial("Detects type reference directives and respects tree-shaking and cod
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -72,7 +73,7 @@ test.serial("Detects type reference directives and respects tree-shaking and cod
 	);
 });
 
-test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #3", withTypeScript, async (t, {typescript}) => {
+test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #3", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createBuiltInModuleTestFiles("fs"),
@@ -89,6 +90,7 @@ test.serial("Detects type reference directives and respects tree-shaking and cod
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -107,7 +109,7 @@ test.serial("Detects type reference directives and respects tree-shaking and cod
 	);
 });
 
-test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #4", withTypeScript, async (t, {typescript}) => {
+test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #4", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createExternalTestFiles(
@@ -129,6 +131,7 @@ test.serial("Detects type reference directives and respects tree-shaking and cod
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -147,7 +150,7 @@ test.serial("Detects type reference directives and respects tree-shaking and cod
 	);
 });
 
-test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #5", withTypeScript, async (t, {typescript}) => {
+test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #5", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -162,6 +165,7 @@ test.serial("Detects type reference directives and respects tree-shaking and cod
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -179,7 +183,7 @@ test.serial("Detects type reference directives and respects tree-shaking and cod
 	);
 });
 
-test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #6", withTypeScript, async (t, {typescript}) => {
+test.serial("Detects type reference directives and respects tree-shaking and code-splitting. #6", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			...createExternalTestFiles(
@@ -199,6 +203,7 @@ test.serial("Detects type reference directives and respects tree-shaking and cod
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);

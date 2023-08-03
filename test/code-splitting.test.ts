@@ -1,10 +1,9 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 import {stripKnownExtension} from "../src/util/path/path-util.js";
 
-test.serial("Declaration bundling supports code splitting. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Declaration bundling supports code splitting. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -39,7 +38,7 @@ test.serial("Declaration bundling supports code splitting. #1", withTypeScript, 
         	`
 			}
 		],
-		{typescript, debug: false}
+		{typescript, rollup, debug: false}
 	);
 	const {declarations} = bundle;
 
@@ -83,7 +82,7 @@ test.serial("Declaration bundling supports code splitting. #1", withTypeScript, 
 	);
 });
 
-test.serial("Declaration bundling supports code splitting. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Declaration bundling supports code splitting. #2", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -121,7 +120,7 @@ test.serial("Declaration bundling supports code splitting. #2", withTypeScript, 
 					`
 			}
 		],
-		{typescript, debug: false}
+		{typescript, rollup, debug: false}
 	);
 	const {declarations} = bundle;
 
@@ -160,7 +159,7 @@ test.serial("Declaration bundling supports code splitting. #2", withTypeScript, 
 	);
 });
 
-test.serial("Declaration bundling supports code splitting. #3", withTypeScript, async (t, {typescript}) => {
+test.serial("Declaration bundling supports code splitting. #3", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -189,7 +188,7 @@ test.serial("Declaration bundling supports code splitting. #3", withTypeScript, 
 			`
 			}
 		],
-		{typescript, debug: false}
+		{typescript, rollup, debug: false}
 	);
 	const {declarations} = bundle;
 
@@ -232,7 +231,7 @@ test.serial("Declaration bundling supports code splitting. #3", withTypeScript, 
 	);
 });
 
-test.serial("Declaration bundling supports code splitting. #4", withTypeScript, async (t, {typescript}) => {
+test.serial("Declaration bundling supports code splitting. #4", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -258,7 +257,7 @@ test.serial("Declaration bundling supports code splitting. #4", withTypeScript, 
 			`
 			}
 		],
-		{typescript, debug: false}
+		{typescript, rollup, debug: false}
 	);
 
 	const {declarations} = bundle;

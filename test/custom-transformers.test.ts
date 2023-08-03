@@ -1,11 +1,10 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 import type {TS} from "../src/type/ts.js";
 import {ensureNodeFactory} from "compatfactory";
 
-test.serial("Supports Custom Transformers, including on bundled declarations. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Supports Custom Transformers, including on bundled declarations. #1", "*", async (t, {typescript, rollup}) => {
 	const transformer: (ts: typeof TS) => TS.TransformerFactory<TS.SourceFile> = ts => context => sourceFile => {
 		const factory = ensureNodeFactory(context.factory ?? ts);
 
@@ -34,6 +33,7 @@ test.serial("Supports Custom Transformers, including on bundled declarations. #1
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			transformers: ({typescript: ts}) => ({
 				before: [transformer(ts)],
@@ -68,7 +68,7 @@ test.serial("Supports Custom Transformers, including on bundled declarations. #1
 	);
 });
 
-test.serial("Supports Custom Transformers, including on bundled declarations. #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Supports Custom Transformers, including on bundled declarations. #2", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -81,6 +81,7 @@ test.serial("Supports Custom Transformers, including on bundled declarations. #2
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			transformers: ({typescript: ts}) => ({
 				after: [
@@ -128,7 +129,7 @@ test.serial("Supports Custom Transformers, including on bundled declarations. #2
 	);
 });
 
-test.serial("Supports adding diagnostics from Custom Transformers. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Supports adding diagnostics from Custom Transformers. #1", "*", async (t, {typescript, rollup}) => {
 	let hadDiagnostic = false;
 	await generateRollupBundle(
 		[
@@ -142,6 +143,7 @@ test.serial("Supports adding diagnostics from Custom Transformers. #1", withType
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			hook: {
 				diagnostics: diagnostics => {

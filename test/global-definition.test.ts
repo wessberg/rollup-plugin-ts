@@ -1,9 +1,8 @@
-import test from "ava";
-import {withTypeScript} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {formatCode} from "./util/format-code.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 
-test.serial("Detects d.ts files when matched by a ParsedCommandLine. #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Detects d.ts files when matched by a ParsedCommandLine. #1", "*", async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -23,6 +22,7 @@ test.serial("Detects d.ts files when matched by a ParsedCommandLine. #1", withTy
 		],
 		{
 			typescript,
+			rollup,
 			debug: false
 		}
 	);
@@ -39,7 +39,7 @@ test.serial("Detects d.ts files when matched by a ParsedCommandLine. #1", withTy
 	);
 });
 
-test.serial("Will not add .d.ts files matched by imports to the Rollup graph when corresponding non-ambient files exist for them #1", withTypeScript, async (t, {typescript}) => {
+test.serial("Will not add .d.ts files matched by imports to the Rollup graph when corresponding non-ambient files exist for them #1", "*", async (t, {typescript, rollup}) => {
 	await t.notThrowsAsync(
 		generateRollupBundle(
 			[
@@ -71,13 +71,14 @@ test.serial("Will not add .d.ts files matched by imports to the Rollup graph whe
 			],
 			{
 				typescript,
+				rollup,
 				debug: false
 			}
 		)
 	);
 });
 
-test.serial("Will not add .d.ts files matched by imports to the Rollup graph when corresponding non-ambient files exist for them #2", withTypeScript, async (t, {typescript}) => {
+test.serial("Will not add .d.ts files matched by imports to the Rollup graph when corresponding non-ambient files exist for them #2", "*", async (t, {typescript, rollup}) => {
 	await t.notThrowsAsync(
 		generateRollupBundle(
 			[
@@ -109,6 +110,7 @@ test.serial("Will not add .d.ts files matched by imports to the Rollup graph whe
 			],
 			{
 				typescript,
+				rollup,
 				debug: false,
 				tsconfig: {
 					allowJs: true

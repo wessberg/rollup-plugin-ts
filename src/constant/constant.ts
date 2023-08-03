@@ -91,10 +91,6 @@ export const BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_2 = new RegExp(`(import\\s+\
 export const BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_3 = new RegExp(`(import\\s+["'\`])(${BABEL_RUNTIME_PREFIX_1}helpers/[^"'/\`]*)["'\`]`);
 export const BABEL_IMPORT_RUNTIME_HELPER_CJS_REGEXP_4 = new RegExp(`(import\\s+["'\`])(${BABEL_RUNTIME_PREFIX_2}helpers/[^"'/\`]*)["'\`]`);
 
-const swcHelpersVariableName = `swcHelpers`;
-export const SWC_IMPORT_HELPERS_REGEXP = new RegExp(`import\\s+\\*\\s+as\\s+${swcHelpersVariableName}\\s+from\\s+["'\`]${SWC_HELPERS_PREFIX}["'\`];?\\n?\\r?`);
-export const SWC_HELPER_USAGE_REGEXP = new RegExp(`${swcHelpersVariableName}\\.(\\w+)`);
-
 export const BABEL_MINIFICATION_BLACKLIST_PRESET_NAMES = [];
 
 export const BABEL_MINIFICATION_BLACKLIST_PLUGIN_NAMES = ["@babel/plugin-transform-runtime", "babel-plugin-transform-runtime"];

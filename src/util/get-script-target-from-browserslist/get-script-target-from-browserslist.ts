@@ -46,6 +46,7 @@ export function getScriptTargetFromBrowserslist(browserslist: string[], typescri
 				typescript.ScriptTarget.ES2015
 			);
 		case "es2022":
+		case "es2023":
 			return (
 				typescript.ScriptTarget.ES2022 ??
 				typescript.ScriptTarget.ES2021 ??
@@ -62,10 +63,7 @@ export function getScriptTargetFromBrowserslist(browserslist: string[], typescri
 /**
  * Gets the EcmaVersion that represents the given ScriptTarget
  */
-export function getEcmaVersionForScriptTarget(
-	scriptTarget: TS.ScriptTarget,
-	typescript: typeof TS
-): "es3" | "es5" | "es2015" | "es2016" | "es2017" | "es2018" | "es2019" | "es2020" | "es2021" | "es2022" {
+export function getEcmaVersionForScriptTarget(scriptTarget: TS.ScriptTarget, typescript: typeof TS): ReturnType<typeof getAppropriateEcmaVersionForBrowserslist> {
 	switch (scriptTarget) {
 		case typescript.ScriptTarget.ES3:
 			return "es3";
@@ -90,6 +88,6 @@ export function getEcmaVersionForScriptTarget(
 		case typescript.ScriptTarget.ESNext:
 		case typescript.ScriptTarget.Latest:
 		case typescript.ScriptTarget.JSON:
-			return "es2022";
+			return "es2023";
 	}
 }

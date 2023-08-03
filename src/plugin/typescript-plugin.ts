@@ -1,9 +1,20 @@
-import type {ExistingRawSourceMap, InputOptions, InputPluginOption, OutputBundle, OutputOptions, Plugin, PluginContext, RenderedChunk, RollupCache, SourceDescription} from "rollup";
+import type {
+	ExistingRawSourceMap,
+	InputOptions,
+	InputPluginOption,
+	OutputBundle,
+	OutputOptions,
+	Plugin,
+	PluginContext,
+	RenderedChunk,
+	RollupCache,
+	SourceDescription
+} from "rollup";
 import {getParsedCommandLine} from "../util/get-parsed-command-line/get-parsed-command-line.js";
 import {getForcedCompilerOptions} from "../util/get-forced-compiler-options/get-forced-compiler-options.js";
 import {getSourceDescriptionFromEmitOutput} from "../util/get-source-description-from-emit-output/get-source-description-from-emit-output.js";
 import {emitDiagnostics} from "../service/emit/diagnostics/emit-diagnostics.js";
-import type { SupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions.js";
+import type {SupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions.js";
 import {getSupportedExtensions} from "../util/get-supported-extensions/get-supported-extensions.js";
 import {ensureRelative, getExtension, isBabelHelper, isMultiEntryModule, isRegeneratorRuntime, isSwcHelper} from "../util/path/path-util.js";
 import {takeBundledFilesNames} from "../util/take-bundled-filenames/take-bundled-filenames.js";
@@ -29,8 +40,8 @@ import {isJsonLike} from "../util/is-json-like/is-json-like.js";
 import path from "crosspath";
 import {loadBabel, loadSwc} from "../util/transpiler-loader.js";
 import type {BabelConfigFactory} from "../transpiler/babel.js";
-import { getBabelConfig, getDefaultBabelOptions, getForcedBabelOptions, replaceBabelHelpers} from "../transpiler/babel.js";
-import type { SwcConfigFactory} from "../transpiler/swc.js";
+import {getBabelConfig, getDefaultBabelOptions, getForcedBabelOptions, replaceBabelHelpers} from "../transpiler/babel.js";
+import type {SwcConfigFactory} from "../transpiler/swc.js";
 import {getSwcConfigFactory} from "../transpiler/swc.js";
 import {inputOptionsAreEqual} from "../util/rollup/rollup-util.js";
 import {isPromise} from "../util/object/object-util.js";
@@ -379,7 +390,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 					...(updatedMap == null
 						? {}
 						: {
-								inputSourceMap: {...updatedMap, file: updatedMap.file ?? ""}
+								inputSourceMap: {...updatedMap, file: updatedMap.file ?? ""} as never
 						  })
 				});
 
@@ -567,6 +578,7 @@ export default function typescriptRollupPlugin(pluginInputOptions: Partial<Types
 
 				const normalizedFileName = path.normalize(file.fileName);
 				const text = "code" in file ? file.code : file.source.toString();
+
 				if (shouldDebugEmit(pluginOptions.debug, normalizedFileName, text, "javascript")) {
 					logEmit(normalizedFileName, text);
 				}

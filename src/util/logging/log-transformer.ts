@@ -7,7 +7,8 @@ export interface LogTransformationResult {
 }
 
 function logTransformationStep(leadingText: string, name: string, sourceFile: TS.SourceFile, printer: TS.Printer): void {
-	console.log(`${getFormattedDateTimePrefix()}${color.magenta(`transformer: ${leadingText} ${name}`)} ${color.gray(`(${sourceFile.fileName})`)}`);
+	const sourceFileWithoutRoot = sourceFile.fileName.replace(process.cwd(), "");
+	console.log(`${getFormattedDateTimePrefix()}${color.magenta(`transformer: ${leadingText} ${name}`)} ${color.gray(`(${sourceFileWithoutRoot})`)}`);
 	console.log(color.white(printer.printFile(sourceFile)));
 }
 

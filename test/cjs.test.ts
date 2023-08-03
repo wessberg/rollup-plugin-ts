@@ -1,9 +1,8 @@
-import test from "ava";
-import {withTypeScriptVersions} from "./util/ts-macro.js";
+import {test} from "./util/test-runner.js";
 import {generateRollupBundle} from "./setup/setup-rollup.js";
 import {formatCode} from "./util/format-code.js";
 
-test.serial("Won't break for .cjs imports, for TypeScript versions where .cjs isn't supported. #1", withTypeScriptVersions("<4.7"), async (t, {typescript}) => {
+test.serial("Won't break for .cjs imports, for TypeScript versions where .cjs isn't supported. #1", {ts: "<4.7"}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -23,6 +22,7 @@ test.serial("Won't break for .cjs imports, for TypeScript versions where .cjs is
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			tsconfig: {
 				allowJs: true,
@@ -42,7 +42,7 @@ test.serial("Won't break for .cjs imports, for TypeScript versions where .cjs is
 	);
 });
 
-test.serial("Supports .cjs imports for TypeScript versions where .cjs is supported. #1", withTypeScriptVersions(">=4.7"), async (t, {typescript}) => {
+test.serial("Supports .cjs imports for TypeScript versions where .cjs is supported. #1", {ts: ">=4.7"}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -62,6 +62,7 @@ test.serial("Supports .cjs imports for TypeScript versions where .cjs is support
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			tsconfig: {
 				allowJs: true,
@@ -82,7 +83,7 @@ test.serial("Supports .cjs imports for TypeScript versions where .cjs is support
 	);
 });
 
-test.serial("Will generate a .d.cts declaration file when the output file is .cjs based. #1", withTypeScriptVersions(">=4.7"), async (t, {typescript}) => {
+test.serial("Will generate a .d.cts declaration file when the output file is .cjs based. #1", {ts: ">=4.7"}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -95,6 +96,7 @@ test.serial("Will generate a .d.cts declaration file when the output file is .cj
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			tsconfig: {
 				declaration: true
@@ -115,8 +117,8 @@ test.serial("Will generate a .d.cts declaration file when the output file is .cj
 
 test.serial(
 	"Will generate a .d.ts declaration file when the output file is .cjs, but the TypeScript version doesn't support the .d.cts format based. #1",
-	withTypeScriptVersions("<4.7"),
-	async (t, {typescript}) => {
+	{ts: "<4.7"},
+	async (t, {typescript, rollup}) => {
 		const bundle = await generateRollupBundle(
 			[
 				{
@@ -129,6 +131,7 @@ test.serial(
 			],
 			{
 				typescript,
+				rollup,
 				debug: false,
 				tsconfig: {
 					declaration: true
@@ -148,7 +151,7 @@ test.serial(
 	}
 );
 
-test.serial("Can successfully author in .cts files. #1", withTypeScriptVersions(">=4.7"), async (t, {typescript}) => {
+test.serial("Can successfully author in .cts files. #1", {ts: ">=4.7"}, async (t, {typescript, rollup}) => {
 	const bundle = await generateRollupBundle(
 		[
 			{
@@ -168,6 +171,7 @@ test.serial("Can successfully author in .cts files. #1", withTypeScriptVersions(
 		],
 		{
 			typescript,
+			rollup,
 			debug: false,
 			tsconfig: {
 				declaration: true
