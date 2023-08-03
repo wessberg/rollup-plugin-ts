@@ -26,7 +26,7 @@ jobs:
           unset: devDependencies.rollup_3_15_0
 
       - name: Install
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
 
       - name: Test
         run: pnpm test
