@@ -20,10 +20,10 @@ jobs:
       - name: Setup pnpm
         run: npm install pnpm -g
 
-      - name: package.json info
+      - name: Sanitize Package.json
         uses: jaywcjlove/github-action-package@main
         with:
-          unset: devDependencies.rollup-3_15_0
+          unset: devDependencies.rollup_3_15_0
 
       - name: Install
         run: pnpm install
