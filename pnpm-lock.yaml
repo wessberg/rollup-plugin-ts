@@ -29,9 +29,6 @@ dependencies:
   magic-string:
     specifier: ^0.30.2
     version: 0.30.2
-  semver:
-    specifier: ^7.5.4
-    version: 7.5.4
   ts-clone-node:
     specifier: ^3.0.0
     version: 3.0.0(typescript@5.1.6)
@@ -160,6 +157,9 @@ devDependencies:
   sandhog:
     specifier: ^2.0.2
     version: 2.0.2
+  semver:
+    specifier: ^7.5.4
+    version: 7.5.4
   standard-changelog:
     specifier: ^3.0.0
     version: 3.0.0
