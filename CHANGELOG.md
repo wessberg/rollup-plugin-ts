@@ -1,3 +1,19 @@
+# [3.3.0](https://github.com/wessberg/rollup-plugin-ts/compare/v3.2.0...v3.3.0) (2023-08-03)
+
+
+### Bug Fixes
+
+* lint ([e861299](https://github.com/wessberg/rollup-plugin-ts/commit/e861299da5d75b14301bd818cfca2c34716cd1c0))
+* run tests on Node v16.14.0 and up ([b966a7e](https://github.com/wessberg/rollup-plugin-ts/commit/b966a7e5eb641619415717037f2c2f73b91c5ab2))
+* run tests on v16.15.1 instead ([59ca24c](https://github.com/wessberg/rollup-plugin-ts/commit/59ca24c5c4e4c12e98a70f0b0b04043e6667609d))
+
+
+### Features
+
+* add TypeScript v5.1 support. Add support for Node16 and NodeNext Module resolution ([0d5aaa0](https://github.com/wessberg/rollup-plugin-ts/commit/0d5aaa079e794187d0ac1f50c3c5917bce58cd0f))
+
+
+
 # [3.2.0](https://github.com/wessberg/rollup-plugin-ts/compare/v3.1.1...v3.2.0) (2023-01-23)
 
 
