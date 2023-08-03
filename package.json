@@ -9,7 +9,7 @@
 		"clean": "rimraf dist",
 		"lint": "tsc --noEmit && eslint \"src/**/*.ts\" --color",
 		"prettier": "prettier --write \"{src,test,documentation}/**/*.{js,ts,json,html,xml,css,md}\"",
-		"test": "cross-env NODE_NO_WARNINGS=1 FORCE_COLOR=3 NODE_OPTIONS=\"--loader=tsx --max_old_space_size=4096\" ava",
+		"test": "cross-env NODE_NO_WARNINGS=1 FORCE_COLOR=3 NODE_OPTIONS=\"--loader=tsx --max_old_space_size=8192\" ava",
 		"prebuild": "pnpm run clean",
 		"build": "pnpm run prebuild && pnpm run rollup",
 		"rollup": "tsx rollup.config.ts",
