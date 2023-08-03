@@ -324,7 +324,7 @@ $ npm install @babel/core @babel/runtime @babel/plugin-transform-runtime @babel/
 **Yarn**
 
 ```
-$ yarn add @babel/core @babel/runtime @babel/plugin-transform-runtime @babel-preset-typescript @babel/preset-env --dev
+$ yarn add @babel/core @babel/runtime @babel/plugin-transform-runtime @babel/preset-typescript @babel/preset-env --dev
 ```
 
 **pnpm**
