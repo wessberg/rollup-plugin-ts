@@ -6,7 +6,12 @@ jobs:
   run_windows:
     name: Run (Windows)
 
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest]
+        node: [16.14.0, 17, 18, 19, 20]
 
     steps:
       - name: Checkout code
@@ -15,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@master
         with:
-          node-version: 20
+          node-version: ${{ matrix.node }}
 
       - name: Setup pnpm
         run: npm install pnpm -g
