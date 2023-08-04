@@ -86,7 +86,7 @@ export class ResolveCache {
 		}
 
 		// Resolve the file via Typescript, either through classic or node module resolution
-		const {resolvedModule} = this.resolveModuleName(typescript, id, parent, compilerOptions, moduleResolutionHost) as {
+		const {resolvedModule} = this.resolveModuleName(typescript, id, path.normalize(parent), compilerOptions, moduleResolutionHost) as {
 			resolvedModule: ExtendedResolvedModule | undefined;
 		};
 

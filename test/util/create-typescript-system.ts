@@ -70,7 +70,6 @@ export function createTypeScriptSystem({
 	executingFileName = path.urlToFilename(executingFileName);
 	const typescript = _typescript as TSExtended;
 	const wildcardCharCodes = [42, 63];
-	const platform = os.platform();
 	const byteOrderMarkIndicator = "\uFEFF";
 
 	function statSync(p: string) {
@@ -124,10 +123,6 @@ export function createTypeScriptSystem({
 	 * Taken directly from TypeScript internals
 	 */
 	function isFileSystemCaseSensitive() {
-		// win32\win64 are case insensitive platforms
-		if (platform === "win32") {
-			return false;
-		}
 		// If this file exists under a different case, we must be case-insensitive.
 		return !fileExists(swapCase(executingFileName));
 	}
