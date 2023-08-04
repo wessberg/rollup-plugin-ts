@@ -2,8 +2,7 @@ import type {OutputOptions} from "rollup";
 import {ensureRelative} from "../path/path-util.js";
 import {getOutDir} from "../get-out-dir/get-out-dir.js";
 import type {TS} from "../../type/ts.js";
-import type {
-	AmbientExtension} from "../../constant/constant.js";
+import type {AmbientExtension} from "../../constant/constant.js";
 import {
 	CJSX_EXTENSION,
 	CJS_EXTENSION,

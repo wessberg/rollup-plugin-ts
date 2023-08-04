@@ -18,5 +18,4 @@ export function deconflictPropertySignature(options: DeconflicterVisitorOptions<
 	}
 
 	return preserveMeta(factory.updatePropertySignature(node, node.modifiers, nameContResult, node.questionToken, typeContResult), node, options);
-
 }

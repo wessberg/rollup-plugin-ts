@@ -4,7 +4,7 @@ import {isRootLevelNode} from "../transformers/module-merger/util/is-root-level-
 export interface NodePlacementQueue {
 	prependNodes(...nodes: TS.Node[]): void;
 	appendNodes(...nodes: TS.Node[]): void;
-	wrapVisitResult<T extends TS.Node>(node: TS.VisitResult<T>|undefined): TS.VisitResult<TS.Node> | undefined;
+	wrapVisitResult<T extends TS.Node>(node: TS.VisitResult<T> | undefined): TS.VisitResult<TS.Node> | undefined;
 	flush(): readonly [readonly TS.Node[], readonly TS.Node[]];
 }
 

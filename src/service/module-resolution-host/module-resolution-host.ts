@@ -1,11 +1,11 @@
 import type {TS} from "../../type/ts.js";
 import type {ModuleResolutionHostOptions} from "./module-resolution-host-options.js";
 import {ensureAbsolute} from "../../util/path/path-util.js";
-import type { SupportedExtensions} from "../../util/get-supported-extensions/get-supported-extensions.js";
+import type {SupportedExtensions} from "../../util/get-supported-extensions/get-supported-extensions.js";
 import {getSupportedExtensions} from "../../util/get-supported-extensions/get-supported-extensions.js";
 import type {VirtualFile, VirtualFileInput} from "./virtual-file.js";
 import type {AmbientExtension} from "../../constant/constant.js";
-import { AMBIENT_EXTENSIONS} from "../../constant/constant.js";
+import {AMBIENT_EXTENSIONS} from "../../constant/constant.js";
 import path from "crosspath";
 
 export class ModuleResolutionHost implements TS.ModuleResolutionHost {
@@ -14,7 +14,10 @@ export class ModuleResolutionHost implements TS.ModuleResolutionHost {
 	private currentFileNames: Set<string> | undefined;
 	private currentDirectories: Set<string> | undefined;
 	private currentNonAmbientSupportedExtensions: SupportedExtensions | undefined;
-	constructor(protected readonly options: ModuleResolutionHostOptions, protected readonly files: Map<string, VirtualFile> = new Map()) {}
+	constructor(
+		protected readonly options: ModuleResolutionHostOptions,
+		protected readonly files: Map<string, VirtualFile> = new Map()
+	) {}
 
 	add(fileInput: VirtualFileInput | VirtualFile): VirtualFile {
 		const file = {

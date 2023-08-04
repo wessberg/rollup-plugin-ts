@@ -49,46 +49,42 @@ export function emitDiagnostics({host, context, pluginOptions}: EmitDiagnosticsO
 
 		switch (diagnostic.category) {
 			case typescript.DiagnosticCategory.Error:
-				context.error(
-					{
-						frame,
-						code,
-						name: code,
-						stack,
-						...(diagnostic.length == null ? {} : {length: diagnostic.length}),
-						...(diagnostic.file == null && position == null
-							? {}
-							: {
-									loc: {
-										...(diagnostic.file == null ? {} : {file: diagnostic.file.fileName}),
-										...(position == null ? {} : {line: position.line + 1}),
-										...(position == null ? {} : {column: position.character + 1})
-									}
-							  }),
-						...(diagnostic.file == null ? {} : {pos: diagnostic.file.pos}),
-						message
-					} as RollupError
-				);
+				context.error({
+					frame,
+					code,
+					name: code,
+					stack,
+					...(diagnostic.length == null ? {} : {length: diagnostic.length}),
+					...(diagnostic.file == null && position == null
+						? {}
+						: {
+								loc: {
+									...(diagnostic.file == null ? {} : {file: diagnostic.file.fileName}),
+									...(position == null ? {} : {line: position.line + 1}),
+									...(position == null ? {} : {column: position.character + 1})
+								}
+						  }),
+					...(diagnostic.file == null ? {} : {pos: diagnostic.file.pos}),
+					message
+				} as RollupError);
 				break;
 
 			case typescript.DiagnosticCategory.Warning:
 			case typescript.DiagnosticCategory.Message:
 			case typescript.DiagnosticCategory.Suggestion:
-				context.warn(
-					{
-						frame,
-						code,
-						name: code,
-						...(diagnostic.length == null ? {} : {length: diagnostic.length}),
-						loc: {
-							...(diagnostic.file == null ? {} : {file: diagnostic.file.fileName}),
-							...(position == null ? {} : {line: position.line + 1}),
-							...(position == null ? {} : {column: position.character + 1})
-						},
-						...(diagnostic.file == null ? {} : {pos: diagnostic.file.pos}),
-						message
-					} as RollupWarning
-				);
+				context.warn({
+					frame,
+					code,
+					name: code,
+					...(diagnostic.length == null ? {} : {length: diagnostic.length}),
+					loc: {
+						...(diagnostic.file == null ? {} : {file: diagnostic.file.fileName}),
+						...(position == null ? {} : {line: position.line + 1}),
+						...(position == null ? {} : {column: position.character + 1})
+					},
+					...(diagnostic.file == null ? {} : {pos: diagnostic.file.pos}),
+					message
+				} as RollupWarning);
 				break;
 		}
 	});

@@ -1,6 +1,6 @@
 import type {TS} from "../../../../type/ts.js";
 import type {SourceFileBundlerVisitorOptions} from "../transformers/source-file-bundler/source-file-bundler-visitor-options.js";
-import type { GetSymbolAtLocationOptions} from "./get-symbol-at-location.js";
+import type {GetSymbolAtLocationOptions} from "./get-symbol-at-location.js";
 import {getSymbolAtLocation} from "./get-symbol-at-location.js";
 import {getParentNode} from "./get-parent-node.js";
 import {isSameChunk} from "./generate-module-specifier.js";

@@ -41,14 +41,14 @@ async function loadModules<TCoreModule extends string, TSubModules extends strin
 							({
 								status: "fulfilled",
 								value
-							} as const)
+							}) as const
 					)
 					.catch(
 						reason =>
 							({
 								status: "rejected",
 								reason
-							} as const)
+							}) as const
 					)
 			)
 	);

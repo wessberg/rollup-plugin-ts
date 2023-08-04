@@ -1,6 +1,6 @@
-import type { GetAliasedDeclarationOptions} from "./get-aliased-declaration.js";
+import type {GetAliasedDeclarationOptions} from "./get-aliased-declaration.js";
 import {getAliasedDeclaration} from "./get-aliased-declaration.js";
-import type { TypeReference} from "./get-type-reference-module-from-file-name.js";
+import type {TypeReference} from "./get-type-reference-module-from-file-name.js";
 import {getTypeReferenceModuleFromFileName} from "./get-type-reference-module-from-file-name.js";
 import type {TS} from "../../../../type/ts.js";
 

@@ -1,4 +1,4 @@
-import type { GetSymbolAtLocationOptions} from "./get-symbol-at-location.js";
+import type {GetSymbolAtLocationOptions} from "./get-symbol-at-location.js";
 import {getSymbolAtLocation} from "./get-symbol-at-location.js";
 import type {TS} from "../../../../type/ts.js";
 import {generateRandomHash, generateRandomIntegerHash} from "../../../../util/hash/generate-random-hash.js";

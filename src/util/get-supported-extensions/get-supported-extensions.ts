@@ -1,6 +1,4 @@
-import type {
-	KnownExtension,
-	AmbientExtension} from "../../constant/constant.js";
+import type {KnownExtension, AmbientExtension} from "../../constant/constant.js";
 import {
 	D_TS_EXTENSION,
 	JS_EXTENSION,

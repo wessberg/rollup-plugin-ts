@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import type { TestContext} from "./test-context.js";
+import type {TestContext} from "./test-context.js";
 import {createTestContext} from "./test-context.js";
-import type { TestFile, TestFileStructure} from "./test-file.js";
+import type {TestFile, TestFileStructure} from "./test-file.js";
 import {createTestFileStructure} from "./test-file.js";
 import {createVirtualFileSystem} from "./create-virtual-file-system.js";
 import type {MaybeArray, PartialExcept} from "helpertypes";
