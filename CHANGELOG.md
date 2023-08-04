@@ -1,3 +1,7 @@
+## [3.4.2](https://github.com/wessberg/rollup-plugin-ts/compare/v3.4.1...v3.4.2) (2023-08-04)
+
+
+
 ## [3.4.1](https://github.com/wessberg/rollup-plugin-ts/compare/v3.4.0...v3.4.1) (2023-08-03)
 
 
