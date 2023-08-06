@@ -20,7 +20,7 @@ import {ensureArray} from "../ensure-array/ensure-array.js";
 import {createRequire} from "module";
 
 // Until import.meta.resolve becomes stable, we'll have to do this instead
-export const resolveModule = createRequire(import.meta.url).resolve;
+export const resolveModule = (id: string, from: string = import.meta.url) => createRequire(from).resolve(id);
 
 export function isTypeScriptLib(p: string): boolean {
 	return p.startsWith(`lib.`) && p.endsWith(D_TS_EXTENSION);

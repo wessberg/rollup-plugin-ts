@@ -52,7 +52,8 @@ export function getForcedBabelOptions({cwd}: GetForcedBabelOptionsOptions): Tran
 		sourceType: "module",
 		plugins: [
 			// Needed to make babel understand dynamic imports
-			resolveModule("@babel/plugin-syntax-dynamic-import")
+			// TODO: Add @babel/plugin-syntax-dynamic-import as an optional peer for next major
+			resolveModule("@babel/plugin-syntax-dynamic-import", resolveModule("@babel/preset-env"))
 		]
 	};
 }
