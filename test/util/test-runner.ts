@@ -80,14 +80,12 @@ for (const [specifier, range] of Object.entries(devDependencies)) {
 
 if (TS_OPTIONS_ENTRIES.size === 0) {
 	throw new Error(`The TS_VERSION environment variable matches none of the available TypeScript versions.
-Filter: ${process.env.TS_VERSION}
-Available TypeScript versions: ${[...TS_OPTIONS_ENTRIES.keys()].join(", ")}`);
+Filter: ${process.env.TS_VERSION}`);
 }
 
 if (ROLLUP_OPTIONS_ENTRIES.size === 0) {
 	throw new Error(`The ROLLUP_VERSION environment variable matches none of the available Rollup versions.
-Filter: ${process.env.ROLLUP_VERSION}
-Available Rollup versions: ${[...ROLLUP_OPTIONS_ENTRIES.keys()].join(", ")}`);
+Filter: ${process.env.ROLLUP_VERSION}`);
 }
 
 interface TestRunOptions {

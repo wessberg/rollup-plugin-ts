@@ -14,8 +14,10 @@ export interface TypeReference {
 
 export function getTypeReferenceModuleFromFileName({host, fileName}: GetTypeReferenceModuleFromFileNameOptions): TypeReference | undefined {
 	for (const typeRoot of host.getTypeRoots()) {
-		if (!fileName.includes(typeRoot)) continue;
-		const base = path.normalize(fileName.slice(typeRoot.length + 1));
+		const typeRootIndex = fileName.indexOf(typeRoot);
+		if (typeRootIndex < 0) continue;
+
+		const base = path.normalize(fileName.slice(typeRootIndex + typeRoot.length + 1));
 		const moduleSpecifier = base.includes("/") ? base.slice(0, base.indexOf("/")) : base;
 
 		if (typeModuleReferenceIsAllowed({host, moduleSpecifier})) {
