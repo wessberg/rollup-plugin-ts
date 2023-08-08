@@ -1,3 +1,9 @@
+## [3.4.4](https://github.com/wessberg/rollup-plugin-ts/compare/v3.4.3...v3.4.4) (2023-08-08)
+
+### Bug Fixes
+
+- incorrect type reference directives can sometimes be produced when a type root is a relative path ([2fd4bda](https://github.com/wessberg/rollup-plugin-ts/commit/2fd4bdaad37db1d1661bd9041a944dca1c36d8fa))
+
 ## [3.4.3](https://github.com/wessberg/rollup-plugin-ts/compare/v3.4.2...v3.4.3) (2023-08-06)
 
 ### Bug Fixes
