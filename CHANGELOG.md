@@ -1,3 +1,9 @@
+## [3.4.5](https://github.com/wessberg/rollup-plugin-ts/compare/v3.4.4...v3.4.5) (2023-09-07)
+
+### Bug Fixes
+
+- improve error handling inside transpiler-loader ([c36f7e8](https://github.com/wessberg/rollup-plugin-ts/commit/c36f7e8097e13dd0082c8bd735969776519b8563))
+
 ## [3.4.4](https://github.com/wessberg/rollup-plugin-ts/compare/v3.4.3...v3.4.4) (2023-08-08)
 
 ### Bug Fixes
