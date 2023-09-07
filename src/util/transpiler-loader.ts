@@ -68,7 +68,7 @@ async function loadModules<TCoreModule extends string, TSubModules extends strin
 		);
 	});
 
-	if (core.status === "rejected" || rejectedModuleNames.length > 0) {
+	if (rejectedModuleNames.length > 0) {
 		const formattedRejectedModuleNames = listFormat(rejectedModuleNames, "and", rejectedModuleName => `"${rejectedModuleName}"`);
 
 		throw new ReferenceError(
@@ -78,6 +78,9 @@ async function loadModules<TCoreModule extends string, TSubModules extends strin
 				rejectedModuleNames.length === 1 ? "it" : "them"
 			} if you want to use ${context} for transpilation`
 		);
+	} else if (core.status === "rejected") {
+		if (core.reason instanceof Error) throw core.reason;
+		else throw new Error(core.reason);
 	}
 
 	// At this point, the core module will always be defined
