@@ -1,3 +1,9 @@
+# This library has been deprecated
+
+I no longer actively maintain this library. The most recent TypeScript version that `rollup-plugin-ts` is fully compatible with is v5.1.6. There are many great alternatives in the ecosystem nowadays, including the official [@rollup/plugin-typescript](https://www.npmjs.com/package/@rollup/plugin-typescript) and [rollup-plugin-dts](https://www.npmjs.com/package/rollup-plugin-dts).
+
+The declaration bundling component of `rollup-plugin-ts`, and the fact that it supports code splitting, is arguably its' most popular feature. I might separate the declaration bundling component of `rollup-plugin-ts` into its own separate library in time.
+
 <!-- SHADOW_SECTION_LOGO_START -->
 
 <div><img alt="Logo" src="https://raw.githubusercontent.com/wessberg/rollup-plugin-ts/master/documentation/asset/rollup-plugin-ts-logo.png" height="150"   /></div>
